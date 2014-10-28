@@ -260,8 +260,6 @@ class Principal(QtGui.QMainWindow):
 		NOT1V.addLayout(NOT1VH) 
 	#la liste
 		self.NOT12 = QtGui.QTableWidget()
-		self.NOT12.setColumnCount(2)
-		self.reset_table("Score")
 		NOT1VH.addWidget(self.NOT12)
 	#le deploiement
 		self.NOT12_D = QtGui.QListWidget()
@@ -295,7 +293,7 @@ class Principal(QtGui.QMainWindow):
 
 		self.setCentralWidget(Area)
 				
-		self.setWindowTitle(u'Prospéro II 27/10/2014')    
+		self.setWindowTitle(u'Prospéro II 28/10/2014')    
 		self.showMaximized() 
 
 	def activity(self,message):
@@ -334,16 +332,23 @@ class Principal(QtGui.QMainWindow):
 
 	def change_liste(self,content):
 		#self.NOT12.addItems(content)
-		self.reset_table("Score")
+		self.NOT12.clearContents()
 		self.NOT12.setRowCount(len(content))
+		self.NOT12.setColumnCount(2)
+		self.NOT12.setHorizontalHeaderLabels(['Score','Object'])
 		r = 0
 		for item in content:
-			self.NOT12.setItem(r,1,QtGui.QTableWidgetItem(item))
+			itemwidget = QtGui.QTableWidgetItem(item)
+			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable)
+			self.NOT12.setItem(r,1,itemwidget)
 			r += 1
+		self.NOT12.resizeRowsToContents()
 
-	def reset_table(self,col_name):
-		self.NOT12.clear()
-		self.NOT12.setHorizontalHeaderLabels([col_name,'Object'])
+		self.NOT12.resizeColumnToContents(0)
+		self.NOT12.horizontalHeader().setStretchLastSection(True)
+
+
+		
 	
 		
 	def server_vars_Evalue(self):
