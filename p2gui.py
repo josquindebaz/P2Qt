@@ -259,10 +259,14 @@ class Principal(QtGui.QMainWindow):
 		NOT1VH = QtGui.QHBoxLayout()
 		NOT1V.addLayout(NOT1VH) 
 	#la liste
-		self.NOT12 = QtGui.QListWidget()
+		self.NOT12 = QtGui.QTableWidget()
+		self.NOT12.setColumnCount(2)
+		self.reset_table("Score")
 		NOT1VH.addWidget(self.NOT12)
 	#le deploiement
 		self.NOT12_D = QtGui.QListWidget()
+		
+		
 		NOT1VH.addWidget(self.NOT12_D)
 
 
@@ -329,8 +333,18 @@ class Principal(QtGui.QMainWindow):
 		self.change_liste(content)
 
 	def change_liste(self,content):
+		#self.NOT12.addItems(content)
+		self.reset_table("Score")
+		self.NOT12.setRowCount(len(content))
+		r = 0
+		for item in content:
+			self.NOT12.setItem(r,1,QtGui.QTableWidgetItem(item))
+			r += 1
+
+	def reset_table(self,col_name):
 		self.NOT12.clear()
-		self.NOT12.addItems(content)
+		self.NOT12.setHorizontalHeaderLabels([col_name,'Object'])
+	
 		
 	def server_vars_Evalue(self):
 		var = self.server_vars_champ.text()
