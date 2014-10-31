@@ -26,25 +26,9 @@ class client(object):
 	def disconnect(self):
 		self.c.disconnect()
 
-
-	def recup_cols(self):
-		var = "$col[0:]"
-		cols = self.c.eval_variable(var)
-		self.cols = re.split(", ",cols) 
-		return var
-	
-	def recup_ents(self):
-		var = "$ent[0:1000]"
-		ents = self.c.eval_variable(var)
-		self.ents = re.split(", ",ents)
-		return var
-
-	def recup_efs(self):
-		var = "$ef[0:]"
-		efs = self.c.eval_variable(var)
-		self.efs = re.split(", ",efs) 
-		return var
-
+	def recup_liste_concept(self,sem):
+		var = "%s[0:]" % sem
+		return re.split(", ",self.c.eval_variable(var))
 	
 	def recup_texts(self):
 		txts = self.c.eval_variable("$txt[0:]")
@@ -52,6 +36,12 @@ class client(object):
 
 	def eval_var(self,var):
 		self.eval_var_result = self.c.eval_variable(var)
+
+	def eval_get_sem(self,exp,sem):
+		# jp : pour retrouver la sémantique d'un élément : (getsem 'nucléaire' $ent )
+		exp = exp.encode('utf-8')
+		return self.c.eval_fonc("getsem:%s:%s" % (  exp , sem) )
+
 
 class Principal(QtGui.QMainWindow):
 	def __init__(self):
@@ -244,8 +234,9 @@ class Principal(QtGui.QMainWindow):
 	#une liste deroulante pour choisir le contenu de la liste
 		self.NOT1select = QtGui.QComboBox()
 		self.NOT1select.addItem(u"collections")
-		self.NOT1select.addItem(u"entities")
+		#self.NOT1select.addItem(u"entities") # trop long a répondre
 		self.NOT1select.addItem(u"fictions")
+		self.NOT1select.addItem(u"entitie's categories")
 		NOT1VHC.addWidget(self.NOT1select)
 		self.connect(self.NOT1select,QtCore.SIGNAL("currentIndexChanged(const QString)"), self.select_liste)
 	# les commandes
@@ -266,12 +257,14 @@ class Principal(QtGui.QMainWindow):
 		self.NOT12.setFont(QtGui.QFont("DejaVu Sans", 11))
 		#pas de header de ligne
 		self.NOT12.verticalHeader().setVisible(False)
+		
+		#selection d'un item
+                self.NOT12.itemClicked.connect(self.liste_item_clicked)
+
 	#le deploiement
 		self.NOT12_D = QtGui.QListWidget()
 		
-		
 		NOT1VH.addWidget(self.NOT12_D)
-
 
 
 		NOT2 =  QtGui.QLabel()
@@ -301,6 +294,19 @@ class Principal(QtGui.QMainWindow):
 		self.setWindowTitle(u'Prospéro II 28/10/2014')    
 		self.showMaximized() 
 
+
+	def get_semantique(self):
+		if (self.NOT1select.currentText()=="entities") : 
+			return '$ent'
+		elif (self.NOT1select.currentText()=="collections") : 
+			return '$col'
+		elif ( self.NOT1select.currentText()=="fictions" ) : 
+			return '$ef'
+		elif (self.NOT1select.currentText()=="entitie's categories") : 
+			return '$cat_ent'
+		else : 
+			return False
+
 	def activity(self,message):
 		self.status.showMessage(message)
 		self.History.append("%s: %s" % (datetime.datetime.now(),message))
@@ -314,45 +320,63 @@ class Principal(QtGui.QMainWindow):
 		self.SOT1.addItems(listeTextes)
 
 	def select_liste(self,typ):
-		if (typ == ""):
-			content = []
-		elif (typ == "collections"):
-			self.activity(u"Waiting for  %s list" % (typ)) 
-			var = self.client.recup_cols()
-			content = self.client.cols
-		elif (typ == "entities"):
-			self.activity(u"Waiting for  %s list" % (typ)) 
-			var = self.client.recup_ents()
-			content = self.client.ents
-		elif (typ == "fictions"):
-			self.activity(u"Waiting for  %s list" % (typ)) 
-			var = self.client.recup_efs()
-			content = self.client.efs
+		""" quand un type de liste est selectionné """
 			
-		if len(content):
-			self.activity(u"Displaying %s list (%d items)" % (typ,len(content)))
-		else :
-			self.activity(u"Displaying no list" )
+		self.activity(u"Waiting for  %s list" % (typ)) 
+		self.sem_liste_concept = self.get_semantique()
+		content = self.client.recup_liste_concept(self.sem_liste_concept)
+		self.activity(u"Displaying %s list (%d items)" % (typ,len(content)))
 		self.change_liste(content)
 
+
 	def change_liste(self,content):
-		#self.NOT12.addItems(content)
 		self.NOT12.clearContents()
 		self.NOT12.setRowCount(len(content))
 		self.NOT12.setColumnCount(2)
 		self.NOT12.setHorizontalHeaderLabels(['Score','Object'])
-		r = 0
+
+		row = 0 
 		for item in content:
 			itemwidget = QtGui.QTableWidgetItem(item)
-			#non editable
-			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable)
-			self.NOT12.setItem(r,1,itemwidget)
-			r += 1
+			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non editable
+
+			#C'EST TROP LENT !!!!! C'EST PAS DANS L'ORDRE !!!!
+			#semantique = self.client.eval_get_sem(item,self.sem_liste_concept) #NE RENVOIE PAS $col2 sur AaC, pb sur le dico, manque type ?
+			#sem_poids = semantique + ".val" 
+			#self.client.eval_var(sem_poids)	
+			#itemwidgetS = QtGui.QTableWidgetItem(self.client.eval_var_result)
+			#itemwidgetS.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non editable
+
+			#self.NOT12.setItem(row,0,itemwidgetS) 
+			self.NOT12.setItem(row,1,itemwidget)
+			row += 1
+
 		self.NOT12.resizeColumnToContents(0)
 		self.NOT12.horizontalHeader().setStretchLastSection(True)
 		# definir la hauteur apres la largeur donne un resultat plus propre et constant
 		self.NOT12.resizeRowsToContents()
 	
+
+        def liste_item_clicked(self):
+                """
+                        suite au changement de sélection d'un élément , mettre à jour
+                        les vues dépendantes 
+                """
+
+		item = self.NOT12.currentItem().text() # l'element selectionné
+		self.activity("%s selected" % item)
+		self.NOT12_D.clear() # on efface la liste
+		sem = self.sem_liste_concept
+		if ( sem  == "$col" or sem == "$ef" )  :
+			# recupere la designation semantique de l'element
+			semantique = self.client.eval_get_sem(item, sem )
+			self.client.eval_var("%s.rep[0:]"% semantique)
+			result = re.split(", ", self.client.eval_var_result)
+			for r in result:
+				self.NOT12_D.addItem( r ) 
+			## il coupe la fin du dernier element pour les cols??
+			
+
 		
 	def server_vars_Evalue(self):
 		var = self.server_vars_champ.text()
