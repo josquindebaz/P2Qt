@@ -34,7 +34,7 @@ class client(object):
 		return var
 	
 	def recup_ents(self):
-		var = "$ent[0:100]"
+		var = "$ent[0:1000]"
 		ents = self.c.eval_variable(var)
 		self.ents = re.split(", ",ents)
 		return var
@@ -44,6 +44,7 @@ class client(object):
 		efs = self.c.eval_variable(var)
 		self.efs = re.split(", ",efs) 
 		return var
+
 	
 	def recup_texts(self):
 		txts = self.c.eval_variable("$txt[0:]")
@@ -261,6 +262,10 @@ class Principal(QtGui.QMainWindow):
 	#la liste
 		self.NOT12 = QtGui.QTableWidget()
 		NOT1VH.addWidget(self.NOT12)
+		#police un peu plus petite
+		self.NOT12.setFont(QtGui.QFont("DejaVu Sans", 11))
+		#pas de header de ligne
+		self.NOT12.verticalHeader().setVisible(False)
 	#le deploiement
 		self.NOT12_D = QtGui.QListWidget()
 		
@@ -339,16 +344,14 @@ class Principal(QtGui.QMainWindow):
 		r = 0
 		for item in content:
 			itemwidget = QtGui.QTableWidgetItem(item)
+			#non editable
 			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable)
 			self.NOT12.setItem(r,1,itemwidget)
 			r += 1
-		self.NOT12.resizeRowsToContents()
-
 		self.NOT12.resizeColumnToContents(0)
 		self.NOT12.horizontalHeader().setStretchLastSection(True)
-
-
-		
+		# definir la hauteur apres la largeur donne un resultat plus propre et constant
+		self.NOT12.resizeRowsToContents()
 	
 		
 	def server_vars_Evalue(self):
