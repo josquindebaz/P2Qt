@@ -263,8 +263,11 @@ class Principal(QtGui.QMainWindow):
 
 	#le deploiement
 		self.NOT12_D = QtGui.QListWidget()
-		
 		NOT1VH.addWidget(self.NOT12_D)
+                self.NOT12_D.itemClicked.connect(self.liste_D_item_clicked)
+
+		self.NOT12_E = QtGui.QListWidget()
+		NOT1VH.addWidget(self.NOT12_E)
 
 
 		NOT2 =  QtGui.QLabel()
@@ -331,6 +334,8 @@ class Principal(QtGui.QMainWindow):
 
 	def change_liste(self,content):
 		self.NOT12.clearContents()
+		self.NOT12_D.clear()
+		self.NOT12_E.clear()
 		self.NOT12.setRowCount(len(content))
 		self.NOT12.setColumnCount(2)
 		self.NOT12.setHorizontalHeaderLabels(['Score','Object'])
@@ -366,18 +371,28 @@ class Principal(QtGui.QMainWindow):
 		item = self.NOT12.currentItem().text() # l'element selectionné
 		self.activity("%s selected" % item)
 		self.NOT12_D.clear() # on efface la liste
+		self.NOT12_E.clear()
 		sem = self.sem_liste_concept
 		if ( sem  == "$col" or sem == "$ef" )  :
 			# recupere la designation semantique de l'element
-			semantique = self.client.eval_get_sem(item, sem )
-			self.client.eval_var("%s.rep[0:]"% semantique)
+			self.semantique_liste_item = self.client.eval_get_sem(item, sem )
+			self.client.eval_var("%s.rep[0:]"% self.semantique_liste_item)
 			result = re.split(", ", self.client.eval_var_result)
 			for r in result:
 				self.NOT12_D.addItem( r ) 
-			## il coupe la fin du dernier element pour les cols??
-			
+			## il coupe la fin du dernier element ???????
 
-		
+	def liste_D_item_clicked(self):
+		item = self.NOT12_D.currentItem().text() # l'element selectionné
+		row = self.NOT12_D.currentRow() 
+		self.activity("%s selected" % item)
+		self.NOT12_E.clear() # on efface la liste
+		ask = "%s.list_rep%d.rep[0:]" % (self.semantique_liste_item,row)
+		self.client.eval_var( ask )
+		result = re.split(", ", self.client.eval_var_result)
+		for r in result:
+			self.NOT12_E.addItem( r ) 
+			
 	def server_vars_Evalue(self):
 		var = self.server_vars_champ.text()
 		self.server_vars_champ.clear()
