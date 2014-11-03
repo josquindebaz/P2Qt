@@ -72,7 +72,7 @@ class Principal(QtGui.QMainWindow):
 		#toolbar.addAction(Saction)
 
 		list1 = QtGui.QComboBox()
-		list1.addItem(u"Reference corpus")
+		#list1.addItem(u"Reference corpus")
 #		list1.addItem(u"auteur : AFP")
 		toolbar.addWidget(list1)
 
@@ -93,7 +93,9 @@ class Principal(QtGui.QMainWindow):
 		toolbar.addWidget(etat2)
 
 
+##################################################
 		#quart SE
+##################################################
 
 		SET11 =  QtGui.QLabel()
 #		Prop1Image = QtGui.QPixmap("prop1.png")
@@ -134,24 +136,37 @@ class Principal(QtGui.QMainWindow):
 #		SubWdwSE.addTab(T3,"Text")
 
 
+##################################################
 		#quart SO
+##################################################
 
+#la liste des textes du corpus
 		self.SOT1 = QtGui.QListWidget()
 
-#le réseau d'un élement
-		# self.Network_list
-		# appelé par la fonction show_network
+#les autres tab sont affichées au fur et à mesure
+#le réseau d'un élement  self.Network_list  appelé par la fonction show_network
+#les listes des textes associés à un élément
+#les expressions englobantes
 
-		SOT3 =  QtGui.QLabel()
-#		EnglImage = QtGui.QPixmap("engl.png")
-#		SOT3.setPixmap(EnglImage)
 
 		self.SubWdwSO = QtGui.QTabWidget()
+		self.SubWdwSO.setTabsClosable(True)
+		self.SubWdwSO.tabCloseRequested.connect(self.SubWdwSO.removeTab)
+
 		self.SubWdwSO.addTab(self.SOT1,"Texts")
-#		SubWdwSO.addTab(SOT3,"Expressions englobantes")
+		# on fait disparaître le bouton close de la tab Texts, a gauche pour les mac
+		if self.SubWdwSO.tabBar().tabButton(0, QtGui.QTabBar.RightSide):
+			self.SubWdwSO.tabBar().tabButton(0, QtGui.QTabBar.RightSide).resize(0,0)
+			self.SubWdwSO.tabBar().tabButton(0, QtGui.QTabBar.RightSide).hide()
+		elif self.SubWdwSO.tabBar().tabButton(0, QtGui.QTabBar.LeftSide):
+			self.SubWdwSO.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).resize(0,0)
+			self.SubWdwSO.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).hide()
+		
 
 
+##################################################
 		#quart NE
+##################################################
 
 #parametrer le serveur
 		Param_Server = QtGui.QWidget()
@@ -208,28 +223,65 @@ class Principal(QtGui.QMainWindow):
 
 #mise en place des onglets
 		self.SubWdwNE = QtGui.QTabWidget()
-		self.SubWdwNE.addTab(Param_Server,"Server parameters")
+		self.SubWdwNE.setTabsClosable(True)
+		self.SubWdwNE.tabCloseRequested.connect(self.SubWdwNE.removeTab)
+
 #		SubWdwNE.addTab(T4,"Viewer")
 #		SubWdwNE.addTab(NET1,"Marlowe")
-		self.SubWdwNE.addTab(self.History,"History")
+		self.History_index = self.SubWdwNE.addTab(self.History,"History")
 		self.SubWdwNE.addTab(server_vars,"Server vars")
+		self.SubWdwNE.addTab(Param_Server,"Server parameters")
 
-		#quart NO
+# on donne le focus à la connection au serveur
+		self.SubWdwNE.setCurrentIndex(2)
+
+		# on fait disparaître le bouton close des tabs, a gauche pour les mac
+		if self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.RightSide):
+			self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.RightSide).resize(0,0)
+			self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.RightSide).hide()
+		elif self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.LeftSide):
+			self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).resize(0,0)
+			self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).hide()
+		if self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.RightSide):
+			self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.RightSide).resize(0,0)
+			self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.RightSide).hide()
+		elif self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.LeftSide):
+			self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.LeftSide).resize(0,0)
+			self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.LeftSide).hide()
+		if self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.RightSide):
+			self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.RightSide).resize(0,0)
+			self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.RightSide).hide()
+		elif self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.LeftSide):
+			self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.LeftSide).resize(0,0)
+			self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.LeftSide).hide()
+
+
+
+
+
+
+##################################################
+	#quart NO
+##################################################
 
 		SubWdwNO =  QtGui.QTabWidget()
 
-		#NOT1 =  QtGui.QLabel()
-		#NOImage = QtGui.QPixmap("NO.png")
-		#NOT1.setPixmap(NOImage)
 
+##### L'onglet des listes
 		NOT1 = QtGui.QWidget()
-#une box verticale
+
+	#une box verticale
 		NOT1V = QtGui.QVBoxLayout()
 		NOT1.setLayout(NOT1V)
+		# on prend toute la place
+		NOT1V.setContentsMargins(0,0,0,0) 
+		NOT1V.setSpacing(0) 
+
 
 	#une ligne horizontale qui contient les commandes au dessus-de la liste 
 		NOT1VHC = QtGui.QHBoxLayout()
 		NOT1V.addLayout(NOT1VHC)
+
 	#une liste deroulante pour choisir le contenu de la liste
 		self.NOT1select = QtGui.QComboBox()
 		self.NOT1select.addItem(u"collections")
@@ -242,10 +294,9 @@ class Principal(QtGui.QMainWindow):
 
 	# un spacer pour mettre les commandes sur la droite
 		spacer3 = QtGui.QLabel()
-		spacer3.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+		spacer3.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
 		NOT1VHC.addWidget(spacer3)
 		
-
 	# les commandes
 		self.NOT1Commands1 = QtGui.QPushButton()
 		self.NOT1Commands1.setIcon(QtGui.QIcon("loupe.png"))
@@ -263,6 +314,7 @@ class Principal(QtGui.QMainWindow):
 		self.NOT1Commands2.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
 		NOT1Commands2Menu = QtGui.QMenu(self)
 		NOT1Commands2Menu.addAction('network' , self.show_network)
+		NOT1Commands2Menu.addAction('texts' , self.show_texts)
 		self.NOT1Commands2.setMenu(NOT1Commands2Menu)
 		NOT1VHC.addWidget(self.NOT1Commands2)
 
@@ -273,6 +325,7 @@ class Principal(QtGui.QMainWindow):
 	#la liste
 		self.NOT12 = QtGui.QTableWidget()
 		NOT1VH.addWidget(self.NOT12)
+
 		#police un peu plus petite
 		self.NOT12.setFont(QtGui.QFont("DejaVu Sans", 11))
 		#pas de header de ligne
@@ -290,11 +343,11 @@ class Principal(QtGui.QMainWindow):
 		NOT1VH.addWidget(self.NOT12_E)
 
 
-		NOT2 =  QtGui.QLabel()
+		#NOT2 =  QtGui.QLabel()
 #		FrmlImage = QtGui.QPixmap("formul.png")
 #		NOT2.setPixmap(FrmlImage)
 
-		NOT3 =  QtGui.QLabel()
+		#NOT3 =  QtGui.QLabel()
 #		ExploImage = QtGui.QPixmap("explo.png")
 #		NOT3.setPixmap(ExploImage)
 
@@ -363,7 +416,7 @@ class Principal(QtGui.QMainWindow):
 		row = 0 
 		for item in content:
 			itemwidget = QtGui.QTableWidgetItem(item)
-			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non editable
+			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non-editable
 
 			#C'EST TROP LENT !!!!! C'EST PAS DANS L'ORDRE !!!!
 			#semantique = self.client.eval_get_sem(item,self.sem_liste_concept) #NE RENVOIE PAS $col2 sur AaC, pb sur le dico, manque type ?
@@ -440,8 +493,8 @@ class Principal(QtGui.QMainWindow):
 			self.recup_liste_textes()
 			self.Param_Server_B.clicked.connect(self.disconnect_server)
 			self.Param_Server_B.setText("Disconnect")
-			# donne le focus a l'onglet history (si il a l'index 1)
-			self.SubWdwNE.setCurrentIndex(1)
+			# donne le focus a l'onglet history
+			self.SubWdwNE.setCurrentIndex(self.History_index)
 	
 	def disconnect_server(self):
 		self.activity("Disconnecting")
@@ -450,18 +503,34 @@ class Principal(QtGui.QMainWindow):
 		self.Param_Server_B.clicked.connect(self.connect_server)
 
 	def show_network(self):
-		element = self.NOT12.currentItem().text() 
 #TODO recuperer les autres niveaux de liste
+		#if  self.NOT12_E.currentItem() :
+		#	element = self.NOT12_E.currentItem().text() 
+		#elif self.NOT12_D.currentItem():
+		#	element = self.NOT12_D.currentItem().text() 
+		#else :
+		#	element = self.NOT12.currentItem().text() 
+		element = self.NOT12.currentItem().text() 
 		Network_list =  QtGui.QListWidget()
-		index = self.SubWdwSO.addTab(Network_list,"%s network" % element)
-		self.SubWdwSO.setCurrentIndex(index)# donne le focus a l'onglet
-		#tabbar = self.SubWdwSO.tabBar()
-		#tabbar.setTabButton(index,QtGui.QTabBar.RightSide,QtGui.QPushButton("close"))
-		#self.SubWdwSO.setTabsClosable(True)
-                res_semantique = self.semantique_liste_item + ".res[0:200]"
-                self.activity(u"Showing network for %s (limited to 200 items)" % element )
+		self.SubWdwNE.insertTab(0,Network_list,"%s network" % element)
+	
+                self.activity(u"Displaying network for %s (limited to 200 items)" % element )
+		res_semantique = "%s.res[0:200]" % self.semantique_liste_item  
                 self.client.eval_var(res_semantique)
                 Network_list.addItems(re.split(", ",self.client.eval_var_result))
+		self.SubWdwNE.setCurrentIndex(0)# donne le focus a l'onglet
+
+	def show_texts(self):
+		element = self.NOT12.currentItem().text() 
+#TODO recuperer les autres niveaux de liste
+		texts_list =  QtGui.QListWidget()
+		index = self.SubWdwSO.addTab(texts_list,"%s texts" % element)
+		self.SubWdwSO.setCurrentIndex(index)# donne le focus a l'onglet
+                self.activity(u"Displaying texts for %s" % element )
+                self.client.eval_var("%s.txt[0:]"%self.semantique_liste_item)
+		texts_list.addItems(re.split(", ",self.client.eval_var_result))
+		
+
 
 def main():
 	app = QtGui.QApplication(sys.argv)
