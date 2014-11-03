@@ -138,17 +138,16 @@ class Principal(QtGui.QMainWindow):
 
 		self.SOT1 = QtGui.QListWidget()
 
-		SOT2 =  QtGui.QLabel()
-#		NetworkImage = QtGui.QPixmap("network.png")
-#		SOT2.setPixmap(NetworkImage)
+#le réseau d'un élement
+		# self.Network_list
+		# appelé par la fonction show_network
 
 		SOT3 =  QtGui.QLabel()
 #		EnglImage = QtGui.QPixmap("engl.png")
 #		SOT3.setPixmap(EnglImage)
 
-		SubWdwSO = QtGui.QTabWidget()
-		SubWdwSO.addTab(self.SOT1,"Texts")
-#		SubWdwSO.addTab(SOT2,"Network")
+		self.SubWdwSO = QtGui.QTabWidget()
+		self.SubWdwSO.addTab(self.SOT1,"Texts")
 #		SubWdwSO.addTab(SOT3,"Expressions englobantes")
 
 
@@ -239,13 +238,34 @@ class Principal(QtGui.QMainWindow):
 		self.NOT1select.addItem(u"entitie's categories")
 		NOT1VHC.addWidget(self.NOT1select)
 		self.connect(self.NOT1select,QtCore.SIGNAL("currentIndexChanged(const QString)"), self.select_liste)
+
+
+	# un spacer pour mettre les commandes sur la droite
+		spacer3 = QtGui.QLabel()
+		spacer3.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+		NOT1VHC.addWidget(spacer3)
+		
+
 	# les commandes
-		#NOT1Commands = QtGui.QMenu()
-		#NOT1Commands.setTitle("titre")
-		#NOT1Commands.addMenu('&Research')
-		#NOT1Commands.addMenu('&T')
-		#NOT1Commands.addMenu('&V')
-		#NOT1VHC.addWidget(NOT1Commands)
+		self.NOT1Commands1 = QtGui.QPushButton()
+		self.NOT1Commands1.setIcon(QtGui.QIcon("loupe.png"))
+		self.NOT1Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
+		NOT1Commands1Menu = QtGui.QMenu(self)
+		#NOT1Commands1Menu.addAction('&search')
+		#NOT1Commands1Menu.addAction('&sort')
+		#NOT1Commands1Menu.addAction('&filter')
+		self.NOT1Commands1.setMenu(NOT1Commands1Menu)
+		NOT1VHC.addWidget(self.NOT1Commands1)
+
+
+		self.NOT1Commands2 = QtGui.QPushButton()
+		self.NOT1Commands2.setIcon(QtGui.QIcon("gear.png"))
+		self.NOT1Commands2.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
+		NOT1Commands2Menu = QtGui.QMenu(self)
+		NOT1Commands2Menu.addAction('network' , self.show_network)
+		self.NOT1Commands2.setMenu(NOT1Commands2Menu)
+		NOT1VHC.addWidget(self.NOT1Commands2)
+
 
 	#une box horizontale pour liste, score et deploiement
 		NOT1VH = QtGui.QHBoxLayout()
@@ -285,7 +305,7 @@ class Principal(QtGui.QMainWindow):
 		#la MdiArea 
 		Area = QtGui.QMdiArea()
 		sw1 = Area.addSubWindow(SubWdwSE, flags = QtCore.Qt.FramelessWindowHint)
-		sw2 = Area.addSubWindow(SubWdwSO, flags = QtCore.Qt.FramelessWindowHint)
+		sw2 = Area.addSubWindow(self.SubWdwSO, flags = QtCore.Qt.FramelessWindowHint)
 		sw3 = Area.addSubWindow(self.SubWdwNE , flags = QtCore.Qt.FramelessWindowHint)
 		sw4 = Area.addSubWindow(SubWdwNO , flags = QtCore.Qt.FramelessWindowHint)
 	
@@ -360,6 +380,7 @@ class Principal(QtGui.QMainWindow):
 		self.NOT12.horizontalHeader().setStretchLastSection(True)
 		# definir la hauteur apres la largeur donne un resultat plus propre et constant
 		self.NOT12.resizeRowsToContents()
+
 	
 
         def liste_item_clicked(self):
@@ -381,6 +402,11 @@ class Principal(QtGui.QMainWindow):
 			for r in result:
 				self.NOT12_D.addItem( r ) 
 			## il coupe la fin du dernier element ???????
+
+		#activation des boutons de commande
+		#self.NOT1Commands1.setEnabled(True) 
+		self.NOT1Commands2.setEnabled(True) 
+
 
 	def liste_D_item_clicked(self):
 		item = self.NOT12_D.currentItem().text() # l'element selectionné
@@ -423,6 +449,19 @@ class Principal(QtGui.QMainWindow):
 		self.Param_Server_B.setText('Connect to server')
 		self.Param_Server_B.clicked.connect(self.connect_server)
 
+	def show_network(self):
+		element = self.NOT12.currentItem().text() 
+#TODO recuperer les autres niveaux de liste
+		Network_list =  QtGui.QListWidget()
+		index = self.SubWdwSO.addTab(Network_list,"%s network" % element)
+		self.SubWdwSO.setCurrentIndex(index)# donne le focus a l'onglet
+		#tabbar = self.SubWdwSO.tabBar()
+		#tabbar.setTabButton(index,QtGui.QTabBar.RightSide,QtGui.QPushButton("close"))
+		#self.SubWdwSO.setTabsClosable(True)
+                res_semantique = self.semantique_liste_item + ".res[0:200]"
+                self.activity(u"Showing network for %s (limited to 200 items)" % element )
+                self.client.eval_var(res_semantique)
+                Network_list.addItems(re.split(", ",self.client.eval_var_result))
 
 def main():
 	app = QtGui.QApplication(sys.argv)
