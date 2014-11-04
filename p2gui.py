@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #TODO internationalisation QTranslator
-
+# test
 import sys
 from PySide import QtCore 
 from PySide import QtGui 
