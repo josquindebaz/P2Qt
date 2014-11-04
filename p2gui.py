@@ -559,15 +559,43 @@ class Principal(QtGui.QMainWindow):
 	def show_texts(self):
 		element = self.NOT12.currentItem().text() 
 #TODO recuperer les autres niveaux de liste
-#TODO anticorpus
-#TODO ajouter date, auteur, titre
-#TODO scores
-		texts_list =  QtGui.QListWidget()
+#TODO scores/date/titre
                 self.client.eval_var("%s.txt[0:]"%self.semantique_liste_item)
 		liste_textes = re.split(", ",self.client.eval_var_result)
                 self.activity(u"Displaying %d texts for %s" % (len(liste_textes),element) )
-		texts_list.addItems(liste_textes)
-		index = self.SOT1.addTab(texts_list,"%s (%d)" % (element,len(liste_textes)))
+
+		texts_list = QtGui.QTableWidget()
+		texts_list.verticalHeader().setVisible(False)
+		texts_list.setRowCount(len(liste_textes))
+		texts_list.setColumnCount(3)
+		texts_list.setHorizontalHeaderLabels(['date','name','title'])
+		row = 0 
+		for txt in liste_textes:
+			name = re.split("/",txt)[-1]
+			itemwidget = QtGui.QTableWidgetItem(name)
+			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non-editable
+			texts_list.setItem(row,1,itemwidget)
+			row += 1
+		texts_list.resizeColumnToContents(0)
+		texts_list.resizeColumnToContents(1)
+		texts_list.horizontalHeader().setStretchLastSection(True)
+		texts_list.resizeRowsToContents()
+
+		# anticorpus
+		anticorpus = QtGui.QListWidget()
+		for txt in list( set(self.client.txts)-set(liste_textes)):
+			name = re.split("/",txt)[-1]
+			anticorpus.addItem(name)
+		
+		show_texts_widget = QtGui.QListWidget()
+		show_texts_box = QtGui.QHBoxLayout()
+		show_texts_box.setContentsMargins(0,0,0,0) 
+		show_texts_box.setSpacing(0) 
+		show_texts_widget.setLayout(show_texts_box)		
+		show_texts_box.addWidget(texts_list)
+		show_texts_box.addWidget(anticorpus)
+
+		index = self.SOT1.addTab(show_texts_widget,"%s (%d)" % (element,len(liste_textes)))
 		self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
 		self.SubWdwSO.setCurrentIndex(0)# donne le focus a l'onglet Texts
 		
