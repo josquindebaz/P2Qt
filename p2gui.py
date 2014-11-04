@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+#TODO internationalisation QTranslator
+
 import sys
 from PySide import QtCore 
 from PySide import QtGui 
@@ -139,34 +141,44 @@ class Principal(QtGui.QMainWindow):
 ##################################################
 		#quart SO
 ##################################################
-
-#la liste des textes du corpus
-		self.SOT1 = QtGui.QListWidget()
-
-#les autres tab sont affichées au fur et à mesure
-#le réseau d'un élement  self.Network_list  appelé par la fonction show_network
-#les listes des textes associés à un élément
-#les expressions englobantes
-
-
 		self.SubWdwSO = QtGui.QTabWidget()
-		self.SubWdwSO.setTabsClosable(True)
-		self.SubWdwSO.tabCloseRequested.connect(self.SubWdwSO.removeTab)
+
+		#l'onglet des textes
+		self.SOT1 = QtGui.QTabWidget()
+		self.SOT1.setTabsClosable(True)
+		self.SOT1.tabCloseRequested.connect(self.SOT1.removeTab)
+		#la liste des textes du corpus
+		self.CorpusTexts = QtGui.QListWidget()
+		self.SOT1.addTab(self.CorpusTexts,"corpus")
+		# on fait disparaître le bouton close de la tab CorpusTexts, a gauche pour les mac
+		if self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.RightSide):
+			self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.RightSide).resize(0,0)
+			self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.RightSide).hide()
+		elif self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.LeftSide):
+			self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).resize(0,0)
+			self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).hide()
+		
+		#l'onglet des réseaux
+		self.tabNetworks = QtGui.QTabWidget()
+		self.tabNetworks.setTabsClosable(True)
+		self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
+
+#TODO les expressions englobantes
+
+		#mise en place des onglets
 
 		self.SubWdwSO.addTab(self.SOT1,"Texts")
-		# on fait disparaître le bouton close de la tab Texts, a gauche pour les mac
-		if self.SubWdwSO.tabBar().tabButton(0, QtGui.QTabBar.RightSide):
-			self.SubWdwSO.tabBar().tabButton(0, QtGui.QTabBar.RightSide).resize(0,0)
-			self.SubWdwSO.tabBar().tabButton(0, QtGui.QTabBar.RightSide).hide()
-		elif self.SubWdwSO.tabBar().tabButton(0, QtGui.QTabBar.LeftSide):
-			self.SubWdwSO.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).resize(0,0)
-			self.SubWdwSO.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).hide()
-		
+		self.SubWdwSO.addTab(self.tabNetworks,"Networks")
+
+
 
 
 ##################################################
 		#quart NE
 ##################################################
+
+#TODO lancer le serveur, logs, emplacement serveur, port
+#TODO Choix du PRC
 
 #parametrer le serveur
 		Param_Server = QtGui.QWidget()
@@ -195,6 +207,12 @@ class Principal(QtGui.QMainWindow):
 #l'historique des actions
 		self.History =  QtGui.QTextEdit()
 
+		T4 =  QtGui.QLabel()
+#		viewImage = QtGui.QPixmap("viewer.png")
+#		T4.setPixmap(viewImage)
+
+
+
 #evaluer directement les variables du serveur
 		server_vars = QtGui.QWidget()
 		server_vars_Vbox =  QtGui.QVBoxLayout() 
@@ -217,43 +235,39 @@ class Principal(QtGui.QMainWindow):
 		self.server_vars_result = QtGui.QTextEdit(readOnly = True) 
 		server_vars_Vbox.addWidget(self.server_vars_result)
 
-		T4 =  QtGui.QLabel()
-#		viewImage = QtGui.QPixmap("viewer.png")
-#		T4.setPixmap(viewImage)
-
 #mise en place des onglets
 		self.SubWdwNE = QtGui.QTabWidget()
-		self.SubWdwNE.setTabsClosable(True)
-		self.SubWdwNE.tabCloseRequested.connect(self.SubWdwNE.removeTab)
+#		self.SubWdwNE.setTabsClosable(True)
+#		self.SubWdwNE.tabCloseRequested.connect(self.SubWdwNE.removeTab)
 
 #		SubWdwNE.addTab(T4,"Viewer")
 #		SubWdwNE.addTab(NET1,"Marlowe")
 		self.History_index = self.SubWdwNE.addTab(self.History,"History")
-		self.SubWdwNE.addTab(server_vars,"Server vars")
 		self.SubWdwNE.addTab(Param_Server,"Server parameters")
+		self.SubWdwNE.addTab(server_vars,"Server vars")
 
 # on donne le focus à la connection au serveur
-		self.SubWdwNE.setCurrentIndex(2)
+		self.SubWdwNE.setCurrentIndex(1)
 
 		# on fait disparaître le bouton close des tabs, a gauche pour les mac
-		if self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.RightSide):
-			self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.RightSide).resize(0,0)
-			self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.RightSide).hide()
-		elif self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.LeftSide):
-			self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).resize(0,0)
-			self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).hide()
-		if self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.RightSide):
-			self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.RightSide).resize(0,0)
-			self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.RightSide).hide()
-		elif self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.LeftSide):
-			self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.LeftSide).resize(0,0)
-			self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.LeftSide).hide()
-		if self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.RightSide):
-			self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.RightSide).resize(0,0)
-			self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.RightSide).hide()
-		elif self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.LeftSide):
-			self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.LeftSide).resize(0,0)
-			self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.LeftSide).hide()
+#		if self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.RightSide):
+#			self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.RightSide).resize(0,0)
+#			self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.RightSide).hide()
+#		elif self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.LeftSide):
+#			self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).resize(0,0)
+#			self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).hide()
+#		if self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.RightSide):
+#			self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.RightSide).resize(0,0)
+#			self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.RightSide).hide()
+#		elif self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.LeftSide):
+#			self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.LeftSide).resize(0,0)
+#			self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.LeftSide).hide()
+#		if self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.RightSide):
+#			self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.RightSide).resize(0,0)
+#			self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.RightSide).hide()
+#		elif self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.LeftSide):
+#			self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.LeftSide).resize(0,0)
+#			self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.LeftSide).hide()
 
 
 
@@ -305,7 +319,6 @@ class Principal(QtGui.QMainWindow):
 		#NOT1Commands1Menu.addAction('&search')
 		#NOT1Commands1Menu.addAction('&sort')
 		#NOT1Commands1Menu.addAction('&filter')
-		self.NOT1Commands1.setMenu(NOT1Commands1Menu)
 		NOT1VHC.addWidget(self.NOT1Commands1)
 
 
@@ -351,6 +364,8 @@ class Principal(QtGui.QMainWindow):
 #		ExploImage = QtGui.QPixmap("explo.png")
 #		NOT3.setPixmap(ExploImage)
 
+
+
 		SubWdwNO.addTab(NOT1,"Lists")
 #		SubWdwNO.addTab(NOT2,"Formulae")
 #		SubWdwNO.addTab(NOT3,"Explorer")
@@ -391,9 +406,10 @@ class Principal(QtGui.QMainWindow):
 		self.activity(u"Waiting for text list"   )
 		self.client.recup_texts()
 		self.activity(u"Displaying text list (%d items)" %len(self.client.txts)  )
-		self.SOT1.clear()
+		self.SOT1.tabBar().setTabText(0,"corpus (%d)"%len(self.client.txts))
+		self.CorpusTexts.clear()
 		listeTextes = self.client.txts
-		self.SOT1.addItems(listeTextes)
+		self.CorpusTexts.addItems(listeTextes)
 
 	def select_liste(self,typ):
 		""" quand un type de liste est selectionné """
@@ -511,24 +527,49 @@ class Principal(QtGui.QMainWindow):
 		#else :
 		#	element = self.NOT12.currentItem().text() 
 		element = self.NOT12.currentItem().text() 
-		Network_list =  QtGui.QListWidget()
-		self.SubWdwNE.insertTab(0,Network_list,"%s network" % element)
-	
+
+#TODO si la tab de l'element existe déjà, la raffraichir et ne pas en créer une nouvelle
+		show_network_widget = QtGui.QWidget()
+		show_network_box = QtGui.QVBoxLayout()
+		# on prend toute la place
+		show_network_box.setContentsMargins(0,0,0,0) 
+		show_network_box.setSpacing(0) 
+
+		show_network_widget.setLayout(show_network_box)
+		index = self.tabNetworks.addTab(show_network_widget,"%s" % element)
                 self.activity(u"Displaying network for %s (limited to 200 items)" % element )
+
+		#selecteur de concept
+		net_sel_concept = QtGui.QComboBox()
+		net_sel_concept.addItems([u"entities"])
+		show_network_box.addWidget(net_sel_concept)
+
+#TODO scores
+#TODO deploiement
+#TODO pb encodage sur certains concepts
+
+		Network_list =  QtGui.QListWidget()
+		show_network_box.addWidget(Network_list)
 		res_semantique = "%s.res[0:200]" % self.semantique_liste_item  
                 self.client.eval_var(res_semantique)
                 Network_list.addItems(re.split(", ",self.client.eval_var_result))
-		self.SubWdwNE.setCurrentIndex(0)# donne le focus a l'onglet
+		self.tabNetworks.setCurrentIndex(index)# donne le focus a l'onglet créé
+		self.SubWdwSO.setCurrentIndex(1)# donne le focus a l'onglet Networks
 
 	def show_texts(self):
 		element = self.NOT12.currentItem().text() 
 #TODO recuperer les autres niveaux de liste
+#TODO anticorpus
+#TODO ajouter date, auteur, titre
+#TODO scores
 		texts_list =  QtGui.QListWidget()
-		index = self.SubWdwSO.addTab(texts_list,"%s texts" % element)
-		self.SubWdwSO.setCurrentIndex(index)# donne le focus a l'onglet
-                self.activity(u"Displaying texts for %s" % element )
                 self.client.eval_var("%s.txt[0:]"%self.semantique_liste_item)
-		texts_list.addItems(re.split(", ",self.client.eval_var_result))
+		liste_textes = re.split(", ",self.client.eval_var_result)
+                self.activity(u"Displaying %d texts for %s" % (len(liste_textes),element) )
+		texts_list.addItems(liste_textes)
+		index = self.SOT1.addTab(texts_list,"%s (%d)" % (element,len(liste_textes)))
+		self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
+		self.SubWdwSO.setCurrentIndex(0)# donne le focus a l'onglet Texts
 		
 
 
