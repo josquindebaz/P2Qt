@@ -582,10 +582,22 @@ class Principal(QtGui.QMainWindow):
 		texts_list.resizeRowsToContents()
 
 		# anticorpus
-		anticorpus = QtGui.QListWidget()
-		for txt in list( set(self.client.txts)-set(liste_textes)):
+		Lanticorpus = list( set(self.client.txts)-set(liste_textes))
+		anticorpus = QtGui.QTableWidget()
+		anticorpus.verticalHeader().setVisible(False)
+		anticorpus.setRowCount(len(Lanticorpus))
+		anticorpus.setColumnCount(2)
+		anticorpus.setHorizontalHeaderLabels(['date','name'])
+		row = 0 
+		for txt in Lanticorpus:
 			name = re.split("/",txt)[-1]
-			anticorpus.addItem(name)
+			itemwidget = QtGui.QTableWidgetItem(name)
+			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non-editable
+			anticorpus.setItem(row,1,itemwidget)
+			row += 1
+		anticorpus.resizeColumnToContents(0)
+		anticorpus.resizeColumnToContents(1)
+		anticorpus.resizeRowsToContents()
 		
 		show_texts_widget = QtGui.QListWidget()
 		show_texts_box = QtGui.QHBoxLayout()
