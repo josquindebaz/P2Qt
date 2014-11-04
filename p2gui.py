@@ -610,6 +610,7 @@ class Principal(QtGui.QMainWindow):
 		index = self.SOT1.addTab(show_texts_widget,"%s (%d)" % (element,len(liste_textes)))
 		self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
 		self.SubWdwSO.setCurrentIndex(0)# donne le focus a l'onglet Texts
+		self.SOT1.tabBar().setTabToolTip(index,"%s %d"%(element,len(liste_textes)))
 		
 
 
