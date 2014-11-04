@@ -1,7 +1,7 @@
 # -*- coding: ISO-8859-1 -*-
 '''
 Created on 24 févr. 2012
-
+modif ...
 @author: jean-pierre Charriau
 '''
 import re , random 
