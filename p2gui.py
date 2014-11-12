@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #TODO internationalisation QTranslator
-# test
+
 import sys
 from PySide import QtCore 
 from PySide import QtGui 
@@ -10,6 +10,7 @@ from PySide import QtGui
 import interface_prospero
 import re
 import datetime
+import subprocess, threading
 
 
 class client(object):
@@ -177,13 +178,37 @@ class Principal(QtGui.QMainWindow):
 		#quart NE
 ##################################################
 
+
+##################################################
 #TODO lancer le serveur, logs, emplacement serveur, port
 #TODO Choix du PRC
-
 #parametrer le serveur
 		Param_Server = QtGui.QWidget()
 		Param_Server_V = QtGui.QVBoxLayout()
-#Ici on lancera le serveur avec le PRC ciblé
+#lance le serveur avec le PRC ciblé
+		Param_Server_R = QtGui.QFormLayout()
+		Param_Server_R.setFieldGrowthPolicy(QtGui.QFormLayout.ExpandingFieldsGrow)
+		Param_Server_path_P2_button = QtGui.QPushButton("select local server path")
+		Param_Server_R.addWidget(Param_Server_path_P2_button)
+		Param_Server_path_P2_button.clicked.connect(self.select_P2_path)
+		self.Param_Server_path_P2 = QtGui.QLineEdit()
+		Param_Server_R.addRow("Local server path",self.Param_Server_path_P2)
+		self.Param_Server_path_P2.setText("/Users/gspr/Documents/Prospero-II-serveur/prospero-II.app/Contents/MacOS/prospero-II")
+		Param_Server_path_PRC_button = QtGui.QPushButton("select corpus path")
+		Param_Server_R.addWidget(Param_Server_path_PRC_button)
+		Param_Server_path_PRC_button.clicked.connect(self.select_PRC_path)
+		self.Param_Server_path_PRC = QtGui.QLineEdit()
+		Param_Server_R.addRow("Corpus path",self.Param_Server_path_PRC)
+		self.Param_Server_path_PRC.setText("/Users/gspr/corpus/telephonie/0-projets/TELasso.prc")
+		self.Param_Server_R_button = QtGui.QPushButton('Run server')
+		self.Param_Server_R_button.clicked.connect(self.lance_server)
+		Param_Server_R.addWidget(self.Param_Server_R_button)
+		self.Param_Server_R_button2 = QtGui.QPushButton('Stop server')
+		self.Param_Server_R_button2.clicked.connect(self.stop_server)
+		Param_Server_R.addWidget(self.Param_Server_R_button2)
+
+		Param_Server_V.addLayout(Param_Server_R)
+
 		Param_Server_I = QtGui.QLabel()
 		Param_Server_I.setPixmap(QtGui.QPixmap('Prospero-II.png'))
 		Param_Server_V.addWidget(Param_Server_I)
@@ -202,11 +227,17 @@ class Principal(QtGui.QMainWindow):
 		Param_Server_F.addWidget(self.Param_Server_B)
 		Param_Server.setLayout(Param_Server_V)
 
+##################################################
 #onglet de gestion du PRC a ajouter
 		NET1 = QtGui.QTextEdit()
+
+
+
+##################################################
 #l'historique des actions
 		self.History =  QtGui.QTextEdit()
 
+##################################################
 		T4 =  QtGui.QLabel()
 #		viewImage = QtGui.QPixmap("viewer.png")
 #		T4.setPixmap(viewImage)
@@ -243,11 +274,11 @@ class Principal(QtGui.QMainWindow):
 #		SubWdwNE.addTab(T4,"Viewer")
 #		SubWdwNE.addTab(NET1,"Marlowe")
 		self.History_index = self.SubWdwNE.addTab(self.History,"History")
-		self.SubWdwNE.addTab(Param_Server,"Server parameters")
-		self.SubWdwNE.addTab(server_vars,"Server vars")
+		self.SubWdwNE.addTab(server_vars,"Vars")
+		self.SubWdwNE.addTab(Param_Server,"Server")
 
 # on donne le focus à la connection au serveur
-		self.SubWdwNE.setCurrentIndex(1)
+		self.SubWdwNE.setCurrentIndex(2)
 
 		# on fait disparaître le bouton close des tabs, a gauche pour les mac
 #		if self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.RightSide):
@@ -386,6 +417,16 @@ class Principal(QtGui.QMainWindow):
 		self.showMaximized() 
 
 
+	def select_P2_path(self):
+		path = QtGui.QFileDialog.getOpenFileName(self, 'Select server path')
+		self.Param_Server_path_P2.setText(path[0])
+
+	def select_PRC_path(self):
+		#ajouter un filtre d'extensions
+		path = QtGui.QFileDialog.getOpenFileName(self, 'Select corpus path')
+		self.Param_Server_path_PRC.setText(path[0])
+
+
 	def get_semantique(self):
 		if (self.NOT1select.currentText()=="entities") : 
 			return '$ent'
@@ -500,6 +541,23 @@ class Principal(QtGui.QMainWindow):
 	def server_vars_Clear(self):
 		self.server_vars_result.clear()
 	
+	def lance_server(self):
+		self.activity("Running local server")
+		thread = threading.Thread(target = self.server_thread)
+		thread.start()
+			
+	def server_thread(self):	
+		server_path = self.Param_Server_path_P2.text()
+		port = self.Param_Server_val_port.text()
+		PRC  = self.Param_Server_path_PRC.text()
+		commande = "%s -e -p %s -f %s" % (server_path,port,PRC)
+		self.local_server = subprocess.Popen(commande, shell=True)
+		self.local_server.communicate()
+		
+	def stop_server(self):
+		self.local_server.terminate()	
+	
+
 	def connect_server(self):
 		self.activity("Connecting to server")
 		self.client=client(self.Param_Server_val_host.text(),self.Param_Server_val_port.text())
