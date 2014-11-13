@@ -180,52 +180,52 @@ class Principal(QtGui.QMainWindow):
 
 
 ##################################################
-#TODO lancer le serveur, logs, emplacement serveur, port
-#TODO Choix du PRC
+#TODO logs
 #parametrer le serveur
 		Param_Server = QtGui.QWidget()
 		Param_Server_V = QtGui.QVBoxLayout()
-#lance le serveur avec le PRC ciblé
+		Param_Server.setLayout(Param_Server_V)
+#lance le serveur local avec le PRC ciblé
 		Param_Server_R = QtGui.QFormLayout()
 		Param_Server_R.setFieldGrowthPolicy(QtGui.QFormLayout.ExpandingFieldsGrow)
+		Param_Server_V.addLayout(Param_Server_R)
+
+		self.Param_Server_path_P2 = QtGui.QLineEdit()
+		#Param_Server_R.addRow("Local server path",self.Param_Server_path_P2)
+		Param_Server_R.addRow(self.Param_Server_path_P2)
+		self.Param_Server_path_P2.setText("/Users/gspr/Documents/Prospero-II-serveur/prospero-II.app/Contents/MacOS/prospero-II")
+
 		Param_Server_path_P2_button = QtGui.QPushButton("select local server path")
 		Param_Server_R.addWidget(Param_Server_path_P2_button)
 		Param_Server_path_P2_button.clicked.connect(self.select_P2_path)
-		self.Param_Server_path_P2 = QtGui.QLineEdit()
-		Param_Server_R.addRow("Local server path",self.Param_Server_path_P2)
-		self.Param_Server_path_P2.setText("/Users/gspr/Documents/Prospero-II-serveur/prospero-II.app/Contents/MacOS/prospero-II")
+
+		self.Param_Server_path_PRC = QtGui.QLineEdit()
+		#Param_Server_R.addRow("Corpus path",self.Param_Server_path_PRC)
+		Param_Server_R.addRow(self.Param_Server_path_PRC)
+		self.Param_Server_path_PRC.setText("/Users/gspr/corpus/telephonie/0-projets/TELasso.prc")
+
 		Param_Server_path_PRC_button = QtGui.QPushButton("select corpus path")
 		Param_Server_R.addWidget(Param_Server_path_PRC_button)
 		Param_Server_path_PRC_button.clicked.connect(self.select_PRC_path)
-		self.Param_Server_path_PRC = QtGui.QLineEdit()
-		Param_Server_R.addRow("Corpus path",self.Param_Server_path_PRC)
-		self.Param_Server_path_PRC.setText("/Users/gspr/corpus/telephonie/0-projets/TELasso.prc")
-		self.Param_Server_R_button = QtGui.QPushButton('Run server')
+		self.Param_Server_R_button = QtGui.QPushButton('Start server')
 		self.Param_Server_R_button.clicked.connect(self.lance_server)
 		Param_Server_R.addWidget(self.Param_Server_R_button)
-		self.Param_Server_R_button2 = QtGui.QPushButton('Stop server')
-		self.Param_Server_R_button2.clicked.connect(self.stop_server)
-		Param_Server_R.addWidget(self.Param_Server_R_button2)
 
-		Param_Server_V.addLayout(Param_Server_R)
 
-		Param_Server_I = QtGui.QLabel()
-		Param_Server_I.setPixmap(QtGui.QPixmap('Prospero-II.png'))
-		Param_Server_V.addWidget(Param_Server_I)
-#configurer les parametres de connexion au serveur
-		Param_Server_F = QtGui.QFormLayout()
+		#Param_Server_I = QtGui.QLabel()
+		#Param_Server_I.setPixmap(QtGui.QPixmap('Prospero-II.png'))
+		#Param_Server_V.addWidget(Param_Server_I)
+
+#configurer les parametres de connexion au serveur distant
 		self.Param_Server_val_host = QtGui.QLineEdit()
-		Param_Server_F.addRow("&host",self.Param_Server_val_host)
+		Param_Server_R.addRow("&host",self.Param_Server_val_host)
 		self.Param_Server_val_host.setText('127.0.0.1')
 		self.Param_Server_val_port = QtGui.QLineEdit()
-		Param_Server_F.addRow("&port",self.Param_Server_val_port)
+		Param_Server_R.addRow("&port",self.Param_Server_val_port)
 		self.Param_Server_val_port.setText('4000')
-		Param_Server_V.addLayout(Param_Server_F)
-#a terme la connection locale lancera le serveur local
 		self.Param_Server_B = QtGui.QPushButton('Connect to server')
 		self.Param_Server_B.clicked.connect(self.connect_server)
-		Param_Server_F.addWidget(self.Param_Server_B)
-		Param_Server.setLayout(Param_Server_V)
+		Param_Server_R.addWidget(self.Param_Server_B)
 
 ##################################################
 #onglet de gestion du PRC a ajouter
@@ -542,20 +542,29 @@ class Principal(QtGui.QMainWindow):
 		self.server_vars_result.clear()
 	
 	def lance_server(self):
-		self.activity("Running local server")
-		thread = threading.Thread(target = self.server_thread)
-		thread.start()
+		self.activity("Starting local server")
+		self.thread = threading.Thread(target = self.server_thread)
+		self.thread.start()
+		self.Param_Server_R_button.setText('Stop server')
+		self.Param_Server_R_button.clicked.disconnect(self.lance_server)
+		self.Param_Server_R_button.clicked.connect(self.stop_server)
+#a terme la connection locale lancera le serveur local
 			
 	def server_thread(self):	
 		server_path = self.Param_Server_path_P2.text()
 		port = self.Param_Server_val_port.text()
 		PRC  = self.Param_Server_path_PRC.text()
 		commande = "%s -e -p %s -f %s" % (server_path,port,PRC)
+		self.activity("Loading %s" % PRC)
 		self.local_server = subprocess.Popen(commande, shell=True)
-		self.local_server.communicate()
 		
 	def stop_server(self):
+		self.activity("Stopping local server" )
 		self.local_server.terminate()	
+		self.thread.stop()
+		self.Param_Server_R_button.setText('Start server')
+		self.Param_Server_R_button.clicked.disconnect(self.stop_server)
+		self.Param_Server_R_button.clicked.connect(self.lance_server)
 	
 
 	def connect_server(self):
