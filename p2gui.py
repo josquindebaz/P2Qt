@@ -545,7 +545,7 @@ class Principal(QtGui.QMainWindow):
 		self.activity("%s selected" % item)
 		self.NOT12_E.clear() # on efface la liste
 		ask = "%s.list_rep%d.rep[0:]" % (self.semantique_liste_item,row)
-		self.eval_var_result
+		self.client.eval_var(ask)
 		result = re.split(", ", self.client.eval_var_result)
 		for r in result:
 			self.NOT12_E.addItem( r ) 
@@ -632,6 +632,7 @@ class Principal(QtGui.QMainWindow):
 		list_atcants =  QtGui.QListWidget()
 		show_txt_box.addWidget(list_atcants)
 		list_act_sem = "%s.act[0:]" % sem_txt
+		self.activity(u"Wating for %s " % list_act_sem )
 		self.client.eval_var(list_act_sem)
 		list_atcants.addItems(re.split(", ",self.client.eval_var_result))
 		self.textProperties.setCurrentIndex(index)# donne le focus a l'onglet créé		
