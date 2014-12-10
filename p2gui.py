@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+
 #TODO internationalisation QTranslator
 
 import sys
@@ -117,7 +118,7 @@ class Principal(QtGui.QMainWindow):
 #		SET15.setPixmap(Prop5Image)
 
 		SET1 = QtGui.QTabWidget()
-#		SET1.addTab(SET11,u"Propriétés saillantes")
+		#SET1.addTab(SET11,u"Propriétés saillantes")
 #		SET1.addTab(SET12,u"Apports et reprises")
 #		SET1.addTab(SET13,u"Eléments du texte")
 #		SET1.addTab(SET14,u"Textes proches")
@@ -150,6 +151,9 @@ class Principal(QtGui.QMainWindow):
 		self.SOT1.tabCloseRequested.connect(self.SOT1.removeTab)
 		#la liste des textes du corpus
 		self.CorpusTexts = QtGui.QListWidget()
+		#<jp>
+		self.CorpusTexts.itemClicked.connect(self.onSelectText)
+		#</jp>
 		self.SOT1.addTab(self.CorpusTexts,"corpus")
 		# on fait disparaître le bouton close de la tab CorpusTexts, a gauche pour les mac
 		if self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.RightSide):
@@ -164,14 +168,21 @@ class Principal(QtGui.QMainWindow):
 		self.tabNetworks.setTabsClosable(True)
 		self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
 
+		# <jp>
+		# onglet proprietes des textes
+		self.textProperties = QtGui.QTabWidget()
+		self.textProperties.setTabsClosable(True)
+		self.textProperties.tabCloseRequested.connect(self.textProperties.removeTab)
+		# </jp>
 #TODO les expressions englobantes
 
 		#mise en place des onglets
 
 		self.SubWdwSO.addTab(self.SOT1,"Texts")
 		self.SubWdwSO.addTab(self.tabNetworks,"Networks")
-
-
+		# <jp>
+		self.SubWdwSO.addTab(self.textProperties,"Text properties")
+		# </jp>
 
 
 ##################################################
@@ -376,12 +387,12 @@ class Principal(QtGui.QMainWindow):
 		self.NOT12.verticalHeader().setVisible(False)
 		
 		#selection d'un item
-                self.NOT12.itemClicked.connect(self.liste_item_clicked)
+		self.NOT12.itemClicked.connect(self.liste_item_clicked)
 
-	#le deploiement
+		#le deploiement
 		self.NOT12_D = QtGui.QListWidget()
 		NOT1VH.addWidget(self.NOT12_D)
-                self.NOT12_D.itemClicked.connect(self.liste_D_item_clicked)
+		self.NOT12_D.itemClicked.connect(self.liste_D_item_clicked)
 
 		self.NOT12_E = QtGui.QListWidget()
 		NOT1VH.addWidget(self.NOT12_E)
@@ -413,7 +424,7 @@ class Principal(QtGui.QMainWindow):
 
 		self.setCentralWidget(Area)
 				
-		self.setWindowTitle(u'Prospéro II 28/10/2014')    
+		self.setWindowTitle(u'Prospéro II 28/10/2014')	
 		self.showMaximized() 
 
 
@@ -451,7 +462,17 @@ class Principal(QtGui.QMainWindow):
 		self.CorpusTexts.clear()
 		listeTextes = self.client.txts
 		self.CorpusTexts.addItems(listeTextes)
-
+	#<jp>
+	def onSelectText(self):
+		"""
+		essai - sur la sélection d'un texte (ds les textes du corpus) on met à jour
+		un/des tab dans text Properties
+		"""
+		item_txt = self.CorpusTexts.currentItem().text()
+		self.activity(u"%s selected " % (item_txt)) 
+		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
+		self.show_textContent(item_txt , self.semantique_txt_item)
+	#</jp>
 	def select_liste(self,typ):
 		""" quand un type de liste est selectionné """
 			
@@ -493,11 +514,11 @@ class Principal(QtGui.QMainWindow):
 
 	
 
-        def liste_item_clicked(self):
-                """
-                        suite au changement de sélection d'un élément , mettre à jour
-                        les vues dépendantes 
-                """
+	def liste_item_clicked(self):
+		"""
+						suite au changement de sélection d'un élément , mettre à jour
+					les vues dépendantes 
+		"""
 
 		item = self.NOT12.currentItem().text() # l'element selectionné
 		self.activity("%s selected" % item)
@@ -524,7 +545,7 @@ class Principal(QtGui.QMainWindow):
 		self.activity("%s selected" % item)
 		self.NOT12_E.clear() # on efface la liste
 		ask = "%s.list_rep%d.rep[0:]" % (self.semantique_liste_item,row)
-		self.client.eval_var( ask )
+		self.eval_var_result
 		result = re.split(", ", self.client.eval_var_result)
 		for r in result:
 			self.NOT12_E.addItem( r ) 
@@ -584,7 +605,26 @@ class Principal(QtGui.QMainWindow):
 		self.client.disconnect()
 		self.Param_Server_B.setText('Connect to server')
 		self.Param_Server_B.clicked.connect(self.connect_server)
+	#<jp>
+	def show_textContent(self ,txt,  sem_txt):
+		"""
+			on met le contenu du texte 
+		"""
+		show_txt_widget = QtGui.QWidget()
+		show_txt_box = QtGui.QVBoxLayout()
+		show_txt_box.setContentsMargins(0,0,0,0) 
+		show_txt_box.setSpacing(0) 
 
+		show_txt_widget.setLayout(show_txt_box)
+		index = self.textProperties.addTab(show_txt_widget,"%s" % txt)
+		
+		contentText_semantique = "%s.ph[0:]" % sem_txt
+		self.activity(u"Displaying text for %s " % contentText_semantique )
+		self.client.eval_var(contentText_semantique)
+		txt_content = self.client.eval_var_result
+		text_widget =  QtGui.QTextEdit(txt_content)
+		show_txt_box.addWidget(text_widget)
+	#</jp>
 	def show_network(self):
 #TODO recuperer les autres niveaux de liste
 		#if  self.NOT12_E.currentItem() :
@@ -604,7 +644,7 @@ class Principal(QtGui.QMainWindow):
 
 		show_network_widget.setLayout(show_network_box)
 		index = self.tabNetworks.addTab(show_network_widget,"%s" % element)
-                self.activity(u"Displaying network for %s (limited to 200 items)" % element )
+		self.activity(u"Displaying network for %s (limited to 200 items)" % element )
 
 		#selecteur de concept
 		net_sel_concept = QtGui.QComboBox()
@@ -618,8 +658,8 @@ class Principal(QtGui.QMainWindow):
 		Network_list =  QtGui.QListWidget()
 		show_network_box.addWidget(Network_list)
 		res_semantique = "%s.res[0:200]" % self.semantique_liste_item  
-                self.client.eval_var(res_semantique)
-                Network_list.addItems(re.split(", ",self.client.eval_var_result))
+		self.client.eval_var(res_semantique)
+		Network_list.addItems(re.split(", ",self.client.eval_var_result))
 		self.tabNetworks.setCurrentIndex(index)# donne le focus a l'onglet créé
 		self.SubWdwSO.setCurrentIndex(1)# donne le focus a l'onglet Networks
 
@@ -627,9 +667,9 @@ class Principal(QtGui.QMainWindow):
 		element = self.NOT12.currentItem().text() 
 #TODO recuperer les autres niveaux de liste
 #TODO scores/date/titre
-                self.client.eval_var("%s.txt[0:]"%self.semantique_liste_item)
+		self.client.eval_var("%s.txt[0:]"%self.semantique_liste_item)
 		liste_textes = re.split(", ",self.client.eval_var_result)
-                self.activity(u"Displaying %d texts for %s" % (len(liste_textes),element) )
+		self.activity(u"Displaying %d texts for %s" % (len(liste_textes),element) )
 
 		texts_list = QtGui.QTableWidget()
 		texts_list.verticalHeader().setVisible(False)

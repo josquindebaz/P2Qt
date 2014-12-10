@@ -4,32 +4,32 @@ Created on 5 mars 2012
 
 @author: jean-pierre Charriau
 
-module de communication avec un serveur P-II pour l'évaluation des variables mrlw dont le rendu/l'évaluation dépend des calculs de P-II
+module de communication avec un serveur P-II pour l'ï¿½valuation des variables mrlw dont le rendu/l'ï¿½valuation dï¿½pend des calculs de P-II
 
-une variable est transformée en une séquence de messages envoyés les uns à la suite des autres vers P-II, la séquence
-se terminant par un message "F" signalant la fin de la séquence.
-L'envois successifs de ces messages permet à P-II de retrouver s'ils ont déjà été calculés les différentes objets correspondant
-aux composantes de la variable ( dans l'exemple ci-dessous, $aut0 puis $act1 seront retrouvés par P-II permettant de contextualiser/évaluer
-correctement la dernière composante phadt ... un énoncé aléatoire avec auteur/date/titre, de l'acteur 1 chez l'auteur 0 )
+une variable est transformï¿½e en une sï¿½quence de messages envoyï¿½s les uns ï¿½ la suite des autres vers P-II, la sï¿½quence
+se terminant par un message "F" signalant la fin de la sï¿½quence.
+L'envois successifs de ces messages permet ï¿½ P-II de retrouver s'ils ont dï¿½jï¿½ ï¿½tï¿½ calculï¿½s les diffï¿½rentes objets correspondant
+aux composantes de la variable ( dans l'exemple ci-dessous, $aut0 puis $act1 seront retrouvï¿½s par P-II permettant de contextualiser/ï¿½valuer
+correctement la derniï¿½re composante phadt ... un ï¿½noncï¿½ alï¿½atoire avec auteur/date/titre, de l'acteur 1 chez l'auteur 0 )
   
 
 
-			E:signature    # les objets que calcule P-II sont aussi mis en cache par P-II . la signature permet d'y accéder
+			E:signature	# les objets que calcule P-II sont aussi mis en cache par P-II . la signature permet d'y accï¿½der
 			V:typeVariable:signature  		# V indique une variable
-			P:n  		 # position/indice de la variable précédente
-			BI:n   		# cas d'un accès par tranche  [] pour la variable précédente
+			P:n  		 # position/indice de la variable prï¿½cï¿½dente
+			BI:n   		# cas d'un accï¿½s par tranche  [] pour la variable prï¿½cï¿½dente
 			BS:m
-			ARG:xxx		# lorsque des paramètres sont transmis ( $aut0.phadt[0:10].+xxx  spécifiant une contrainte supplémentaire (présence de xxx))
+			ARG:xxx		# lorsque des paramï¿½tres sont transmis ( $aut0.phadt[0:10].+xxx  spï¿½cifiant une contrainte supplï¿½mentaire (prï¿½sence de xxx))
 			F:			# fin du bloc de message 
 			
-			$aut0.act1.phadt sera transformé en la séquence suivante: 
+			$aut0.act1.phadt sera transformï¿½ en la sï¿½quence suivante: 
 			
-			E:aut0.act1.phadt		# la signature complète
-			V:aut:aut0		# la première composante variable 
-			P:0				# position de la première V
+			E:aut0.act1.phadt		# la signature complï¿½te
+			V:aut:aut0		# la premiï¿½re composante variable 
+			P:0				# position de la premiï¿½re V
 			V:act:act1		# la seconde composante variable
 			P:1				# position de la seconde V
-			V:phadt:phadt	# troisième composante ( sans position ni tranche .. donc aléatoire)
+			V:phadt:phadt	# troisiï¿½me composante ( sans position ni tranche .. donc alï¿½atoire)
 			F				# code de fin de message
 """
 #from settings import hostPII , portPII , logger
@@ -39,10 +39,10 @@ import threading, socket, time , re
 #from globals import getMapDossiers , log_file_name_messages
 from fonctions import is_random_var
 
-# on exclue le signe + pour ne pas reconnaître +truc+bidule
+# on exclue le signe + pour ne pas reconnaï¿½tre +truc+bidule
 regex_var = re.compile (r"""(?P<VAR>[a-zA-Z_]+)($|\s)+""", re.VERBOSE | re.DOTALL)
-# pour $aut0.phadt[0:10].+truc+machin ou '+truc+machin' est analysée par la regex
-# Attention : aux lettres accentuées !
+# pour $aut0.phadt[0:10].+truc+machin ou '+truc+machin' est analysï¿½e par la regex
+# Attention : aux lettres accentuï¿½es !
 regex_var_args = re.compile (r"""\+(?P<ARG>.*?)$""", re.VERBOSE | re.DOTALL)
 # reconnaissance de aut10
 regex_indice = re.compile (r"""(?P<VAR>[a-zA-Z_]*)(?P<INDICE>\d+)$|\s""", re.VERBOSE | re.DOTALL)
@@ -64,15 +64,15 @@ regex_sfrm_forme = re.compile (r"""(?P<VAR>forme.*)($|\s)+""", re.VERBOSE | re.D
 regex_sfrm_ph = re.compile (r"""(?P<VAR>ph.*?)(\d|\[)""", re.VERBOSE | re.DOTALL)
 # pour les X ... ds les sfrm ... par defaut puisque les noms de variables sont libres X Y Z etc..
 regex_sfrm_var = re.compile (r"""(?P<VAR>.*?)(\d|\[)""", re.VERBOSE | re.DOTALL)
-# pour les variables liés X=toto
+# pour les variables liï¿½s X=toto
 regex_sfrm_link_var = re.compile (r"""(?P<VAR>.*?)=(?P<VAL>.*?)(\.|$)""", re.VERBOSE | re.DOTALL)
 
-# regex complémentaire pour isoler les args dans le cas ou le premier arg n'a pas de '+' ( .$Obj+truc )
+# regex complï¿½mentaire pour isoler les args dans le cas ou le premier arg n'a pas de '+' ( .$Obj+truc )
 regex_ph_args_bis =  re.compile (r"""(?P<var>\$.*?)\.(?P<arg_incorrect>.*?)\+(?P<arg>.*?)$""",  re.VERBOSE | re.DOTALL )
 
 class ConnecteurPII (threading.Thread): 
-	""" Pourquoi dériver la class de threading.Thread ? -> utilisation du RLock
-		car pas d'exec de la méthode start/run ...
+	""" Pourquoi dï¿½river la class de threading.Thread ? -> utilisation du RLock
+		car pas d'exec de la mï¿½thode start/run ...
 	"""
 	def __init__ (self):
 		threading.Thread.__init__(self)
@@ -97,7 +97,7 @@ class ConnecteurPII (threading.Thread):
 				time.sleep(0.5)
 				return True
 			except socket.error:			
-				print "Connexion : échec"
+				print "Connexion : ï¿½chec"
 				time.sleep(1)
 				
 
@@ -108,7 +108,7 @@ class ConnecteurPII (threading.Thread):
 		self.connexion = None
 
 	def send_var_for_frm(self, dic_of_frm_var):
-		"""envois des variables utilisées par les frm
+		"""envois des variables utilisï¿½es par les frm
 		"""
 		if not self.connexion : 
 			if not self.connect():
@@ -127,7 +127,7 @@ class ConnecteurPII (threading.Thread):
 		
 	def send_frm(self, dic_formules):
 		"""envois des classe des formule vers P-II
-			entête CFRM:nom_de_la_classe
+			entï¿½te CFRM:nom_de_la_classe
 					FRM:formule
 					F:	
 		"""
@@ -154,14 +154,14 @@ class ConnecteurPII (threading.Thread):
 
 	def send_dossiers(self):
 		"""
-		envois des définitions de dossier à P-II
+		envois des dï¿½finitions de dossier ï¿½ P-II
 		"""
 		if not self.connexion : 
 			if not self.connect():
 				return ""
 		dic_dossier = getMapDossiers()
 		for dossier in dic_dossier.keys():
-			print "dossier envoyé" , dossier
+			print "dossier envoyï¿½" , dossier
 			mess = "E:DOSSIER_CONSTRUCTOR"
 			self.send_expression(mess)
 			mess = "DOSSIER:" + dossier
@@ -185,7 +185,7 @@ class ConnecteurPII (threading.Thread):
 		self.m_cache_index[data] = value
 	def eval_fonc(self, data):
 		"""
-			cas du getsem : on interroge P-II pour obtenir la sémantique exacte d'un élément
+			cas du getsem : on interroge P-II pour obtenir la sï¿½mantique exacte d'un ï¿½lï¿½ment
 		"""
 		self.m_threadlock.acquire()
 		if data in self.m_cache_fonc.keys():
@@ -220,10 +220,10 @@ class ConnecteurPII (threading.Thread):
 		self.m_threadlock.release()
 		return ev
 	def eval_index(self, data):
-		""" interrogation de P-II sur le/les types associés à data
+		""" interrogation de P-II sur le/les types associï¿½s ï¿½ data
 		"""
 		self.m_threadlock.acquire()
-		# si le/les types de data ont déjà été recherché on les retrouve dans le cache
+		# si le/les types de data ont dï¿½jï¿½ ï¿½tï¿½ recherchï¿½ on les retrouve dans le cache
 		if data in  self.m_cache_index.keys():
 			self.m_threadlock.release()
 			return self.m_cache_index[data]
@@ -269,8 +269,48 @@ class ConnecteurPII (threading.Thread):
 		# mise en cache pour la fois suivante 
 		self.add_cache_index(data, L)
 		self.m_threadlock.release()
+		
 		return L
-					
+
+
+
+
+	def get_value(self ,info=None)  :
+		#	version tenant compte du code S ou L en premiere position
+		try:
+			taille = self.connexion.recv(10)
+			taille_mess = int(taille)
+			print taille_mess
+			#data = self.connexion.recv(taille_mess)
+			data = self.connexion.makefile().read(taille_mess)
+			print "-->" , data
+		except :
+			print "get_value() echec connexion  ressaye"
+			if not self.connect(): # on ressaye
+				return ""
+			try :
+				taille = self.connexion.recv(10) 
+				taille_mess = int(taille)
+				print taille_mess
+				data = self.connexion.makefile().read(taille_mess)
+				
+			except :
+				print "get_value() echec connexion  ECHEC "
+				return ""
+		if data :
+
+			if data[0] == 'L':	# L"xxx\,yyyy\,zzzz"
+				data = data[1:].split('\,')
+			elif data == "SNone": # "SNone"
+				data = ""
+			else: # "Sxxxxxx"
+				print "taille OOO-> ", len(data)
+				data = data[1:]
+				print "taille -> ", len(data)
+				print data
+				print data[-4:]
+		data = data.decode('utf-8')	
+		return data					
 		
 	def eval_variable(self, var,user_env=None,corpus_env=None,env_dialogue=None):
 		""" 
@@ -309,35 +349,7 @@ class ConnecteurPII (threading.Thread):
 		"""
 		pass
 	
-	def get_value(self ,info=None):
-		"""
-			version tenant compte du code S ou L en première position
-		"""
-		try:
-			taille = self.connexion.recv(10)
-			taille_mess = int(taille)
-			data = self.connexion.makefile().read(taille_mess)
-		except :
-			print "get_value() echec connexion  ressaye"
-			if not self.connect(): # on ressaye
-				return ""
-			try :
-				taille = self.connexion.recv(10)
-				taille_mess = int(taille)
-				data = self.connexion.makefile().read(taille_mess)
-			except :
-				print "get_value() echec connexion  ECHEC "
-				return ""
-		if data :
-			if data[0] == 'L':	# L"xxx\,yyyy\,zzzz"
-				data = data[1:].split('\,')
-			elif data == "SNone": # "SNone"
-				data = ""
-			else: # "Sxxxxxx"
-				data = data[1:]
 
-		data = data.decode('utf-8')	
-		return data
 
 	def send_expression(self, expression):
 		""" 
@@ -402,7 +414,7 @@ class ConnecteurPII (threading.Thread):
 			v = v.replace(r1.group('SKIP'), '')
 		return v
 	def creer_msg_sfrm(self, data):
-		"""spécifique aux sfrm !
+		"""spï¿½cifique aux sfrm !
 		$sfrm.Evts-marquants.forme0
 			E:sfrm.Evts-marquants.forme0
 			S:SFRM:Evts-marquant
@@ -576,15 +588,15 @@ class ConnecteurPII (threading.Thread):
 
 	def creer_msg(self, data,user_env,corpus_env,env_dialogue):
 		"""
-			transforme l'expression en une séquence de messages qui seront envoyés à P-II
+			transforme l'expression en une sï¿½quence de messages qui seront envoyï¿½s ï¿½ P-II
 			
 			
-			E:signature    # les objets que calcule P-II sont mis en cache . la signature permet d'y accéder
+			E:signature	# les objets que calcule P-II sont mis en cache . la signature permet d'y accï¿½der
 			V:typeVariable:signature  
 			P:n  		 # position/indice de la variable
-			BI:n   		# cas d'un accès par tranche  []
+			BI:n   		# cas d'un accï¿½s par tranche  []
 			BS:m
-			ARG:xxx		# lorsque des paramètres sont transmis ( $aut0.phadt[0:10].+xxx  spécifiant une contrainte supplémentaire (présence de xxx))
+			ARG:xxx		# lorsque des paramï¿½tres sont transmis ( $aut0.phadt[0:10].+xxx  spï¿½cifiant une contrainte supplï¿½mentaire (prï¿½sence de xxx))
 			F:			# fin du bloc de message 
 			
 			$aut0.act1.phadt sera converti en 
@@ -610,7 +622,7 @@ class ConnecteurPII (threading.Thread):
 
 
 
-			avec des paramètres ...
+			avec des paramï¿½tres ...
 			$aut0.act1.phadt[0:10].+truc+machin sera converti en 
 			E:aut0.act1.phadt[0:10]   # signature
 			V:aut:aut0		
@@ -625,35 +637,35 @@ class ConnecteurPII (threading.Thread):
 			F
 
 
-			E:signature utilisée ds le cache
-			remarque : pour les reseaux, (res, inf ,resact,respers ) la signature doit être sans les indices/tranches
-			puisque P-II calcule le réseau (d'entités, de catégorise, d'acteurs,de personnes) d'un objet une fois,
-			$act0.res est calculé une fois, les accès $act0.res1 $act0.res2 $act0.res[0:10] se résumant à une sélection d'éléments
-			dans le réseau existant.
+			E:signature utilisï¿½e ds le cache
+			remarque : pour les reseaux, (res, inf ,resact,respers ) la signature doit ï¿½tre sans les indices/tranches
+			puisque P-II calcule le rï¿½seau (d'entitï¿½s, de catï¿½gorise, d'acteurs,de personnes) d'un objet une fois,
+			$act0.res est calculï¿½ une fois, les accï¿½s $act0.res1 $act0.res2 $act0.res[0:10] se rï¿½sumant ï¿½ une sï¿½lection d'ï¿½lï¿½ments
+			dans le rï¿½seau existant.
 			
 			$act0.res[0:10] -> $act0.res
 			$act0.res[0:98] -> $act0.res
 			$act0.res0 -> $act0.res
 			$act0.res1 -> $act0.res
-			$aut4.ph.+$aut4.act0+$aut4.act0.res1 --> d'où l'utilisation du mask, et l'évaluation des args 
+			$aut4.ph.+$aut4.act0+$aut4.act0.res1 --> d'oï¿½ l'utilisation du mask, et l'ï¿½valuation des args 
 			
 			modification 3/07/2012
-			traitement des {} formes liste à renvoyer
+			traitement des {} formes liste ï¿½ renvoyer
 			
-				Pb du séparateur ',' utilisé dans les formes [] (quasi identique aux formes [] )
-				mais les variables $ph utilisées avec [] ou {} peuvent renvoyer du contenu avec des "," !!
-				il faut donc que le code de séparation des items renvoyés soit différent de "," dans le cas des {}
+				Pb du sï¿½parateur ',' utilisï¿½ dans les formes [] (quasi identique aux formes [] )
+				mais les variables $ph utilisï¿½es avec [] ou {} peuvent renvoyer du contenu avec des "," !!
+				il faut donc que le code de sï¿½paration des items renvoyï¿½s soit diffï¿½rent de "," dans le cas des {}
 			
-				chaque message reçu (getvalue) contiendra en première position S ou L indiquant le type string ou list
-				ds le cas du type list, getvalue créera une liste ( split(separ)) 
+				chaque message reï¿½u (getvalue) contiendra en premiï¿½re position S ou L indiquant le type string ou list
+				ds le cas du type list, getvalue crï¿½era une liste ( split(separ)) 
 				
-				il faut reconnaître les {} dans les variables afin d'envoyer un code 'L' à P-II pour qu'il indique 
+				il faut reconnaï¿½tre les {} dans les variables afin d'envoyer un code 'L' ï¿½ P-II pour qu'il indique 
 				
 			
 		"""
 		mask = "TUVXYZ"
 
-		# provisoire : repérage des {}
+		# provisoire : repï¿½rage des {}
 		if data.find('{') != -1:
 			forme_liste = True
 		else:
@@ -670,7 +682,7 @@ class ConnecteurPII (threading.Thread):
 			args = r.group('ARG') # tout ce qui suit le premier '+'
 			data = data.replace(args,mask) 
 			"""
-				évaluer les args commençant par $ pour construire la liste des args évalués
+				ï¿½valuer les args commenï¿½ant par $ pour construire la liste des args ï¿½valuï¿½s
 			"""
 			#largs =  r.group('arg_incorrect').split('+') # ['$V', '$X', 'bidule'] ???
 			largs = args.split('+')
@@ -678,7 +690,7 @@ class ConnecteurPII (threading.Thread):
 				if not a : continue  # quand .+xxx+yyy arg_incorrect  ne contient rien !
 				if a[0] =='$' :
 					ev = eval_variables( a , user_env, corpus_env,env_dialogue)
-					if not ev: # échec de l'évaluation
+					if not ev: # ï¿½chec de l'ï¿½valuation
 						return []
 					liste_eval_args.append(ev)
 				else:
@@ -687,7 +699,7 @@ class ConnecteurPII (threading.Thread):
 				return []
 			new_args = "" + "+".join(liste_eval_args)
 		L = data.split('.')
-		lmess = [] # contiendra les messages à envoyer à P-II
+		lmess = [] # contiendra les messages ï¿½ envoyer ï¿½ P-II
 		
 		# signature particuliere pour les .res
 		signature = self.getSignature(data)
@@ -705,7 +717,7 @@ class ConnecteurPII (threading.Thread):
 					lmess.append("ARG:" + arg)
 					forme = forme + "+" + arg
 					
-				# mettre à jour la signature de la dernière variable V:
+				# mettre ï¿½ jour la signature de la derniï¿½re variable V:
 				if last_var_expr :
 					last_var_expr_with_args = last_var_expr + forme
 					# maj de la forme ds la liste lmess
@@ -785,6 +797,7 @@ m_connecteur_pII = ConnecteurPII()
 
 	
 if __name__ == "__main__" :
+
 	c = ConnecteurPII()
 	c.set( '127.0.0.1','4000' )
 	try :
