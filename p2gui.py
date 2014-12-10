@@ -620,10 +620,29 @@ class Principal(QtGui.QMainWindow):
 		
 		contentText_semantique = "%s.ph[0:]" % sem_txt
 		self.activity(u"Displaying text for %s " % contentText_semantique )
+		
 		self.client.eval_var(contentText_semantique)
 		txt_content = self.client.eval_var_result
+		
 		text_widget =  QtGui.QTextEdit(txt_content)
 		show_txt_box.addWidget(text_widget)
+		
+		
+
+		list_atcants =  QtGui.QListWidget()
+		show_txt_box.addWidget(list_atcants)
+		list_act_sem = "%s.act[0:]" % sem_txt
+		self.client.eval_var(list_act_sem)
+		list_atcants.addItems(re.split(", ",self.client.eval_var_result))
+		self.textProperties.setCurrentIndex(index)# donne le focus a l'onglet créé		
+		
+		
+		
+		self.SubWdwSO.setCurrentIndex(2)
+		
+		
+		
+		
 	#</jp>
 	def show_network(self):
 #TODO recuperer les autres niveaux de liste
