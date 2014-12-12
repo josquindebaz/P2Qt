@@ -5,6 +5,7 @@
 #TODO internationalisation QTranslator
 
 import sys
+import PySide
 from PySide import QtCore 
 from PySide import QtGui 
 
@@ -12,6 +13,7 @@ import interface_prospero
 import re
 import datetime
 import subprocess, threading
+from PySide.QtGui import QMdiArea
 
 
 class client(object):
@@ -321,7 +323,7 @@ class Principal(QtGui.QMainWindow):
 ##################################################
 
 		SubWdwNO =  QtGui.QTabWidget()
-
+		
 
 ##### L'onglet des listes
 		NOT1 = QtGui.QWidget()
@@ -412,21 +414,43 @@ class Principal(QtGui.QMainWindow):
 #		SubWdwNO.addTab(NOT2,"Formulae")
 #		SubWdwNO.addTab(NOT3,"Explorer")
 
+		# 1 layout vertical dans lequel sont insérés 2 layout horizontals
+		main = QtGui.QWidget()
+		h1_layout = QtGui.QVBoxLayout()
+		vl1_layout = QtGui.QHBoxLayout()
+		vl2_layout =QtGui.QHBoxLayout()
+		
+		h1_layout.addLayout(vl1_layout)
+		h1_layout.addLayout(vl2_layout)
+		
+		vl1_layout.addWidget(SubWdwNO)
+		vl1_layout.addWidget(self.SubWdwNE)
+		
+		vl2_layout.addWidget(self.SubWdwSO)
+		vl2_layout.addWidget(SubWdwSE)
+		
+		main.setLayout(h1_layout)
+		self.setCentralWidget(main)
 		#la MdiArea 
+		'''
 		Area = QtGui.QMdiArea()
-		sw1 = Area.addSubWindow(SubWdwSE, flags = QtCore.Qt.FramelessWindowHint)
-		sw2 = Area.addSubWindow(self.SubWdwSO, flags = QtCore.Qt.FramelessWindowHint)
-		sw3 = Area.addSubWindow(self.SubWdwNE , flags = QtCore.Qt.FramelessWindowHint)
 		sw4 = Area.addSubWindow(SubWdwNO , flags = QtCore.Qt.FramelessWindowHint)
-	
+		sw3 = Area.addSubWindow(self.SubWdwNE , flags = QtCore.Qt.FramelessWindowHint)
+		sw2 = Area.addSubWindow(self.SubWdwSO, flags = QtCore.Qt.FramelessWindowHint)
+		sw1 = Area.addSubWindow(SubWdwSE, flags = QtCore.Qt.FramelessWindowHint)
 
+		#QMdiArea.WindowOrder = QMdiArea.CreationOrder
+		Area.setActivationOrder(QtGui.QMdiArea.CreationOrder) 
+		
+		#PySide.QtGui.QWorkspace.scrollBarsEnabled(True)
+		#AreascrollBarsEnabled()
 		Area.tileSubWindows()
 
 		self.setCentralWidget(Area)
-				
+		'''	
 		self.setWindowTitle(u'Prospéro II 28/10/2014')	
-		self.showMaximized() 
-
+		#self.showMaximized() 
+		self.show()
 
 	def select_P2_path(self):
 		path = QtGui.QFileDialog.getOpenFileName(self, 'Select server path')
@@ -472,6 +496,8 @@ class Principal(QtGui.QMainWindow):
 		self.activity(u"%s selected " % (item_txt)) 
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
 		self.show_textContent(item_txt , self.semantique_txt_item)
+		self.show_textProperties(item_txt , self.semantique_txt_item)
+		
 	#</jp>
 	def select_liste(self,typ):
 		""" quand un type de liste est selectionné """
@@ -627,7 +653,7 @@ class Principal(QtGui.QMainWindow):
 		text_widget =  QtGui.QTextEdit(txt_content)
 		show_txt_box.addWidget(text_widget)
 		
-		
+		# essai visualisation acteurs principaux
 
 		list_atcants =  QtGui.QListWidget()
 		show_txt_box.addWidget(list_atcants)
@@ -641,7 +667,38 @@ class Principal(QtGui.QMainWindow):
 		
 		self.SubWdwSO.setCurrentIndex(2)
 		
+	def show_textProperties(self ,txt,  sem_txt):
+		"""
+			on met le contenu du texte 
+		"""
+		show_txt_widget = QtGui.QWidget()
+		show_txt_box = QtGui.QVBoxLayout()
+		show_txt_box.setContentsMargins(0,0,0,0) 
+		show_txt_box.setSpacing(0) 
+
+		show_txt_widget.setLayout(show_txt_box)
+		index = self.textProperties.addTab(show_txt_widget,"%s" % txt)
 		
+		props_widget = QtGui.QTextEdit()
+		show_txt_box.addWidget(props_widget)
+		
+		
+		
+		for props in [u"auteur_txt", u"titre_txt", u"date_txt"] :
+			props_sem  = "%s.%s" % (sem_txt,props)
+			self.activity(u"Displaying  %s " % props_sem )
+		
+			self.client.eval_var(props_sem)
+			value = self.client.eval_var_result
+		
+			props_widget.append(value )
+			
+		
+		self.textProperties.setCurrentIndex(index)# donne le focus a l'onglet créé		
+
+		self.SubWdwSO.setCurrentIndex(2)
+		
+				
 		
 		
 	#</jp>
