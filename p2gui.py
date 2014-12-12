@@ -154,7 +154,7 @@ class Principal(QtGui.QMainWindow):
 		#la liste des textes du corpus
 		self.CorpusTexts = QtGui.QListWidget()
 		#<jp>
-		self.CorpusTexts.itemClicked.connect(self.onSelectText)
+		self.CorpusTexts.itemClicked.connect(self.onSelectTextFromCorpus)
 		#</jp>
 		self.SOT1.addTab(self.CorpusTexts,"corpus")
 		# on fait disparaître le bouton close de la tab CorpusTexts, a gauche pour les mac
@@ -487,17 +487,25 @@ class Principal(QtGui.QMainWindow):
 		listeTextes = self.client.txts
 		self.CorpusTexts.addItems(listeTextes)
 	#<jp>
-	def onSelectText(self):
+	def onSelectTextFromCorpus(self):
+		print"onSelectTextFromCorpus"
+		item_txt = self.CorpusTexts.currentItem().text()
+		self.onSelectText(item_txt)
+		
+	def onSelectText(self,item_txt):
 		"""
 		essai - sur la sélection d'un texte (ds les textes du corpus) on met à jour
 		un/des tab dans text Properties
 		"""
-		item_txt = self.CorpusTexts.currentItem().text()
+		#item_txt = self.CorpusTexts.currentItem().text()
 		self.activity(u"%s selected " % (item_txt)) 
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
 		self.show_textContent(item_txt , self.semantique_txt_item)
 		self.show_textProperties(item_txt , self.semantique_txt_item)
-		
+	def getvalueFromSem(self,item_txt,type):	
+		sem = self.client.eval_get_sem(item_txt, type )
+		val = self.client.eval_var(sem)
+		return val
 	#</jp>
 	def select_liste(self,typ):
 		""" quand un type de liste est selectionné """
@@ -756,9 +764,36 @@ class Principal(QtGui.QMainWindow):
 		row = 0 
 		for txt in liste_textes:
 			name = re.split("/",txt)[-1]
+
 			itemwidget = QtGui.QTableWidgetItem(name)
 			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non-editable
 			texts_list.setItem(row,1,itemwidget)
+
+
+			txt_sem = self.client.eval_get_sem(txt, "$txt" )
+			self.client.eval_var("%s.titre_txt"%txt_sem)
+			txt_title = self.client.eval_var_result
+			
+			
+			itemwidget = QtGui.QTableWidgetItem(txt_title)
+			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non-editable
+		
+			texts_list.setItem(row,2,itemwidget)
+			
+			
+			
+			txt_sem = self.client.eval_get_sem(txt, "$txt" )
+			self.client.eval_var("%s.date_txt"%txt_sem)
+			txt_title = self.client.eval_var_result
+			
+			
+			itemwidget = QtGui.QTableWidgetItem(txt_title)
+			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non-editable
+		
+			texts_list.setItem(row,0,itemwidget)
+			
+			
+			
 			row += 1
 		texts_list.resizeColumnToContents(0)
 		texts_list.resizeColumnToContents(1)
@@ -790,12 +825,14 @@ class Principal(QtGui.QMainWindow):
 		show_texts_widget.setLayout(show_texts_box)		
 		show_texts_box.addWidget(texts_list)
 		show_texts_box.addWidget(anticorpus)
+		
 
 		index = self.SOT1.addTab(show_texts_widget,"%s (%d)" % (element,len(liste_textes)))
 		self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
 		self.SubWdwSO.setCurrentIndex(0)# donne le focus a l'onglet Texts
 		self.SOT1.tabBar().setTabToolTip(index,"%s %d"%(element,len(liste_textes)))
 		
+
 
 
 def main():
