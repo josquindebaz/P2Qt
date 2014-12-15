@@ -643,13 +643,14 @@ class Principal(QtGui.QMainWindow):
 	def show_textContent(self ,txt,  sem_txt):
 		"""
 			on met le contenu du texte 
+			puis un ctrl layout horizontal dans lequel on insert 2 ctrl de liste
 		"""
 		show_txt_widget = QtGui.QWidget()
-		show_txt_box = QtGui.QVBoxLayout()
-		show_txt_box.setContentsMargins(0,0,0,0) 
-		show_txt_box.setSpacing(0) 
+		show_VBox_layout = QtGui.QVBoxLayout()
+		show_VBox_layout.setContentsMargins(0,0,0,0) 
+		show_VBox_layout.setSpacing(0) 
 
-		show_txt_widget.setLayout(show_txt_box)
+		show_txt_widget.setLayout(show_VBox_layout)
 		index = self.textProperties.addTab(show_txt_widget,"%s" % txt)
 		
 		contentText_semantique = "%s.ph[0:]" % sem_txt
@@ -659,21 +660,69 @@ class Principal(QtGui.QMainWindow):
 		txt_content = self.client.eval_var_result
 		
 		text_widget =  QtGui.QTextEdit(txt_content)
-		show_txt_box.addWidget(text_widget)
+		show_VBox_layout.addWidget(text_widget)
 		
+		# un Vbox horizontal dans lequel on place 3 listes
 		# essai visualisation acteurs principaux
+		show_HBox_layout = QtGui.QHBoxLayout()
+		show_HBox_layout.setContentsMargins(0,0,0,0) 
+		show_HBox_layout.setSpacing(0)
+		#show_txt_widget.setLayout(show_txt_box)
+		show_VBox_layout.addLayout(show_HBox_layout)
 
-		list_atcants =  QtGui.QListWidget()
-		show_txt_box.addWidget(list_atcants)
+
+		list_atcants_box =  QtGui.QListWidget()
+		show_HBox_layout.addWidget(list_atcants_box)
 		list_act_sem = "%s.act[0:]" % sem_txt
 		self.activity(u"Wating for %s " % list_act_sem )
 		self.client.eval_var(list_act_sem)
-		list_atcants.addItems(re.split(", ",self.client.eval_var_result))
+		list_act  = self.client.eval_var_result
+		L = re.split(", ",list_act)
+		list_atcants_box.addItems(L)
+		
+		# les collections
+
+		list_col_box =  QtGui.QListWidget()
+		show_HBox_layout.addWidget(list_col_box)
+		list_col_sem = "%s.col[0:]" % sem_txt
+		self.activity(u"Wating for %s " % list_col_sem )
+		self.client.eval_var(list_col_sem)
+		list_col_box.addItems(re.split(", ",self.client.eval_var_result))	
 		self.textProperties.setCurrentIndex(index)# donne le focus a l'onglet créé		
 		
 		
 		
 		self.SubWdwSO.setCurrentIndex(2)
+		
+		
+		actants_tableView = QtGui.QTableWidget()
+		show_HBox_layout.addWidget(actants_tableView)
+		actants_tableView.setRowCount(len(L))
+		actants_tableView.setColumnCount(2)
+		actants_tableView.setHorizontalHeaderLabels(['Score','Element'])
+
+		row = 0 
+		for item in L:
+			itemwidget = QtGui.QTableWidgetItem(item)
+			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non-editable
+			# $txt123.act3.val
+			# PB ne peut pas retrouver/calculer une sémantique interne à une autre
+			# genre $txt4.act2  ou $ent3.res3  avec "$txt" "$act" -- > 2 inconnues
+			# mais on peut le faire si la première variable est connue ; ex "$txt3"
+			#on n'aura plus qu'à chercher le $act ... mais il faut l'implémenter sous P-II 
+			sem= self.client.eval_get_sem(item,"%s.%s.self.sem_liste_concept") 
+			#C'EST TROP LENT !!!!! C'EST PAS DANS L'ORDRE !!!!
+			#semantique = self.client.eval_get_sem(item,self.sem_liste_concept) #NE RENVOIE PAS $col2 sur AaC, pb sur le dico, manque type ?
+			#sem_poids = semantique + ".val" 
+			#self.client.eval_var(sem_poids)	
+			#itemwidgetS = QtGui.QTableWidgetItem(self.client.eval_var_result)
+			#itemwidgetS.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non editable
+
+			#self.NOT12.setItem(row,0,itemwidgetS) 
+			actants_tableView.setItem(row,1,itemwidget)
+			row += 1
+
+		
 		
 	def show_textProperties(self ,txt,  sem_txt):
 		"""
@@ -760,7 +809,7 @@ class Principal(QtGui.QMainWindow):
 		texts_list.verticalHeader().setVisible(False)
 		texts_list.setRowCount(len(liste_textes))
 		texts_list.setColumnCount(3)
-		texts_list.setHorizontalHeaderLabels(['date','name','title'])
+		texts_list.setHorizontalHeaderLabels([u'date',u'name',u'title'])
 		row = 0 
 		for txt in liste_textes:
 			name = re.split("/",txt)[-1]
@@ -770,8 +819,8 @@ class Principal(QtGui.QMainWindow):
 			texts_list.setItem(row,1,itemwidget)
 
 
-			txt_sem = self.client.eval_get_sem(txt, "$txt" )
-			self.client.eval_var("%s.titre_txt"%txt_sem)
+			txt_sem = self.client.eval_get_sem(txt, u"$txt" )
+			self.client.eval_var(u"%s.titre_txt"%txt_sem)
 			txt_title = self.client.eval_var_result
 			
 			
