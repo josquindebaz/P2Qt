@@ -448,7 +448,7 @@ class Principal(QtGui.QMainWindow):
 
 		self.setCentralWidget(Area)
 		'''	
-		self.setWindowTitle(u'Prospéro II 28/10/2014')	
+		self.setWindowTitle(u'Prospéro II')	
 		#self.showMaximized() 
 		self.show()
 
