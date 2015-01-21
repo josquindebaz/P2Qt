@@ -104,7 +104,7 @@ class Principal(QtGui.QMainWindow):
 ##################################################
 
 
-		# onglet proprietes des textes
+	# onglet proprietes du texte
 		self.textProperties = QtGui.QTabWidget()
 		self.textProperties.setTabsClosable(True)
 		self.textProperties.tabCloseRequested.connect(self.textProperties.removeTab)
@@ -125,7 +125,7 @@ class Principal(QtGui.QMainWindow):
 #		Prop5Image = QtGui.QPixmap("prop5.png")
 #		SET15.setPixmap(Prop5Image)
 
-		SET1 = QtGui.QTabWidget()
+		#SET1 = QtGui.QTabWidget()
 		#SET1.addTab(SET11,u"Propriétés saillantes")
 #		SET1.addTab(SET12,u"Apports et reprises")
 #		SET1.addTab(SET13,u"Eléments du texte")
@@ -137,16 +137,15 @@ class Principal(QtGui.QMainWindow):
 #		CTXImage = QtGui.QPixmap("CTX.png")
 #		T2.setPixmap(CTXImage)
 
-		T3 =  QtGui.QLabel()
-#		TextImage = QtGui.QPixmap("Text.png")
-#		T3.setPixmap(TextImage)
+	# onglet contenu du texte
+		self.textContent = QtGui.QTextEdit() 
 
 
 		SubWdwSE = QtGui.QTabWidget()
-		SubWdwSE.addTab(self.textProperties,"Text properties")
+		SubWdwSE.addTab(self.textProperties,"Properties")
 #		SubWdwSE.addTab(SET1,"Prop")
-#		SubWdwSE.addTab(T2,"CTX")
-#		SubWdwSE.addTab(T3,"Text")
+		SubWdwSE.addTab(T2,"CTX")
+		SubWdwSE.addTab(self.textContent,"Text")
 
 
 ##################################################
@@ -412,30 +411,35 @@ class Principal(QtGui.QMainWindow):
 #		SubWdwNO.addTab(NOT2,"Formulae")
 #		SubWdwNO.addTab(NOT3,"Explorer")
 
+################################################
+################################################
+		### layout qui supprime le bug de rotation des cadrans mais qui genere des problemes de taille d'affichage sur chaque cadran
 		# 1 layout vertical dans lequel sont insérés 2 layout horizontals
-		main = QtGui.QWidget()
-		h1_layout = QtGui.QVBoxLayout()
-		vl1_layout = QtGui.QHBoxLayout()
-		vl2_layout =QtGui.QHBoxLayout()
-		
-		h1_layout.addLayout(vl1_layout)
-		h1_layout.addLayout(vl2_layout)
-		
-		vl1_layout.addWidget(SubWdwNO)
-		vl1_layout.addWidget(self.SubWdwNE)
-		
-		vl2_layout.addWidget(self.SubWdwSO)
-		vl2_layout.addWidget(SubWdwSE)
-		
-		main.setLayout(h1_layout)
-		self.setCentralWidget(main)
+#		main = QtGui.QWidget()
+#		h1_layout = QtGui.QVBoxLayout()
+#		vl1_layout = QtGui.QHBoxLayout()
+#		vl2_layout =QtGui.QHBoxLayout()
+#		
+#		h1_layout.addLayout(vl1_layout)
+#		h1_layout.addLayout(vl2_layout)
+#		
+#		vl1_layout.addWidget(SubWdwNO)
+#		vl1_layout.addWidget(self.SubWdwNE)
+#		
+#		vl2_layout.addWidget(self.SubWdwSO)
+#		vl2_layout.addWidget(SubWdwSE)
+#		
+#		main.setLayout(h1_layout)
+#		self.setCentralWidget(main)
+################################################
+################################################
+
 		#la MdiArea 
-		'''
 		Area = QtGui.QMdiArea()
-		sw4 = Area.addSubWindow(SubWdwNO , flags = QtCore.Qt.FramelessWindowHint)
-		sw3 = Area.addSubWindow(self.SubWdwNE , flags = QtCore.Qt.FramelessWindowHint)
-		sw2 = Area.addSubWindow(self.SubWdwSO, flags = QtCore.Qt.FramelessWindowHint)
 		sw1 = Area.addSubWindow(SubWdwSE, flags = QtCore.Qt.FramelessWindowHint)
+		sw2 = Area.addSubWindow(self.SubWdwSO, flags = QtCore.Qt.FramelessWindowHint)
+		sw3 = Area.addSubWindow(self.SubWdwNE , flags = QtCore.Qt.FramelessWindowHint)
+		sw4 = Area.addSubWindow(SubWdwNO , flags = QtCore.Qt.FramelessWindowHint)
 
 		#QMdiArea.WindowOrder = QMdiArea.CreationOrder
 		Area.setActivationOrder(QtGui.QMdiArea.CreationOrder) 
@@ -445,10 +449,20 @@ class Principal(QtGui.QMainWindow):
 		Area.tileSubWindows()
 
 		self.setCentralWidget(Area)
-		'''	
+		
 		self.setWindowTitle(u'Prospéro II')	
-		#self.showMaximized() 
+		self.showMaximized() 
 		self.show()
+
+
+
+################################################
+################################################
+#Fin de la methode principale d'affichage
+#début des fonctions
+################################################
+################################################
+
 
 	def select_P2_path(self):
 		path = QtGui.QFileDialog.getOpenFileName(self, 'Select server path')
@@ -473,6 +487,7 @@ class Principal(QtGui.QMainWindow):
 			return False
 
 	def activity(self,message):
+		"""Add message to the history window"""
 		self.status.showMessage(message)
 		self.History.append("%s: %s" % (datetime.datetime.now(),message))
 
@@ -484,30 +499,31 @@ class Principal(QtGui.QMainWindow):
 		self.CorpusTexts.clear()
 		listeTextes = self.client.txts
 		self.CorpusTexts.addItems(listeTextes)
+
 	#<jp>
 	def onSelectTextFromCorpus(self):
-		print"onSelectTextFromCorpus"
+		"""When a text is selected from the list of texts"""
 		item_txt = self.CorpusTexts.currentItem().text()
 		self.onSelectText(item_txt)
 		
 	def onSelectText(self,item_txt):
-		"""
-		essai - sur la sélection d'un texte (ds les textes du corpus) on met à jour
+		""" essai - sur la sélection d'un texte (ds les textes du corpus) on met à jour
 		un/des tab dans text Properties
 		"""
-		#item_txt = self.CorpusTexts.currentItem().text()
 		self.activity(u"%s selected " % (item_txt)) 
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
 		self.show_textContent(item_txt , self.semantique_txt_item)
-		self.show_textProperties(item_txt , self.semantique_txt_item)
+		#self.show_textProperties(item_txt , self.semantique_txt_item)
+
 	def getvalueFromSem(self,item_txt,type):	
 		sem = self.client.eval_get_sem(item_txt, type )
 		val = self.client.eval_var(sem)
 		return val
 	#</jp>
+
+
 	def select_liste(self,typ):
 		""" quand un type de liste est selectionné """
-			
 		self.activity(u"Waiting for  %s list" % (typ)) 
 		self.sem_liste_concept = self.get_semantique()
 		content = self.client.recup_liste_concept(self.sem_liste_concept)
@@ -637,78 +653,82 @@ class Principal(QtGui.QMainWindow):
 		self.client.disconnect()
 		self.Param_Server_B.setText('Connect to server')
 		self.Param_Server_B.clicked.connect(self.connect_server)
+
+
+
 	#<jp>
 	def show_textContent(self ,txt,  sem_txt):
-		"""
-			on met le contenu du texte 
-			puis un ctrl layout horizontal dans lequel on insert 2 ctrl de liste
-		"""
-		show_txt_widget = QtGui.QWidget()
-		show_VBox_layout = QtGui.QVBoxLayout()
-		show_VBox_layout.setContentsMargins(0,0,0,0) 
-		show_VBox_layout.setSpacing(0) 
-
-		show_txt_widget.setLayout(show_VBox_layout)
-		index = self.textProperties.addTab(show_txt_widget,"%s" % txt)
-		
+		"""Insert text content in the dedicated window"""
 		contentText_semantique = "%s.ph[0:]" % sem_txt
-		self.activity(u"Displaying text for %s " % contentText_semantique )
-		
+		#self.activity(u"Displaying text for %s " % contentText_semantique )
 		self.client.eval_var(contentText_semantique)
 		txt_content = self.client.eval_var_result
+		self.textContent.clear()
+		self.textContent.append(txt_content)
 		
-		text_widget =  QtGui.QTextEdit(txt_content)
-		show_VBox_layout.addWidget(text_widget)
+		
+	def show_textProperties(self ,txt,  sem_txt):
+		"""Show text properties """
+		
+		#show_txt_widget = QtGui.QWidget()
+		#show_VBox_layout = QtGui.QVBoxLayout()
+		#show_VBox_layout.setContentsMargins(0,0,0,0) 
+		#show_VBox_layout.setSpacing(0) 
+
+		#show_txt_widget.setLayout(show_VBox_layout)
+		#index = self.textProperties.addTab(show_txt_widget,"%s" % txt)
+	
+		
 		
 		# un Vbox horizontal dans lequel on place 3 listes
 		# essai visualisation acteurs principaux
-		show_HBox_layout = QtGui.QHBoxLayout()
-		show_HBox_layout.setContentsMargins(0,0,0,0) 
-		show_HBox_layout.setSpacing(0)
+		#show_HBox_layout = QtGui.QHBoxLayout()
+		#show_HBox_layout.setContentsMargins(0,0,0,0) 
+		#show_HBox_layout.setSpacing(0)
 		#show_txt_widget.setLayout(show_txt_box)
-		show_VBox_layout.addLayout(show_HBox_layout)
+		#show_VBox_layout.addLayout(show_HBox_layout)
 
 
-		list_atcants_box =  QtGui.QListWidget()
-		show_HBox_layout.addWidget(list_atcants_box)
-		list_act_sem = "%s.act[0:]" % sem_txt
-		self.activity(u"Wating for %s " % list_act_sem )
-		self.client.eval_var(list_act_sem)
-		list_act  = self.client.eval_var_result
-		L = re.split(", ",list_act)
-		list_atcants_box.addItems(L)
+		#list_atcants_box =  QtGui.QListWidget()
+		#show_HBox_layout.addWidget(list_atcants_box)
+		#list_act_sem = "%s.act[0:]" % sem_txt
+		#self.activity(u"Wating for %s " % list_act_sem )
+		#self.client.eval_var(list_act_sem)
+		#list_act  = self.client.eval_var_result
+		#L = re.split(", ",list_act)
+		#list_atcants_box.addItems(L)
 		
 		# les collections
 
-		list_col_box =  QtGui.QListWidget()
-		show_HBox_layout.addWidget(list_col_box)
-		list_col_sem = "%s.col[0:]" % sem_txt
-		self.activity(u"Wating for %s " % list_col_sem )
-		self.client.eval_var(list_col_sem)
-		list_col_box.addItems(re.split(", ",self.client.eval_var_result))	
-		self.textProperties.setCurrentIndex(index)# donne le focus a l'onglet créé		
+		#list_col_box =  QtGui.QListWidget()
+		#show_HBox_layout.addWidget(list_col_box)
+		#list_col_sem = "%s.col[0:]" % sem_txt
+		#self.activity(u"Wating for %s " % list_col_sem )
+		#self.client.eval_var(list_col_sem)
+		#list_col_box.addItems(re.split(", ",self.client.eval_var_result))	
+		#self.textProperties.setCurrentIndex(index)# donne le focus a l'onglet créé		
 		
 		
 		
-		self.SubWdwSO.setCurrentIndex(2)
+		#self.SubWdwSO.setCurrentIndex(2)
 		
 		
-		actants_tableView = QtGui.QTableWidget()
-		show_HBox_layout.addWidget(actants_tableView)
-		actants_tableView.setRowCount(len(L))
-		actants_tableView.setColumnCount(2)
-		actants_tableView.setHorizontalHeaderLabels(['Score','Element'])
+		#actants_tableView = QtGui.QTableWidget()
+		#show_HBox_layout.addWidget(actants_tableView)
+		#actants_tableView.setRowCount(len(L))
+		#actants_tableView.setColumnCount(2)
+		#actants_tableView.setHorizontalHeaderLabels(['Score','Element'])
 
-		row = 0 
-		for item in L:
-			itemwidget = QtGui.QTableWidgetItem(item)
-			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non-editable
+		#row = 0 
+		#for item in L:
+		#	itemwidget = QtGui.QTableWidgetItem(item)
+		#	itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non-editable
 			# $txt123.act3.val
 			# PB ne peut pas retrouver/calculer une sémantique interne à une autre
 			# genre $txt4.act2  ou $ent3.res3  avec "$txt" "$act" -- > 2 inconnues
 			# mais on peut le faire si la première variable est connue ; ex "$txt3"
 			#on n'aura plus qu'à chercher le $act ... mais il faut l'implémenter sous P-II 
-			sem= self.client.eval_get_sem(item,"%s.%s.self.sem_liste_concept") 
+			#sem= self.client.eval_get_sem(item,"%s.%s.self.sem_liste_concept") 
 			#C'EST TROP LENT !!!!! C'EST PAS DANS L'ORDRE !!!!
 			#semantique = self.client.eval_get_sem(item,self.sem_liste_concept) #NE RENVOIE PAS $col2 sur AaC, pb sur le dico, manque type ?
 			#sem_poids = semantique + ".val" 
@@ -717,46 +737,44 @@ class Principal(QtGui.QMainWindow):
 			#itemwidgetS.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non editable
 
 			#self.NOT12.setItem(row,0,itemwidgetS) 
-			actants_tableView.setItem(row,1,itemwidget)
-			row += 1
+			#actants_tableView.setItem(row,1,itemwidget)
+			#row += 1
 
-		
-		
-	def show_textProperties(self ,txt,  sem_txt):
-		"""
-			on met le contenu du texte 
-		"""
-		show_txt_widget = QtGui.QWidget()
-		show_txt_box = QtGui.QVBoxLayout()
-		show_txt_box.setContentsMargins(0,0,0,0) 
-		show_txt_box.setSpacing(0) 
+		#show_txt_widget = QtGui.QWidget()
+		#show_txt_box = QtGui.QVBoxLayout()
+		#show_txt_box.setContentsMargins(0,0,0,0) 
+		#show_txt_box.setSpacing(0) 
 
-		show_txt_widget.setLayout(show_txt_box)
-		index = self.textProperties.addTab(show_txt_widget,"%s" % txt)
+		#show_txt_widget.setLayout(show_txt_box)
+		#index = self.textProperties.addTab(show_txt_widget,"%s" % txt)
 		
-		props_widget = QtGui.QTextEdit()
-		show_txt_box.addWidget(props_widget)
+		#props_widget = QtGui.QTextEdit()
+		#show_txt_box.addWidget(props_widget)
 		
 		
 		
-		for props in [u"auteur_txt", u"titre_txt", u"date_txt"] :
-			props_sem  = "%s.%s" % (sem_txt,props)
-			self.activity(u"Displaying  %s " % props_sem )
+		#for props in [u"auteur_txt", u"titre_txt", u"date_txt"] :
+		#	props_sem  = "%s.%s" % (sem_txt,props)
+		#	self.activity(u"Displaying  %s " % props_sem )
 		
-			self.client.eval_var(props_sem)
-			value = self.client.eval_var_result
+		#	self.client.eval_var(props_sem)
+		#	value = self.client.eval_var_result
 		
-			props_widget.append(value )
+		#	props_widget.append(value )
 			
 		
-		self.textProperties.setCurrentIndex(index)# donne le focus a l'onglet créé		
+		#self.textProperties.setCurrentIndex(index)# donne le focus a l'onglet créé		
 
-		self.SubWdwSO.setCurrentIndex(2)
+		#self.SubWdwSO.setCurrentIndex(2)
 		
 				
 		
 		
 	#</jp>
+
+
+
+
 	def show_network(self):
 #TODO recuperer les autres niveaux de liste
 		#if  self.NOT12_E.currentItem() :
