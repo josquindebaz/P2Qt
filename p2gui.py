@@ -106,36 +106,48 @@ class Principal(QtGui.QMainWindow):
 
 	# onglet proprietes du texte
 		self.textProperties = QtGui.QTabWidget()
-		self.textProperties.setTabsClosable(True)
-		self.textProperties.tabCloseRequested.connect(self.textProperties.removeTab)
+	# sous onglet proprietes saillantes
+		saillantes = QtGui.QWidget()
+		self.textProperties.addTab(saillantes,"Sailent structures")
+	
+	# une box horizontale pour contenir les 3 listes
+		saillantesH = QtGui.QHBoxLayout()
+		saillantes.setLayout(saillantesH)
 
-		#SET11 =  QtGui.QLabel()
-#		Prop1Image = QtGui.QPixmap("prop1.png")
-#		SET11.setPixmap(Prop1Image)
-		SET12 =  QtGui.QLabel()
-#		Prop2Image = QtGui.QPixmap("prop2.png")
-#		SET12.setPixmap(Prop2Image)
-		SET13 =  QtGui.QLabel()
-#		Prop3Image = QtGui.QPixmap("prop3.png")
-#		SET13.setPixmap(Prop3Image)
-		SET14 =  QtGui.QLabel()
-#		Prop4Image = QtGui.QPixmap("prop4.png")
-#		SET14.setPixmap(Prop4Image)
-		SET15 =  QtGui.QLabel()
-#		Prop5Image = QtGui.QPixmap("prop5.png")
-#		SET15.setPixmap(Prop5Image)
+	#Vbox des actants du texte
+		saillantesVAct = QtGui.QVBoxLayout()
+		saillantesActTitle = QtGui.QLabel()
+		saillantesActTitle.setText("Actants")
+		saillantesVAct.addWidget(saillantesActTitle)
+		self.saillantesAct = QtGui.QListWidget()
+		saillantesVAct.addWidget(self.saillantesAct)
+		saillantesH.addLayout(saillantesVAct)
 
-		#SET1 = QtGui.QTabWidget()
-		#SET1.addTab(SET11,u"Propriétés saillantes")
+	#Vbox des categories du texte
+		saillantesVCat = QtGui.QVBoxLayout()
+		saillantesCatTitle = QtGui.QLabel()
+		saillantesCatTitle.setText("Categories")
+		saillantesVCat.addWidget(saillantesCatTitle)
+		self.saillantesCat = QtGui.QListWidget()
+		saillantesVCat.addWidget(self.saillantesCat)
+		saillantesH.addLayout(saillantesVCat)
+
+	#Vbox des collections du texte
+		saillantesVCol = QtGui.QVBoxLayout()
+		saillantesColTitle = QtGui.QLabel()
+		saillantesColTitle.setText("Collections")
+		saillantesVCol.addWidget(saillantesColTitle)
+		self.saillantesCol = QtGui.QListWidget()
+		saillantesVCol.addWidget(self.saillantesCol)
+		saillantesH.addLayout(saillantesVCol)
+
+
 #		SET1.addTab(SET12,u"Apports et reprises")
 #		SET1.addTab(SET13,u"Eléments du texte")
 #		SET1.addTab(SET14,u"Textes proches")
 #		SET1.addTab(SET15,u"Textes identiques")
 
 
-		T2 =  QtGui.QLabel()
-#		CTXImage = QtGui.QPixmap("CTX.png")
-#		T2.setPixmap(CTXImage)
 
 	# onglet contenu du texte
 		self.textContent = QtGui.QTextEdit() 
@@ -143,8 +155,7 @@ class Principal(QtGui.QMainWindow):
 
 		SubWdwSE = QtGui.QTabWidget()
 		SubWdwSE.addTab(self.textProperties,"Properties")
-#		SubWdwSE.addTab(SET1,"Prop")
-		SubWdwSE.addTab(T2,"CTX")
+#		SubWdwSE.addTab(T2,"CTX")
 		SubWdwSE.addTab(self.textContent,"Text")
 
 
@@ -159,9 +170,7 @@ class Principal(QtGui.QMainWindow):
 		self.SOT1.tabCloseRequested.connect(self.SOT1.removeTab)
 		#la liste des textes du corpus
 		self.CorpusTexts = QtGui.QListWidget()
-		#<jp>
 		self.CorpusTexts.itemClicked.connect(self.onSelectTextFromCorpus)
-		#</jp>
 		self.SOT1.addTab(self.CorpusTexts,"corpus")
 		# on fait disparaître le bouton close de la tab CorpusTexts, a gauche pour les mac
 		if self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.RightSide):
@@ -500,27 +509,23 @@ class Principal(QtGui.QMainWindow):
 		listeTextes = self.client.txts
 		self.CorpusTexts.addItems(listeTextes)
 
-	#<jp>
 	def onSelectTextFromCorpus(self):
 		"""When a text is selected from the list of texts"""
 		item_txt = self.CorpusTexts.currentItem().text()
 		self.onSelectText(item_txt)
 		
 	def onSelectText(self,item_txt):
-		""" essai - sur la sélection d'un texte (ds les textes du corpus) on met à jour
-		un/des tab dans text Properties
-		"""
-		self.activity(u"%s selected " % (item_txt)) 
+		"""Update text properties windows when a text is selected """
+		#self.activity(u"%s selected " % (item_txt)) 
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
+		self.show_textProperties(item_txt , self.semantique_txt_item)
+		#self.show_textCTX(item_txt , self.semantique_txt_item) ## fonction a ecrire
 		self.show_textContent(item_txt , self.semantique_txt_item)
-		#self.show_textProperties(item_txt , self.semantique_txt_item)
 
 	def getvalueFromSem(self,item_txt,type):	
 		sem = self.client.eval_get_sem(item_txt, type )
 		val = self.client.eval_var(sem)
 		return val
-	#</jp>
-
 
 	def select_liste(self,typ):
 		""" quand un type de liste est selectionné """
@@ -656,62 +661,31 @@ class Principal(QtGui.QMainWindow):
 
 
 
-	#<jp>
 	def show_textContent(self ,txt,  sem_txt):
 		"""Insert text content in the dedicated window"""
 		contentText_semantique = "%s.ph[0:]" % sem_txt
-		#self.activity(u"Displaying text for %s " % contentText_semantique )
 		self.client.eval_var(contentText_semantique)
 		txt_content = self.client.eval_var_result
 		self.textContent.clear()
 		self.textContent.append(txt_content)
+		#move cursor to the beginning of the text
+		self.textContent.moveCursor(QtGui.QTextCursor.Start)
 		
 		
 	def show_textProperties(self ,txt,  sem_txt):
 		"""Show text properties """
-		
-		#show_txt_widget = QtGui.QWidget()
-		#show_VBox_layout = QtGui.QVBoxLayout()
-		#show_VBox_layout.setContentsMargins(0,0,0,0) 
-		#show_VBox_layout.setSpacing(0) 
-
-		#show_txt_widget.setLayout(show_VBox_layout)
-		#index = self.textProperties.addTab(show_txt_widget,"%s" % txt)
-	
-		
-		
-		# un Vbox horizontal dans lequel on place 3 listes
-		# essai visualisation acteurs principaux
-		#show_HBox_layout = QtGui.QHBoxLayout()
-		#show_HBox_layout.setContentsMargins(0,0,0,0) 
-		#show_HBox_layout.setSpacing(0)
-		#show_txt_widget.setLayout(show_txt_box)
-		#show_VBox_layout.addLayout(show_HBox_layout)
-
-
-		#list_atcants_box =  QtGui.QListWidget()
-		#show_HBox_layout.addWidget(list_atcants_box)
-		#list_act_sem = "%s.act[0:]" % sem_txt
-		#self.activity(u"Wating for %s " % list_act_sem )
-		#self.client.eval_var(list_act_sem)
-		#list_act  = self.client.eval_var_result
-		#L = re.split(", ",list_act)
-		#list_atcants_box.addItems(L)
-		
+		#les actants
+		list_act_sem = "%s.act[0:]" % sem_txt
+		self.client.eval_var(list_act_sem)
+		list_act  = self.client.eval_var_result
+		self.saillantesAct.clear()
+		self.saillantesAct.addItems(re.split(", ",list_act))
 		# les collections
+		list_col_sem = "%s.col[0:]" % sem_txt
+		self.client.eval_var(list_col_sem)
+		self.saillantesCol.clear()
+		self.saillantesCol.addItems(re.split(", ",self.client.eval_var_result))	
 
-		#list_col_box =  QtGui.QListWidget()
-		#show_HBox_layout.addWidget(list_col_box)
-		#list_col_sem = "%s.col[0:]" % sem_txt
-		#self.activity(u"Wating for %s " % list_col_sem )
-		#self.client.eval_var(list_col_sem)
-		#list_col_box.addItems(re.split(", ",self.client.eval_var_result))	
-		#self.textProperties.setCurrentIndex(index)# donne le focus a l'onglet créé		
-		
-		
-		
-		#self.SubWdwSO.setCurrentIndex(2)
-		
 		
 		#actants_tableView = QtGui.QTableWidget()
 		#show_HBox_layout.addWidget(actants_tableView)
@@ -740,18 +714,6 @@ class Principal(QtGui.QMainWindow):
 			#actants_tableView.setItem(row,1,itemwidget)
 			#row += 1
 
-		#show_txt_widget = QtGui.QWidget()
-		#show_txt_box = QtGui.QVBoxLayout()
-		#show_txt_box.setContentsMargins(0,0,0,0) 
-		#show_txt_box.setSpacing(0) 
-
-		#show_txt_widget.setLayout(show_txt_box)
-		#index = self.textProperties.addTab(show_txt_widget,"%s" % txt)
-		
-		#props_widget = QtGui.QTextEdit()
-		#show_txt_box.addWidget(props_widget)
-		
-		
 		
 		#for props in [u"auteur_txt", u"titre_txt", u"date_txt"] :
 		#	props_sem  = "%s.%s" % (sem_txt,props)
@@ -763,19 +725,15 @@ class Principal(QtGui.QMainWindow):
 		#	props_widget.append(value )
 			
 		
-		#self.textProperties.setCurrentIndex(index)# donne le focus a l'onglet créé		
 
-		#self.SubWdwSO.setCurrentIndex(2)
-		
-				
 		
 		
-	#</jp>
 
 
 
 
 	def show_network(self):
+		"""Show the network of a selected item"""
 #TODO recuperer les autres niveaux de liste
 		#if  self.NOT12_E.currentItem() :
 		#	element = self.NOT12_E.currentItem().text() 
