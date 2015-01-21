@@ -103,7 +103,13 @@ class Principal(QtGui.QMainWindow):
 		#quart SE
 ##################################################
 
-		SET11 =  QtGui.QLabel()
+
+		# onglet proprietes des textes
+		self.textProperties = QtGui.QTabWidget()
+		self.textProperties.setTabsClosable(True)
+		self.textProperties.tabCloseRequested.connect(self.textProperties.removeTab)
+
+		#SET11 =  QtGui.QLabel()
 #		Prop1Image = QtGui.QPixmap("prop1.png")
 #		SET11.setPixmap(Prop1Image)
 		SET12 =  QtGui.QLabel()
@@ -137,6 +143,7 @@ class Principal(QtGui.QMainWindow):
 
 
 		SubWdwSE = QtGui.QTabWidget()
+		SubWdwSE.addTab(self.textProperties,"Text properties")
 #		SubWdwSE.addTab(SET1,"Prop")
 #		SubWdwSE.addTab(T2,"CTX")
 #		SubWdwSE.addTab(T3,"Text")
@@ -170,21 +177,12 @@ class Principal(QtGui.QMainWindow):
 		self.tabNetworks.setTabsClosable(True)
 		self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
 
-		# <jp>
-		# onglet proprietes des textes
-		self.textProperties = QtGui.QTabWidget()
-		self.textProperties.setTabsClosable(True)
-		self.textProperties.tabCloseRequested.connect(self.textProperties.removeTab)
-		# </jp>
 #TODO les expressions englobantes
 
 		#mise en place des onglets
 
 		self.SubWdwSO.addTab(self.SOT1,"Texts")
 		self.SubWdwSO.addTab(self.tabNetworks,"Networks")
-		# <jp>
-		self.SubWdwSO.addTab(self.textProperties,"Text properties")
-		# </jp>
 
 
 ##################################################
