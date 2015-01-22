@@ -443,26 +443,28 @@ class Principal(QtGui.QMainWindow):
 #		self.setCentralWidget(main)
 ################################################
 ################################################
+#               voir avec des splitters sinon
+################################################
+################################################
 
 		#la MdiArea 
 		Area = QtGui.QMdiArea()
+		Area.tileSubWindows()
+		self.setCentralWidget(Area)
+		
 		sw1 = Area.addSubWindow(SubWdwSE, flags = QtCore.Qt.FramelessWindowHint)
 		sw2 = Area.addSubWindow(self.SubWdwSO, flags = QtCore.Qt.FramelessWindowHint)
 		sw3 = Area.addSubWindow(self.SubWdwNE , flags = QtCore.Qt.FramelessWindowHint)
 		sw4 = Area.addSubWindow(SubWdwNO , flags = QtCore.Qt.FramelessWindowHint)
-
-		#QMdiArea.WindowOrder = QMdiArea.CreationOrder
-		Area.setActivationOrder(QtGui.QMdiArea.CreationOrder) 
+		self.setWindowTitle(u'Prospéro II')
 		
-		#PySide.QtGui.QWorkspace.scrollBarsEnabled(True)
-		#AreascrollBarsEnabled()
-		Area.tileSubWindows()
+		self.show() 
+		self.showMaximized() #à appeler après show pour que ça marche sous windows!
+		Area.setFixedSize( Area.size()) #preserver l'ordre des subwindows en cas de resize 
 
-		self.setCentralWidget(Area)
 		
-		self.setWindowTitle(u'Prospéro II')	
-		self.showMaximized() 
-		self.show()
+
+		
 
 
 
