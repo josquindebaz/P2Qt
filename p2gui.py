@@ -212,7 +212,8 @@ class Principal(QtGui.QMainWindow):
 		self.Param_Server_path_P2 = QtGui.QLineEdit()
 		#Param_Server_R.addRow("Local server path",self.Param_Server_path_P2)
 		Param_Server_R.addRow(self.Param_Server_path_P2)
-		self.Param_Server_path_P2.setText("/Users/gspr/Documents/Prospero-II-serveur/prospero-II.app/Contents/MacOS/prospero-II")
+		#self.Param_Server_path_P2.setText("/Users/gspr/Documents/Prospero-II-serveur/prospero-II.app/Contents/MacOS/prospero-II")
+		self.Param_Server_path_P2.setText("/Users/gspr/Documents/Prospero-II-serveur/prospero-cocoa.app/Contents/MacOS/prospero-cocoa")
 
 		Param_Server_path_P2_button = QtGui.QPushButton("select local server path")
 		Param_Server_R.addWidget(Param_Server_path_P2_button)
@@ -520,7 +521,7 @@ class Principal(QtGui.QMainWindow):
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
 		self.show_textProperties(item_txt , self.semantique_txt_item)
 		#self.show_textCTX(item_txt , self.semantique_txt_item) ## fonction a ecrire
-		self.show_textContent(item_txt , self.semantique_txt_item)
+		self.show_textContent( self.semantique_txt_item)
 
 	def getvalueFromSem(self,item_txt,type):	
 		sem = self.client.eval_get_sem(item_txt, type )
@@ -568,11 +569,7 @@ class Principal(QtGui.QMainWindow):
 	
 
 	def liste_item_clicked(self):
-		"""
-						suite au changement de sélection d'un élément , mettre à jour
-					les vues dépendantes 
-		"""
-
+		""" suite au changement de sélection d'un élément , mettre à jour les vues dépendantes """ 
 		item = self.NOT12.currentItem().text() # l'element selectionné
 		self.activity("%s selected" % item)
 		self.NOT12_D.clear() # on efface la liste
@@ -661,7 +658,7 @@ class Principal(QtGui.QMainWindow):
 
 
 
-	def show_textContent(self ,txt,  sem_txt):
+	def show_textContent(self ,  sem_txt):
 		"""Insert text content in the dedicated window"""
 		contentText_semantique = "%s.ph[0:]" % sem_txt
 		self.client.eval_var(contentText_semantique)
