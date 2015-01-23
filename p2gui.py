@@ -17,7 +17,7 @@ from PySide.QtGui import QMdiArea
 
 
 class client(object):
-	def __init__(self,h = '127.0.0.1',p = '4000'):
+	def __init__(self,h = 'marloweb.eu',p = '60000'):
 		self.c = interface_prospero.ConnecteurPII() 
 		self.c.set(h,p)
 		self.teste_connect()
@@ -46,7 +46,8 @@ class client(object):
 	def eval_get_sem(self,exp,sem):
 		# jp : pour retrouver la sémantique d'un élément : (getsem 'nucléaire' $ent )
 		exp = exp.encode('utf-8')
-		return self.c.eval_fonc("getsem:%s:%s" % (  exp , sem) )
+		#return self.c.eval_fonc("getsem:%s:%s" % (  exp , sem) )
+		return self.c.eval_fonct(u"getsem" , exp , sem )
 
 
 class Principal(QtGui.QMainWindow):
@@ -54,7 +55,16 @@ class Principal(QtGui.QMainWindow):
 		super(Principal, self).__init__()
 		self.initUI()
 		
-
+		
+	def pre_calcule(self):
+		self.client.recup_texts()
+		listeTextes = self.client.txts
+		# calculer les $txt
+		for text in listeTextes :
+			sem_txt = self.client.eval_get_sem(text,"$txt")
+			self.client.eval_var(sem_txt+".titre_txt")
+			self.client.eval_var(sem_txt+".date_txt")
+		
 	def initUI(self):
 
 
@@ -239,10 +249,10 @@ class Principal(QtGui.QMainWindow):
 #configurer les parametres de connexion au serveur distant
 		self.Param_Server_val_host = QtGui.QLineEdit()
 		Param_Server_R.addRow("&host",self.Param_Server_val_host)
-		self.Param_Server_val_host.setText('127.0.0.1')
+		self.Param_Server_val_host.setText('marloweb.eu')
 		self.Param_Server_val_port = QtGui.QLineEdit()
 		Param_Server_R.addRow("&port",self.Param_Server_val_port)
-		self.Param_Server_val_port.setText('4000')
+		self.Param_Server_val_port.setText('60000')
 		self.Param_Server_B = QtGui.QPushButton('Connect to server')
 		self.Param_Server_B.clicked.connect(self.connect_server)
 		Param_Server_R.addWidget(self.Param_Server_B)
@@ -651,7 +661,7 @@ class Principal(QtGui.QMainWindow):
 			self.Param_Server_B.setText("Disconnect")
 			# donne le focus a l'onglet history
 			self.SubWdwNE.setCurrentIndex(self.History_index)
-	
+		self.pre_calcule()
 	def disconnect_server(self):
 		self.activity("Disconnecting")
 		self.client.disconnect()
@@ -804,7 +814,7 @@ class Principal(QtGui.QMainWindow):
 			
 			
 			
-			txt_sem = self.client.eval_get_sem(txt, "$txt" )
+			#txt_sem = self.client.eval_get_sem(txt, "$txt" )
 			self.client.eval_var("%s.date_txt"%txt_sem)
 			txt_title = self.client.eval_var_result
 			
