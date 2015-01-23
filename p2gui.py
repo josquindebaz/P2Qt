@@ -17,7 +17,7 @@ from PySide.QtGui import QMdiArea
 
 
 class client(object):
-	def __init__(self,h = 'marloweb.eu',p = '60000'):
+	def __init__(self,h = 'prosperologie.org',p = '60000'):
 		self.c = interface_prospero.ConnecteurPII() 
 		self.c.set(h,p)
 		self.teste_connect()
@@ -252,7 +252,7 @@ class Principal(QtGui.QMainWindow):
 #configurer les parametres de connexion au serveur distant
 		self.Param_Server_val_host = QtGui.QLineEdit()
 		Param_Server_R.addRow("&host",self.Param_Server_val_host)
-		self.Param_Server_val_host.setText('marloweb.eu')
+		self.Param_Server_val_host.setText('prosperologie.org')
 		self.Param_Server_val_port = QtGui.QLineEdit()
 		Param_Server_R.addRow("&port",self.Param_Server_val_port)
 		self.Param_Server_val_port.setText('60000')
@@ -671,7 +671,7 @@ class Principal(QtGui.QMainWindow):
 			self.Param_Server_B.setText("Disconnect")
 			# donne le focus a l'onglet history
 			self.SubWdwNE.setCurrentIndex(self.History_index)
-		self.pre_calcule()
+		#self.pre_calcule()
 	def disconnect_server(self):
 		"""Disconnect"""
 		self.activity("Disconnecting")
@@ -788,7 +788,6 @@ class Principal(QtGui.QMainWindow):
 			
 			
 			
-			#txt_sem = self.client.eval_get_sem(txt, "$txt" )
 			self.client.eval_var("%s.date_txt"%txt_sem)
 			txt_title = self.client.eval_var_result
 			
