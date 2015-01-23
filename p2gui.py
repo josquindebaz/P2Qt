@@ -149,13 +149,15 @@ class Principal(QtGui.QMainWindow):
 
 
 
+	# onglet contenu du CTX
+		self.textCTX = QtGui.QListWidget()	
 	# onglet contenu du texte
 		self.textContent = QtGui.QTextEdit() 
 
 
 		SubWdwSE = QtGui.QTabWidget()
 		SubWdwSE.addTab(self.textProperties,"Properties")
-#		SubWdwSE.addTab(T2,"CTX")
+		SubWdwSE.addTab(self.textCTX,"CTX")
 		SubWdwSE.addTab(self.textContent,"Text")
 
 
@@ -170,7 +172,8 @@ class Principal(QtGui.QMainWindow):
 		self.SOT1.tabCloseRequested.connect(self.SOT1.removeTab)
 		#la liste des textes du corpus
 		self.CorpusTexts = QtGui.QListWidget()
-		self.CorpusTexts.itemClicked.connect(self.onSelectTextFromCorpus)
+		#self.CorpusTexts.itemClicked.connect(self.onSelectTextFromCorpus) #ne fonctionne pas avec le clavier
+		self.CorpusTexts.currentItemChanged.connect(self.onSelectTextFromCorpus) #fonctionne avec clavier et souris
 		self.SOT1.addTab(self.CorpusTexts,"corpus")
 		# on fait disparaître le bouton close de la tab CorpusTexts, a gauche pour les mac
 		if self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.RightSide):
@@ -387,21 +390,22 @@ class Principal(QtGui.QMainWindow):
 		NOT1VH = QtGui.QHBoxLayout()
 		NOT1V.addLayout(NOT1VH) 
 	#la liste
-		self.NOT12 = QtGui.QTableWidget()
-		NOT1VH.addWidget(self.NOT12)
-
-		#police un peu plus petite
-		self.NOT12.setFont(QtGui.QFont("DejaVu Sans", 11))
-		#pas de header de ligne
-		self.NOT12.verticalHeader().setVisible(False)
+		#self.NOT12 = QtGui.QTableWidget()
+		self.NOT12 = QtGui.QListWidget()
+		self.NOT12.setFont(QtGui.QFont("DejaVu Sans", 11))#police un peu plus petite
+		#self.NOT12.verticalHeader().setVisible(False)#pas de header de ligne
 		
 		#selection d'un item
-		self.NOT12.itemClicked.connect(self.liste_item_clicked)
+		#self.NOT12.itemClicked.connect(self.liste_item_clicked)
+		self.NOT12.currentItemChanged.connect(self.liste_item_clicked)
+
+		NOT1VH.addWidget(self.NOT12)
 
 		#le deploiement
 		self.NOT12_D = QtGui.QListWidget()
 		NOT1VH.addWidget(self.NOT12_D)
-		self.NOT12_D.itemClicked.connect(self.liste_D_item_clicked)
+		#self.NOT12_D.itemClicked.connect(self.liste_D_item_clicked)
+		self.NOT12_D.currentItemChanged.connect(self.liste_D_item_clicked)
 
 		self.NOT12_E = QtGui.QListWidget()
 		NOT1VH.addWidget(self.NOT12_E)
@@ -501,7 +505,8 @@ class Principal(QtGui.QMainWindow):
 	def activity(self,message):
 		"""Add message to the history window"""
 		self.status.showMessage(message)
-		self.History.append("%s: %s" % (datetime.datetime.now(),message))
+		time = u"%s" % datetime.datetime.now()
+		self.History.append("%s: %s" % (time[:19],message))
 
 	def recup_liste_textes(self):
 		self.activity(u"Waiting for text list"   )
@@ -509,21 +514,22 @@ class Principal(QtGui.QMainWindow):
 		self.activity(u"Displaying text list (%d items)" %len(self.client.txts)  )
 		self.SOT1.tabBar().setTabText(0,"corpus (%d)"%len(self.client.txts))
 		self.CorpusTexts.clear()
-		listeTextes = self.client.txts
-		self.CorpusTexts.addItems(listeTextes)
+		self.listeTextes = map(lambda x : re.split("/",x)[-1],self.client.txts) #a adapter pour les chemins windows
+		self.CorpusTexts.addItems(self.listeTextes)
 
 	def onSelectTextFromCorpus(self):
 		"""When a text is selected from the list of texts"""
 		item_txt = self.CorpusTexts.currentItem().text()
-		self.onSelectText(item_txt)
-		
-	def onSelectText(self,item_txt):
-		"""Update text properties windows when a text is selected """
-		#self.activity(u"%s selected " % (item_txt)) 
+		self.activity(u"%s selected " % (item_txt)) 
+		item_txt = self.client.txts[self.listeTextes.index(item_txt)]
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
-		self.show_textProperties(item_txt , self.semantique_txt_item)
-		#self.show_textCTX(item_txt , self.semantique_txt_item) ## fonction a ecrire
-		self.show_textContent( self.semantique_txt_item)
+		self.onSelectText(self.semantique_txt_item)
+		
+	def onSelectText(self,sem_txt):
+		"""Update text properties windows when a text is selected """
+		self.show_textProperties( sem_txt)
+		self.show_textCTX(sem_txt) 
+		self.show_textContent( sem_txt)
 
 	def getvalueFromSem(self,item_txt,type):	
 		sem = self.client.eval_get_sem(item_txt, type )
@@ -540,13 +546,15 @@ class Principal(QtGui.QMainWindow):
 
 
 	def change_liste(self,content):
-		self.NOT12.clearContents()
+		#self.NOT12.clearContents()
+		self.NOT12.clear()
 		self.NOT12_D.clear()
 		self.NOT12_E.clear()
-		self.NOT12.setRowCount(len(content))
-		self.NOT12.setColumnCount(2)
-		self.NOT12.setHorizontalHeaderLabels(['Score','Object'])
+		#self.NOT12.setRowCount(len(content))
+		#self.NOT12.setColumnCount(2)
+		#self.NOT12.setHorizontalHeaderLabels(['Score','Object'])
 
+		"""
 		row = 0 
 		for item in content:
 			itemwidget = QtGui.QTableWidgetItem(item)
@@ -567,6 +575,8 @@ class Principal(QtGui.QMainWindow):
 		self.NOT12.horizontalHeader().setStretchLastSection(True)
 		# definir la hauteur apres la largeur donne un resultat plus propre et constant
 		self.NOT12.resizeRowsToContents()
+		"""
+		self.NOT12.addItems(content)
 
 	
 
@@ -653,11 +663,11 @@ class Principal(QtGui.QMainWindow):
 			self.SubWdwNE.setCurrentIndex(self.History_index)
 	
 	def disconnect_server(self):
+		"""Disconnect"""
 		self.activity("Disconnecting")
 		self.client.disconnect()
 		self.Param_Server_B.setText('Connect to server')
 		self.Param_Server_B.clicked.connect(self.connect_server)
-
 
 
 	def show_textContent(self ,  sem_txt):
@@ -670,9 +680,17 @@ class Principal(QtGui.QMainWindow):
 		#move cursor to the beginning of the text
 		self.textContent.moveCursor(QtGui.QTextCursor.Start)
 		
+	def show_textCTX(self, sem_txt):
+		"""Show text metadata"""
+		self.textCTX.clear() 
+		for props in [u"auteur_txt", u"titre_txt", u"date_txt"] :
+			props_sem = "%s.%s" % (sem_txt,props)
+			self.client.eval_var(props_sem)
+			value = self.client.eval_var_result
+			self.textCTX.addItem(value)
 		
-	def show_textProperties(self ,txt,  sem_txt):
-		"""Show text properties """
+	def show_textProperties(self ,  sem_txt):
+		"""Show text sailent properties"""
 		#les actants
 		list_act_sem = "%s.act[0:]" % sem_txt
 		self.client.eval_var(list_act_sem)
@@ -684,50 +702,6 @@ class Principal(QtGui.QMainWindow):
 		self.client.eval_var(list_col_sem)
 		self.saillantesCol.clear()
 		self.saillantesCol.addItems(re.split(", ",self.client.eval_var_result))	
-
-		
-		#actants_tableView = QtGui.QTableWidget()
-		#show_HBox_layout.addWidget(actants_tableView)
-		#actants_tableView.setRowCount(len(L))
-		#actants_tableView.setColumnCount(2)
-		#actants_tableView.setHorizontalHeaderLabels(['Score','Element'])
-
-		#row = 0 
-		#for item in L:
-		#	itemwidget = QtGui.QTableWidgetItem(item)
-		#	itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non-editable
-			# $txt123.act3.val
-			# PB ne peut pas retrouver/calculer une sémantique interne à une autre
-			# genre $txt4.act2  ou $ent3.res3  avec "$txt" "$act" -- > 2 inconnues
-			# mais on peut le faire si la première variable est connue ; ex "$txt3"
-			#on n'aura plus qu'à chercher le $act ... mais il faut l'implémenter sous P-II 
-			#sem= self.client.eval_get_sem(item,"%s.%s.self.sem_liste_concept") 
-			#C'EST TROP LENT !!!!! C'EST PAS DANS L'ORDRE !!!!
-			#semantique = self.client.eval_get_sem(item,self.sem_liste_concept) #NE RENVOIE PAS $col2 sur AaC, pb sur le dico, manque type ?
-			#sem_poids = semantique + ".val" 
-			#self.client.eval_var(sem_poids)	
-			#itemwidgetS = QtGui.QTableWidgetItem(self.client.eval_var_result)
-			#itemwidgetS.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non editable
-
-			#self.NOT12.setItem(row,0,itemwidgetS) 
-			#actants_tableView.setItem(row,1,itemwidget)
-			#row += 1
-
-		
-		#for props in [u"auteur_txt", u"titre_txt", u"date_txt"] :
-		#	props_sem  = "%s.%s" % (sem_txt,props)
-		#	self.activity(u"Displaying  %s " % props_sem )
-		
-		#	self.client.eval_var(props_sem)
-		#	value = self.client.eval_var_result
-		
-		#	props_widget.append(value )
-			
-		
-
-		
-		
-
 
 
 
