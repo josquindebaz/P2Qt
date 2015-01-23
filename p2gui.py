@@ -616,7 +616,7 @@ class Principal(QtGui.QMainWindow):
 		row = self.NOT12_D.currentRow() 
 		self.activity("%s selected" % item)
 		self.NOT12_E.clear() # on efface la liste
-		ask = "%s.list_rep%d.rep[0:]" % (self.semantique_liste_item,row)
+		ask = "%s.rep%d.rep[0:]" % (self.semantique_liste_item,row)
 		self.client.eval_var(ask)
 		result = re.split(", ", self.client.eval_var_result)
 		for r in result:
