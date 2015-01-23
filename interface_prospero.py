@@ -185,16 +185,24 @@ class ConnecteurPII (threading.Thread):
 		self.m_cache_index[data] = value
 	def eval_fonct (self, fonc, element,sem):
 		"""
-			cas du getsem : on interroge P-II pour obtenir la s�mantique avec indice
-			 d'un �l�ment ( on fournit la s�mantique ..)
+			cas du getsem : on interroge P-II pour obtenir la sémantique avec indice
+			 d'un élément ( on fournit la sémantique ..)
+			 getsem "ELEMENT-NT*" $col
+			 dans le cache 
+			 on peut aussi avoir
+			 getsem "ELEMENT-NT*" $ent ....
+			 donc mémorise une clé ok
+			 clé : "ELEMENT-NT*$col" et val sera $col0
+			 
+			 
 		"""
 		
 		self.m_threadlock.acquire()
-		'''  
-		if data in self.m_cache_fonc.keys():
+		cle = element + sem 
+		if cle in self.m_cache_fonc.keys():
 			self.m_threadlock.release()
-			return self.m_cache_fonc[data]
-		'''
+			return self.m_cache_fonc[cle]
+		
 		
 		if not self.connexion : 
 			if not self.connect():
@@ -204,7 +212,7 @@ class ConnecteurPII (threading.Thread):
 		for exp in lexpr :
 			self.send_expression(exp)
 		value = self.get_value()
-		#self.add_cache_fonc(data, value)
+		self.add_cache_fonc(cle, value)
 		self.m_threadlock.release()
 		return value
 
