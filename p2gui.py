@@ -167,8 +167,10 @@ class Principal(QtGui.QMainWindow):
 
 		SubWdwSE = QtGui.QTabWidget()
 		SubWdwSE.addTab(self.textProperties,"Properties")
-		SubWdwSE.addTab(self.textCTX,"CTX")
+		#SubWdwSE.addTab(self.textCTX,"CTX")
 		SubWdwSE.addTab(self.textContent,"Text")
+		self.SubWdwSECorner = QtGui.QLabel()
+		SubWdwSE.setCornerWidget(self.SubWdwSECorner)
 
 
 ##################################################
@@ -291,6 +293,9 @@ class Principal(QtGui.QMainWindow):
 		server_vars_button_eval = QtGui.QPushButton('Eval')
 		server_vars_Hbox.addWidget(server_vars_button_eval)
 		server_vars_button_eval.clicked.connect(self.server_vars_Evalue)
+		server_vars_button_getsem = QtGui.QPushButton('Get sem')
+		server_vars_Hbox.addWidget(server_vars_button_getsem)
+		server_vars_button_getsem.clicked.connect(self.server_getsem_Evalue)
 		server_vars_button_clear = QtGui.QPushButton('Clear')
 		server_vars_Hbox.addWidget(server_vars_button_clear)
 		server_vars_button_clear.clicked.connect(self.server_vars_Clear)
@@ -378,12 +383,13 @@ class Principal(QtGui.QMainWindow):
 	# les commandes
 		self.NOT1Commands1 = QtGui.QPushButton()
 		self.NOT1Commands1.setIcon(QtGui.QIcon("loupe.png"))
-		self.NOT1Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
+		#self.NOT1Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
 		NOT1Commands1Menu = QtGui.QMenu(self)
 		#NOT1Commands1Menu.addAction('&search')
 		#NOT1Commands1Menu.addAction('&sort')
 		#NOT1Commands1Menu.addAction('&filter')
-		NOT1VHC.addWidget(self.NOT1Commands1)
+
+		#NOT1VHC.addWidget(self.NOT1Commands1) #sera affiché quand utilisé
 
 
 		self.NOT1Commands2 = QtGui.QPushButton()
@@ -521,6 +527,7 @@ class Principal(QtGui.QMainWindow):
 		elif ( self.NOT1select.currentText()=="fictions" ) : 
 			return '$ef'
 		elif (self.NOT1select.currentText()=="entitie's categories") : 
+			print "test"
 			return '$cat_ent'
 		else : 
 			return False
@@ -546,12 +553,19 @@ class Principal(QtGui.QMainWindow):
 		self.activity(u"%s selected " % (item_txt)) 
 		item_txt = self.client.txts[self.listeTextes.index(item_txt)]
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
-		self.onSelectText(self.semantique_txt_item)
+		self.onSelectText(self.semantique_txt_item,item_txt)
 		
-	def onSelectText(self,sem_txt):
+	def onSelectText(self,sem_txt,item_txt):
 		"""Update text properties windows when a text is selected """
+		txt_resume = ""
+		for props in [u"auteur_txt", u"date_txt", u"titre_txt"] :
+			props_sem = "%s.%s" % (sem_txt,props)
+			self.client.eval_var(props_sem)
+			txt_resume += self.client.eval_var_result + " "
+		self.SubWdwSECorner.setText(txt_resume)
+
 		self.show_textProperties( sem_txt)
-		self.show_textCTX(sem_txt) 
+		#self.show_textCTX(sem_txt) 
 		self.show_textContent( sem_txt)
 
 	def getvalueFromSem(self,item_txt,type):	
@@ -605,35 +619,39 @@ class Principal(QtGui.QMainWindow):
 
 	def liste_item_clicked(self):
 		""" suite au changement de sélection d'un élément , mettre à jour les vues dépendantes """ 
-		item = self.NOT12.currentItem().text() # l'element selectionné
-		self.activity("%s selected" % item)
-		self.NOT12_D.clear() # on efface la liste
-		self.NOT12_E.clear()
-		sem = self.sem_liste_concept
-		if ( sem  == "$col" or sem == "$ef" )  :
-			# recupere la designation semantique de l'element
-			self.semantique_liste_item = self.client.eval_get_sem(item, sem )
-			self.client.eval_var("%s.rep[0:]"% self.semantique_liste_item)
-			result = re.split(", ", self.client.eval_var_result)
-			for r in result:
-				self.NOT12_D.addItem( r ) 
-			## il coupe la fin du dernier element ???????
+		itemT = self.NOT12.currentItem()
+		if (itemT):
+			item = itemT.text() # l'element selectionné
+			self.activity("%s selected" % item)
+			self.NOT12_D.clear() # on efface la liste
+			self.NOT12_E.clear()
+			sem = self.sem_liste_concept
+			if ( sem  == "$col" or sem == "$ef" )  :
+				# recupere la designation semantique de l'element
+				self.semantique_liste_item = self.client.eval_get_sem(item, sem )
+				self.client.eval_var("%s.rep[0:]"% self.semantique_liste_item)
+				result = re.split(", ", self.client.eval_var_result)
+				for r in result:
+					self.NOT12_D.addItem( r ) 
+				## il coupe la fin du dernier element ???????
 
-		#activation des boutons de commande
-		#self.NOT1Commands1.setEnabled(True) 
-		self.NOT1Commands2.setEnabled(True) 
+			#activation des boutons de commande
+			#self.NOT1Commands1.setEnabled(True) 
+			self.NOT1Commands2.setEnabled(True) 
 
 
 	def liste_D_item_clicked(self):
-		item = self.NOT12_D.currentItem().text() # l'element selectionné
-		row = self.NOT12_D.currentRow() 
-		self.activity("%s selected" % item)
-		self.NOT12_E.clear() # on efface la liste
-		ask = "%s.rep%d.rep[0:]" % (self.semantique_liste_item,row)
-		self.client.eval_var(ask)
-		result = re.split(", ", self.client.eval_var_result)
-		for r in result:
-			self.NOT12_E.addItem( r ) 
+		itemT = self.NOT12_D.currentItem()
+		if (itemT):
+			item = itemT.text() # l'element selectionné
+			row = self.NOT12_D.currentRow() 
+			self.activity("%s selected" % item)
+			self.NOT12_E.clear() # on efface la liste
+			ask = "%s.rep%d.rep[0:]" % (self.semantique_liste_item,row)
+			self.client.eval_var(ask)
+			result = re.split(", ", self.client.eval_var_result)
+			for r in result:
+				self.NOT12_E.addItem( r ) 
 			
 	def server_vars_Evalue(self):
 		var = self.server_vars_champ.text()
@@ -643,6 +661,19 @@ class Principal(QtGui.QMainWindow):
 		self.server_vars_result.append("%s" % var)
 		self.server_vars_result.setColor("black")
 		self.server_vars_result.append(self.client.eval_var_result)
+
+
+	def server_getsem_Evalue(self):
+		var = self.server_vars_champ.text()
+		self.server_vars_champ.clear()
+		items = re.split("\s*",var)
+		self.server_vars_result.setColor("red")
+		self.server_vars_result.append("%s" % var)
+		if (len(items) == 2):
+			self.server_vars_result.setColor("black")
+			el, sem = items
+			self.server_vars_result.append(self.client.eval_get_sem(el, sem))
+			
 
 	def server_vars_Clear(self):
 		self.server_vars_result.clear()
@@ -732,7 +763,7 @@ class Principal(QtGui.QMainWindow):
 		"""Show the network of a selected item"""
 #TODO recuperer les autres niveaux de liste
 		#if  self.NOT12_E.currentItem() :
-		#	element = self.NOT12_E.currentItem().text() 
+		#	print self.NOT12_E.currentItem().text() 
 		#elif self.NOT12_D.currentItem():
 		#	element = self.NOT12_D.currentItem().text() 
 		#else :
