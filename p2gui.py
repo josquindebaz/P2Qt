@@ -226,7 +226,7 @@ class Principal(QtGui.QMainWindow):
 		#Param_Server_R.addRow("Local server path",self.Param_Server_path_P2)
 		Param_Server_R.addRow(self.Param_Server_path_P2)
 		#self.Param_Server_path_P2.setText("/Users/gspr/Documents/Prospero-II-serveur/prospero-II.app/Contents/MacOS/prospero-II")
-		self.Param_Server_path_P2.setText("/Users/gspr/Documents/Prospero-II-serveur/prospero-cocoa.app/Contents/MacOS/prospero-cocoa")
+		#self.Param_Server_path_P2.setText("/Users/gspr/Documents/Prospero-II-serveur/prospero-cocoa.app/Contents/MacOS/prospero-cocoa")
 
 		Param_Server_path_P2_button = QtGui.QPushButton("select local server path")
 		Param_Server_R.addWidget(Param_Server_path_P2_button)
@@ -235,7 +235,7 @@ class Principal(QtGui.QMainWindow):
 		self.Param_Server_path_PRC = QtGui.QLineEdit()
 		#Param_Server_R.addRow("Corpus path",self.Param_Server_path_PRC)
 		Param_Server_R.addRow(self.Param_Server_path_PRC)
-		self.Param_Server_path_PRC.setText("/Users/gspr/corpus/telephonie/0-projets/TELasso.prc")
+		#self.Param_Server_path_PRC.setText("/Users/gspr/corpus/telephonie/0-projets/TELasso.prc")
 
 		Param_Server_path_PRC_button = QtGui.QPushButton("select corpus path")
 		Param_Server_R.addWidget(Param_Server_path_PRC_button)
@@ -460,24 +460,37 @@ class Principal(QtGui.QMainWindow):
 #               voir avec des splitters sinon
 ################################################
 ################################################
-
+		###tentative avec une mdiarea, mais les tiles jouent au taquin a chaque resize/deplacement de la fenetre principale
 		#la MdiArea 
-		Area = QtGui.QMdiArea()
-		Area.tileSubWindows()
-		self.setCentralWidget(Area)
+#		Area = QtGui.QMdiArea()
+#		Area.tileSubWindows()
+#		#Area.AreaOption(QMdiArea.DontMaximizeSubWindowOnActivation)
+#		self.setCentralWidget(Area)
+#		
+#		sw1 = Area.addSubWindow(SubWdwSE, flags = QtCore.Qt.FramelessWindowHint)
+#		sw2 = Area.addSubWindow(self.SubWdwSO, flags = QtCore.Qt.FramelessWindowHint)
+#		sw3 = Area.addSubWindow(self.SubWdwNE , flags = QtCore.Qt.FramelessWindowHint)
+#		sw4 = Area.addSubWindow(SubWdwNO , flags = QtCore.Qt.FramelessWindowHint)
+#
+#		
+#		self.show() 
+#		self.showMaximized() #à appeler après show pour que ça marche sous windows!
+#		Area.setFixedSize( Area.size()) #preserver l'ordre des subwindows en cas de resize -> les subwindows ne sont pas max sous linux
 		
-		sw1 = Area.addSubWindow(SubWdwSE, flags = QtCore.Qt.FramelessWindowHint)
-		sw2 = Area.addSubWindow(self.SubWdwSO, flags = QtCore.Qt.FramelessWindowHint)
-		sw3 = Area.addSubWindow(self.SubWdwNE , flags = QtCore.Qt.FramelessWindowHint)
-		sw4 = Area.addSubWindow(SubWdwNO , flags = QtCore.Qt.FramelessWindowHint)
-		self.setWindowTitle(u'Prospéro II')
-		
+################################################
+################################################
+		###Layout en grid
+		main = QtGui.QWidget()
+		grid = QtGui.QGridLayout()
+		grid.addWidget(SubWdwNO,0,0)
+		grid.addWidget(self.SubWdwNE,0,1)
+		grid.addWidget(self.SubWdwSO,1,0)
+		grid.addWidget(SubWdwSE,1,1)
+		main.setLayout(grid)
+		self.setCentralWidget(main)
+
+		self.setWindowTitle(u'Prospéro client')
 		self.show() 
-		self.showMaximized() #à appeler après show pour que ça marche sous windows!
-		Area.setFixedSize( Area.size()) #preserver l'ordre des subwindows en cas de resize 
-
-		
-
 		
 
 
