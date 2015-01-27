@@ -1,48 +1,52 @@
-# -*- coding: ISO-8859-1 -*-
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 """
 Created on 5 mars 2012
 
 @author: jean-pierre Charriau
 
-module de communication avec un serveur P-II pour l'�valuation des variables mrlw dont le rendu/l'�valuation d�pend des calculs de P-II
+module de communication avec un serveur P-II pour l'évaluation des variables mrlw dont le rendu/l'évaluation dépend des calculs de P-II
 
-une variable est transform�e en une s�quence de messages envoy�s les uns � la suite des autres vers P-II, la s�quence
-se terminant par un message "F" signalant la fin de la s�quence.
-L'envois successifs de ces messages permet � P-II de retrouver s'ils ont d�j� �t� calcul�s les diff�rentes objets correspondant
-aux composantes de la variable ( dans l'exemple ci-dessous, $aut0 puis $act1 seront retrouv�s par P-II permettant de contextualiser/�valuer
-correctement la derni�re composante phadt ... un �nonc� al�atoire avec auteur/date/titre, de l'acteur 1 chez l'auteur 0 )
+une variable est transformée en une séquence de messages envoyés les uns à la suite des autres vers P-II, la séquence
+se terminant par un message "F" signalant la fin de la séquence.
+L'envois successifs de ces messages permet à P-II de retrouver s'ils ont déjà été calculés les différentes objets correspondant
+aux composantes de la variable ( dans l'exemple ci-dessous, $aut0 puis $act1 seront retrouvés par P-II permettant de contextualiser/évaluer
+correctement la dernière composante phadt ... un énoncé aléatoire avec auteur/date/titre, de l'acteur 1 chez l'auteur 0 )
   
 
 
-			E:signature	# les objets que calcule P-II sont aussi mis en cache par P-II . la signature permet d'y acc�der
+			E:signature	# les objets que calcule P-II sont aussi mis en cache par P-II . la signature permet d'y accéder
 			V:typeVariable:signature  		# V indique une variable
-			P:n  		 # position/indice de la variable pr�c�dente
-			BI:n   		# cas d'un acc�s par tranche  [] pour la variable pr�c�dente
+			P:n  		 # position/indice de la variable précédente
+			BI:n   		# cas d'un accès par tranche  [] pour la variable précédente
 			BS:m
-			ARG:xxx		# lorsque des param�tres sont transmis ( $aut0.phadt[0:10].+xxx  sp�cifiant une contrainte suppl�mentaire (pr�sence de xxx))
+			ARG:xxx		# lorsque des paramètres sont transmis ( $aut0.phadt[0:10].+xxx  spécifiant une contrainte supplémentaire (présence de xxx))
 			F:			# fin du bloc de message 
 			
-			$aut0.act1.phadt sera transform� en la s�quence suivante: 
+			$aut0.act1.phadt sera transformé en la séquence suivante: 
 			
-			E:aut0.act1.phadt		# la signature compl�te
-			V:aut:aut0		# la premi�re composante variable 
-			P:0				# position de la premi�re V
+			E:aut0.act1.phadt		# la signature complète
+			V:aut:aut0		# la première composante variable 
+			P:0				# position de la première V
 			V:act:act1		# la seconde composante variable
 			P:1				# position de la seconde V
-			V:phadt:phadt	# troisi�me composante ( sans position ni tranche .. donc al�atoire)
+			V:phadt:phadt	# troisième composante ( sans position ni tranche .. donc aléatoire)
 			F				# code de fin de message
 """
 #from settings import hostPII , portPII , logger
+
+
+verbose = 0
 
 import threading, socket, time , re
 #from eval_variable import eval_variables
 #from globals import getMapDossiers , log_file_name_messages
 from fonctions import is_random_var
 
-# on exclue le signe + pour ne pas reconna�tre +truc+bidule
+# on exclue le signe + pour ne pas reconnaître +truc+bidule
 regex_var = re.compile (r"""(?P<VAR>[a-zA-Z_]+)($|\s)+""", re.VERBOSE | re.DOTALL)
-# pour $aut0.phadt[0:10].+truc+machin ou '+truc+machin' est analys�e par la regex
-# Attention : aux lettres accentu�es !
+# pour $aut0.phadt[0:10].+truc+machin ou '+truc+machin' est analysée par la regex
+# Attention : aux lettres accentuées !
 regex_var_args = re.compile (r"""\+(?P<ARG>.*?)$""", re.VERBOSE | re.DOTALL)
 # reconnaissance de aut10
 regex_indice = re.compile (r"""(?P<VAR>[a-zA-Z_]*)(?P<INDICE>\d+)$|\s""", re.VERBOSE | re.DOTALL)
@@ -64,15 +68,15 @@ regex_sfrm_forme = re.compile (r"""(?P<VAR>forme.*)($|\s)+""", re.VERBOSE | re.D
 regex_sfrm_ph = re.compile (r"""(?P<VAR>ph.*?)(\d|\[)""", re.VERBOSE | re.DOTALL)
 # pour les X ... ds les sfrm ... par defaut puisque les noms de variables sont libres X Y Z etc..
 regex_sfrm_var = re.compile (r"""(?P<VAR>.*?)(\d|\[)""", re.VERBOSE | re.DOTALL)
-# pour les variables li�s X=toto
+# pour les variables liés X=toto
 regex_sfrm_link_var = re.compile (r"""(?P<VAR>.*?)=(?P<VAL>.*?)(\.|$)""", re.VERBOSE | re.DOTALL)
 
-# regex compl�mentaire pour isoler les args dans le cas ou le premier arg n'a pas de '+' ( .$Obj+truc )
+# regex complémentaire pour isoler les args dans le cas ou le premier arg n'a pas de '+' ( .$Obj+truc )
 regex_ph_args_bis =  re.compile (r"""(?P<var>\$.*?)\.(?P<arg_incorrect>.*?)\+(?P<arg>.*?)$""",  re.VERBOSE | re.DOTALL )
 
 class ConnecteurPII (threading.Thread): 
-	""" Pourquoi d�river la class de threading.Thread ? -> utilisation du RLock
-		car pas d'exec de la m�thode start/run ...
+	""" Pourquoi dériver la class de threading.Thread ? -> utilisation du RLock
+		car pas d'exec de la méthode start/run ...
 	"""
 	def __init__ (self):
 		threading.Thread.__init__(self)
@@ -97,7 +101,7 @@ class ConnecteurPII (threading.Thread):
 				time.sleep(0.5)
 				return True
 			except socket.error:			
-				print "Connexion : �chec"
+				print "Connexion : échec"
 				time.sleep(1)
 				
 
@@ -108,7 +112,7 @@ class ConnecteurPII (threading.Thread):
 		self.connexion = None
 
 	def send_var_for_frm(self, dic_of_frm_var):
-		"""envois des variables utilis�es par les frm
+		"""envois des variables utilisées par les frm
 		"""
 		if not self.connexion : 
 			if not self.connect():
@@ -127,7 +131,7 @@ class ConnecteurPII (threading.Thread):
 		
 	def send_frm(self, dic_formules):
 		"""envois des classe des formule vers P-II
-			ent�te CFRM:nom_de_la_classe
+			entête CFRM:nom_de_la_classe
 					FRM:formule
 					F:	
 		"""
@@ -154,14 +158,15 @@ class ConnecteurPII (threading.Thread):
 
 	def send_dossiers(self):
 		"""
-		envois des d�finitions de dossier � P-II
+		envois des définitions de dossier à P-II
 		"""
 		if not self.connexion : 
 			if not self.connect():
 				return ""
 		dic_dossier = getMapDossiers()
 		for dossier in dic_dossier.keys():
-			print "dossier envoy�" , dossier
+			if (verbose) :
+				print "dossier envoyé" , dossier
 			mess = "E:DOSSIER_CONSTRUCTOR"
 			self.send_expression(mess)
 			mess = "DOSSIER:" + dossier
@@ -218,7 +223,7 @@ class ConnecteurPII (threading.Thread):
 
 	def eval_fonc(self, data):
 		"""
-			cas du getsem : on interroge P-II pour obtenir la s�mantique exacte d'un �l�ment
+			cas du getsem : on interroge P-II pour obtenir la sémantique exacte d'un élément
 		"""
 		self.m_threadlock.acquire()
 		if data in self.m_cache_fonc.keys():
@@ -253,10 +258,10 @@ class ConnecteurPII (threading.Thread):
 		self.m_threadlock.release()
 		return ev
 	def eval_index(self, data):
-		""" interrogation de P-II sur le/les types associ�s � data
+		""" interrogation de P-II sur le/les types associés à data
 		"""
 		self.m_threadlock.acquire()
-		# si le/les types de data ont d�j� �t� recherch� on les retrouve dans le cache
+		# si le/les types de data ont déjà été recherché on les retrouve dans le cache
 		if data in  self.m_cache_index.keys():
 			self.m_threadlock.release()
 			return self.m_cache_index[data]
@@ -295,7 +300,8 @@ class ConnecteurPII (threading.Thread):
 				LE.append(SL)
 				L.append(LE)
 		except:
-			print "exception pb encodage"
+			if (verbose) :
+				print "exception pb encodage"
 			logger.info("exception  pb encodage")
 			self.m_threadlock.release()
 			return ""
@@ -324,7 +330,8 @@ class ConnecteurPII (threading.Thread):
 			try :
 				taille = self.connexion.recv(10) 
 				taille_mess = int(taille)
-				print taille_mess
+				if (verbose) :
+					print taille_mess
 				data = self.connexion.makefile().read(taille_mess)
 				
 			except :
@@ -420,7 +427,7 @@ class ConnecteurPII (threading.Thread):
 			bogue : 
 				c:corpus
 				$txt
-				le : est maltrait� dans le split
+				le : est maltraité dans le split
 				
 		
 		"""	
@@ -430,7 +437,8 @@ class ConnecteurPII (threading.Thread):
 		lexpr.append("ARG:" +element)
 		lexpr.append("ARG:" +sem)
 		lexpr.append('F')
-		print lexpr
+		if (verbose) :
+			print lexpr
 		return lexpr
 	def creer_msg_fonc(self, data):
 		"""
@@ -444,7 +452,7 @@ class ConnecteurPII (threading.Thread):
 			bogue : 
 				c:corpus
 				$txt
-				le : est maltrait� dans le split
+				le : est maltraité dans le split
 				
 		
 		"""	
@@ -473,7 +481,7 @@ class ConnecteurPII (threading.Thread):
 			v = v.replace(r1.group('SKIP'), '')
 		return v
 	def creer_msg_sfrm(self, data):
-		"""sp�cifique aux sfrm !
+		"""spécifique aux sfrm !
 		$sfrm.Evts-marquants.forme0
 			E:sfrm.Evts-marquants.forme0
 			S:SFRM:Evts-marquant
@@ -647,15 +655,15 @@ class ConnecteurPII (threading.Thread):
 
 	def creer_msg(self, data,user_env,corpus_env,env_dialogue):
 		"""
-			transforme l'expression en une s�quence de messages qui seront envoy�s � P-II
+			transforme l'expression en une séquence de messages qui seront envoyés à P-II
 			
 			
-			E:signature	# les objets que calcule P-II sont mis en cache . la signature permet d'y acc�der
+			E:signature	# les objets que calcule P-II sont mis en cache . la signature permet d'y accéder
 			V:typeVariable:signature  
 			P:n  		 # position/indice de la variable
-			BI:n   		# cas d'un acc�s par tranche  []
+			BI:n   		# cas d'un accès par tranche  []
 			BS:m
-			ARG:xxx		# lorsque des param�tres sont transmis ( $aut0.phadt[0:10].+xxx  sp�cifiant une contrainte suppl�mentaire (pr�sence de xxx))
+			ARG:xxx		# lorsque des paramètres sont transmis ( $aut0.phadt[0:10].+xxx  spécifiant une contrainte supplémentaire (présence de xxx))
 			F:			# fin du bloc de message 
 			
 			$aut0.act1.phadt sera converti en 
@@ -681,7 +689,7 @@ class ConnecteurPII (threading.Thread):
 
 
 
-			avec des param�tres ...
+			avec des paramètres ...
 			$aut0.act1.phadt[0:10].+truc+machin sera converti en 
 			E:aut0.act1.phadt[0:10]   # signature
 			V:aut:aut0		
@@ -696,35 +704,35 @@ class ConnecteurPII (threading.Thread):
 			F
 
 
-			E:signature utilis�e ds le cache
-			remarque : pour les reseaux, (res, inf ,resact,respers ) la signature doit �tre sans les indices/tranches
-			puisque P-II calcule le r�seau (d'entit�s, de cat�gorise, d'acteurs,de personnes) d'un objet une fois,
-			$act0.res est calcul� une fois, les acc�s $act0.res1 $act0.res2 $act0.res[0:10] se r�sumant � une s�lection d'�l�ments
-			dans le r�seau existant.
+			E:signature utilisée ds le cache
+			remarque : pour les reseaux, (res, inf ,resact,respers ) la signature doit être sans les indices/tranches
+			puisque P-II calcule le réseau (d'entités, de catégories, d'acteurs,de personnes) d'un objet une fois,
+			$act0.res est calculé une fois, les accès $act0.res1 $act0.res2 $act0.res[0:10] se résumant à une sélection d'éléments
+			dans le réseau existant.
 			
 			$act0.res[0:10] -> $act0.res
 			$act0.res[0:98] -> $act0.res
 			$act0.res0 -> $act0.res
 			$act0.res1 -> $act0.res
-			$aut4.ph.+$aut4.act0+$aut4.act0.res1 --> d'o� l'utilisation du mask, et l'�valuation des args 
+			$aut4.ph.+$aut4.act0+$aut4.act0.res1 --> d'où l'utilisation du mask, et l'évaluation des args 
 			
 			modification 3/07/2012
-			traitement des {} formes liste � renvoyer
+			traitement des {} formes liste à renvoyer
 			
-				Pb du s�parateur ',' utilis� dans les formes [] (quasi identique aux formes [] )
-				mais les variables $ph utilis�es avec [] ou {} peuvent renvoyer du contenu avec des "," !!
-				il faut donc que le code de s�paration des items renvoy�s soit diff�rent de "," dans le cas des {}
+				Pb du séparateur ',' utilisé dans les formes [] (quasi identique aux formes [] )
+				mais les variables $ph utilisées avec [] ou {} peuvent renvoyer du contenu avec des "," !!
+				il faut donc que le code de séparation des items renvoyés soit différent de "," dans le cas des {}
 			
-				chaque message re�u (getvalue) contiendra en premi�re position S ou L indiquant le type string ou list
-				ds le cas du type list, getvalue cr�era une liste ( split(separ)) 
+				chaque message reçu (getvalue) contiendra en première position S ou L indiquant le type string ou list
+				ds le cas du type list, getvalue créera une liste ( split(separ)) 
 				
-				il faut reconna�tre les {} dans les variables afin d'envoyer un code 'L' � P-II pour qu'il indique 
+				il faut reconnaître les {} dans les variables afin d'envoyer un code 'L' à P-II pour qu'il indique 
 				
 			
 		"""
 		mask = "TUVXYZ"
 
-		# provisoire : rep�rage des {}
+		# provisoire : repérage des {}
 		if data.find('{') != -1:
 			forme_liste = True
 		else:
@@ -741,7 +749,7 @@ class ConnecteurPII (threading.Thread):
 			args = r.group('ARG') # tout ce qui suit le premier '+'
 			data = data.replace(args,mask) 
 			"""
-				�valuer les args commen�ant par $ pour construire la liste des args �valu�s
+				évaluer les args commençant par $ pour construire la liste des args évalués
 			"""
 			#largs =  r.group('arg_incorrect').split('+') # ['$V', '$X', 'bidule'] ???
 			largs = args.split('+')
@@ -749,7 +757,7 @@ class ConnecteurPII (threading.Thread):
 				if not a : continue  # quand .+xxx+yyy arg_incorrect  ne contient rien !
 				if a[0] =='$' :
 					ev = eval_variables( a , user_env, corpus_env,env_dialogue)
-					if not ev: # �chec de l'�valuation
+					if not ev: # échec de l'évaluation
 						return []
 					liste_eval_args.append(ev)
 				else:
@@ -758,7 +766,7 @@ class ConnecteurPII (threading.Thread):
 				return []
 			new_args = "" + "+".join(liste_eval_args)
 		L = data.split('.')
-		lmess = [] # contiendra les messages � envoyer � P-II
+		lmess = [] # contiendra les messages à envoyer à P-II
 		
 		# signature particuliere pour les .res
 		signature = self.getSignature(data)
@@ -776,7 +784,7 @@ class ConnecteurPII (threading.Thread):
 					lmess.append("ARG:" + arg)
 					forme = forme + "+" + arg
 					
-				# mettre � jour la signature de la derni�re variable V:
+				# mettre à jour la signature de la dernière variable V:
 				if last_var_expr :
 					last_var_expr_with_args = last_var_expr + forme
 					# maj de la forme ds la liste lmess
@@ -862,13 +870,15 @@ if __name__ == "__main__" :
 	try :
 		lvar = ["$cat_ent", "$cat_ent0", "$cat_ent[0:9]", "$ef0", "$ef[0:10]",  "$col2", "$col[0:10]", "$cat_ent[0:5]", "$ent0", "$ent0.txt[0:10]", "$ent0.txtp0", "$act0.txtp0"]
 		for v in lvar :
-			print "variable : ", v , "  valeur ->  ", c.eval_variable (v)
+			if (verbose) :
+				print "variable : ", v , "  valeur ->  ", c.eval_variable (v)
 			
 		lv = ["$ent", "$act", "$entef"]
 		for v in lv:
 			for i in range (100):
 				ev = v + str (i)
-			print "variable : ", ev , "  valeur ->  ", c.eval_variable (ev) 
+			if (verbose) :
+				print "variable : ", ev , "  valeur ->  ", c.eval_variable (ev) 
 	except:
 		c.send_expression("CLOSE")
 	
