@@ -17,7 +17,7 @@ from PySide.QtGui import QMdiArea
 
 
 class client(object):
-	def __init__(self,h = 'prosperologie.org',p = '60000'):
+	def __init__(self,h = 'marloweb.eu',p = '60000'):
 		self.c = interface_prospero.ConnecteurPII() 
 		self.c.set(h,p)
 		self.teste_connect()
@@ -42,14 +42,21 @@ class client(object):
 
 	def eval_var(self,var):
 		self.eval_var_result = self.c.eval_variable(var)
-
+		
+	def eval_var_ctx(self,props,ctx_range):
+		return self.c.eval_ctx(props,ctx_range)
+		
 	def eval_get_sem(self,exp,sem):
 		# jp : pour retrouver la sémantique d'un élément : (getsem 'nucléaire' $ent )
 		exp = exp.encode('utf-8')
 		#return self.c.eval_fonc("getsem:%s:%s" % (  exp , sem) )
 		return self.c.eval_fonct(u"getsem" , exp , sem )
-
-
+	def add_cache_var(self,cle,val):
+		self.c.add_cache_var(cle,val)
+	# pour anticiper les getsem /corpus/texte $txt
+	def add_cache_fonct(self,cle,val):
+		self.c.add_cache_fonc(cle,val)
+	
 class Principal(QtGui.QMainWindow):
 	def __init__(self):
 		super(Principal, self).__init__()
@@ -59,11 +66,41 @@ class Principal(QtGui.QMainWindow):
 	def pre_calcule(self):
 		self.client.recup_texts()
 		listeTextes = self.client.txts
+		# les virgules contenues dans les titres ont été remplacées par \,
+		# la manip suivante permet de remplacer dans un premier temps les \,par un TAG
+		# ensuite de créer la liste, puis de remettre les virgules à la place des \,
+		TAG="AZETYT"	# on peut mettre presque n'importe quoi ...
+		list_txt_title = self.client.eval_var_ctx("title","[0:]")  # utiliser 'title'
+
+		list_txt_title = list_txt_title.replace ('\,', TAG )
+		list_txt_title = list_txt_title.split(',')
+		#on remet les virgules
+		liste_titres = []
+		for item in list_txt_title:
+			if item.find (TAG) != -1 :
+				item = item.replace(TAG,',')
+			liste_titres.append ( item)
+			
+		
+		liste_dates = self.client.eval_var_ctx("date","[0:]")
+		liste_dates = liste_dates.split(',')
+		
+		if not ( len(liste_dates) == len ( liste_titres) == len (listeTextes )):
+			print "problemo qq part "
+		
 		# calculer les $txt
+		indice = 0
 		for text in listeTextes :
-			sem_txt = self.client.eval_get_sem(text,"$txt")
-			self.client.eval_var(sem_txt+".titre_txt")
-			self.client.eval_var(sem_txt+".date_txt")
+			sem = "$txt%s"%indice
+			txt_name = listeTextes[indice]
+			cle = txt_name + "$txt"
+			self.client.add_cache_fonct(cle, sem )
+			#sem_txt = self.client.eval_get_sem(text,"$txt")
+			titre = liste_titres[indice]
+			date = liste_dates[indice]
+			self.client.add_cache_var( sem + ".titre_txt", titre)
+			self.client.add_cache_var( sem + ".date_txt", date)
+			indice +=1
 		
 	def initUI(self):
 
@@ -159,18 +196,14 @@ class Principal(QtGui.QMainWindow):
 
 
 
-	# onglet contenu du CTX
-		self.textCTX = QtGui.QListWidget()	
 	# onglet contenu du texte
 		self.textContent = QtGui.QTextEdit() 
 
 
 		SubWdwSE = QtGui.QTabWidget()
 		SubWdwSE.addTab(self.textProperties,"Properties")
-		#SubWdwSE.addTab(self.textCTX,"CTX")
+#		SubWdwSE.addTab(T2,"CTX")
 		SubWdwSE.addTab(self.textContent,"Text")
-		self.SubWdwSECorner = QtGui.QLabel()
-		SubWdwSE.setCornerWidget(self.SubWdwSECorner)
 
 
 ##################################################
@@ -184,8 +217,7 @@ class Principal(QtGui.QMainWindow):
 		self.SOT1.tabCloseRequested.connect(self.SOT1.removeTab)
 		#la liste des textes du corpus
 		self.CorpusTexts = QtGui.QListWidget()
-		#self.CorpusTexts.itemClicked.connect(self.onSelectTextFromCorpus) #ne fonctionne pas avec le clavier
-		self.CorpusTexts.currentItemChanged.connect(self.onSelectTextFromCorpus) #fonctionne avec clavier et souris
+		self.CorpusTexts.itemClicked.connect(self.onSelectTextFromCorpus)
 		self.SOT1.addTab(self.CorpusTexts,"corpus")
 		# on fait disparaître le bouton close de la tab CorpusTexts, a gauche pour les mac
 		if self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.RightSide):
@@ -228,7 +260,7 @@ class Principal(QtGui.QMainWindow):
 		#Param_Server_R.addRow("Local server path",self.Param_Server_path_P2)
 		Param_Server_R.addRow(self.Param_Server_path_P2)
 		#self.Param_Server_path_P2.setText("/Users/gspr/Documents/Prospero-II-serveur/prospero-II.app/Contents/MacOS/prospero-II")
-		#self.Param_Server_path_P2.setText("/Users/gspr/Documents/Prospero-II-serveur/prospero-cocoa.app/Contents/MacOS/prospero-cocoa")
+		self.Param_Server_path_P2.setText("/Users/gspr/Documents/Prospero-II-serveur/prospero-cocoa.app/Contents/MacOS/prospero-cocoa")
 
 		Param_Server_path_P2_button = QtGui.QPushButton("select local server path")
 		Param_Server_R.addWidget(Param_Server_path_P2_button)
@@ -237,7 +269,7 @@ class Principal(QtGui.QMainWindow):
 		self.Param_Server_path_PRC = QtGui.QLineEdit()
 		#Param_Server_R.addRow("Corpus path",self.Param_Server_path_PRC)
 		Param_Server_R.addRow(self.Param_Server_path_PRC)
-		#self.Param_Server_path_PRC.setText("/Users/gspr/corpus/telephonie/0-projets/TELasso.prc")
+		self.Param_Server_path_PRC.setText("/Users/gspr/corpus/telephonie/0-projets/TELasso.prc")
 
 		Param_Server_path_PRC_button = QtGui.QPushButton("select corpus path")
 		Param_Server_R.addWidget(Param_Server_path_PRC_button)
@@ -254,7 +286,7 @@ class Principal(QtGui.QMainWindow):
 #configurer les parametres de connexion au serveur distant
 		self.Param_Server_val_host = QtGui.QLineEdit()
 		Param_Server_R.addRow("&host",self.Param_Server_val_host)
-		self.Param_Server_val_host.setText('prosperologie.org')
+		self.Param_Server_val_host.setText('marloweb.eu')  #marloweb.eu 192.168.1.99
 		self.Param_Server_val_port = QtGui.QLineEdit()
 		Param_Server_R.addRow("&port",self.Param_Server_val_port)
 		self.Param_Server_val_port.setText('60000')
@@ -293,9 +325,6 @@ class Principal(QtGui.QMainWindow):
 		server_vars_button_eval = QtGui.QPushButton('Eval')
 		server_vars_Hbox.addWidget(server_vars_button_eval)
 		server_vars_button_eval.clicked.connect(self.server_vars_Evalue)
-		server_vars_button_getsem = QtGui.QPushButton('Get sem')
-		server_vars_Hbox.addWidget(server_vars_button_getsem)
-		server_vars_button_getsem.clicked.connect(self.server_getsem_Evalue)
 		server_vars_button_clear = QtGui.QPushButton('Clear')
 		server_vars_Hbox.addWidget(server_vars_button_clear)
 		server_vars_button_clear.clicked.connect(self.server_vars_Clear)
@@ -383,13 +412,12 @@ class Principal(QtGui.QMainWindow):
 	# les commandes
 		self.NOT1Commands1 = QtGui.QPushButton()
 		self.NOT1Commands1.setIcon(QtGui.QIcon("loupe.png"))
-		#self.NOT1Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
+		self.NOT1Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
 		NOT1Commands1Menu = QtGui.QMenu(self)
 		#NOT1Commands1Menu.addAction('&search')
 		#NOT1Commands1Menu.addAction('&sort')
 		#NOT1Commands1Menu.addAction('&filter')
-
-		#NOT1VHC.addWidget(self.NOT1Commands1) #sera affiché quand utilisé
+		NOT1VHC.addWidget(self.NOT1Commands1)
 
 
 		self.NOT1Commands2 = QtGui.QPushButton()
@@ -406,24 +434,24 @@ class Principal(QtGui.QMainWindow):
 		NOT1VH = QtGui.QHBoxLayout()
 		NOT1V.addLayout(NOT1VH) 
 	#la liste
-		#self.NOT12 = QtGui.QTableWidget()
-		self.NOT12 = QtGui.QListWidget()
-		#self.NOT12.setFont(QtGui.QFont("DejaVu Sans", 11))#police un peu plus petite, ne marche pas sous windows
-		#self.NOT12.verticalHeader().setVisible(False)#pas de header de ligne
+		self.NOT12 = QtGui.QTableWidget()
+		NOT1VH.addWidget(self.NOT12)
+
+		#police un peu plus petite
+		self.NOT12.setFont(QtGui.QFont("DejaVu Sans", 11))
+		#pas de header de ligne
+		self.NOT12.verticalHeader().setVisible(False)
 		
 		#selection d'un item
-		self.NOT12.currentItemChanged.connect(self.liste_item_clicked)
-
-		NOT1VH.addWidget(self.NOT12)
+		self.NOT12.itemClicked.connect(self.liste_item_clicked)
 
 		#le deploiement
 		self.NOT12_D = QtGui.QListWidget()
 		NOT1VH.addWidget(self.NOT12_D)
-		self.NOT12_D.currentItemChanged.connect(self.liste_D_item_clicked) #selection d'un item
+		self.NOT12_D.itemClicked.connect(self.liste_D_item_clicked)
 
 		self.NOT12_E = QtGui.QListWidget()
 		NOT1VH.addWidget(self.NOT12_E)
-		self.NOT12_E.currentItemChanged.connect(self.liste_E_item_clicked) #selection d'un item
 
 
 		#NOT2 =  QtGui.QLabel()
@@ -465,37 +493,24 @@ class Principal(QtGui.QMainWindow):
 #               voir avec des splitters sinon
 ################################################
 ################################################
-		###tentative avec une mdiarea, mais les tiles jouent au taquin a chaque resize/deplacement de la fenetre principale
-		#la MdiArea 
-#		Area = QtGui.QMdiArea()
-#		Area.tileSubWindows()
-#		#Area.AreaOption(QMdiArea.DontMaximizeSubWindowOnActivation)
-#		self.setCentralWidget(Area)
-#		
-#		sw1 = Area.addSubWindow(SubWdwSE, flags = QtCore.Qt.FramelessWindowHint)
-#		sw2 = Area.addSubWindow(self.SubWdwSO, flags = QtCore.Qt.FramelessWindowHint)
-#		sw3 = Area.addSubWindow(self.SubWdwNE , flags = QtCore.Qt.FramelessWindowHint)
-#		sw4 = Area.addSubWindow(SubWdwNO , flags = QtCore.Qt.FramelessWindowHint)
-#
-#		
-#		self.show() 
-#		self.showMaximized() #à appeler après show pour que ça marche sous windows!
-#		Area.setFixedSize( Area.size()) #preserver l'ordre des subwindows en cas de resize -> les subwindows ne sont pas max sous linux
-		
-################################################
-################################################
-		###Layout en grid
-		main = QtGui.QWidget()
-		grid = QtGui.QGridLayout()
-		grid.addWidget(SubWdwNO,0,0)
-		grid.addWidget(self.SubWdwNE,0,1)
-		grid.addWidget(self.SubWdwSO,1,0)
-		grid.addWidget(SubWdwSE,1,1)
-		main.setLayout(grid)
-		self.setCentralWidget(main)
 
-		self.setWindowTitle(u'Prospéro client')
+		#la MdiArea 
+		Area = QtGui.QMdiArea()
+		Area.tileSubWindows()
+		self.setCentralWidget(Area)
+		
+		sw1 = Area.addSubWindow(SubWdwSE, flags = QtCore.Qt.FramelessWindowHint)
+		sw2 = Area.addSubWindow(self.SubWdwSO, flags = QtCore.Qt.FramelessWindowHint)
+		sw3 = Area.addSubWindow(self.SubWdwNE , flags = QtCore.Qt.FramelessWindowHint)
+		sw4 = Area.addSubWindow(SubWdwNO , flags = QtCore.Qt.FramelessWindowHint)
+		self.setWindowTitle(u'Prospéro II')
+		
 		self.show() 
+		self.showMaximized() #à appeler après show pour que ça marche sous windows!
+		Area.setFixedSize( Area.size()) #preserver l'ordre des subwindows en cas de resize 
+
+		
+
 		
 
 
@@ -526,7 +541,6 @@ class Principal(QtGui.QMainWindow):
 		elif ( self.NOT1select.currentText()=="fictions" ) : 
 			return '$ef'
 		elif (self.NOT1select.currentText()=="entitie's categories") : 
-			print "test"
 			return '$cat_ent'
 		else : 
 			return False
@@ -534,8 +548,7 @@ class Principal(QtGui.QMainWindow):
 	def activity(self,message):
 		"""Add message to the history window"""
 		self.status.showMessage(message)
-		time = u"%s" % datetime.datetime.now()
-		self.History.append("%s: %s" % (time[:19],message))
+		self.History.append("%s: %s" % (datetime.datetime.now(),message))
 
 	def recup_liste_textes(self):
 		self.activity(u"Waiting for text list"   )
@@ -543,29 +556,21 @@ class Principal(QtGui.QMainWindow):
 		self.activity(u"Displaying text list (%d items)" %len(self.client.txts)  )
 		self.SOT1.tabBar().setTabText(0,"corpus (%d)"%len(self.client.txts))
 		self.CorpusTexts.clear()
-		self.listeTextes = map(lambda x : re.split("/",x)[-1],self.client.txts) #a adapter pour les chemins windows
-		self.CorpusTexts.addItems(self.listeTextes)
+		listeTextes = self.client.txts
+		self.CorpusTexts.addItems(listeTextes)
 
 	def onSelectTextFromCorpus(self):
 		"""When a text is selected from the list of texts"""
 		item_txt = self.CorpusTexts.currentItem().text()
-		self.activity(u"%s selected " % (item_txt)) 
-		item_txt = self.client.txts[self.listeTextes.index(item_txt)]
-		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
-		self.onSelectText(self.semantique_txt_item,item_txt)
+		self.onSelectText(item_txt)
 		
-	def onSelectText(self,sem_txt,item_txt):
+	def onSelectText(self,item_txt):
 		"""Update text properties windows when a text is selected """
-		txt_resume = ""
-		for props in [u"auteur_txt", u"date_txt", u"titre_txt"] :
-			props_sem = "%s.%s" % (sem_txt,props)
-			self.client.eval_var(props_sem)
-			txt_resume += self.client.eval_var_result + " "
-		self.SubWdwSECorner.setText(txt_resume)
-
-		self.show_textProperties( sem_txt)
-		#self.show_textCTX(sem_txt) 
-		self.show_textContent( sem_txt)
+		#self.activity(u"%s selected " % (item_txt)) 
+		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
+		self.show_textProperties(item_txt , self.semantique_txt_item)
+		#self.show_textCTX(item_txt , self.semantique_txt_item) ## fonction a ecrire
+		self.show_textContent( self.semantique_txt_item)
 
 	def getvalueFromSem(self,item_txt,type):	
 		sem = self.client.eval_get_sem(item_txt, type )
@@ -582,15 +587,13 @@ class Principal(QtGui.QMainWindow):
 
 
 	def change_liste(self,content):
-		#self.NOT12.clearContents()
-		self.NOT12.clear()
+		self.NOT12.clearContents()
 		self.NOT12_D.clear()
 		self.NOT12_E.clear()
-		#self.NOT12.setRowCount(len(content))
-		#self.NOT12.setColumnCount(2)
-		#self.NOT12.setHorizontalHeaderLabels(['Score','Object'])
+		self.NOT12.setRowCount(len(content))
+		self.NOT12.setColumnCount(2)
+		self.NOT12.setHorizontalHeaderLabels(['Score','Object'])
 
-		"""
 		row = 0 
 		for item in content:
 			itemwidget = QtGui.QTableWidgetItem(item)
@@ -611,55 +614,40 @@ class Principal(QtGui.QMainWindow):
 		self.NOT12.horizontalHeader().setStretchLastSection(True)
 		# definir la hauteur apres la largeur donne un resultat plus propre et constant
 		self.NOT12.resizeRowsToContents()
-		"""
-		self.NOT12.addItems(content)
 
 	
 
 	def liste_item_clicked(self):
 		""" suite au changement de sélection d'un élément , mettre à jour les vues dépendantes """ 
-		itemT = self.NOT12.currentItem()
-		if (itemT):
-			item = itemT.text() # l'element selectionné
-			self.activity("%s selected" % item)
-			self.NOT12_D.clear() # on efface la liste
-			self.NOT12_E.clear()
-			sem = self.sem_liste_concept
-			if ( sem  == "$col" or sem == "$ef" )  :
-				# recupere la designation semantique de l'element
-				self.semantique_liste_item = self.client.eval_get_sem(item, sem )
-				self.client.eval_var("%s.rep[0:]"% self.semantique_liste_item)
-				result = re.split(", ", self.client.eval_var_result)
-				for r in result:
-					self.NOT12_D.addItem( r ) 
-				## il coupe la fin du dernier element ???????
+		item = self.NOT12.currentItem().text() # l'element selectionné
+		self.activity("%s selected" % item)
+		self.NOT12_D.clear() # on efface la liste
+		self.NOT12_E.clear()
+		sem = self.sem_liste_concept
+		if ( sem  == "$col" or sem == "$ef" )  :
+			# recupere la designation semantique de l'element
+			self.semantique_liste_item = self.client.eval_get_sem(item, sem )
+			self.client.eval_var("%s.rep[0:]"% self.semantique_liste_item)
+			result = re.split(", ", self.client.eval_var_result)
+			for r in result:
+				self.NOT12_D.addItem( r ) 
+			## il coupe la fin du dernier element ???????
 
-			#activation des boutons de commande
-			#self.NOT1Commands1.setEnabled(True) 
-			self.NOT1Commands2.setEnabled(True) 
+		#activation des boutons de commande
+		#self.NOT1Commands1.setEnabled(True) 
+		self.NOT1Commands2.setEnabled(True) 
 
 
 	def liste_D_item_clicked(self):
-		itemT = self.NOT12_D.currentItem()
-		if (itemT):
-			item = itemT.text() # l'element selectionné
-			row = self.NOT12_D.currentRow() 
-			self.activity("%s selected" % item)
-			self.NOT12_E.clear() # on efface la liste
-			ask = "%s.rep%d.rep[0:]" % (self.semantique_liste_item,row)
-			self.semantique_liste_item_D = u"%s.rep%d" % (self.semantique_liste_item,  row)
-			self.client.eval_var(ask)
-			result = re.split(", ", self.client.eval_var_result)
-			for r in result:
-				self.NOT12_E.addItem( r ) 
-
-	def liste_E_item_clicked(self):
-		itemT = self.NOT12_E.currentItem()
-		if (itemT):
-			item = itemT.text() # l'element selectionné
-			row = self.NOT12_E.currentRow() 
-			self.activity("%s selected" % item)
-		
+		item = self.NOT12_D.currentItem().text() # l'element selectionné
+		row = self.NOT12_D.currentRow() 
+		self.activity("%s selected" % item)
+		self.NOT12_E.clear() # on efface la liste
+		ask = "%s.list_rep%d.rep[0:]" % (self.semantique_liste_item,row)
+		self.client.eval_var(ask)
+		result = re.split(", ", self.client.eval_var_result)
+		for r in result:
+			self.NOT12_E.addItem( r ) 
 			
 	def server_vars_Evalue(self):
 		var = self.server_vars_champ.text()
@@ -669,19 +657,6 @@ class Principal(QtGui.QMainWindow):
 		self.server_vars_result.append("%s" % var)
 		self.server_vars_result.setColor("black")
 		self.server_vars_result.append(self.client.eval_var_result)
-
-
-	def server_getsem_Evalue(self):
-		var = self.server_vars_champ.text()
-		self.server_vars_champ.clear()
-		items = re.split("\s*",var)
-		self.server_vars_result.setColor("red")
-		self.server_vars_result.append("%s" % var)
-		if (len(items) == 2):
-			self.server_vars_result.setColor("black")
-			el, sem = items
-			self.server_vars_result.append(self.client.eval_get_sem(el, sem))
-			
 
 	def server_vars_Clear(self):
 		self.server_vars_result.clear()
@@ -723,13 +698,13 @@ class Principal(QtGui.QMainWindow):
 			self.Param_Server_B.setText("Disconnect")
 			# donne le focus a l'onglet history
 			self.SubWdwNE.setCurrentIndex(self.History_index)
-		#self.pre_calcule()
+		self.pre_calcule()
 	def disconnect_server(self):
-		"""Disconnect"""
 		self.activity("Disconnecting")
 		self.client.disconnect()
 		self.Param_Server_B.setText('Connect to server')
 		self.Param_Server_B.clicked.connect(self.connect_server)
+
 
 
 	def show_textContent(self ,  sem_txt):
@@ -742,17 +717,9 @@ class Principal(QtGui.QMainWindow):
 		#move cursor to the beginning of the text
 		self.textContent.moveCursor(QtGui.QTextCursor.Start)
 		
-	def show_textCTX(self, sem_txt):
-		"""Show text metadata"""
-		self.textCTX.clear() 
-		for props in [u"auteur_txt", u"titre_txt", u"date_txt"] :
-			props_sem = "%s.%s" % (sem_txt,props)
-			self.client.eval_var(props_sem)
-			value = self.client.eval_var_result
-			self.textCTX.addItem(value)
 		
-	def show_textProperties(self ,  sem_txt):
-		"""Show text sailent properties"""
+	def show_textProperties(self ,txt,  sem_txt):
+		"""Show text properties """
 		#les actants
 		list_act_sem = "%s.act[0:]" % sem_txt
 		self.client.eval_var(list_act_sem)
@@ -765,19 +732,62 @@ class Principal(QtGui.QMainWindow):
 		self.saillantesCol.clear()
 		self.saillantesCol.addItems(re.split(", ",self.client.eval_var_result))	
 
+		
+		#actants_tableView = QtGui.QTableWidget()
+		#show_HBox_layout.addWidget(actants_tableView)
+		#actants_tableView.setRowCount(len(L))
+		#actants_tableView.setColumnCount(2)
+		#actants_tableView.setHorizontalHeaderLabels(['Score','Element'])
+
+		#row = 0 
+		#for item in L:
+		#	itemwidget = QtGui.QTableWidgetItem(item)
+		#	itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non-editable
+			# $txt123.act3.val
+			# PB ne peut pas retrouver/calculer une sémantique interne à une autre
+			# genre $txt4.act2  ou $ent3.res3  avec "$txt" "$act" -- > 2 inconnues
+			# mais on peut le faire si la première variable est connue ; ex "$txt3"
+			#on n'aura plus qu'à chercher le $act ... mais il faut l'implémenter sous P-II 
+			#sem= self.client.eval_get_sem(item,"%s.%s.self.sem_liste_concept") 
+			#C'EST TROP LENT !!!!! C'EST PAS DANS L'ORDRE !!!!
+			#semantique = self.client.eval_get_sem(item,self.sem_liste_concept) #NE RENVOIE PAS $col2 sur AaC, pb sur le dico, manque type ?
+			#sem_poids = semantique + ".val" 
+			#self.client.eval_var(sem_poids)	
+			#itemwidgetS = QtGui.QTableWidgetItem(self.client.eval_var_result)
+			#itemwidgetS.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non editable
+
+			#self.NOT12.setItem(row,0,itemwidgetS) 
+			#actants_tableView.setItem(row,1,itemwidget)
+			#row += 1
+
+		
+		#for props in [u"auteur_txt", u"titre_txt", u"date_txt"] :
+		#	props_sem  = "%s.%s" % (sem_txt,props)
+		#	self.activity(u"Displaying  %s " % props_sem )
+		
+		#	self.client.eval_var(props_sem)
+		#	value = self.client.eval_var_result
+		
+		#	props_widget.append(value )
+			
+		
+
+		
+		
+
+
 
 
 	def show_network(self):
 		"""Show the network of a selected item"""
 #TODO recuperer les autres niveaux de liste
-		if  self.NOT12_E.currentItem() :
-			element = self.NOT12_E.currentItem().text() 
-		elif self.NOT12_D.currentItem():
-			element = self.NOT12_D.currentItem().text() 
-			res_semantique = "%s.res[0:200]" % self.semantique_liste_item_D  
-		else :
-			element = self.NOT12.currentItem().text() 
-			res_semantique = "%s.res[0:200]" % self.semantique_liste_item  
+		#if  self.NOT12_E.currentItem() :
+		#	element = self.NOT12_E.currentItem().text() 
+		#elif self.NOT12_D.currentItem():
+		#	element = self.NOT12_D.currentItem().text() 
+		#else :
+		#	element = self.NOT12.currentItem().text() 
+		element = self.NOT12.currentItem().text() 
 
 #TODO si la tab de l'element existe déjà, la raffraichir et ne pas en créer une nouvelle
 		show_network_widget = QtGui.QWidget()
@@ -801,7 +811,7 @@ class Principal(QtGui.QMainWindow):
 
 		Network_list =  QtGui.QListWidget()
 		show_network_box.addWidget(Network_list)
-		print res_semantique
+		res_semantique = "%s.res[0:200]" % self.semantique_liste_item  
 		self.client.eval_var(res_semantique)
 		Network_list.addItems(re.split(", ",self.client.eval_var_result))
 		self.tabNetworks.setCurrentIndex(index)# donne le focus a l'onglet créé
@@ -841,6 +851,7 @@ class Principal(QtGui.QMainWindow):
 			
 			
 			
+			#txt_sem = self.client.eval_get_sem(txt, "$txt" )
 			self.client.eval_var("%s.date_txt"%txt_sem)
 			txt_title = self.client.eval_var_result
 			
