@@ -42,12 +42,22 @@ class client(object):
 
 	def eval_var(self,var):
 		self.eval_var_result = self.c.eval_variable(var)
+		
+	def eval_var_ctx(self,props,ctx_range):
+		return self.c.eval_ctx(props,ctx_range)
 
 	def eval_get_sem(self,exp,sem):
 		# jp : pour retrouver la sémantique d'un élément : (getsem 'nucléaire' $ent )
 		exp = exp.encode('utf-8')
 		#return self.c.eval_fonc("getsem:%s:%s" % (  exp , sem) )
 		return self.c.eval_fonct(u"getsem" , exp , sem )
+
+	def add_cache_var(self,cle,val):
+		self.c.add_cache_var(cle,val)
+	# pour anticiper les getsem /corpus/texte $txt
+	def add_cache_fonct(self,cle,val):
+		self.c.add_cache_fonc(cle,val)
+	
 
 
 class Principal(QtGui.QMainWindow):
@@ -59,12 +69,43 @@ class Principal(QtGui.QMainWindow):
 	def pre_calcule(self):
 		self.client.recup_texts()
 		listeTextes = self.client.txts
+		# les virgules contenues dans les titres ont été remplacées par \,
+		# la manip suivante permet de remplacer dans un premier temps les \,par un TAG
+		# ensuite de créer la liste, puis de remettre les virgules à la place des \,
+		TAG="AZETYT"	# on peut mettre presque n'importe quoi ...
+		list_txt_title = self.client.eval_var_ctx("title","[0:]")  # utiliser 'title'
+
+		list_txt_title = list_txt_title.replace ('\,', TAG )
+		list_txt_title = list_txt_title.split(',')
+		#on remet les virgules
+		liste_titres = []
+		for item in list_txt_title:
+			if item.find (TAG) != -1 :
+				item = item.replace(TAG,',')
+			liste_titres.append ( item)
+			
+		
+		liste_dates = self.client.eval_var_ctx("date","[0:]")
+		liste_dates = liste_dates.split(',')
+		
+		if not ( len(liste_dates) == len ( liste_titres) == len (listeTextes )):
+			print "problemo qq part "
+		
+
 		# calculer les $txt
 		for text in listeTextes :
-			sem_txt = self.client.eval_get_sem(text,"$txt")
-			self.client.eval_var(sem_txt+".titre_txt")
-			self.client.eval_var(sem_txt+".date_txt")
+			sem = "$txt%s"%indice
+			txt_name = listeTextes[indice]
+			cle = txt_name + "$txt"
+			self.client.add_cache_fonct(cle, sem )
+			#sem_txt = self.client.eval_get_sem(text,"$txt")
+			titre = liste_titres[indice]
+			date = liste_dates[indice]
+			self.client.add_cache_var( sem + ".titre_txt", titre)
+			self.client.add_cache_var( sem + ".date_txt", date)
+			indice +=1
 		
+	
 	def initUI(self):
 
 

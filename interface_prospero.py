@@ -182,12 +182,44 @@ class ConnecteurPII (threading.Thread):
 		self.send_expression("F")
 		self.get_value("send_dossiers")			
 
+	def add_cache_var(self,cle,val):
+		self.m_cache_var[cle] = val
 
 
 	def add_cache_fonc (self, data, value):
 		self.m_cache_fonc[data] = value
 	def add_cache_index(self, data, value):
 		self.m_cache_index[data] = value
+
+		
+	def eval_ctx(self,props,ctx_range):
+		'''
+		usage vecteur de data 
+			props = titre
+			ctx_range = [0:]
+			
+			signature -> $ctx.titre[0:]
+		'''
+		self.m_threadlock.acquire()
+		
+		cle = "$ctx." + props +  ctx_range
+		if cle in self.m_cache_var.keys():
+			self.m_threadlock.release()
+			return self.m_cache_var[cle]
+		
+		
+		if not self.connexion : 
+			if not self.connect():
+				self.m_threadlock.release()
+				return ""
+		lexpr = self.creer_msg_ctx(props,ctx_range )
+		for exp in lexpr :
+			self.send_expression(exp)
+		value = self.get_value()
+		self.add_cache_var(cle, value)
+		self.m_threadlock.release()
+		return value
+
 	def eval_fonct (self, fonc, element,sem):
 		"""
 			cas du getsem : on interroge P-II pour obtenir la sémantique avec indice
@@ -651,6 +683,44 @@ class ConnecteurPII (threading.Thread):
 		lexpr.append('F')
 		return lexpr
 
+	def creer_msg_ctx(self,props, ctx_range):
+		'''
+			$ctx.titre[0:]
+			$ctx.date[0:]
+			$ctx.auteur[0:]
+			$ctx.champ libre 1[0:]		# ??? � voir
+			
+			
+			E:signature	# les objets que calcule P-II sont mis en cache . la signature permet d'y acc�der
+			V:typeVariable:signature  
+			P:n  		 # position/indice de la variable
+			BI:n   		# cas d'un acc�s par tranche  []
+			BS:m
+			ARG:xxx		# lorsque des param�tres sont transmis ( $aut0.phadt[0:10].+xxx  sp�cifiant une contrainte suppl�mentaire (pr�sence de xxx))
+			F:	
+			E:ctx.titre[0:]
+			PROPS:titre						# Ajouté
+			V:ctx:ctx.titre[0:]
+			BI:0
+			BS:99999
+			ARG:titre
+			F
+		'''
+		typevar = "ctx"
+		var  = typevar + "." + props  + ctx_range
+		L = []
+		L.append("E:" + var)
+		L.append("PROPS:"+props)
+		L.append("V:" + typevar + ":" + var  )
+		# juste les tranches max [0:]
+		VBI = "BI:0"
+		VBS = "BS:999999"
+		L.append(VBI)
+		L.append(VBS)
+		
+		L.append ("F")
+		return L
+
 			
 
 	def creer_msg(self, data,user_env,corpus_env,env_dialogue):
@@ -866,7 +936,12 @@ m_connecteur_pII = ConnecteurPII()
 if __name__ == "__main__" :
 
 	c = ConnecteurPII()
-	c.set( '127.0.0.1','4000' )
+	#L= c.creer_msg_ctx("titre","[0:]")
+	c.set( '192.168.1.99','4000' )
+	#v = c.eval_variable("$ent0")
+	v = c.eval_ctx("title","[0:]")
+	#c.set( '127.0.0.1','4000' )
+
 	try :
 		lvar = ["$cat_ent", "$cat_ent0", "$cat_ent[0:9]", "$ef0", "$ef[0:10]",  "$col2", "$col[0:10]", "$cat_ent[0:5]", "$ent0", "$ent0.txt[0:10]", "$ent0.txtp0", "$act0.txtp0"]
 		for v in lvar :
