@@ -452,19 +452,19 @@ class Principal(QtGui.QMainWindow):
 		#self.NOT12.setFont(QtGui.QFont("DejaVu Sans", 11))#police un peu plus petite, ne marche pas sous windows
 		#self.NOT12.verticalHeader().setVisible(False)#pas de header de ligne
 		
-		#selection d'un item
-		self.NOT12.currentItemChanged.connect(self.liste_item_clicked)
+		self.NOT12.currentItemChanged.connect(self.liste_item_changed) #changement d'un item
 
 		NOT1VH.addWidget(self.NOT12)
 
 		#le deploiement
+#TODO ajouter un déselect
 		self.NOT12_D = QtGui.QListWidget()
 		NOT1VH.addWidget(self.NOT12_D)
-		self.NOT12_D.currentItemChanged.connect(self.liste_D_item_clicked) #selection d'un item
+		self.NOT12_D.currentItemChanged.connect(self.liste_D_item_changed) #changement d'un item
 
 		self.NOT12_E = QtGui.QListWidget()
 		NOT1VH.addWidget(self.NOT12_E)
-		self.NOT12_E.currentItemChanged.connect(self.liste_E_item_clicked) #selection d'un item
+		self.NOT12_E.currentItemChanged.connect(self.liste_E_item_changed) #changement d'un item
 
 
 		#NOT2 =  QtGui.QLabel()
@@ -567,7 +567,6 @@ class Principal(QtGui.QMainWindow):
 		elif ( self.NOT1select.currentText()=="fictions" ) : 
 			return '$ef'
 		elif (self.NOT1select.currentText()=="entitie's categories") : 
-			print "test"
 			return '$cat_ent'
 		else : 
 			return False
@@ -657,7 +656,7 @@ class Principal(QtGui.QMainWindow):
 
 	
 
-	def liste_item_clicked(self):
+	def liste_item_changed(self):
 		""" suite au changement de sélection d'un élément , mettre à jour les vues dépendantes """ 
 		itemT = self.NOT12.currentItem()
 		if (itemT):
@@ -666,21 +665,20 @@ class Principal(QtGui.QMainWindow):
 			self.NOT12_D.clear() # on efface la liste
 			self.NOT12_E.clear()
 			sem = self.sem_liste_concept
-			if ( sem  == "$col" or sem == "$ef" )  :
+			if ( sem  in ["$col", "$ef",  "$cat_ent"])  :
 				# recupere la designation semantique de l'element
 				self.semantique_liste_item = self.client.eval_get_sem(item, sem )
 				self.client.eval_var("%s.rep[0:]"% self.semantique_liste_item)
 				result = re.split(", ", self.client.eval_var_result)
 				for r in result:
 					self.NOT12_D.addItem( r ) 
-				## il coupe la fin du dernier element ???????
 
 			#activation des boutons de commande
 			#self.NOT1Commands1.setEnabled(True) 
 			self.NOT1Commands2.setEnabled(True) 
 
 
-	def liste_D_item_clicked(self):
+	def liste_D_item_changed(self):
 		itemT = self.NOT12_D.currentItem()
 		if (itemT):
 			item = itemT.text() # l'element selectionné
@@ -694,12 +692,13 @@ class Principal(QtGui.QMainWindow):
 			for r in result:
 				self.NOT12_E.addItem( r ) 
 
-	def liste_E_item_clicked(self):
+	def liste_E_item_changed(self):
 		itemT = self.NOT12_E.currentItem()
 		if (itemT):
 			item = itemT.text() # l'element selectionné
 			row = self.NOT12_E.currentRow() 
 			self.activity("%s selected" % item)
+			self.semantique_liste_item_E = u"%s.rep%d" % (self.semantique_liste_item_D,  row)
 		
 			
 	def server_vars_Evalue(self):
@@ -810,26 +809,32 @@ class Principal(QtGui.QMainWindow):
 
 	def show_network(self):
 		"""Show the network of a selected item"""
-#TODO recuperer les autres niveaux de liste
 		if  self.NOT12_E.currentItem() :
 			element = self.NOT12_E.currentItem().text() 
+			res_semantique = "%s.res[0:200]" % (self.semantique_liste_item_E)
+			self.activity(u"Displaying network for %s (limited to 200 items)" % element  )
+			
 		elif self.NOT12_D.currentItem():
 			element = self.NOT12_D.currentItem().text() 
 			res_semantique = "%s.res[0:200]" % self.semantique_liste_item_D  
+			self.activity(u"Displaying network for %s (limited to 200 items)" % element )
 		else :
 			element = self.NOT12.currentItem().text() 
 			res_semantique = "%s.res[0:200]" % self.semantique_liste_item  
+			self.activity(u"Displaying network for %s (limited to 200 items)" % element ) 
 
-#TODO si la tab de l'element existe déjà, la raffraichir et ne pas en créer une nouvelle
+		#si la tab de l'element existe déjà, on efface l'ancienne
+		for i in range(0, self.tabNetworks.count() ):
+			if (self.tabNetworks.tabText(i) == element):
+				self.tabNetworks.removeTab(i)
+				
 		show_network_widget = QtGui.QWidget()
 		show_network_box = QtGui.QVBoxLayout()
 		# on prend toute la place
 		show_network_box.setContentsMargins(0,0,0,0) 
 		show_network_box.setSpacing(0) 
-
 		show_network_widget.setLayout(show_network_box)
 		index = self.tabNetworks.addTab(show_network_widget,"%s" % element)
-		self.activity(u"Displaying network for %s (limited to 200 items)" % element )
 
 		#selecteur de concept
 		net_sel_concept = QtGui.QComboBox()
@@ -842,7 +847,6 @@ class Principal(QtGui.QMainWindow):
 
 		Network_list =  QtGui.QListWidget()
 		show_network_box.addWidget(Network_list)
-		print res_semantique
 		self.client.eval_var(res_semantique)
 		Network_list.addItems(re.split(", ",self.client.eval_var_result))
 		self.tabNetworks.setCurrentIndex(index)# donne le focus a l'onglet créé

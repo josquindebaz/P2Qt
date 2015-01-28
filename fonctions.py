@@ -1,6 +1,7 @@
-# -*- coding: ISO-8859-1 -*-
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 '''
-Created on 24 févr. 2012
+Created on 24 fÃ©vr. 2012
 modif ...
 @author: jean-pierre Charriau
 '''
@@ -21,8 +22,8 @@ list_var_count_spec=["cpt"]
 list_var_attribut=["auteur_txt","titre_txt","date_txt"]
 
 def is_random_var(var):
-	"""test si on a une variable aléatoire (non cachable !)
-	PB  : $txt0.ph.+$txt0.act4   ph semble aléatoire ! tirage au sort ds les énoncés contrains par la présence d'un élément
+	"""test si on a une variable alÃ©atoire (non cachable !)
+	PB  : $txt0.ph.+$txt0.act4   ph semble alÃ©atoire ! tirage au sort ds les Ã©noncÃ©s contrains par la prÃ©sence d'un Ã©lÃ©ment
 	"""
 	L = var.split('.')
 	
@@ -42,7 +43,7 @@ def is_random_var(var):
 		
 		
 		
-		# ni indice ni tranche ? est-ce une aléatoire ou une exception
+		# ni indice ni tranche ? est-ce une alÃ©atoire ou une exception
 		if terme in liste_var_list : continue
 		if terme in list_var_count : continue
 		if terme in list_var_attribut : continue
@@ -59,20 +60,20 @@ def is_random_var(var):
 			continue
 		if terme.find('+') != -1:
 			continue
-		# "traitement des args présents dans les variaions $ph...+xxx+yyy
+		# "traitement des args prÃ©sents dans les variaions $ph...+xxx+yyy
 		# faut-il examiner la suite ... cas $ent.cpt { '$ent','cpt'}
 		if  flg_is_alea_if_next_is_spec and  terme in list_var_count_spec:
 			flg_is_alea_if_next_is_spec = False
 			continue
-		# $ent est aléatoire, $ent.cpt ne l'est pas , 
-		# $nbpg ne l'est pas ( isolé -> si rien après, ne pas postionner flg_is_alea_if_next_is_spec)
+		# $ent est alÃ©atoire, $ent.cpt ne l'est pas , 
+		# $nbpg ne l'est pas ( isolÃ© -> si rien aprÃ¨s, ne pas postionner flg_is_alea_if_next_is_spec)
 		if 	flg_is_alea_if_next_is_spec == True:
 			return True
 		if pos + 1 < size_of_list :
 			flg_is_alea_if_next_is_spec =True
 		pos +=1
 	
-	if flg_is_alea_if_next_is_spec : # pas de spec traité, donc on a une var aléatoire
+	if flg_is_alea_if_next_is_spec : # pas de spec traitÃ©, donc on a une var alÃ©atoire
 		return True
 	return False
 
@@ -91,14 +92,14 @@ def save_log_lisp(file_name,mess):
 def save_log(code,file_name,user_env,data,obj_dial_rep=None,obj_dial_capteur=None):
 	"""
 		fichier de log
-		invoquée après reception de la question et avant traitement
-		invoquée après traitement.
+		invoquÃ©e aprÃ¨s reception de la question et avant traitement
+		invoquÃ©e aprÃ¨s traitement.
 		code = Q ou R  (question ou reponse)
-		data = question ou réponse mrlw
+		data = question ou rÃ©ponse mrlw
 		remplacer les \n par des <br>
 	"""
 	if not save_session_log_file_name :return
-	data = str(data) # à cause des listes ...
+	data = str(data) # Ã  cause des listes ...
 	data = data.replace('\n','<BR>')
 	f = open(file_name,'a' )
 	if code == 'R':
@@ -123,21 +124,21 @@ def save_log(code,file_name,user_env,data,obj_dial_rep=None,obj_dial_capteur=Non
 
 def prepare_for_indexation(data):
 	"""
-		fonction appelée avant de faire indexer une string par P-II , pour retrouver les expressions existantes
-		il faut isoler certains caractères : tiret, apostrophe
+		fonction appelÃ©e avant de faire indexer une string par P-II , pour retrouver les expressions existantes
+		il faut isoler certains caractÃ¨res : tiret, apostrophe
 		
-		la fonction est appelé pour indexer par P-II toutes les formes de capture . Dans ce cas on trouve les /VAR= avec des noms 
+		la fonction est appelÃ© pour indexer par P-II toutes les formes de capture . Dans ce cas on trouve les /VAR= avec des noms 
 		pouvant contenir des tirets..
 		 
-		data représente une string 
+		data reprÃ©sente une string 
 		"que dis-tu sur max ?"
 		"quelle heure est-il ?"
 		
-		la sortie est une liste d'éléments
+		la sortie est une liste d'Ã©lÃ©ments
 		["que" , "dis" , "-", "tu" ,"sur" ,"max"]
 		["quelle", "heure", "est", "-" , "il" , "?"]
 		
-		spécificité avec /VAR=INITIALES-USER-ORIGINE ( présence de tiret '-' )
+		spÃ©cificitÃ© avec /VAR=INITIALES-USER-ORIGINE ( prÃ©sence de tiret '-' )
 		prepare_for_indexation('qui est /T=1 /VAR=INITIALES-USER-ORIGINE")
 		['qui', 'est', '/T=1', '/VAR=INITIALES', '-', 'USER', '-', 'ORIGINE']
 		/T=2 /VAR=VarTonTaTes /T=3 /VAR=VarPasser-Subir /T=3 /VAR=VarExamen /T=3
@@ -165,19 +166,19 @@ def get_signature():
 	id  =  "".join(list)
 	return id
 def Randomlist(lst):
-	"""renvoit un élément tiré aléaoirement dans la liste
+	"""renvoit un Ã©lÃ©ment tirÃ© alÃ©aoirement dans la liste
 	"""
 	random.seed()
 	i = random.randint(0, len(lst)-1)
 	return lst[i]
 def ajuste_parentheses( L):
-	""" essaye de corriger les pb des parenthèses du code lisp embarqué
+	""" essaye de corriger les pb des parenthÃ¨ses du code lisp embarquÃ©
 	(setq $eno1.val (ENO $un_auteur)))
 	(setq $premtxt (cs $un_auteur '.txt0))))
 	(setq $premtxt.val  (eval $premtxt )))
 	(if (member $un_auteur.val $l_act_auteur.val)
 	(progn
-	(setq $remarque2 "cet auteur est aussi un acteur du corpus , les autres auteurs-acteurs étant :")
+	(setq $remarque2 "cet auteur est aussi un acteur du corpus , les autres auteurs-acteurs Ã©tant :")
 	(setq $les_autres_auteurs_acteurs ( detach $un_auteur.val $l_act_auteur.val))
 	(setq $remarque3 '())
 	)
@@ -227,8 +228,8 @@ def is_parentheses_ok(data):
 	return False
 	
 def adjust_parenthesis(data):
-	"""ajuste les parenthèses d'une expression ( retire les parenthèses en trop)
-	et si il manque une parenthèse fermante !
+	"""ajuste les parenthÃ¨ses d'une expression ( retire les parenthÃ¨ses en trop)
+	et si il manque une parenthÃ¨se fermante !
 	"""
 	lp = rp = 0
 	fdata =""
@@ -241,15 +242,15 @@ def adjust_parenthesis(data):
 			rp +=1
 		fdata += c
 	if lp > rp :
-		print "adjust_parenthesis () erreur de parenthèse fermante ", data
+		print "adjust_parenthesis () erreur de parenthÃ¨se fermante ", data
 		fdata += ")"*(lp-rp)
 	return fdata
 def check_lisp_code( code):
 	"""
-		le code doit être mis sur une seule ligne
-		le parenthésage doit être strict
+		le code doit Ãªtre mis sur une seule ligne
+		le parenthÃ©sage doit Ãªtre strict
 		
-		? pose d'un try ? en cas d'échec de l'évaluation lisp
+		? pose d'un try ? en cas d'Ã©chec de l'Ã©valuation lisp
 	"""
 	if not code : return ''
 	code = code.replace('\r\n', '\n')	
@@ -272,7 +273,7 @@ def check_lisp_code( code):
 
 def get_fonc(data,ind):
 	"""
-	attention à :
+	attention Ã  :
 	(define LTS(lambda (L string)(setq string ")"))
 	nil
 	"""
@@ -313,7 +314,7 @@ def create_list_fonc(data):
 		i = ind
 	return L
 
-# pour remplacer l'appel à la fonction inf par '<' 
+# pour remplacer l'appel Ã  la fonction inf par '<' 
 regex_inf = re.compile (r"""(\(|\s+)(?P<fonction>inf)(\(|\s+)""",  re.VERBOSE | re.DOTALL)
 			
 regex_test = re.compile (r"""(?P<exp>\(.*?\))$""",  re.VERBOSE | re.DOTALL)
@@ -338,14 +339,14 @@ regex_if_x =re.compile (r"""\(\s*if\s+(?P<cond>\(.*?\))\s*(?P<exp_true>\(.*?\))\
 regex_if_cond =re.compile (r"""\(\s*if\s+(?P<cond>\(.*?\))""",  re.VERBOSE | re.DOTALL)
 def rewrite (data):
 	"""
-		(setq var val) -> le setq est conservé car liant dans l'env global 
-		nil -> () ou plutôt '()
+		(setq var val) -> le setq est conservÃ© car liant dans l'env global 
+		nil -> () ou plutÃ´t '()
 		
 		eq
 		neq
 		(cm '/) ????
-		réécriture du (if cond exp-true exp-false exp-false) en (if cond exp-true (begin exp-false exp-false))  
-		réécriture des définitions de fonction  à l'aide de define & lambda
+		rÃ©Ã©criture du (if cond exp-true exp-false exp-false) en (if cond exp-true (begin exp-false exp-false))  
+		rÃ©Ã©criture des dÃ©finitions de fonction  Ã  l'aide de define & lambda
 		(de foo (x) ()) ->(define foo (lambda(x) ())
 		
 	"""
@@ -357,9 +358,9 @@ def rewrite (data):
 	data = data.replace('progn','begin')
 	data =data.replace('nil' , " '() ")
 	data = data.replace('atom', 'atomp')
-	# pb de 'inf' .. float valeur spéciale
-	# avec regex pour éviter date_inf -> date_< !
-	# tolère (inf  ou inf( ou inf '
+	# pb de 'inf' .. float valeur spÃ©ciale
+	# avec regex pour Ã©viter date_inf -> date_< !
+	# tolÃ¨re (inf  ou inf( ou inf '
 	r = regex_inf.search(data)
 	if  r : 
 		data = data.replace('inf','<')
@@ -376,7 +377,7 @@ def rewrite (data):
 		# fonction a nbre variable d'arg
 		data = '(define ' + r.group('nom') + '(lambda '  + r.group('param') +  r.group('corps') + '))'	
 
-	#on retire df et les définitions DEFMAR !
+	#on retire df et les dÃ©finitions DEFMAR !
 	r = regex_fonction_df.search(data)
 	if r:
 		data =""
@@ -385,7 +386,7 @@ def rewrite (data):
 		data =""		
 
 
-	#print "après : ", data
+	#print "aprÃ¨s : ", data
 		
 	return data
 	
@@ -399,7 +400,7 @@ if 	__name__ == '__main__' :
 	data =["(setq $eno1.val (ENO $un_auteur)))","(setq $premtxt (cs $un_auteur '.txt0))))","	(setq $premtxt.val  (eval $premtxt )))",
 	"(if (member $un_auteur.val $l_act_auteur.val)",
 	"(progn ",
-	'(setq $remarque2 "cet auteur est aussi un acteur du corpus , les autres auteurs-acteurs étant :")',
+	'(setq $remarque2 "cet auteur est aussi un acteur du corpus , les autres auteurs-acteurs Ã©tant :")',
 	'(setq $les_autres_auteurs_acteurs ( detach $un_auteur.val $l_act_auteur.val))',
 	"(setq $remarque3 '())",
 	")",
