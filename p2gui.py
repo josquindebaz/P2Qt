@@ -300,6 +300,7 @@ class Principal(QtGui.QMainWindow):
 		Param_Server_R.addRow("&port",self.Param_Server_val_port)
 		self.Param_Server_val_port.setText('60000')
 		self.Param_Server_B = QtGui.QPushButton('Connect to server')
+		self.Param_Server_B.setStyleSheet(" background-color : green; color : white; ") # bouton vert pour attirer le regard
 		self.Param_Server_B.clicked.connect(self.connect_server)
 		Param_Server_R.addWidget(self.Param_Server_B)
 
@@ -761,6 +762,7 @@ class Principal(QtGui.QMainWindow):
 			self.recup_liste_textes()
 			self.Param_Server_B.clicked.connect(self.disconnect_server)
 			self.Param_Server_B.setText("Disconnect")
+			self.Param_Server_B.setStyleSheet(None)  #supprime css bouton vert
 			# donne le focus a l'onglet history
 			self.SubWdwNE.setCurrentIndex(self.History_index)
 		#self.pre_calcule()
@@ -813,9 +815,8 @@ class Principal(QtGui.QMainWindow):
 			element = self.NOT12_E.currentItem().text() 
 			res_semantique = "%s.res[0:200]" % (self.semantique_liste_item_E)
 			self.activity(u"Displaying network for %s (limited to 200 items)" % element  )
-			
 		elif self.NOT12_D.currentItem():
-			element = self.NOT12_D.currentItem().text() 
+			element = u"%s:%s" % (self.NOT12.currentItem().text(),self.NOT12_D.currentItem().text() )
 			res_semantique = "%s.res[0:200]" % self.semantique_liste_item_D  
 			self.activity(u"Displaying network for %s (limited to 200 items)" % element )
 		else :
