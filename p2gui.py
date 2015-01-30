@@ -791,7 +791,7 @@ class Principal(QtGui.QMainWindow):
 			self.Param_Server_B.setStyleSheet(None)  #supprime css bouton vert
 			# donne le focus a l'onglet history
 			self.SubWdwNE.setCurrentIndex(self.History_index)
-
+		self.pre_calcule()
 	def disconnect_server(self):
 		"""Disconnect"""
 		self.activity("Disconnecting")
