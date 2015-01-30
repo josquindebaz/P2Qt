@@ -94,7 +94,9 @@ class Principal(QtGui.QMainWindow):
 		
 		indice=0
 		# calculer les $txt
+		indice = 0
 		for text in listeTextes :
+			print indice
 			sem = "$txt%s"%indice
 			txt_name = listeTextes[indice]
 			cle = txt_name + "$txt"
@@ -226,8 +228,6 @@ class Principal(QtGui.QMainWindow):
 		self.SOT1.tabCloseRequested.connect(self.SOT1.removeTab)
 		#la liste des textes du corpus
 		self.CorpusTexts = QtGui.QListWidget()
-		#self.CorpusTexts.itemClicked.connect(self.onSelectTextFromCorpus) #ne fonctionne pas avec le clavier
-		self.CorpusTexts.currentItemChanged.connect(self.onSelectTextFromCorpus) #fonctionne avec clavier et souris
 		self.SOT1.addTab(self.CorpusTexts,"corpus")
 		# on fait disparaître le bouton close de la tab CorpusTexts, a gauche pour les mac
 		if self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.RightSide):
@@ -236,6 +236,8 @@ class Principal(QtGui.QMainWindow):
 		elif self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.LeftSide):
 			self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).resize(0,0)
 			self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).hide()
+		#self.CorpusTexts.itemClicked.connect(self.onSelectTextFromCorpus) #ne fonctionne pas avec le clavier
+		self.CorpusTexts.currentItemChanged.connect(self.onSelectTextFromCorpus) #fonctionne avec clavier et souris, mais selectionne le 1er texte au chargement
 		
 		#l'onglet des réseaux
 		self.tabNetworks = QtGui.QTabWidget()
@@ -301,6 +303,7 @@ class Principal(QtGui.QMainWindow):
 		Param_Server_R.addRow("&port",self.Param_Server_val_port)
 		self.Param_Server_val_port.setText('60000')
 		self.Param_Server_B = QtGui.QPushButton('Connect to server')
+		self.Param_Server_B.setStyleSheet(" background-color : green; color : white; ") # bouton vert pour attirer le regard
 		self.Param_Server_B.clicked.connect(self.connect_server)
 		Param_Server_R.addWidget(self.Param_Server_B)
 
@@ -526,6 +529,7 @@ class Principal(QtGui.QMainWindow):
 		
 ################################################
 ################################################
+#TODO corriger resize des grids sur petits ecrans
 		###Layout en grid
 		main = QtGui.QWidget()
 		grid = QtGui.QGridLayout()
@@ -578,20 +582,42 @@ class Principal(QtGui.QMainWindow):
 		time = u"%s" % datetime.datetime.now()
 		self.History.append("%s: %s" % (time[:19],message))
 
+	def formate_liste_txt(self,item):
+		print item
+
 	def recup_liste_textes(self):
+#TODO ordonner chrono par defaut
 		self.activity(u"Waiting for text list"   )
 		self.client.recup_texts()
 		self.activity(u"Displaying text list (%d items)" %len(self.client.txts)  )
 		self.SOT1.tabBar().setTabText(0,"corpus (%d)"%len(self.client.txts))
 		self.CorpusTexts.clear()
+		self.liste_txt_ord = []
 		self.listeTextes = map(lambda x : re.split("/",x)[-1],self.client.txts) #a adapter pour les chemins windows
 		self.CorpusTexts.addItems(self.listeTextes)
 
+		"""
+		#precalcul de resumes des textes, trop lent
+		for T in range(len(self.client.txts)):
+			sem_txt = "$txt%d" % T
+			#txt_resume = u"%s " % re.split("/",self.client.txts[T])[-1]
+			props_val = {}
+			for props in [u"auteur_txt", u"date_txt", u"titre_txt"] :
+				props_sem = "%s.%s" % (sem_txt,props)
+				self.client.eval_var(props_sem)
+				props_val[props] = self.client.eval_var_result
+				#txt_resume += self.client.eval_var_result + " "
+			self.liste_txt_ord.append([sem_txt,props_val[u"date_txt"],props_val])
+		self.formate_liste_txt(self.liste_txt_ord[0])
+		self.CorpusTexts.addItems(self.liste_txt_ord)
+		"""
+
 	def onSelectTextFromCorpus(self):
 		"""When a text is selected from the list of texts"""
-		item_txt = self.CorpusTexts.currentItem().text()
+		#item_txt = self.CorpusTexts.currentItem().text()
+		item_txt = self.client.txts[self.CorpusTexts.currentRow()]
 		self.activity(u"%s selected " % (item_txt)) 
-		item_txt = self.client.txts[self.listeTextes.index(item_txt)]
+		#item_txt = self.client.txts[self.listeTextes.index(item_txt)]
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
 		self.onSelectText(self.semantique_txt_item,item_txt)
 		
@@ -762,9 +788,10 @@ class Principal(QtGui.QMainWindow):
 			self.recup_liste_textes()
 			self.Param_Server_B.clicked.connect(self.disconnect_server)
 			self.Param_Server_B.setText("Disconnect")
+			self.Param_Server_B.setStyleSheet(None)  #supprime css bouton vert
 			# donne le focus a l'onglet history
 			self.SubWdwNE.setCurrentIndex(self.History_index)
-		self.pre_calcule()
+
 	def disconnect_server(self):
 		"""Disconnect"""
 		self.activity("Disconnecting")
@@ -800,6 +827,14 @@ class Principal(QtGui.QMainWindow):
 		list_act  = self.client.eval_var_result
 		self.saillantesAct.clear()
 		self.saillantesAct.addItems(re.split(", ",list_act))
+		#les catégories
+#TODO trier par le poids
+		for typ in [u"cat_qua",u"cat_mar",u"cat_epr",u"cat_ent"]:
+			list_cat_sem = "%s.%s[0:]" % (sem_txt,typ)
+			self.client.eval_var(list_cat_sem)
+			list_cat  = self.client.eval_var_result
+			self.saillantesCat.clear()
+			self.saillantesCat.addItems(re.split(", ",list_cat)) 
 		# les collections
 		list_col_sem = "%s.col[0:]" % sem_txt
 		self.client.eval_var(list_col_sem)
@@ -814,9 +849,8 @@ class Principal(QtGui.QMainWindow):
 			element = self.NOT12_E.currentItem().text() 
 			res_semantique = "%s.res[0:200]" % (self.semantique_liste_item_E)
 			self.activity(u"Displaying network for %s (limited to 200 items)" % element  )
-			
 		elif self.NOT12_D.currentItem():
-			element = self.NOT12_D.currentItem().text() 
+			element = u"%s:%s" % (self.NOT12.currentItem().text(),self.NOT12_D.currentItem().text() )
 			res_semantique = "%s.res[0:200]" % self.semantique_liste_item_D  
 			self.activity(u"Displaying network for %s (limited to 200 items)" % element )
 		else :
