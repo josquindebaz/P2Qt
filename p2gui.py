@@ -64,6 +64,7 @@ class Principal(QtGui.QMainWindow):
 	def __init__(self):
 		super(Principal, self).__init__()
 		self.initUI()
+
 		
 		
 	def pre_calcule(self):
@@ -91,7 +92,7 @@ class Principal(QtGui.QMainWindow):
 		if not ( len(liste_dates) == len ( liste_titres) == len (listeTextes )):
 			print "problemo qq part "
 		
-
+		indice=0
 		# calculer les $txt
 		for text in listeTextes :
 			sem = "$txt%s"%indice
@@ -763,7 +764,7 @@ class Principal(QtGui.QMainWindow):
 			self.Param_Server_B.setText("Disconnect")
 			# donne le focus a l'onglet history
 			self.SubWdwNE.setCurrentIndex(self.History_index)
-		#self.pre_calcule()
+		self.pre_calcule()
 	def disconnect_server(self):
 		"""Disconnect"""
 		self.activity("Disconnecting")
