@@ -74,8 +74,11 @@ class Principal(QtGui.QMainWindow):
 		# la manip suivante permet de remplacer dans un premier temps les \,par un TAG
 		# ensuite de créer la liste, puis de remettre les virgules à la place des \,
 		TAG="AZETYT"	# on peut mettre presque n'importe quoi ...
+		
+		# on lance un $ctx.title[0:] qui récupère en une fois les titres des
+		# textes ordonnés par la chronologie ascendante
 		list_txt_title = self.client.eval_var_ctx("title","[0:]")  # utiliser 'title'
-
+		# traitement sur les virgules qui sont les séparateurs des éléments dans les listes
 		list_txt_title = list_txt_title.replace ('\,', TAG )
 		list_txt_title = list_txt_title.split(',')
 		#on remet les virgules
@@ -85,15 +88,17 @@ class Principal(QtGui.QMainWindow):
 				item = item.replace(TAG,',')
 			liste_titres.append ( item)
 			
-		
+		# $ctx.date[0:] récupération des dates des textes ordonnés par 
+		# la chronologie ascendante
 		liste_dates = self.client.eval_var_ctx("date","[0:]")
 		liste_dates = liste_dates.split(',')
 		
 		if not ( len(liste_dates) == len ( liste_titres) == len (listeTextes )):
 			print "problemo qq part "
-		
-		indice=0
-		# calculer les $txt
+
+		# calcule et place dans les caches des sémantiques et des valeurs
+		#  les sémantiques ( $txtN) pour les valeurs des éléments de listeTextes
+		#  les valeurs pour les sémantiques suivantes : $txtN.titre_txt et $txtN.date_txt
 		indice = 0
 		for text in listeTextes :
 			print indice
