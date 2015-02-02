@@ -21,6 +21,7 @@ class client(object):
 		self.c = interface_prospero.ConnecteurPII() 
 		self.c.set(h,p)
 		self.teste_connect()
+		self.liste_champs_ctx =[]	# init by pre_calcule()
 
 	def teste_connect(self):
 		teste = self.c.connect()
@@ -68,13 +69,82 @@ class Principal(QtGui.QMainWindow):
 		
 		
 	def pre_calcule(self):
+		'''
+			généralisation de l'accès aux props des ctx
+			
+			avec eval_var("$ctx") on récupère la liste des noms des champs ctx
+			qq ajustements sont à faire pour mettre en cache 
+				$txtX.titre_txt   à partir de title
+				$txtX.date_txt   à partir de date
+				
+		'''
 		self.client.recup_texts()
 		listeTextes = self.client.txts
+		indice = 0
+		
+		
+		nbre_txt = len (listeTextes)
+		# mise en cache  valeur - semtxt
+		for text in listeTextes :
+			sem = u"$txt%s"%indice
+			txt_name = listeTextes[indice]
+			cle = txt_name + u"$txt"
+			self.client.add_cache_fonct(cle, sem )
+			indice +=1
+			
+		# récupération des champs ctx
+		self.client.eval_var("$ctx")
+		string_ctx = self.client.eval_var_result 
+		
+		
+		
+		
 		# les virgules contenues dans les titres ont été remplacées par \,
 		# la manip suivante permet de remplacer dans un premier temps les \,par un TAG
 		# ensuite de créer la liste, puis de remettre les virgules à la place des \,
 		TAG="AZETYT"	# on peut mettre presque n'importe quoi ...
 		
+		
+		string_ctx = string_ctx.replace ('\,', TAG )
+		liste_ctx = string_ctx.split(',')
+		self.liste_champs_ctx = []
+		for champ_ctx in liste_ctx:
+			champ_ctx = champ_ctx.strip()
+			if champ_ctx.find (TAG) != -1 :
+				champ_ctx = champ_ctx.replace(TAG,',')
+			self.liste_champs_ctx.append ( champ_ctx)		
+		
+		liste_champs_ajuste = []
+		for champ in self.liste_champs_ctx :
+			 #title[0\]  date[0:]  etc on ne met pas le $ctx  ici...
+			 
+			string_ctx = self.client.eval_var_ctx("%s"%champ,"[0:]") 
+			string_ctx = string_ctx.replace ('\,', TAG )
+			liste_data_ctx = string_ctx.split(',')	
+			liste_data_ok_ctx =[]	
+			for data in liste_data_ctx :
+				if data.find(TAG) != -1:
+					data = data.replace(TAG,',')
+				liste_data_ok_ctx.append ( data)
+			indice = 0
+			if len (liste_data_ok_ctx) != nbre_txt :
+				print "problemo qq part les listes doivent avoir le même nbre d'éléments"
+			if champ == "title" :
+				champ = u"titre_txt"
+			if champ == "date" :
+				champ = u"date_txt"
+			if champ == "author" :
+				champ = u"auteur_txt"
+				
+			liste_champs_ajuste.append (champ)
+			for text in listeTextes :
+				sem = u"$txt%s"%indice
+				data = liste_data_ok_ctx[indice]
+				self.client.add_cache_var( sem + ".%s"%champ, data)
+				indice +=1	
+		# on se sert de la liste des champs dans l'onglet CTX			
+		self.liste_champs_ctx = liste_champs_ajuste	
+		'''	
 		# on lance un $ctx.title[0:] qui récupère en une fois les titres des
 		# textes ordonnés par la chronologie ascendante
 		list_txt_title = self.client.eval_var_ctx("title","[0:]")  # utiliser 'title'
@@ -112,7 +182,7 @@ class Principal(QtGui.QMainWindow):
 			self.client.add_cache_var( sem + ".titre_txt", titre)
 			self.client.add_cache_var( sem + ".date_txt", date)
 			indice +=1
-		
+		'''
 	
 	def initUI(self):
 
@@ -216,7 +286,7 @@ class Principal(QtGui.QMainWindow):
 
 		SubWdwSE = QtGui.QTabWidget()
 		SubWdwSE.addTab(self.textProperties,"Properties")
-		#SubWdwSE.addTab(self.textCTX,"CTX")
+		SubWdwSE.addTab(self.textCTX,"CTX")
 		SubWdwSE.addTab(self.textContent,"Text")
 		self.SubWdwSECorner = QtGui.QLabel()
 		SubWdwSE.setCornerWidget(self.SubWdwSECorner)
@@ -303,10 +373,10 @@ class Principal(QtGui.QMainWindow):
 #configurer les parametres de connexion au serveur distant
 		self.Param_Server_val_host = QtGui.QLineEdit()
 		Param_Server_R.addRow("&host",self.Param_Server_val_host)
-		self.Param_Server_val_host.setText('prosperologie.org')
+		self.Param_Server_val_host.setText('192.168.1.99')
 		self.Param_Server_val_port = QtGui.QLineEdit()
 		Param_Server_R.addRow("&port",self.Param_Server_val_port)
-		self.Param_Server_val_port.setText('60000')
+		self.Param_Server_val_port.setText('4000')
 		self.Param_Server_B = QtGui.QPushButton('Connect to server')
 		self.Param_Server_B.setStyleSheet(" background-color : green; color : white; ") # bouton vert pour attirer le regard
 		self.Param_Server_B.clicked.connect(self.connect_server)
@@ -636,7 +706,7 @@ class Principal(QtGui.QMainWindow):
 		self.SubWdwSECorner.setText(txt_resume)
 
 		self.show_textProperties( sem_txt)
-		#self.show_textCTX(sem_txt) 
+		self.show_textCTX(sem_txt) 
 		self.show_textContent( sem_txt)
 
 	def getvalueFromSem(self,item_txt,type):	
@@ -794,9 +864,11 @@ class Principal(QtGui.QMainWindow):
 			self.Param_Server_B.clicked.connect(self.disconnect_server)
 			self.Param_Server_B.setText("Disconnect")
 			self.Param_Server_B.setStyleSheet(None)  #supprime css bouton vert
+			# calcule en avance
+			self.pre_calcule()
 			# donne le focus a l'onglet history
 			self.SubWdwNE.setCurrentIndex(self.History_index)
-		self.pre_calcule()
+		
 	def disconnect_server(self):
 		"""Disconnect"""
 		self.activity("Disconnecting")
@@ -817,12 +889,12 @@ class Principal(QtGui.QMainWindow):
 		
 	def show_textCTX(self, sem_txt):
 		"""Show text metadata"""
-		self.textCTX.clear() 
-		for props in [u"auteur_txt", u"titre_txt", u"date_txt"] :
+		self.textCTX.clear()
+		for props in self.liste_champs_ctx :
 			props_sem = "%s.%s" % (sem_txt,props)
 			self.client.eval_var(props_sem)
 			value = self.client.eval_var_result
-			self.textCTX.addItem(value)
+			self.textCTX.addItem(props + u"   "  +value)
 		
 	def show_textProperties(self ,  sem_txt):
 		"""Show text sailent properties"""

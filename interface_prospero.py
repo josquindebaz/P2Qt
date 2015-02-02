@@ -939,11 +939,12 @@ if __name__ == "__main__" :
 	#L= c.creer_msg_ctx("titre","[0:]")
 	c.set( '192.168.1.99','4000' )
 	#v = c.eval_variable("$ent0")
+	v = c.eval_variable ("$ctx")
 	v = c.eval_ctx("title","[0:]")
 	#c.set( '127.0.0.1','4000' )
 
 	try :
-		lvar = ["$cat_ent", "$cat_ent0", "$cat_ent[0:9]", "$ef0", "$ef[0:10]",  "$col2", "$col[0:10]", "$cat_ent[0:5]", "$ent0", "$ent0.txt[0:10]", "$ent0.txtp0", "$act0.txtp0"]
+		lvar = ["$cat_ent", "$cat_ent0", "$cat_ent[0:9]",  "$ef0", "$ef[0:10]",  "$col2", "$col[0:10]", "$cat_ent[0:5]", "$ent0", "$ent0.txt[0:10]", "$ent0.txtp0", "$act0.txtp0"]
 		for v in lvar :
 			if (verbose) :
 				print "variable : ", v , "  valeur ->  ", c.eval_variable (v)
