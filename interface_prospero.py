@@ -190,8 +190,54 @@ class ConnecteurPII (threading.Thread):
 		self.m_cache_fonc[data] = value
 	def add_cache_index(self, data, value):
 		self.m_cache_index[data] = value
-
+	def eval_vect_values(self,  sem_type, type_value):
+		'''
+			sem_type = $ent
+			type_value= freq
+			renvoit le vecteur des frequence des entités
+		'''
+		self.m_threadlock.acquire()
 		
+		cle = sem_type + type_value
+		if cle in self.m_cache_var.keys():
+			self.m_threadlock.release()
+			return self.m_cache_var[cle]
+		
+		
+		if not self.connexion : 
+			if not self.connect():
+				self.m_threadlock.release()
+				return ""
+		lexpr = self.creer_msg_vect( sem_type,type_value) 
+		for exp in lexpr :
+			self.send_expression(exp)
+		value = self.get_value()
+		self.add_cache_var(cle, value)
+		self.m_threadlock.release()
+		return value		
+	def eval_set_ctx(self,text, props,value):
+		'''
+	
+		'''
+		self.m_threadlock.acquire()
+		
+		cle = text + props +value
+		if cle in self.m_cache_var.keys():
+			self.m_threadlock.release()
+			return self.m_cache_var[cle]
+		
+		
+		if not self.connexion : 
+			if not self.connect():
+				self.m_threadlock.release()
+				return ""
+		lexpr = self.creer_msg_set_ctx( (text,props,value) )
+		for exp in lexpr :
+			self.send_expression(exp)
+		value = self.get_value()
+		self.add_cache_var(cle, value)
+		self.m_threadlock.release()
+		return value		
 	def eval_ctx(self,props,ctx_range):
 		'''
 		usage vecteur de data 
@@ -472,6 +518,43 @@ class ConnecteurPII (threading.Thread):
 		if (verbose) :
 			print lexpr
 		return lexpr
+	def creer_msg_set_ctx (self,data):
+		'''
+			data -> ($txt4 , champ, valeur)
+			data -> ($txt4 , "title" , "ceci est un titre")
+			data -> ($txt4 , "author" , "Max")
+	
+			ARG:$txt4
+			ARG:title
+			ARG:ceci est un titre
+			F
+
+			E:txt4.title.ceci est un titre
+			C:txt:txt4		cible du message suivant
+			M:SETCTX
+			P:4
+			ARG:title
+			ARG:ceci est un titre
+			F
+			
+			
+		'''
+		
+		lexpr = []
+		vtext,champ,valeur = data	
+		if vtext[0] == '$' : 
+			vtext = vtext[1:]# vire le $
+		indice = vtext.replace ('txt','')
+		lexpr.append("E:" + vtext + "." + champ + "." + valeur)
+		lexpr.append("C:txt:" +vtext)
+		lexpr.append("M:SETCTX")
+		lexpr.append("P:"+indice)		# P sert à repérer la cible du message
+		lexpr.append("ARG:"+champ)
+		lexpr.append("ARG:"+valeur)
+		lexpr.append('F')
+		if (verbose) :
+			print lexpr
+		return lexpr
 	def creer_msg_fonc(self, data):
 		"""
 		
@@ -682,7 +765,29 @@ class ConnecteurPII (threading.Thread):
 
 		lexpr.append('F')
 		return lexpr
-
+	def creer_msg_vect(self, type, type_value):
+		'''
+			type -> ent qual col fic
+			type_value -> frequence déploiement ,nbtxt nbaut date first apparition , date last apparition ...
+			E:ent[0:999999].freq			#signature de l'objet correspondant sur le serveur
+			C:ent				# pour la construction d'un WType sur ent
+			M:freq					# indique le mode de valuation de la liste
+			BI:0
+			BS:999999
+			F
+		'''
+		if type[0] == '$' : type = type[1:]
+		L=[]
+		# juste les tranches max [0:]
+		L.append("E:" + type +"[0:]." + type_value)
+		L.append ("C:"  + type)
+		L.append ("M:"  + type_value)
+		VBI = "BI:0"
+		VBS = "BS:999999"
+		L.append(VBI)
+		L.append(VBS)
+		L.append("F")
+		return L
 	def creer_msg_ctx(self,props, ctx_range):
 		'''
 			$ctx.titre[0:]
@@ -939,6 +1044,15 @@ if __name__ == "__main__" :
 	#L= c.creer_msg_ctx("titre","[0:]")
 	c.set( '192.168.1.99','4000' )
 	#v = c.eval_variable("$ent0")
+	L = c.creer_msg_vect("$ent", "freq")
+	v = c.eval_vect_values("$ent", "nbaut")
+	v = c.eval_vect_values("$ent", "nbtxt")
+	v = c.eval_vect_values("$ent", "lapp")
+	v = c.eval_vect_values("$ent", "fapp")
+	v = c.eval_vect_values("$ent", "dep")
+	v = c.eval_vect_values("$ent", "freq")
+	L = c.creer_msg_set_ctx(  ("$txt1","title","ceci était un nouveau titre"))
+	x = c.eval_set_ctx(  "$txt1","title","ceci est un titre")
 	v = c.eval_variable ("$ctx")
 	v = c.eval_ctx("title","[0:]")
 	#c.set( '127.0.0.1','4000' )

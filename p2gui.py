@@ -280,6 +280,8 @@ class Principal(QtGui.QMainWindow):
 
 	# onglet contenu du CTX
 		self.textCTX = QtGui.QListWidget()	
+		self.textCTX.currentItemChanged.connect(self.onSelectChampCtx) 
+
 	# onglet contenu du texte
 		self.textContent = QtGui.QTextEdit() 
 
@@ -373,7 +375,7 @@ class Principal(QtGui.QMainWindow):
 #configurer les parametres de connexion au serveur distant
 		self.Param_Server_val_host = QtGui.QLineEdit()
 		Param_Server_R.addRow("&host",self.Param_Server_val_host)
-		self.Param_Server_val_host.setText('prosperologie.org')
+		self.Param_Server_val_host.setText('prosperologie.org')#prosperologie.org
 		self.Param_Server_val_port = QtGui.QLineEdit()
 		Param_Server_R.addRow("&port",self.Param_Server_val_port)
 		self.Param_Server_val_port.setText('60000')
@@ -499,7 +501,9 @@ class Principal(QtGui.QMainWindow):
 		spacer3 = QtGui.QLabel()
 		spacer3.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
 		NOT1VHC.addWidget(spacer3)
-		
+	# essai popup
+		self.popupCtx = QtGui.QMenu(self)
+		self.popupCtx.addMenu('modifier')
 	# les commandes
 		self.NOT1Commands1 = QtGui.QPushButton()
 		self.NOT1Commands1.setIcon(QtGui.QIcon("loupe.png"))
@@ -628,7 +632,8 @@ class Principal(QtGui.QMainWindow):
 ################################################
 ################################################
 
-
+	def menu_ctx(self,pos):
+		menu = QtGui.Qmenu
 	def select_P2_path(self):
 		path = QtGui.QFileDialog.getOpenFileName(self, 'Select server path')
 		self.Param_Server_path_P2.setText(path[0])
@@ -695,7 +700,28 @@ class Principal(QtGui.QMainWindow):
 		#item_txt = self.client.txts[self.listeTextes.index(item_txt)]
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
 		self.onSelectText(self.semantique_txt_item,item_txt)
+	def onSelectChampCtx(self):	
+		'''essais pour modifier un champ ctx
 		
+		self.m_current_selected_semtext contient le $txtX
+		
+		# appel pour enregistrer un titre pour un texte ( mettre ensuite à jour le cache local avec le titre)
+		# rappel : PII a des noms de champ en anglais par défaut.
+		eval_set_ctx(  "$txt1","title","ceci est un titre")
+		eval_set_ctx(  "$txt1","date","04/02/2015")
+		
+		'''
+		item_txt = self.textCTX.currentItem().text() 
+		
+		champ = item_txt.split(':::')[0].strip()
+		value  = item_txt.split(':::')[1].strip()
+		print champ
+		print value
+		print self.m_current_selected_semtext
+		#P =QtGui.QMouseEvent.globalX()
+		#P = PySide.QtGui.QMouseEvent.globalPos()
+		#print P
+		#self.popupCtx.popup()
 	def onSelectText(self,sem_txt,item_txt):
 		"""Update text properties windows when a text is selected """
 		txt_resume = ""
@@ -889,12 +915,14 @@ class Principal(QtGui.QMainWindow):
 		
 	def show_textCTX(self, sem_txt):
 		"""Show text metadata"""
+		self.m_current_selected_semtext = sem_txt	# on met de côté la sem du text
 		self.textCTX.clear()
 		for props in self.liste_champs_ctx :
 			props_sem = "%s.%s" % (sem_txt,props)
 			self.client.eval_var(props_sem)
 			value = self.client.eval_var_result
-			self.textCTX.addItem(props + u"   "  +value)
+			# vite fait -- pour exemple
+			self.textCTX.addItem(props + u" :::  "  +value)
 		
 	def show_textProperties(self ,  sem_txt):
 		"""Show text sailent properties"""
