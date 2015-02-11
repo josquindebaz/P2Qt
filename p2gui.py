@@ -293,8 +293,6 @@ class Principal(QtGui.QMainWindow):
 		SubWdwSE.addTab(self.textProperties,"Properties")
 		SubWdwSE.addTab(self.textCTX,"Context")
 		SubWdwSE.addTab(self.textContent,"Text")
-		self.SubWdwSECorner = QtGui.QLabel()
-		SubWdwSE.setCornerWidget(self.SubWdwSECorner)
 
 
 ##################################################
@@ -493,7 +491,7 @@ class Principal(QtGui.QMainWindow):
 	#une liste deroulante pour choisir le contenu de la liste
 		self.NOT1select = QtGui.QComboBox()
 		self.NOT1select.addItem(u"collections")
-		#self.NOT1select.addItem(u"entities") # trop long a répondre
+		self.NOT1select.addItem(u"entities") 
 		self.NOT1select.addItem(u"fictions")
 		self.NOT1select.addItem(u"entitie's categories")
 		NOT1VHC.addWidget(self.NOT1select)
@@ -683,10 +681,13 @@ class Principal(QtGui.QMainWindow):
 		for T in range(len(self.client.txts)):
 			sem_txt = "$txt%d" % T
 			self.client.eval_var(u"%s.date_txt" % (sem_txt))
-			liste_txt_corpus.append([self.client.txts[T], self.client.eval_var_result])
+			date = self.client.eval_var_result
+			self.client.eval_var(u"%s.titre_txt" % (sem_txt))
+			titre = self.client.eval_var_result
+			liste_txt_corpus.append([self.client.txts[T], date, titre])
 		Time3 =  time.clock() * 1000
 		for T in  sorted(liste_txt_corpus,key=lambda t : t[1]):
-			txt_resume = u"%s\t%s" % (T[1],T[0])
+			txt_resume = u"%s %s %s" % (T[1],T[2],T[0])
 			self.CorpusTexts.addItem(txt_resume)
 		Time4 =  time.clock() * 1000
 		self.activity(u"temps d'exec : %s %s %s" %(Time2-Time1 , Time3-Time2, Time4-Time3 )   )
@@ -721,15 +722,9 @@ class Principal(QtGui.QMainWindow):
 		#P = PySide.QtGui.QMouseEvent.globalPos()
 		#print P
 		#self.popupCtx.popup()
+
 	def onSelectText(self,sem_txt,item_txt):
 		"""Update text properties windows when a text is selected """
-		txt_resume = ""
-		for props in [u"auteur_txt", u"date_txt", u"titre_txt"] :
-			props_sem = "%s.%s" % (sem_txt,props)
-			self.client.eval_var(props_sem)
-			txt_resume += self.client.eval_var_result + " "
-		self.SubWdwSECorner.setText(txt_resume)
-
 		self.show_textProperties( sem_txt)
 		self.show_textCTX(sem_txt) 
 		self.show_textContent( sem_txt)
@@ -749,10 +744,11 @@ class Principal(QtGui.QMainWindow):
 
 
 	def change_liste(self,content):
-		#self.NOT12.clearContents()
 		self.NOT12.clear()
 		self.NOT12_D.clear()
 		self.NOT12_E.clear()
+#TODO Afficher scores
+		#self.NOT12.clearContents()
 		#self.NOT12.setRowCount(len(content))
 		#self.NOT12.setColumnCount(2)
 		#self.NOT12.setHorizontalHeaderLabels(['Score','Object'])
@@ -792,7 +788,7 @@ class Principal(QtGui.QMainWindow):
 			self.NOT12_D.clear() # on efface la liste
 			self.NOT12_E.clear()
 			sem = self.sem_liste_concept
-			if ( sem  in ["$col", "$ef",  "$cat_ent"])  :
+			if ( sem  in ["$col", "$ef",  "$cat_ent" , "$ent"])  :
 				# recupere la designation semantique de l'element
 				self.semantique_liste_item = self.client.eval_get_sem(item, sem )
 				self.client.eval_var("%s.rep[0:]"% self.semantique_liste_item)
@@ -952,16 +948,13 @@ class Principal(QtGui.QMainWindow):
 		"""Show the network of a selected item"""
 		if  self.NOT12_E.currentItem() :
 			element = self.NOT12_E.currentItem().text() 
-			res_semantique = "%s.res[0:200]" % (self.semantique_liste_item_E)
-			self.activity(u"Displaying network for %s (limited to 200 items)" % element  )
+			res_semantique = "%s.res[0:]" % (self.semantique_liste_item_E)
 		elif self.NOT12_D.currentItem():
 			element = u"%s:%s" % (self.NOT12.currentItem().text(),self.NOT12_D.currentItem().text() )
-			res_semantique = "%s.res[0:200]" % self.semantique_liste_item_D  
-			self.activity(u"Displaying network for %s (limited to 200 items)" % element )
+			res_semantique = "%s.res[0:]" % self.semantique_liste_item_D  
 		else :
 			element = self.NOT12.currentItem().text() 
-			res_semantique = "%s.res[0:200]" % self.semantique_liste_item  
-			self.activity(u"Displaying network for %s (limited to 200 items)" % element ) 
+			res_semantique = "%s.res[0:]" % self.semantique_liste_item  
 
 		#si la tab de l'element existe déjà, on efface l'ancienne
 		for i in range(0, self.tabNetworks.count() ):
@@ -988,7 +981,9 @@ class Principal(QtGui.QMainWindow):
 		Network_list =  QtGui.QListWidget()
 		show_network_box.addWidget(Network_list)
 		self.client.eval_var(res_semantique)
-		Network_list.addItems(re.split(", ",self.client.eval_var_result))
+		result_network =   re.split(", ",self.client.eval_var_result)
+		self.activity(u"Displaying network for %s (%d items)" % (element,len(result_network))  )
+		Network_list.addItems(result_network)
 		self.tabNetworks.setCurrentIndex(index)# donne le focus a l'onglet créé
 		self.SubWdwSO.setCurrentIndex(1)# donne le focus a l'onglet Networks
 
