@@ -245,6 +245,8 @@ class Principal(QtGui.QMainWindow):
 	# une box horizontale pour contenir les 3 listes
 		saillantesH = QtGui.QHBoxLayout()
 		saillantes.setLayout(saillantesH)
+		saillantesH.setContentsMargins(0,0,0,0) 
+		saillantesH.setSpacing(0) 
 
 	#Vbox des actants du texte
 		saillantesVAct = QtGui.QVBoxLayout()
@@ -527,25 +529,19 @@ class Principal(QtGui.QMainWindow):
 		NOT1VHC.addWidget(self.NOT1Commands2)
 
 
+#TODO ajouter un déselect
 	#une box horizontale pour liste, score et deploiement
 		NOT1VH = QtGui.QHBoxLayout()
 		NOT1V.addLayout(NOT1VH) 
 	#la liste
-		#self.NOT12 = QtGui.QTableWidget()
 		self.NOT12 = QtGui.QListWidget()
-		#self.NOT12.setFont(QtGui.QFont("DejaVu Sans", 11))#police un peu plus petite, ne marche pas sous windows
-		#self.NOT12.verticalHeader().setVisible(False)#pas de header de ligne
-		
 		self.NOT12.currentItemChanged.connect(self.liste_item_changed) #changement d'un item
-
 		NOT1VH.addWidget(self.NOT12)
-
-		#le deploiement
-#TODO ajouter un déselect
+	#le deploiement
 		self.NOT12_D = QtGui.QListWidget()
 		NOT1VH.addWidget(self.NOT12_D)
 		self.NOT12_D.currentItemChanged.connect(self.liste_D_item_changed) #changement d'un item
-
+	#le deploiement II
 		self.NOT12_E = QtGui.QListWidget()
 		NOT1VH.addWidget(self.NOT12_E)
 		self.NOT12_E.currentItemChanged.connect(self.liste_E_item_changed) #changement d'un item
@@ -620,7 +616,7 @@ class Principal(QtGui.QMainWindow):
 		main.setLayout(grid)
 		self.setCentralWidget(main)
 
-		self.setWindowTitle(u'Prospéro client')
+		self.setWindowTitle(u'Prospéro interface')
 		self.show() 
 		
 
@@ -671,35 +667,48 @@ class Principal(QtGui.QMainWindow):
 		self.activity(u"Displaying text list (%d items)" %len(self.client.txts)  )
 		self.SOT1.tabBar().setTabText(0,"corpus (%d)"%len(self.client.txts))
 		self.CorpusTexts.clear()
-#TODO adapter pour les chemins windows
-		#self.listeTextes = map(lambda x : re.split("/",x)[-1],self.client.txts) 
-		#self.CorpusTexts.addItems(self.listeTextes)
 		Time2 =  time.clock() * 1000
 
-#TODO ordonner chrono par defaut
-		liste_txt_corpus = []
+		self.liste_txt_corpus = {}
 		for T in range(len(self.client.txts)):
 			sem_txt = "$txt%d" % T
 			self.client.eval_var(u"%s.date_txt" % (sem_txt))
 			date = self.client.eval_var_result
 			self.client.eval_var(u"%s.titre_txt" % (sem_txt))
 			titre = self.client.eval_var_result
-			liste_txt_corpus.append([self.client.txts[T], date, titre])
+			self.client.eval_var(u"%s.auteur_txt" % (sem_txt))
+			auteur = self.client.eval_var_result
+			self.liste_txt_corpus[self.client.txts[T]] = [date, auteur, titre]
 		Time3 =  time.clock() * 1000
-		for T in  sorted(liste_txt_corpus,key=lambda t : t[1]):
-			txt_resume = u"%s %s %s" % (T[1],T[2],T[0])
+		#ordonne chrono par defaut
+		self.liste_txt_ord = []
+		for T,V in  sorted(self.liste_txt_corpus.items(),key=lambda (k,v) : v[0]):
+			txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
 			self.CorpusTexts.addItem(txt_resume)
+			self.liste_txt_ord.append(T)
 		Time4 =  time.clock() * 1000
 		self.activity(u"temps d'exec : %s %s %s" %(Time2-Time1 , Time3-Time2, Time4-Time3 )   )
 
 	def onSelectTextFromCorpus(self):
-		"""When a text is selected from the list of texts"""
-		#item_txt = self.CorpusTexts.currentItem().text()
-		item_txt = self.client.txts[self.CorpusTexts.currentRow()]
+		"""When a text is selected from the list of texts for the entire corpus"""
+		item_txt = self.liste_txt_ord[self.CorpusTexts.currentRow()]
 		self.activity(u"%s selected " % (item_txt)) 
-		#item_txt = self.client.txts[self.listeTextes.index(item_txt)]
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
 		self.onSelectText(self.semantique_txt_item,item_txt)
+
+	def onSelectTextFromElement(self):
+		"""When a text is selected from the list of texts for a given item"""
+		item_txt = self.l_corp_ord[self.show_texts_corpus.currentRow()]
+		self.activity(u"%s selected " % (item_txt)) 
+		self.onSelectText(u"$txt%d"%self.client.txts.index(item_txt),item_txt)
+
+	def onSelectTextFromAnticorpus(self):
+		"""When a text is selected from the list of anticorpus texts for a given item"""
+		item_txt = self.l_anticorp_ord[self.show_texts_anticorpus.currentRow()]
+		self.activity(u"%s selected " % (item_txt)) 
+		self.onSelectText(u"$txt%d"%self.client.txts.index(item_txt),item_txt)
+
+
 	def onSelectChampCtx(self):	
 		'''essais pour modifier un champ ctx
 		
@@ -988,13 +997,23 @@ class Principal(QtGui.QMainWindow):
 		self.SubWdwSO.setCurrentIndex(1)# donne le focus a l'onglet Networks
 
 	def show_texts(self):
-		element = self.NOT12.currentItem().text() 
-#TODO recuperer les autres niveaux de liste
-#TODO scores/date/titre
-		self.client.eval_var("%s.txt[0:]"%self.semantique_liste_item)
+		"""Show texts containing a selected item"""
+		if  self.NOT12_E.currentItem() :
+			element = self.NOT12_E.currentItem().text() 
+			txts_semantique = "%s.txt[0:]" % (self.semantique_liste_item_E)
+		elif self.NOT12_D.currentItem():
+			element = u"%s:%s" % (self.NOT12.currentItem().text(),self.NOT12_D.currentItem().text() )
+			txts_semantique = "%s.txt[0:]" % self.semantique_liste_item_D  
+		else :
+			element = self.NOT12.currentItem().text() 
+			txts_semantique = "%s.txt[0:]" % self.semantique_liste_item  
+
+		self.client.eval_var(txts_semantique)
 		liste_textes = re.split(", ",self.client.eval_var_result)
 		self.activity(u"Displaying %d texts for %s" % (len(liste_textes),element) )
 
+
+		"""ancien affichage
 		texts_list = QtGui.QTableWidget()
 		texts_list.verticalHeader().setVisible(False)
 		texts_list.setRowCount(len(liste_textes))
@@ -1063,7 +1082,30 @@ class Principal(QtGui.QMainWindow):
 		show_texts_widget.setLayout(show_texts_box)		
 		show_texts_box.addWidget(texts_list)
 		show_texts_box.addWidget(anticorpus)
-		
+		"""
+		show_texts_widget = QtGui.QWidget()
+		HBox_texts = QtGui.QHBoxLayout()
+		HBox_texts.setContentsMargins(0,0,0,0) 
+		HBox_texts.setSpacing(0) 
+		show_texts_widget.setLayout(HBox_texts)
+		self.show_texts_corpus = QtGui.QListWidget()
+		self.show_texts_corpus.currentItemChanged.connect(self.onSelectTextFromElement) 
+		HBox_texts.addWidget(self.show_texts_corpus)
+		self.show_texts_anticorpus = QtGui.QListWidget()
+		self.show_texts_anticorpus.currentItemChanged.connect(self.onSelectTextFromAnticorpus) 
+		HBox_texts.addWidget(self.show_texts_anticorpus)
+
+		self.l_corp_ord = []
+		self.l_anticorp_ord = []
+		for T,V in  sorted(self.liste_txt_corpus.items(),key=lambda (k,v) : v[0]):
+			txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
+			if T in liste_textes: 
+				self.l_corp_ord.append(T)
+				self.show_texts_corpus.addItem(txt_resume)
+			else:
+				self.l_anticorp_ord.append(T)
+				self.show_texts_anticorpus.addItem(txt_resume)
+
 
 		index = self.SOT1.addTab(show_texts_widget,"%s (%d)" % (element,len(liste_textes)))
 		self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
