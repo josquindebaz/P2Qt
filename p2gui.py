@@ -15,6 +15,9 @@ import datetime
 import subprocess, threading
 from PySide.QtGui import QMdiArea
 
+#pour mesurer les temps d'exec
+import time
+
 
 class client(object):
 	def __init__(self,h = 'prosperologie.org',p = '60000'):
@@ -288,7 +291,7 @@ class Principal(QtGui.QMainWindow):
 
 		SubWdwSE = QtGui.QTabWidget()
 		SubWdwSE.addTab(self.textProperties,"Properties")
-		SubWdwSE.addTab(self.textCTX,"CTX")
+		SubWdwSE.addTab(self.textCTX,"Context")
 		SubWdwSE.addTab(self.textContent,"Text")
 		self.SubWdwSECorner = QtGui.QLabel()
 		SubWdwSE.setCornerWidget(self.SubWdwSECorner)
@@ -662,35 +665,31 @@ class Principal(QtGui.QMainWindow):
 		time = u"%s" % datetime.datetime.now()
 		self.History.append("%s: %s" % (time[:19],message))
 
-	def formate_liste_txt(self,item):
-		print item
 
 	def recup_liste_textes(self):
-#TODO ordonner chrono par defaut
+		Time1 =  time.clock() * 1000
 		self.activity(u"Waiting for text list"   )
 		self.client.recup_texts()
 		self.activity(u"Displaying text list (%d items)" %len(self.client.txts)  )
 		self.SOT1.tabBar().setTabText(0,"corpus (%d)"%len(self.client.txts))
 		self.CorpusTexts.clear()
-		self.liste_txt_ord = []
-		self.listeTextes = map(lambda x : re.split("/",x)[-1],self.client.txts) #a adapter pour les chemins windows
-		self.CorpusTexts.addItems(self.listeTextes)
+#TODO adapter pour les chemins windows
+		#self.listeTextes = map(lambda x : re.split("/",x)[-1],self.client.txts) 
+		#self.CorpusTexts.addItems(self.listeTextes)
+		Time2 =  time.clock() * 1000
 
-		"""
-		#precalcul de resumes des textes, trop lent
+#TODO ordonner chrono par defaut
+		liste_txt_corpus = []
 		for T in range(len(self.client.txts)):
 			sem_txt = "$txt%d" % T
-			#txt_resume = u"%s " % re.split("/",self.client.txts[T])[-1]
-			props_val = {}
-			for props in [u"auteur_txt", u"date_txt", u"titre_txt"] :
-				props_sem = "%s.%s" % (sem_txt,props)
-				self.client.eval_var(props_sem)
-				props_val[props] = self.client.eval_var_result
-				#txt_resume += self.client.eval_var_result + " "
-			self.liste_txt_ord.append([sem_txt,props_val[u"date_txt"],props_val])
-		self.formate_liste_txt(self.liste_txt_ord[0])
-		self.CorpusTexts.addItems(self.liste_txt_ord)
-		"""
+			self.client.eval_var(u"%s.date_txt" % (sem_txt))
+			liste_txt_corpus.append([self.client.txts[T], self.client.eval_var_result])
+		Time3 =  time.clock() * 1000
+		for T in  sorted(liste_txt_corpus,key=lambda t : t[1]):
+			txt_resume = u"%s\t%s" % (T[1],T[0])
+			self.CorpusTexts.addItem(txt_resume)
+		Time4 =  time.clock() * 1000
+		self.activity(u"temps d'exec : %s %s %s" %(Time2-Time1 , Time3-Time2, Time4-Time3 )   )
 
 	def onSelectTextFromCorpus(self):
 		"""When a text is selected from the list of texts"""
@@ -926,6 +925,7 @@ class Principal(QtGui.QMainWindow):
 		
 	def show_textProperties(self ,  sem_txt):
 		"""Show text sailent properties"""
+#TODO afficher scores et pouvoir deployer
 		#les actants
 		list_act_sem = "%s.act[0:]" % sem_txt
 		self.client.eval_var(list_act_sem)
