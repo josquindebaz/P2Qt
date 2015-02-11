@@ -661,6 +661,7 @@ class Principal(QtGui.QMainWindow):
 
 
 	def recup_liste_textes(self):
+		"""display texts for the corpus"""
 		Time1 =  time.clock() * 1000
 		self.activity(u"Waiting for text list"   )
 		self.client.recup_texts()
@@ -674,10 +675,10 @@ class Principal(QtGui.QMainWindow):
 			sem_txt = "$txt%d" % T
 			self.client.eval_var(u"%s.date_txt" % (sem_txt))
 			date = self.client.eval_var_result
-			self.client.eval_var(u"%s.titre_txt" % (sem_txt))
-			titre = self.client.eval_var_result
 			self.client.eval_var(u"%s.auteur_txt" % (sem_txt))
 			auteur = self.client.eval_var_result
+			self.client.eval_var(u"%s.titre_txt" % (sem_txt))
+			titre = self.client.eval_var_result
 			self.liste_txt_corpus[self.client.txts[T]] = [date, auteur, titre]
 		Time3 =  time.clock() * 1000
 		#ordonne chrono par defaut
@@ -757,12 +758,12 @@ class Principal(QtGui.QMainWindow):
 		self.NOT12_D.clear()
 		self.NOT12_E.clear()
 #TODO Afficher scores
-		#self.NOT12.clearContents()
-		#self.NOT12.setRowCount(len(content))
-		#self.NOT12.setColumnCount(2)
-		#self.NOT12.setHorizontalHeaderLabels(['Score','Object'])
-
 		"""
+		self.NOT12.clearContents()
+		self.NOT12.setRowCount(len(content))
+		self.NOT12.setColumnCount(2)
+		self.NOT12.setHorizontalHeaderLabels(['Score','Object'])
+
 		row = 0 
 		for item in content:
 			itemwidget = QtGui.QTableWidgetItem(item)
@@ -784,6 +785,20 @@ class Principal(QtGui.QMainWindow):
 		# definir la hauteur apres la largeur donne un resultat plus propre et constant
 		self.NOT12.resizeRowsToContents()
 		"""
+		
+		"""toujours trop lent
+		sem = self.sem_liste_concept
+		for row  in range(len(content)):
+			if ( sem  in ["$col", "$cat_ent" ])  :
+				self.client.eval_var("$%s%d.dep"% ( sem, row) )
+				item_resume = u"%s %s" % (self.client.eval_var_result,content[row])
+				self.NOT12.addItem(item_resume)
+			elif ( sem  in ["$ent", "$ef" ])  :
+				self.client.eval_var("$%s%d.val"% ( sem, row) )
+				item_resume = u"%s %s" % (self.client.eval_var_result,content[row])
+				self.NOT12.addItem(item_resume)
+		"""
+				
 		self.NOT12.addItems(content)
 
 	
@@ -932,11 +947,17 @@ class Principal(QtGui.QMainWindow):
 		"""Show text sailent properties"""
 #TODO afficher scores et pouvoir deployer
 		#les actants
+		self.saillantesAct.clear()
 		list_act_sem = "%s.act[0:]" % sem_txt
 		self.client.eval_var(list_act_sem)
 		list_act  = self.client.eval_var_result
-		self.saillantesAct.clear()
-		self.saillantesAct.addItems(re.split(", ",list_act))
+		list_act = re.split(", ",list_act)
+		for i in range(len(list_act)) :
+			self.client.eval_var(u"%s.act%d.val"%(sem_txt,i))
+			val = int(self.client.eval_var_result)
+			self.saillantesAct.addItem(u"%d %s" % (val, list_act[i]))
+		#self.saillantesAct.addItems())
+
 		#les catégories
 #TODO trier par le poids
 		for typ in [u"cat_qua",u"cat_mar",u"cat_epr",u"cat_ent"]:
@@ -949,6 +970,14 @@ class Principal(QtGui.QMainWindow):
 		list_col_sem = "%s.col[0:]" % sem_txt
 		self.client.eval_var(list_col_sem)
 		self.saillantesCol.clear()
+	#pas encore dispo
+		"""
+		list_col = re.split(", ",self.client.eval_var_result)	
+		for i in range(len(list_col)) :
+			self.client.eval_var(u"%s.col%d.dep"%(sem_txt,i))
+			val = int(self.client.eval_var_result)
+			self.saillantesCol.addItem(u"%d %s" % (val, list_col[i]))
+		"""
 		self.saillantesCol.addItems(re.split(", ",self.client.eval_var_result))	
 
 
