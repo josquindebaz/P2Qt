@@ -291,6 +291,7 @@ class Principal(QtGui.QMainWindow):
 		self.SOT1.tabCloseRequested.connect(self.SOT1.removeTab)
 		#la liste des textes du corpus
 		self.CorpusTexts = QtGui.QListWidget()
+		self.CorpusTexts.setAlternatingRowColors(True)
 		self.SOT1.addTab(self.CorpusTexts,"corpus")
 		# on fait disparaître le bouton close de la tab CorpusTexts, a gauche pour les mac
 		if self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.RightSide):
@@ -475,8 +476,8 @@ class Principal(QtGui.QMainWindow):
 
 	#une liste deroulante pour choisir le contenu de la liste
 		self.NOT1select = QtGui.QComboBox()
-		self.NOT1select.addItem(u"collections")
 		self.NOT1select.addItem(u"entities") 
+		self.NOT1select.addItem(u"collections")
 		self.NOT1select.addItem(u"fictions")
 		self.NOT1select.addItem(u"entitie's categories")
 		NOT1VHC.addWidget(self.NOT1select)
@@ -487,19 +488,25 @@ class Principal(QtGui.QMainWindow):
 		spacer3 = QtGui.QLabel()
 		spacer3.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
 		NOT1VHC.addWidget(spacer3)
+##pquoi ici le popup de CTX ???
 	# essai popup
 		self.popupCtx = QtGui.QMenu(self)
 		self.popupCtx.addMenu('modifier')
 	# les commandes
 		self.NOT1Commands1 = QtGui.QPushButton()
 		self.NOT1Commands1.setIcon(QtGui.QIcon("loupe.png"))
-		#self.NOT1Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
+		self.NOT1Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
 		NOT1Commands1Menu = QtGui.QMenu(self)
 		#NOT1Commands1Menu.addAction('&search')
+		submenu_sort = QtGui.QMenu('&sort')
+		NOT1Commands1Menu.addMenu(submenu_sort)
+		submenu_sort.addAction('occurences',self.affiche_liste_scores_oc)
+		submenu_sort.addAction('deployement',self.affiche_liste_scores_dep)
+#TODO ajouter pondere, nb textes, nb auteurs, nb jours presents, relatif nb jours, nb representants, nb elements reseau
 		#NOT1Commands1Menu.addAction('&sort')
 		#NOT1Commands1Menu.addAction('&filter')
-
-		#NOT1VHC.addWidget(self.NOT1Commands1) #sera affiché quand utilisé
+		self.NOT1Commands1.setMenu(NOT1Commands1Menu)
+		NOT1VHC.addWidget(self.NOT1Commands1)
 
 
 		self.NOT1Commands2 = QtGui.QPushButton()
@@ -518,6 +525,7 @@ class Principal(QtGui.QMainWindow):
 		NOT1V.addLayout(NOT1VH) 
 	#la liste
 		self.NOT12 = QtGui.QListWidget()
+		self.NOT12.setAlternatingRowColors(True)
 		self.NOT12.currentItemChanged.connect(self.liste_item_changed) #changement d'un item
 		NOT1VH.addWidget(self.NOT12)
 	#le deploiement
@@ -645,7 +653,7 @@ class Principal(QtGui.QMainWindow):
 
 	def recup_liste_textes(self):
 		"""display texts for the corpus"""
-		self.activity(u"Waiting for text list"   )
+		#self.activity(u"Waiting for text list"   )
 		self.client.recup_texts()
 		self.activity(u"Displaying text list (%d items)" %len(self.client.txts)  )
 		self.SOT1.tabBar().setTabText(0,"corpus (%d)"%len(self.client.txts))
@@ -671,9 +679,9 @@ class Principal(QtGui.QMainWindow):
 	def onSelectTextFromCorpus(self):
 		"""When a text is selected from the list of texts for the entire corpus"""
 		item_txt = self.liste_txt_ord[self.CorpusTexts.currentRow()]
-		self.activity(u"%s selected " % (item_txt)) 
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
 		self.onSelectText(self.semantique_txt_item,item_txt)
+		self.activity(u"%s (%s) selected " % (item_txt,self.semantique_txt_item)) 
 
 	def onSelectTextFromElement(self):
 		"""When a text is selected from the list of texts for a given item"""
@@ -724,68 +732,65 @@ class Principal(QtGui.QMainWindow):
 
 	def select_liste(self,typ):
 		""" quand un type de liste est selectionné """
-		self.activity(u"Waiting for  %s list" % (typ)) 
+		#self.activity(u"Waiting for  %s list" % (typ)) 
 		self.sem_liste_concept = self.get_semantique()
 		content = self.client.recup_liste_concept(self.sem_liste_concept)
 		self.activity(u"Displaying %s list (%d items)" % (typ,len(content)))
 		self.change_liste(content)
-
+		self.which = None
 
 	def change_liste(self,content):
 		self.NOT12.clear()
 		self.NOT12_D.clear()
 		self.NOT12_E.clear()
-#TODO Afficher scores
-		"""
-		self.NOT12.clearContents()
-		self.NOT12.setRowCount(len(content))
-		self.NOT12.setColumnCount(2)
-		self.NOT12.setHorizontalHeaderLabels(['Score','Object'])
-
-		row = 0 
-		for item in content:
-			itemwidget = QtGui.QTableWidgetItem(item)
-			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non-editable
-
-			#C'EST TROP LENT !!!!! C'EST PAS DANS L'ORDRE !!!!
-			#semantique = self.client.eval_get_sem(item,self.sem_liste_concept) #NE RENVOIE PAS $col2 sur AaC, pb sur le dico, manque type ?
-			#sem_poids = semantique + ".val" 
-			#self.client.eval_var(sem_poids)	
-			#itemwidgetS = QtGui.QTableWidgetItem(self.client.eval_var_result)
-			#itemwidgetS.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non editable
-
-			#self.NOT12.setItem(row,0,itemwidgetS) 
-			self.NOT12.setItem(row,1,itemwidget)
-			row += 1
-
-		self.NOT12.resizeColumnToContents(0)
-		self.NOT12.horizontalHeader().setStretchLastSection(True)
-		# definir la hauteur apres la largeur donne un resultat plus propre et constant
-		self.NOT12.resizeRowsToContents()
-		"""
-		
-		"""toujours trop lent
-		sem = self.sem_liste_concept
-		for row  in range(len(content)):
-			if ( sem  in ["$col", "$cat_ent" ])  :
-				self.client.eval_var("$%s%d.dep"% ( sem, row) )
-				item_resume = u"%s %s" % (self.client.eval_var_result,content[row])
-				self.NOT12.addItem(item_resume)
-			elif ( sem  in ["$ent", "$ef" ])  :
-				self.client.eval_var("$%s%d.val"% ( sem, row) )
-				item_resume = u"%s %s" % (self.client.eval_var_result,content[row])
-				self.NOT12.addItem(item_resume)
-		"""
-				
 		self.NOT12.addItems(content)
 
-	
+	def affiche_liste_scores_oc(self):
+		self.which = "occurences"
+		self.affiche_liste_scores()
+
+	def affiche_liste_scores_dep(self):
+		self.which = "deployement"
+		self.affiche_liste_scores()
+
+	def affiche_liste_scores(self):
+		typ = self.NOT1select.currentText()
+		self.sem_liste_concept = self.get_semantique()
+		content = self.client.recup_liste_concept(self.sem_liste_concept)
+		self.activity(u"Displaying %s list (%d items) ordered by %s (limited to 50 items)" % (typ,len(content), self.which))
+		if (len(content) < 50) :
+			long = len(content)
+		else :
+			long = 50
+		liste_valued =[]
+		for row  in range(long):
+		#for row  in range(len(content)):
+			if (self.which == "occurences"):
+				order = "val"
+			elif (self.which == "deployement"):
+				order = "dep"
+			self.client.eval_var("$%s%d.%s"% ( self.sem_liste_concept, row, order) )
+			try :
+				val = int(self.client.eval_var_result)
+				liste_valued.append([val,content[row]])
+			except:
+				#en cas de non reponse, par exemple pour le deploiement d'un non-concept, on donne 0
+				val = 0
+		liste_final =[]
+		for i in sorted(liste_valued,key=lambda x : x[0],reverse = 1):
+			item_resume = u"%s %s" % (i[0], i[1])
+			liste_final.append(item_resume) 
+		self.change_liste(liste_final)
+
 
 	def liste_item_changed(self):
 		""" suite au changement de sélection d'un élément , mettre à jour les vues dépendantes """ 
 		itemT = self.NOT12.currentItem()
 		if (itemT):
-			item = itemT.text() # l'element selectionné
+			if (self.which in ["occurences","deployement"]):
+				item = re.sub("^\d* ","",itemT.text())
+			else :
+				item = itemT.text() # l'element selectionné
 			self.activity("%s selected" % item)
 			self.NOT12_D.clear() # on efface la liste
 			self.NOT12_E.clear()
@@ -795,11 +800,16 @@ class Principal(QtGui.QMainWindow):
 				self.semantique_liste_item = self.client.eval_get_sem(item, sem )
 				self.client.eval_var("%s.rep[0:]"% self.semantique_liste_item)
 				result = re.split(", ", self.client.eval_var_result)
-				for r in result:
-					self.NOT12_D.addItem( r ) 
+				for r in range(len(result)):
+					if (self.which in ["occurences"]):
+						ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
+						self.client.eval_var(ask)
+						val = int(self.client.eval_var_result)
+						self.NOT12_D.addItem("%d %s"%(val, result[r] )) 
+					else :
+						self.NOT12_D.addItem( result[r] ) 
 
 			#activation des boutons de commande
-			#self.NOT1Commands1.setEnabled(True) 
 			self.NOT1Commands2.setEnabled(True) 
 
 
@@ -884,7 +894,10 @@ class Principal(QtGui.QMainWindow):
 		if (self.client.Etat):
 			# calcule en avance
 			self.pre_calcule()
+			# affiche liste au demarrage
 			self.select_liste(self.NOT1select.currentText())
+			self.NOT1Commands1.setEnabled(True) 
+			# affiche textes au demarrage
 			self.recup_liste_textes()
 			self.Param_Server_B.clicked.connect(self.disconnect_server)
 			self.Param_Server_B.setText("Disconnect")
@@ -1016,7 +1029,10 @@ class Principal(QtGui.QMainWindow):
 			txts_semantique = "%s.txt[0:]" % self.semantique_liste_item  
 
 		self.client.eval_var(txts_semantique)
-		liste_textes = re.split(", ",self.client.eval_var_result)
+		if  (self.client.eval_var_result == ""):
+			liste_textes = []
+		else :
+			liste_textes = re.split(", ",self.client.eval_var_result)
 		self.activity(u"Displaying %d texts for %s" % (len(liste_textes),element) )
 
 
