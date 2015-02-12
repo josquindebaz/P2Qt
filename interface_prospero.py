@@ -1042,7 +1042,7 @@ if __name__ == "__main__" :
 
 	c = ConnecteurPII()
 	#L= c.creer_msg_ctx("titre","[0:]")
-	c.set( '192.168.1.99','4000' )
+	c.set( '192.168.1.43','4000' )
 	#v = c.eval_variable("$ent0")
 	L = c.creer_msg_vect("$ent", "freq")
 	v = c.eval_vect_values("$ent", "nbaut")

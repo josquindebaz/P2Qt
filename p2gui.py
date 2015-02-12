@@ -44,6 +44,10 @@ class client(object):
 		txts = self.c.eval_variable("$txt[0:]")
 		self.txts = re.split(", ",txts)
 
+	def eval_vector(self,type, type_calc):
+		return self.c.eval_vect_values(type, type_calc)
+
+
 	def eval_var(self,var):
 		self.eval_var_result = self.c.eval_variable(var)
 		
@@ -147,44 +151,25 @@ class Principal(QtGui.QMainWindow):
 				indice +=1	
 		# on se sert de la liste des champs dans l'onglet CTX			
 		self.liste_champs_ctx = liste_champs_ajuste	
-		'''	
-		# on lance un $ctx.title[0:] qui récupère en une fois les titres des
-		# textes ordonnés par la chronologie ascendante
-		list_txt_title = self.client.eval_var_ctx("title","[0:]")  # utiliser 'title'
-		# traitement sur les virgules qui sont les séparateurs des éléments dans les listes
-		list_txt_title = list_txt_title.replace ('\,', TAG )
-		list_txt_title = list_txt_title.split(',')
-		#on remet les virgules
-		liste_titres = []
-		for item in list_txt_title:
-			if item.find (TAG) != -1 :
-				item = item.replace(TAG,',')
-			liste_titres.append ( item)
-			
-		# $ctx.date[0:] récupération des dates des textes ordonnés par 
-		# la chronologie ascendante
-		liste_dates = self.client.eval_var_ctx("date","[0:]")
-		liste_dates = liste_dates.split(',')
 		
-		if not ( len(liste_dates) == len ( liste_titres) == len (listeTextes )):
-			print "problemo qq part "
-
-		# calcule et place dans les caches des sémantiques et des valeurs
-		#  les sémantiques ( $txtN) pour les valeurs des éléments de listeTextes
-		#  les valeurs pour les sémantiques suivantes : $txtN.titre_txt et $txtN.date_txt
-		indice = 0
-		for text in listeTextes :
-			print indice
-			sem = "$txt%s"%indice
-			txt_name = listeTextes[indice]
-			cle = txt_name + "$txt"
-			self.client.add_cache_fonct(cle, sem )
-			#sem_txt = self.client.eval_get_sem(text,"$txt")
-			titre = liste_titres[indice]
-			date = liste_dates[indice]
-			self.client.add_cache_var( sem + ".titre_txt", titre)
-			self.client.add_cache_var( sem + ".date_txt", date)
-			indice +=1
+		# précalcule de valeurs associées 
+		
+		for type_calcul in ["freq","dep", "nbaut", "nbtxt","lapp","fapp"]:
+			L = self.client.eval_vector("$ent", type_calcul)
+			L = L.split(',')	 
+			indice = 0
+			for val in L :
+				self.client.add_cache_var ("$ent%s.%s"%(str(indice),type_calcul),val)
+				indice+=1
+			
+			
+		'''
+		v = c.eval_vect_values("$ent", "nbaut")
+		v = c.eval_vect_values("$ent", "nbtxt")
+		v = c.eval_vect_values("$ent", "lapp")
+		v = c.eval_vect_values("$ent", "fapp")
+		v = c.eval_vect_values("$ent", "dep")
+		v = c.eval_vect_values("$ent", "freq")
 		'''
 	
 	def initUI(self):
