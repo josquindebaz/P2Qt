@@ -800,9 +800,15 @@ class Principal(QtGui.QMainWindow):
 				self.semantique_liste_item = self.client.eval_get_sem(item, sem )
 				self.client.eval_var("%s.rep[0:]"% self.semantique_liste_item)
 				result = re.split(", ", self.client.eval_var_result)
+				print result
 				for r in range(len(result)):
-					if (self.which in ["occurences"]):
+					if (self.which  == "occurences" ):
 						ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
+						self.client.eval_var(ask)
+						val = int(self.client.eval_var_result)
+						self.NOT12_D.addItem("%d %s"%(val, result[r] )) 
+					elif (self.which  == "deployement" ):
+						ask = "%s.rep%d.dep"% (self.semantique_liste_item,r)
 						self.client.eval_var(ask)
 						val = int(self.client.eval_var_result)
 						self.NOT12_D.addItem("%d %s"%(val, result[r] )) 
@@ -816,21 +822,34 @@ class Principal(QtGui.QMainWindow):
 	def liste_D_item_changed(self):
 		itemT = self.NOT12_D.currentItem()
 		if (itemT):
-			item = itemT.text() # l'element selectionné
+			if (self.which in ["occurences","deployement"]):
+				item = re.sub("^\d* ","",itemT.text())
+			else :
+				item = itemT.text() # l'element selectionné
 			row = self.NOT12_D.currentRow() 
 			self.activity("%s selected" % item)
 			self.NOT12_E.clear() # on efface la liste
 			ask = "%s.rep%d.rep[0:]" % (self.semantique_liste_item,row)
 			self.semantique_liste_item_D = u"%s.rep%d" % (self.semantique_liste_item,  row)
 			self.client.eval_var(ask)
-			result = re.split(", ", self.client.eval_var_result)
-			for r in result:
-				self.NOT12_E.addItem( r ) 
+			result = self.client.eval_var_result
+			if (result != "") :
+				result = re.split(", ", result)
+				for r in range(len(result)):
+					ask = "%s.rep%d.rep%d.val"% (self.semantique_liste_item,row,r)
+					self.client.eval_var(ask)
+					val = int(self.client.eval_var_result)
+					self.NOT12_E.addItem("%d %s"%(val, result[r] )) 
+					#self.NOT12_E.addItem( r ) 
 
 	def liste_E_item_changed(self):
 		itemT = self.NOT12_E.currentItem()
 		if (itemT):
-			item = itemT.text() # l'element selectionné
+			if (self.which in ["occurences","deployement"]):
+				item = re.sub("^\d* ","",itemT.text())
+			else :
+				item = itemT.text() # l'element selectionné
+			#item = itemT.text() # l'element selectionné
 			row = self.NOT12_E.currentRow() 
 			self.activity("%s selected" % item)
 			self.semantique_liste_item_E = u"%s.rep%d" % (self.semantique_liste_item_D,  row)
