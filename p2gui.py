@@ -15,8 +15,6 @@ import datetime
 import subprocess, threading
 from PySide.QtGui import QMdiArea
 
-#pour mesurer les temps d'exec
-import time
 
 
 class client(object):
@@ -647,33 +645,28 @@ class Principal(QtGui.QMainWindow):
 
 	def recup_liste_textes(self):
 		"""display texts for the corpus"""
-		Time1 =  time.clock() * 1000
 		self.activity(u"Waiting for text list"   )
 		self.client.recup_texts()
 		self.activity(u"Displaying text list (%d items)" %len(self.client.txts)  )
 		self.SOT1.tabBar().setTabText(0,"corpus (%d)"%len(self.client.txts))
 		self.CorpusTexts.clear()
-		Time2 =  time.clock() * 1000
 
 		self.liste_txt_corpus = {}
 		for T in range(len(self.client.txts)):
 			sem_txt = "$txt%d" % T
 			self.client.eval_var(u"%s.date_txt" % (sem_txt))
-			date = self.client.eval_var_result
+			date = re.sub("^\s*","",self.client.eval_var_result)
 			self.client.eval_var(u"%s.auteur_txt" % (sem_txt))
-			auteur = self.client.eval_var_result
+			auteur = re.sub("^\s*","",self.client.eval_var_result)
 			self.client.eval_var(u"%s.titre_txt" % (sem_txt))
-			titre = self.client.eval_var_result
+			titre = re.sub("^\s*","",self.client.eval_var_result)
 			self.liste_txt_corpus[self.client.txts[T]] = [date, auteur, titre]
-		Time3 =  time.clock() * 1000
 		#ordonne chrono par defaut
 		self.liste_txt_ord = []
 		for T,V in  sorted(self.liste_txt_corpus.items(),key=lambda (k,v) : v[0]):
 			txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
 			self.CorpusTexts.addItem(txt_resume)
 			self.liste_txt_ord.append(T)
-		Time4 =  time.clock() * 1000
-		self.activity(u"temps d'exec : %s %s %s" %(Time2-Time1 , Time3-Time2, Time4-Time3 )   )
 
 	def onSelectTextFromCorpus(self):
 		"""When a text is selected from the list of texts for the entire corpus"""
@@ -889,13 +882,13 @@ class Principal(QtGui.QMainWindow):
 		self.client=client(self.Param_Server_val_host.text(),self.Param_Server_val_port.text())
 		self.client.teste_connect()
 		if (self.client.Etat):
+			# calcule en avance
+			self.pre_calcule()
 			self.select_liste(self.NOT1select.currentText())
 			self.recup_liste_textes()
 			self.Param_Server_B.clicked.connect(self.disconnect_server)
 			self.Param_Server_B.setText("Disconnect")
 			self.Param_Server_B.setStyleSheet(None)  #supprime css bouton vert
-			# calcule en avance
-			self.pre_calcule()
 			# donne le focus a l'onglet history
 			self.SubWdwNE.setCurrentIndex(self.History_index)
 		
