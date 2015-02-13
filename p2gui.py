@@ -155,9 +155,13 @@ class Principal(QtGui.QMainWindow):
 		for type_calcul in ["freq","dep", "nbaut", "nbtxt","lapp","fapp"]:
 			L = self.client.eval_vector("$ent", type_calcul)
 			L = L.split(',')	 
+			if (type_calcul == "freq"):
+				t_calc = "val"
+			else:
+				t_calc = type_calcul
 			indice = 0
 			for val in L :
-				self.client.add_cache_var ("$ent%s.%s"%(str(indice),type_calcul),val)
+				self.client.add_cache_var ("$ent%s.%s"%(str(indice),t_calc),val)
 				indice+=1
 			
 			
@@ -494,14 +498,15 @@ class Principal(QtGui.QMainWindow):
 		self.popupCtx.addMenu('modifier')
 	# les commandes
 		self.NOT1Commands1 = QtGui.QPushButton()
-		self.NOT1Commands1.setIcon(QtGui.QIcon("loupe.png"))
+		self.NOT1Commands1.setText(u"\u2195")
+		#self.NOT1Commands1.setIcon(QtGui.QIcon("loupe.png"))
 		self.NOT1Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
 		NOT1Commands1Menu = QtGui.QMenu(self)
 		#NOT1Commands1Menu.addAction('&search')
-		submenu_sort = QtGui.QMenu('&sort')
-		NOT1Commands1Menu.addMenu(submenu_sort)
-		submenu_sort.addAction('occurences',self.affiche_liste_scores_oc)
-		submenu_sort.addAction('deployement',self.affiche_liste_scores_dep)
+		#submenu_sort = QtGui.QMenu('&sort')
+		#NOT1Commands1Menu.addMenu(submenu_sort)
+		self.menu_occurences = NOT1Commands1Menu.addAction('occurences',self.affiche_liste_scores_oc)
+		self.menu_deployement = NOT1Commands1Menu.addAction('deployement',self.affiche_liste_scores_dep)
 #TODO ajouter pondere, nb textes, nb auteurs, nb jours presents, relatif nb jours, nb representants, nb elements reseau
 		#NOT1Commands1Menu.addAction('&sort')
 		#NOT1Commands1Menu.addAction('&filter')
@@ -734,10 +739,15 @@ class Principal(QtGui.QMainWindow):
 		""" quand un type de liste est selectionné """
 		#self.activity(u"Waiting for  %s list" % (typ)) 
 		self.sem_liste_concept = self.get_semantique()
-		content = self.client.recup_liste_concept(self.sem_liste_concept)
-		self.activity(u"Displaying %s list (%d items)" % (typ,len(content)))
-		self.change_liste(content)
-		self.which = None
+		#content = self.client.recup_liste_concept(self.sem_liste_concept)
+		#self.activity(u"Displaying %s list (%d items)" % (typ,len(content)))
+		#self.change_liste(content)
+		#self.which = None
+		if (self.sem_liste_concept in ["$ef","$ent","$cat_ent"]):
+			self.affiche_liste_scores_oc()
+		elif (self.sem_liste_concept in ["$col"]):
+			self.affiche_liste_scores_dep()
+		
 
 	def change_liste(self,content):
 		self.NOT12.clear()
@@ -748,34 +758,49 @@ class Principal(QtGui.QMainWindow):
 	def affiche_liste_scores_oc(self):
 		self.which = "occurences"
 		self.affiche_liste_scores()
+		self.menu_deployement.setIcon(QtGui.QIcon())
+		self.menu_deployement.setEnabled(True) 
+		self.menu_occurences.setIcon(QtGui.QIcon("Tick.gif"))
+		self.menu_occurences.setEnabled(False) 
 
 	def affiche_liste_scores_dep(self):
 		self.which = "deployement"
 		self.affiche_liste_scores()
+		self.menu_occurences.setIcon(QtGui.QIcon())
+		self.menu_occurences.setEnabled(True) 
+		self.menu_deployement.setIcon(QtGui.QIcon("Tick.gif"))
+		self.menu_deployement.setEnabled(False) 
 
 	def affiche_liste_scores(self):
 		typ = self.NOT1select.currentText()
 		self.sem_liste_concept = self.get_semantique()
 		content = self.client.recup_liste_concept(self.sem_liste_concept)
-		self.activity(u"Displaying %s list (%d items) ordered by %s (limited to 50 items)" % (typ,len(content), self.which))
-		if (len(content) < 50) :
-			long = len(content)
-		else :
-			long = 50
+		self.activity(u"Displaying %s list (%d items) ordered by %s" % (typ,len(content), self.which))
 		liste_valued =[]
+		if (self.sem_liste_concept == "$ent"):
+			long = 50
+		else:
+			long = len(content)
 		for row  in range(long):
 		#for row  in range(len(content)):
 			if (self.which == "occurences"):
 				order = "val"
+				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
 			elif (self.which == "deployement"):
 				order = "dep"
-			self.client.eval_var("$%s%d.%s"% ( self.sem_liste_concept, row, order) )
+				if (self.sem_liste_concept == "$ent"):
+					ask = "%s%d.%s"% ( re.sub("^\$","",self.sem_liste_concept), row, order)
+				else :
+					ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
+				
+				 	
+			self.client.eval_var( ask )
 			try :
 				val = int(self.client.eval_var_result)
-				liste_valued.append([val,content[row]])
 			except:
 				#en cas de non reponse, par exemple pour le deploiement d'un non-concept, on donne 0
 				val = 0
+			liste_valued.append([val,content[row]])
 		liste_final =[]
 		for i in sorted(liste_valued,key=lambda x : x[0],reverse = 1):
 			item_resume = u"%s %s" % (i[0], i[1])
@@ -798,22 +823,31 @@ class Principal(QtGui.QMainWindow):
 			if ( sem  in ["$col", "$ef",  "$cat_ent" , "$ent"])  :
 				# recupere la designation semantique de l'element
 				self.semantique_liste_item = self.client.eval_get_sem(item, sem )
+				#liste les representants
 				self.client.eval_var("%s.rep[0:]"% self.semantique_liste_item)
 				result = re.split(", ", self.client.eval_var_result)
-				print result
 				for r in range(len(result)):
-					if (self.which  == "occurences" ):
+					if (sem in ["$cat_ent"]):
 						ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
 						self.client.eval_var(ask)
 						val = int(self.client.eval_var_result)
-						self.NOT12_D.addItem("%d %s"%(val, result[r] )) 
-					elif (self.which  == "deployement" ):
-						ask = "%s.rep%d.dep"% (self.semantique_liste_item,r)
-						self.client.eval_var(ask)
-						val = int(self.client.eval_var_result)
-						self.NOT12_D.addItem("%d %s"%(val, result[r] )) 
+						to_add = "%d %s"%(val, result[r] )
+						self.NOT12_E.addItem( to_add  ) 
 					else :
-						self.NOT12_D.addItem( result[r] ) 
+						if (self.which  == "occurences" ):
+							ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
+							self.client.eval_var(ask)
+							val = int(self.client.eval_var_result)
+							to_add = "%d %s"%(val, result[r] )
+						elif (self.which  == "deployement" ):
+							ask = "%s.rep%d.dep"% (self.semantique_liste_item,r)
+							self.client.eval_var(ask)
+							val = int(self.client.eval_var_result)
+							to_add = "%d %s"%(val, result[r] )
+						else :
+							to_add = "%s"% result[r] 
+						self.NOT12_D.addItem( to_add  ) 
+
 
 			#activation des boutons de commande
 			self.NOT1Commands2.setEnabled(True) 
@@ -852,7 +886,11 @@ class Principal(QtGui.QMainWindow):
 			#item = itemT.text() # l'element selectionné
 			row = self.NOT12_E.currentRow() 
 			self.activity("%s selected" % item)
-			self.semantique_liste_item_E = u"%s.rep%d" % (self.semantique_liste_item_D,  row)
+			sem = self.sem_liste_concept
+			if (sem in ["$cat_ent"]):
+				self.semantique_liste_item_E = u"%s.rep%d" % (self.semantique_liste_item,  row)
+			else :
+				self.semantique_liste_item_E = u"%s.rep%d" % (self.semantique_liste_item_D,  row)
 		
 			
 	def server_vars_Evalue(self):
