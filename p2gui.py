@@ -826,13 +826,14 @@ class Principal(QtGui.QMainWindow):
 				#liste les representants
 				self.client.eval_var("%s.rep[0:]"% self.semantique_liste_item)
 				result = re.split(", ", self.client.eval_var_result)
+				self.liste_D_unsorted = []
 				for r in range(len(result)):
 					if (sem in ["$cat_ent"]):
 						ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
 						self.client.eval_var(ask)
 						val = int(self.client.eval_var_result)
 						to_add = "%d %s"%(val, result[r] )
-						self.NOT12_E.addItem( to_add  ) 
+						#self.NOT12_E.addItem( to_add  ) 
 					else :
 						if (self.which  == "occurences" ):
 							ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
@@ -846,7 +847,10 @@ class Principal(QtGui.QMainWindow):
 							to_add = "%d %s"%(val, result[r] )
 						else :
 							to_add = "%s"% result[r] 
-						self.NOT12_D.addItem( to_add  ) 
+					self.liste_D_unsorted.append(to_add)
+						#self.NOT12_D.addItem( to_add  ) 
+			liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : int(re.split(" ",x)[0]),reverse =  1)
+			self.NOT12_D.addItems(liste_D_sorted)
 
 
 			#activation des boutons de commande
@@ -860,7 +864,8 @@ class Principal(QtGui.QMainWindow):
 				item = re.sub("^\d* ","",itemT.text())
 			else :
 				item = itemT.text() # l'element selectionné
-			row = self.NOT12_D.currentRow() 
+			#row = self.NOT12_D.currentRow() 
+			row = self.liste_D_unsorted.index(itemT.text())
 			self.activity("%s selected" % item)
 			self.NOT12_E.clear() # on efface la liste
 			ask = "%s.rep%d.rep[0:]" % (self.semantique_liste_item,row)
