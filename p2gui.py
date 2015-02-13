@@ -777,29 +777,21 @@ class Principal(QtGui.QMainWindow):
 		content = self.client.recup_liste_concept(self.sem_liste_concept)
 		self.activity(u"Displaying %s list (%d items) ordered by %s" % (typ,len(content), self.which))
 		liste_valued =[]
-		if (self.sem_liste_concept == "$ent"):
-			long = 50
-		else:
-			long = len(content)
-		for row  in range(long):
-		#for row  in range(len(content)):
+		for row  in range(len(content)):
 			if (self.which == "occurences"):
 				order = "val"
 				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
 			elif (self.which == "deployement"):
 				order = "dep"
-				if (self.sem_liste_concept == "$ent"):
-					ask = "%s%d.%s"% ( re.sub("^\$","",self.sem_liste_concept), row, order)
-				else :
-					ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
+				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
 				
 				 	
 			self.client.eval_var( ask )
 			try :
 				val = int(self.client.eval_var_result)
 			except:
-				#en cas de non reponse, par exemple pour le deploiement d'un non-concept, on donne 0
-				val = 0
+				#en cas de non reponse, par exemple pour le deploiement d'un non-concept, on donne 1
+				val = 1
 			liste_valued.append([val,content[row]])
 		liste_final =[]
 		for i in sorted(liste_valued,key=lambda x : x[0],reverse = 1):
@@ -833,7 +825,7 @@ class Principal(QtGui.QMainWindow):
 						self.client.eval_var(ask)
 						val = int(self.client.eval_var_result)
 						to_add = "%d %s"%(val, result[r] )
-						#self.NOT12_E.addItem( to_add  ) 
+						self.NOT12_E.addItem( to_add  ) 
 					else :
 						if (self.which  == "occurences" ):
 							ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
@@ -847,10 +839,11 @@ class Principal(QtGui.QMainWindow):
 							to_add = "%d %s"%(val, result[r] )
 						else :
 							to_add = "%s"% result[r] 
-					self.liste_D_unsorted.append(to_add)
+						self.liste_D_unsorted.append(to_add)
 						#self.NOT12_D.addItem( to_add  ) 
-			liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : int(re.split(" ",x)[0]),reverse =  1)
-			self.NOT12_D.addItems(liste_D_sorted)
+				if (sem not in ["$cat_ent"]):
+					liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : int(re.split(" ",x)[0]),reverse =  1)
+					self.NOT12_D.addItems(liste_D_sorted)
 
 
 			#activation des boutons de commande
@@ -884,10 +877,7 @@ class Principal(QtGui.QMainWindow):
 	def liste_E_item_changed(self):
 		itemT = self.NOT12_E.currentItem()
 		if (itemT):
-			if (self.which in ["occurences","deployement"]):
-				item = re.sub("^\d* ","",itemT.text())
-			else :
-				item = itemT.text() # l'element selectionné
+			item = re.sub("^\d* ","",itemT.text())
 			#item = itemT.text() # l'element selectionné
 			row = self.NOT12_E.currentRow() 
 			self.activity("%s selected" % item)
@@ -1039,6 +1029,7 @@ class Principal(QtGui.QMainWindow):
 		"""Show the network of a selected item"""
 		if  self.NOT12_E.currentItem() :
 			element = self.NOT12_E.currentItem().text() 
+			element = re.sub("^\d* ","",element)
 			res_semantique = "%s.res[0:]" % (self.semantique_liste_item_E)
 		elif self.NOT12_D.currentItem():
 			element = u"%s:%s" % (self.NOT12.currentItem().text(),self.NOT12_D.currentItem().text() )
@@ -1082,6 +1073,7 @@ class Principal(QtGui.QMainWindow):
 		"""Show texts containing a selected item"""
 		if  self.NOT12_E.currentItem() :
 			element = self.NOT12_E.currentItem().text() 
+			element = re.sub("^\d* ","",element)
 			txts_semantique = "%s.txt[0:]" % (self.semantique_liste_item_E)
 		elif self.NOT12_D.currentItem():
 			element = u"%s:%s" % (self.NOT12.currentItem().text(),self.NOT12_D.currentItem().text() )
