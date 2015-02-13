@@ -784,14 +784,15 @@ class Principal(QtGui.QMainWindow):
 			elif (self.which == "deployement"):
 				order = "dep"
 				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
-				
-				 	
 			self.client.eval_var( ask )
 			try :
 				val = int(self.client.eval_var_result)
+				if (self.sem_liste_concept == "$ent" and self.which == "deployement" and val == 0):
+					val = 1
 			except:
-				#en cas de non reponse, par exemple pour le deploiement d'un non-concept, on donne 1
-				val = 1
+				#en cas de non reponse
+				print [ask]
+				val = 0
 			liste_valued.append([val,content[row]])
 		liste_final =[]
 		for i in sorted(liste_valued,key=lambda x : x[0],reverse = 1):
@@ -818,32 +819,33 @@ class Principal(QtGui.QMainWindow):
 				#liste les representants
 				self.client.eval_var("%s.rep[0:]"% self.semantique_liste_item)
 				result = re.split(", ", self.client.eval_var_result)
-				self.liste_D_unsorted = []
-				for r in range(len(result)):
-					if (sem in ["$cat_ent"]):
-						ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
-						self.client.eval_var(ask)
-						val = int(self.client.eval_var_result)
-						to_add = "%d %s"%(val, result[r] )
-						self.NOT12_E.addItem( to_add  ) 
-					else :
-						if (self.which  == "occurences" ):
+				if ( result != [u''] ):
+					self.liste_D_unsorted = []
+					for r in range(len(result)):
+						if (sem in ["$cat_ent"]):
 							ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
 							self.client.eval_var(ask)
 							val = int(self.client.eval_var_result)
 							to_add = "%d %s"%(val, result[r] )
-						elif (self.which  == "deployement" ):
-							ask = "%s.rep%d.dep"% (self.semantique_liste_item,r)
-							self.client.eval_var(ask)
-							val = int(self.client.eval_var_result)
-							to_add = "%d %s"%(val, result[r] )
+							self.NOT12_E.addItem( to_add  ) 
 						else :
-							to_add = "%s"% result[r] 
-						self.liste_D_unsorted.append(to_add)
-						#self.NOT12_D.addItem( to_add  ) 
-				if (sem not in ["$cat_ent"]):
-					liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : int(re.split(" ",x)[0]),reverse =  1)
-					self.NOT12_D.addItems(liste_D_sorted)
+							if (self.which  == "occurences" ):
+								ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
+								self.client.eval_var(ask)
+								val = int(self.client.eval_var_result)
+								to_add = "%d %s"%(val, result[r] )
+							elif (self.which  == "deployement" ):
+								ask = "%s.rep%d.dep"% (self.semantique_liste_item,r)
+								self.client.eval_var(ask)
+								val = int(self.client.eval_var_result)
+								to_add = "%d %s"%(val, result[r] )
+							else :
+								to_add = "%s"% result[r] 
+							self.liste_D_unsorted.append(to_add)
+							#self.NOT12_D.addItem( to_add  ) 
+					if (sem not in ["$cat_ent"]):
+						liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : int(re.split(" ",x)[0]),reverse =  1)
+						self.NOT12_D.addItems(liste_D_sorted)
 
 
 			#activation des boutons de commande
@@ -1032,10 +1034,15 @@ class Principal(QtGui.QMainWindow):
 			element = re.sub("^\d* ","",element)
 			res_semantique = "%s.res[0:]" % (self.semantique_liste_item_E)
 		elif self.NOT12_D.currentItem():
-			element = u"%s:%s" % (self.NOT12.currentItem().text(),self.NOT12_D.currentItem().text() )
+			element1 = self.NOT12.currentItem().text() 
+			element1 = re.sub("^\d* ","",element1)
+			element2 = self.NOT12_D.currentItem().text() 
+			element2 = re.sub("^\d* ","",element2)
+			element = u"%s:%s" % (element1,element2 )
 			res_semantique = "%s.res[0:]" % self.semantique_liste_item_D  
 		else :
 			element = self.NOT12.currentItem().text() 
+			element = re.sub("^\d* ","",element)
 			res_semantique = "%s.res[0:]" % self.semantique_liste_item  
 
 		#si la tab de l'element existe déjà, on efface l'ancienne
@@ -1056,10 +1063,6 @@ class Principal(QtGui.QMainWindow):
 		net_sel_concept.addItems([u"entities"])
 		show_network_box.addWidget(net_sel_concept)
 
-#TODO scores
-#TODO deploiement
-#TODO pb encodage sur certains concepts
-
 		Network_list =  QtGui.QListWidget()
 		show_network_box.addWidget(Network_list)
 		self.client.eval_var(res_semantique)
@@ -1076,10 +1079,16 @@ class Principal(QtGui.QMainWindow):
 			element = re.sub("^\d* ","",element)
 			txts_semantique = "%s.txt[0:]" % (self.semantique_liste_item_E)
 		elif self.NOT12_D.currentItem():
-			element = u"%s:%s" % (self.NOT12.currentItem().text(),self.NOT12_D.currentItem().text() )
+			element1 = self.NOT12.currentItem().text() 
+			element1 = re.sub("^\d* ","",element1)
+			element2 = self.NOT12_D.currentItem().text() 
+			element2 = re.sub("^\d* ","",element2)
+			element = u"%s:%s" % (element1,element2 )
+			#element = u"%s:%s" % (self.NOT12.currentItem().text(),self.NOT12_D.currentItem().text() )
 			txts_semantique = "%s.txt[0:]" % self.semantique_liste_item_D  
 		else :
 			element = self.NOT12.currentItem().text() 
+			element = re.sub("^\d* ","",element)
 			txts_semantique = "%s.txt[0:]" % self.semantique_liste_item  
 
 		self.client.eval_var(txts_semantique)
