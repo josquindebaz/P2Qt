@@ -243,6 +243,7 @@ class Principal(QtGui.QMainWindow):
 		self.saillantesAct = QtGui.QListWidget()
 		saillantesVAct.addWidget(self.saillantesAct)
 		saillantesH.addLayout(saillantesVAct)
+		self.saillantesAct.doubleClicked.connect(self.deploie_Actant)
 
 	#Vbox des categories du texte
 		saillantesVCat = QtGui.QVBoxLayout()
@@ -308,16 +309,16 @@ class Principal(QtGui.QMainWindow):
 		self.CorpusTexts.currentItemChanged.connect(self.onSelectTextFromCorpus) #fonctionne avec clavier et souris, mais selectionne le 1er texte au chargement
 		
 		#l'onglet des réseaux
-		self.tabNetworks = QtGui.QTabWidget()
-		self.tabNetworks.setTabsClosable(True)
-		self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
+		#self.tabNetworks = QtGui.QTabWidget()
+		#self.tabNetworks.setTabsClosable(True)
+		#self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
 
 #TODO les expressions englobantes
 
 		#mise en place des onglets
 
 		self.SubWdwSO.addTab(self.SOT1,"Texts")
-		self.SubWdwSO.addTab(self.tabNetworks,"Networks")
+		#self.SubWdwSO.addTab(self.tabNetworks,"Networks")
 
 
 ##################################################
@@ -990,7 +991,7 @@ class Principal(QtGui.QMainWindow):
 		
 	def show_textProperties(self ,  sem_txt):
 		"""Show text sailent properties"""
-#TODO afficher scores et pouvoir deployer
+#TODO  pouvoir deployer
 		#les actants
 		self.saillantesAct.clear()
 		list_act_sem = "%s.act[0:]" % sem_txt
@@ -1004,26 +1005,31 @@ class Principal(QtGui.QMainWindow):
 		#self.saillantesAct.addItems())
 
 		#les catégories
-#TODO trier par le poids
+#TODO trier par le poids ?
 		for typ in [u"cat_qua",u"cat_mar",u"cat_epr",u"cat_ent"]:
 			list_cat_sem = "%s.%s[0:]" % (sem_txt,typ)
 			self.client.eval_var(list_cat_sem)
 			list_cat  = self.client.eval_var_result
 			self.saillantesCat.clear()
-			self.saillantesCat.addItems(re.split(", ",list_cat)) 
+			liste_cat_items = re.split(", ",list_cat)
+			for i in range(len(liste_cat_items)):
+				ask = u"%s.%s%d.val"%(sem_txt,typ,i)
+				self.client.eval_var(ask)
+				val = int(self.client.eval_var_result)
+				self.saillantesCat.addItem(u"%d %s" % (val, liste_cat_items[i]))
+			#self.saillantesCat.addItems(re.split(", ",list_cat)) 
+
 		# les collections
 		list_col_sem = "%s.col[0:]" % sem_txt
 		self.client.eval_var(list_col_sem)
 		self.saillantesCol.clear()
-	#pas encore dispo
-		"""
 		list_col = re.split(", ",self.client.eval_var_result)	
 		for i in range(len(list_col)) :
+#WARNING donne occurences pas deploiement
 			self.client.eval_var(u"%s.col%d.dep"%(sem_txt,i))
 			val = int(self.client.eval_var_result)
 			self.saillantesCol.addItem(u"%d %s" % (val, list_col[i]))
-		"""
-		self.saillantesCol.addItems(re.split(", ",self.client.eval_var_result))	
+		#self.saillantesCol.addItems(re.split(", ",self.client.eval_var_result))	
 
 
 
@@ -1044,6 +1050,20 @@ class Principal(QtGui.QMainWindow):
 			element = self.NOT12.currentItem().text() 
 			element = re.sub("^\d* ","",element)
 			res_semantique = "%s.res[0:]" % self.semantique_liste_item  
+
+		#cree l'onglet des réseaux si premier reseau calculé
+		tab_networks = 0
+		for i in range(self.SubWdwSO.count()):
+			if (self.SubWdwSO.tabText(i) == "Networks"):
+				tab_networks = 1
+				pass
+
+		if (tab_networks == 0):
+			self.tabNetworks = QtGui.QTabWidget()
+			self.tabNetworks.setTabsClosable(True)
+			self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
+			self.SubWdwSO.addTab(self.tabNetworks,"Networks")
+		
 
 		#si la tab de l'element existe déjà, on efface l'ancienne
 		for i in range(0, self.tabNetworks.count() ):
@@ -1197,6 +1217,14 @@ class Principal(QtGui.QMainWindow):
 		self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
 		self.SubWdwSO.setCurrentIndex(0)# donne le focus a l'onglet Texts
 		self.SOT1.tabBar().setTabToolTip(index,"%s %d"%(element,len(liste_textes)))
+
+	def deploie_Actant(self):
+		item = self.saillantesAct.currentItem().text()
+		item = re.sub("^\d* ","",item)
+		self.activity(u"%s selected from text %s" % (item,self.semantique_txt_item))
+		ask = "%s.act%d.rep_present[0:]"%(self.semantique_txt_item,self.saillantesAct.currentRow())
+		self.client.eval_var(ask)
+		print self.client.eval_var_result
 		
 
 
