@@ -1224,9 +1224,14 @@ class Principal(QtGui.QMainWindow):
 		self.activity(u"%s selected from text %s" % (item,self.semantique_txt_item))
 		ask = "%s.act%d.rep_present[0:]"%(self.semantique_txt_item,self.saillantesAct.currentRow())
 		self.client.eval_var(ask)
-		print self.client.eval_var_result
-		
-
+		result = self.client.eval_var_result
+		if (result != [u'']):
+                        r = self.saillantesAct.currentRow() 
+                        for sub_item in re.split(", ",result):
+                                r += 1
+                                self.saillantesAct.insertItem(r,u"\t%s"%sub_item)
+                        
+		 
 
 
 def main():
