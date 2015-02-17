@@ -54,7 +54,7 @@ class client(object):
 
 	def eval_get_sem(self,exp,sem):
 		# jp : pour retrouver la sémantique d'un élément : (getsem 'nucléaire' $ent )
-		exp = exp.encode('utf-8')
+		#exp = exp.encode('utf-8')
 		#return self.c.eval_fonc("getsem:%s:%s" % (  exp , sem) )
 		return self.c.eval_fonct(u"getsem" , exp , sem )
 
