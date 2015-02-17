@@ -243,6 +243,7 @@ class Principal(QtGui.QMainWindow):
 		self.saillantesAct = QtGui.QListWidget()
 		saillantesVAct.addWidget(self.saillantesAct)
 		saillantesH.addLayout(saillantesVAct)
+		self.saillantesAct.doubleClicked.connect(self.deploie_Actant)
 
 	#Vbox des categories du texte
 		saillantesVCat = QtGui.QVBoxLayout()
@@ -308,16 +309,16 @@ class Principal(QtGui.QMainWindow):
 		self.CorpusTexts.currentItemChanged.connect(self.onSelectTextFromCorpus) #fonctionne avec clavier et souris, mais selectionne le 1er texte au chargement
 		
 		#l'onglet des réseaux
-		self.tabNetworks = QtGui.QTabWidget()
-		self.tabNetworks.setTabsClosable(True)
-		self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
+		#self.tabNetworks = QtGui.QTabWidget()
+		#self.tabNetworks.setTabsClosable(True)
+		#self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
 
 #TODO les expressions englobantes
 
 		#mise en place des onglets
 
 		self.SubWdwSO.addTab(self.SOT1,"Texts")
-		self.SubWdwSO.addTab(self.tabNetworks,"Networks")
+		#self.SubWdwSO.addTab(self.tabNetworks,"Networks")
 
 
 ##################################################
@@ -396,6 +397,8 @@ class Principal(QtGui.QMainWindow):
 		server_vars = QtGui.QWidget()
 		server_vars_Vbox =  QtGui.QVBoxLayout() 
 		server_vars.setLayout(server_vars_Vbox)
+		server_vars_Vbox.setContentsMargins(0,0,0,0) 
+		server_vars_Vbox.setSpacing(0) 
 
 		server_vars_Hbox = QtGui.QHBoxLayout()
 		server_vars_champL = QtGui.QFormLayout()
@@ -488,10 +491,18 @@ class Principal(QtGui.QMainWindow):
 		self.connect(self.NOT1select,QtCore.SIGNAL("currentIndexChanged(const QString)"), self.select_liste)
 
 
+
 	# un spacer pour mettre les commandes sur la droite
 		spacer3 = QtGui.QLabel()
 		spacer3.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
 		NOT1VHC.addWidget(spacer3)
+
+	#le champ de recherche
+		self.list_research = QtGui.QLineEdit()
+		NOT1VHC.addWidget(self.list_research)
+
+
+
 ##pquoi ici le popup de CTX ???
 	# essai popup
 		self.popupCtx = QtGui.QMenu(self)
@@ -541,6 +552,8 @@ class Principal(QtGui.QMainWindow):
 		self.NOT12_E = QtGui.QListWidget()
 		NOT1VH.addWidget(self.NOT12_E)
 		self.NOT12_E.currentItemChanged.connect(self.liste_E_item_changed) #changement d'un item
+#TODO desactiver si presence nulle
+		self.NOT12_E.doubleClicked.connect(self.teste_wording)
 
 
 		#NOT2 =  QtGui.QLabel()
@@ -653,7 +666,7 @@ class Principal(QtGui.QMainWindow):
 		"""Add message to the history window"""
 		self.status.showMessage(message)
 		time = u"%s" % datetime.datetime.now()
-		self.History.append("%s: %s" % (time[:19],message))
+		self.History.append("%s %s" % (time[:19],message))
 
 
 	def recup_liste_textes(self):
@@ -802,7 +815,8 @@ class Principal(QtGui.QMainWindow):
 
 
 	def liste_item_changed(self):
-		""" suite au changement de sélection d'un élément , mettre à jour les vues dépendantes """ 
+		""" suite au changement de sélection , mettre à jour les vues dépendantes """ 
+
 		itemT = self.NOT12.currentItem()
 		if (itemT):
 			if (self.which in ["occurences","deployement"]):
@@ -819,9 +833,11 @@ class Principal(QtGui.QMainWindow):
 				#liste les representants
 				self.client.eval_var("%s.rep[0:]"% self.semantique_liste_item)
 				result = re.split(", ", self.client.eval_var_result)
+				
 				if ( result != [u''] ):
 					self.liste_D_unsorted = []
 					for r in range(len(result)):
+                                                #affiche directement sur la liste E
 						if (sem in ["$cat_ent"]):
 							ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
 							self.client.eval_var(ask)
@@ -834,18 +850,32 @@ class Principal(QtGui.QMainWindow):
 								self.client.eval_var(ask)
 								val = int(self.client.eval_var_result)
 								to_add = "%d %s"%(val, result[r] )
+								#quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
+								if (val == 0):
+                                                                        self.liste_D_unsorted.extend( map(lambda x : "0 %s" %x ,result[r:]) )
+                                                                        break
 							elif (self.which  == "deployement" ):
 								ask = "%s.rep%d.dep"% (self.semantique_liste_item,r)
 								self.client.eval_var(ask)
 								val = int(self.client.eval_var_result)
 								to_add = "%d %s"%(val, result[r] )
+								#quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
+								if (val == 0):
+                                                                        self.liste_D_unsorted.extend( map(lambda x : "0 %s" %x ,result[r:]) )
+                                                                        break
 							else :
 								to_add = "%s"% result[r] 
 							self.liste_D_unsorted.append(to_add)
-							#self.NOT12_D.addItem( to_add  ) 
+							#self.NOT12_D.addItem( to_add  )
+							
 					if (sem not in ["$cat_ent"]):
 						liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : int(re.split(" ",x)[0]),reverse =  1)
 						self.NOT12_D.addItems(liste_D_sorted)
+
+                                                if len(result) == 1 : # afficher directement E s'il ny a qu'une sous-catégorie
+                                                        self.NOT12_D.setCurrentItem(self.NOT12_D.item(0))
+                                                        self.liste_D_item_changed()
+
 
 
 			#activation des boutons de commande
@@ -853,6 +883,7 @@ class Principal(QtGui.QMainWindow):
 
 
 	def liste_D_item_changed(self):
+                """quand un item de D est sélectionné, afficher représentants dans E"""
 		itemT = self.NOT12_D.currentItem()
 		if (itemT):
 			if (self.which in ["occurences","deployement"]):
@@ -873,6 +904,10 @@ class Principal(QtGui.QMainWindow):
 					ask = "%s.rep%d.rep%d.val"% (self.semantique_liste_item,row,r)
 					self.client.eval_var(ask)
 					val = int(self.client.eval_var_result)
+                                        #quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
+					if (val == 0):
+                                                self.NOT12_E.addItems( map(lambda x : "0 %s" %x ,result[r:]) )
+                                                break
 					self.NOT12_E.addItem("%d %s"%(val, result[r] )) 
 					#self.NOT12_E.addItem( r ) 
 
@@ -990,44 +1025,84 @@ class Principal(QtGui.QMainWindow):
 		
 	def show_textProperties(self ,  sem_txt):
 		"""Show text sailent properties"""
-#TODO afficher scores et pouvoir deployer
 		#les actants
 		self.saillantesAct.clear()
+		self.saillantesAct_deployes = []
 		list_act_sem = "%s.act[0:]" % sem_txt
 		self.client.eval_var(list_act_sem)
 		list_act  = self.client.eval_var_result
-		list_act = re.split(", ",list_act)
-		for i in range(len(list_act)) :
+		self.list_act = re.split(", ",list_act)
+		self.liste_act_valued = {}
+		for i in range(len(self.list_act)) :
 			self.client.eval_var(u"%s.act%d.val"%(sem_txt,i))
 			val = int(self.client.eval_var_result)
-			self.saillantesAct.addItem(u"%d %s" % (val, list_act[i]))
-		#self.saillantesAct.addItems())
+			self.liste_act_valued [self.list_act[i]] = [ val, 0 ] 
+			self.saillantesAct.addItem(u"%d %s" % (val, self.list_act[i]))
+			
 
 		#les catégories
-#TODO trier par le poids
+#TODO trier par le poids ?
 		for typ in [u"cat_qua",u"cat_mar",u"cat_epr",u"cat_ent"]:
 			list_cat_sem = "%s.%s[0:]" % (sem_txt,typ)
 			self.client.eval_var(list_cat_sem)
 			list_cat  = self.client.eval_var_result
 			self.saillantesCat.clear()
+			liste_cat_items = re.split(", ",list_cat)
+##			for i in range(len(liste_cat_items)):
+##				ask = u"%s.%s%d.val"%(sem_txt,typ,i)
+##				self.client.eval_var(ask)
+##				val = int(self.client.eval_var_result)
+##				self.saillantesCat.addItem(u"%d %s" % (val, liste_cat_items[i]))
 			self.saillantesCat.addItems(re.split(", ",list_cat)) 
+
 		# les collections
 		list_col_sem = "%s.col[0:]" % sem_txt
 		self.client.eval_var(list_col_sem)
 		self.saillantesCol.clear()
-	#pas encore dispo
-		"""
 		list_col = re.split(", ",self.client.eval_var_result)	
-		for i in range(len(list_col)) :
-			self.client.eval_var(u"%s.col%d.dep"%(sem_txt,i))
-			val = int(self.client.eval_var_result)
-			self.saillantesCol.addItem(u"%d %s" % (val, list_col[i]))
-		"""
+##		for i in range(len(list_col)) :
+###WARNING donne occurences pas deploiement
+##			self.client.eval_var(u"%s.col%d.dep"%(sem_txt,i))
+##			val = int(self.client.eval_var_result)
+##			self.saillantesCol.addItem(u"%d %s" % (val, list_col[i]))
 		self.saillantesCol.addItems(re.split(", ",self.client.eval_var_result))	
 
+	def deploie_Actant(self):
+		item = self.saillantesAct.currentItem().text()
+		item = re.sub("^\d* ","",item)
+		self.activity(u"%s selected from text %s" % (item,self.semantique_txt_item))
+                self.saillantesAct.clear()
+                for r in self.list_act:
+                        self.saillantesAct.addItem(u"%d %s" % (self.liste_act_valued[r][0], r))
+                        
+                        if ( (r == item) and (item in self.saillantesAct_deployes) ):
+                                self.saillantesAct_deployes.remove(item)
+                        elif (r == item) :
+                                self.saillantesAct_deployes.append(item)
+                                
+                        if (r in self.saillantesAct_deployes):                     
+                                ask = "%s.act%d.rep_present[0:]"%(self.semantique_txt_item,self.list_act.index(r))
+                                self.client.eval_var(ask)
+                                result = self.client.eval_var_result
+                                if (result != u''):
+                                        result = re.split(", ",result)
+                                        for sub_n in range(len(result)) :
+                                                if ( result[sub_n] not in self.liste_act_valued.keys() ):
+                                                        ask = "%s.act%d.rep_present%d.val"%(self.semantique_txt_item,self.list_act.index(r),sub_n)
+                                                        self.client.eval_var(ask)
+                                                        res = self.client.eval_var_result
+                                                        self.liste_act_valued[result[sub_n]] = [res,2]
+                                                i = QtGui.QListWidgetItem()
+                                                i.setText(u"\u00B7  %s %s"%(self.liste_act_valued[result[sub_n]][0],result[sub_n]))
+                                                i.setBackground(QtGui.QColor( 245,245,245))
+                                                self.saillantesAct.addItem(i)
+                                        
+                                
+                        
 
 
 	def show_network(self):
+#TODO scorer
 		"""Show the network of a selected item"""
 		if  self.NOT12_E.currentItem() :
 			element = self.NOT12_E.currentItem().text() 
@@ -1044,6 +1119,20 @@ class Principal(QtGui.QMainWindow):
 			element = self.NOT12.currentItem().text() 
 			element = re.sub("^\d* ","",element)
 			res_semantique = "%s.res[0:]" % self.semantique_liste_item  
+
+		#cree l'onglet des réseaux si premier reseau calculé
+		tab_networks = 0
+		for i in range(self.SubWdwSO.count()):
+			if (self.SubWdwSO.tabText(i) == "Networks"):
+				tab_networks = 1
+				pass
+
+		if (tab_networks == 0):
+			self.tabNetworks = QtGui.QTabWidget()
+			self.tabNetworks.setTabsClosable(True)
+			self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
+			self.SubWdwSO.addTab(self.tabNetworks,"Networks")
+		
 
 		#si la tab de l'element existe déjà, on efface l'ancienne
 		for i in range(0, self.tabNetworks.count() ):
@@ -1197,9 +1286,48 @@ class Principal(QtGui.QMainWindow):
 		self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
 		self.SubWdwSO.setCurrentIndex(0)# donne le focus a l'onglet Texts
 		self.SOT1.tabBar().setTabToolTip(index,"%s %d"%(element,len(liste_textes)))
+
+
+                        
+	def teste_wording(self):
+		item = self.NOT12_E.currentItem().text()
+		item = re.sub("^\d* ","",item)
+		self.activity(u"%s double click" % (item))
+		ask = "$ph.+%s"%(item)
+		self.client.eval_var(ask)
+		result = self.client.eval_var_result
 		
+		tab_utterance = 0
+		for i in range(self.SubWdwNE.count()):
+			if (self.SubWdwNE.tabText(i) == "Utterances"):
+				tab_utterance = 1
+				pass
+
+		if (tab_utterance == 0):
+			self.tabUtterances = QtGui.QTabWidget()
+			self.tabUtterances.setTabsClosable(True)
+			self.tabUtterances.tabCloseRequested.connect(self.tabUtterances.removeTab)
+			self.SubWdwNE.addTab(self.tabUtterances,"Utterances")
+		
+		for i in range(0, self.tabUtterances.count() ):
+			if (self.tabUtterances.tabText(i) == item):
+				self.tabUtterances.removeTab(i)
+		 
+		show_Utterances_widget = QtGui.QWidget()
+		show_Utterances_box = QtGui.QVBoxLayout()
+		# on prend toute la place
+		show_Utterances_box.setContentsMargins(0,0,0,0) 
+		show_Utterances_box.setSpacing(0) 
+		show_Utterances_widget.setLayout(show_Utterances_box)
+		index = self.tabUtterances.addTab(show_Utterances_widget,"%s" % item)
+
+		Utterance_Text = QtGui.QTextEdit() 
+		show_Utterances_box.addWidget(Utterance_Text)
+		Utterance_Text.append(result)
 
 
+		self.tabUtterances.setCurrentIndex(index)# donne le focus a l'onglet créé
+		self.SubWdwNE.setCurrentIndex(3)# donne le focus a l'onglet Networks
 
 def main():
 	app = QtGui.QApplication(sys.argv)

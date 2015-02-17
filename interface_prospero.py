@@ -434,7 +434,8 @@ class ConnecteurPII (threading.Thread):
 		if not is_random_var(var):
 			self.m_cache_var[var]  = ev
 		self.m_threadlock.release()
-		print var , "  " , ev
+		if (verbose):
+			print var , "  " , ev
 		return ev
 	
 
