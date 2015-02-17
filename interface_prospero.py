@@ -299,27 +299,7 @@ class ConnecteurPII (threading.Thread):
 		self.m_threadlock.release()
 		return value
 
-	def eval_fonc(self, data):
-		"""
-			cas du getsem : on interroge P-II pour obtenir la sémantique exacte d'un élément
-		"""
-		self.m_threadlock.acquire()
-		if data in self.m_cache_fonc.keys():
-			self.m_threadlock.release()
-			return self.m_cache_fonc[data]
 
-		
-		if not self.connexion : 
-			if not self.connect():
-				self.m_threadlock.release()
-				return ""
-		lexpr = self.creer_msg_fonc(data)
-		for exp in lexpr :
-			self.send_expression(exp)
-		value = self.get_value(data)
-		self.add_cache_fonc(data, value)
-		self.m_threadlock.release()
-		return value
 		
 	def eval_sfrm(self, data):
 		
@@ -494,7 +474,51 @@ class ConnecteurPII (threading.Thread):
 			if not self.connect():
 				print "acces P-II impossible"
 				return 
-	def creer_msg_fonct(selfself,fonc,element,sem):
+	def creer_msg_search(self,fonc ,element, indice_resultat,txt=False,ptxt='',,ph=False,pph='',val=False):
+		"""
+		fonc = $search.rac  $search.pre $search.suf
+		element = chaine recherchée
+		
+		indice_resultat  (  O (indice), [0:] (tranche) , "" (rien, aléatoire) )
+		
+		creer_msg_search ( "$search.rac" , "présid" , "0" )
+			$search.rac.présid.pO
+		creer_msg_search ( "$search.rac" , "présid" , "0" , val=True)	
+			$search.rac.présid.pO.val
+		creer_msg_search ( "$search.rac" , "présid" , "0" ,txt=True, ptxt="0", val=True)	
+			$search.rac.présid.pO.txt0.val
+		creer_msg_search ( "$search.rac" , "présid" , "0" ,txt=True, ptxt="[0:]")		
+			$search.rac.présid.pO.txt[0:]
+		creer_msg_search ( "$search.rac" , "présid" , "0" ,txt=True, ptxt="0", ph=True ,pph="[0:]")		
+			$search.rac.présid.pO.txt0.ph[0:]
+		
+		"""	
+		
+		lexpr = []
+		# E:search.rac.chaine recherchée
+		# la signature étant : "search.rac.chaine recherchée"
+		fonc = fonc.encode('utf-8')
+		element =  element.encode('utf-8')
+		signature = fonc + '.' + element
+		
+		
+  		lexpr.append("E:" +signature)
+		if indice_resultat:
+			POS : "P:"+indice_resultat
+		else:
+			POS=""
+		lexpr.append("V:" +signature + "." +  POS )
+		
+		lexpr.append("ARG:" +element)
+		if indice_resultat:
+			lexpr.append("P:" + indice_resultat  )
+		if txt :
+			lexpr.append("V:txt:txt" + POS  )
+		lexpr.append('F')
+		if (verbose) :
+			print lexpr
+		return lexpr
+	def creer_msg_fonct(self,fonc,element,sem):
 		"""
 		
 			pour l'appel de getsem + ARG
@@ -555,29 +579,6 @@ class ConnecteurPII (threading.Thread):
 		lexpr.append('F')
 		if (verbose) :
 			print lexpr
-		return lexpr
-	def creer_msg_fonc(self, data):
-		"""
-		
-			pour l'appel de getsem + ARG
-			FONC:getsem
-			ARG:pirate
-			ARG:$entef
-			F
-			
-			bogue : 
-				c:corpus
-				$txt
-				le : est maltraité dans le split
-				
-		
-		"""	
-		L = data.split(":")
-		lexpr = []
-		lexpr.append("FONC:" + L[0])
-		lexpr.append("ARG:" + L[1])
-		lexpr.append("ARG:" + L[2])
-		lexpr.append('F')
 		return lexpr
 
 
