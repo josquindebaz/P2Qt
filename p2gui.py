@@ -397,6 +397,8 @@ class Principal(QtGui.QMainWindow):
 		server_vars = QtGui.QWidget()
 		server_vars_Vbox =  QtGui.QVBoxLayout() 
 		server_vars.setLayout(server_vars_Vbox)
+		server_vars_Vbox.setContentsMargins(0,0,0,0) 
+		server_vars_Vbox.setSpacing(0) 
 
 		server_vars_Hbox = QtGui.QHBoxLayout()
 		server_vars_champL = QtGui.QFormLayout()
@@ -489,10 +491,18 @@ class Principal(QtGui.QMainWindow):
 		self.connect(self.NOT1select,QtCore.SIGNAL("currentIndexChanged(const QString)"), self.select_liste)
 
 
+
 	# un spacer pour mettre les commandes sur la droite
 		spacer3 = QtGui.QLabel()
 		spacer3.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
 		NOT1VHC.addWidget(spacer3)
+
+	#le champ de recherche
+		self.list_research = QtGui.QLineEdit()
+		NOT1VHC.addWidget(self.list_research)
+
+
+
 ##pquoi ici le popup de CTX ???
 	# essai popup
 		self.popupCtx = QtGui.QMenu(self)
@@ -542,6 +552,8 @@ class Principal(QtGui.QMainWindow):
 		self.NOT12_E = QtGui.QListWidget()
 		NOT1VH.addWidget(self.NOT12_E)
 		self.NOT12_E.currentItemChanged.connect(self.liste_E_item_changed) #changement d'un item
+#TODO desactiver si presence nulle
+		self.NOT12_E.doubleClicked.connect(self.teste_wording)
 
 
 		#NOT2 =  QtGui.QLabel()
@@ -804,6 +816,7 @@ class Principal(QtGui.QMainWindow):
 
 	def liste_item_changed(self):
 		""" suite au changement de sélection d'un élément , mettre à jour les vues dépendantes """ 
+#TODO si D unique, ouvrir direct
 		itemT = self.NOT12.currentItem()
 		if (itemT):
 			if (self.which in ["occurences","deployement"]):
@@ -1034,6 +1047,7 @@ class Principal(QtGui.QMainWindow):
 
 
 	def show_network(self):
+#TODO scorer
 		"""Show the network of a selected item"""
 		if  self.NOT12_E.currentItem() :
 			element = self.NOT12_E.currentItem().text() 
@@ -1219,6 +1233,9 @@ class Principal(QtGui.QMainWindow):
 		self.SOT1.tabBar().setTabToolTip(index,"%s %d"%(element,len(liste_textes)))
 
 	def deploie_Actant(self):
+#TODO double-clic replie
+#TODO Seulement pour concepts
+#TODO decale row si deploye
 		item = self.saillantesAct.currentItem().text()
 		item = re.sub("^\d* ","",item)
 		self.activity(u"%s selected from text %s" % (item,self.semantique_txt_item))
@@ -1227,12 +1244,54 @@ class Principal(QtGui.QMainWindow):
 		result = self.client.eval_var_result
 		if (result != [u'']):
                         r = self.saillantesAct.currentRow() 
+			sub_n = 0
                         for sub_item in re.split(", ",result):
+				ask = "%s.act%d.rep_present%d.val"%(self.semantique_txt_item,self.saillantesAct.currentRow(),sub_n)
+				self.client.eval_var(ask)
+				res = self.client.eval_var_result
                                 r += 1
-                                self.saillantesAct.insertItem(r,u"\t%s"%sub_item)
+                                self.saillantesAct.insertItem(r,u"  %s %s"%(res,sub_item))
+				sub_n += 1
                         
-		 
+	def teste_wording(self):
+		item = self.NOT12_E.currentItem().text()
+		item = re.sub("^\d* ","",item)
+		self.activity(u"%s double click" % (item))
+		ask = "$ph.+%s"%(item)
+		self.client.eval_var(ask)
+		result = self.client.eval_var_result
+		
+		tab_utterance = 0
+		for i in range(self.SubWdwNE.count()):
+			if (self.SubWdwNE.tabText(i) == "Utterances"):
+				tab_utterance = 1
+				pass
 
+		if (tab_utterance == 0):
+			self.tabUtterances = QtGui.QTabWidget()
+			self.tabUtterances.setTabsClosable(True)
+			self.tabUtterances.tabCloseRequested.connect(self.tabUtterances.removeTab)
+			self.SubWdwNE.addTab(self.tabUtterances,"Utterances")
+		
+		for i in range(0, self.tabUtterances.count() ):
+			if (self.tabUtterances.tabText(i) == item):
+				self.tabUtterances.removeTab(i)
+		 
+		show_Utterances_widget = QtGui.QWidget()
+		show_Utterances_box = QtGui.QVBoxLayout()
+		# on prend toute la place
+		show_Utterances_box.setContentsMargins(0,0,0,0) 
+		show_Utterances_box.setSpacing(0) 
+		show_Utterances_widget.setLayout(show_Utterances_box)
+		index = self.tabUtterances.addTab(show_Utterances_widget,"%s" % item)
+
+		Utterance_Text = QtGui.QTextEdit() 
+		show_Utterances_box.addWidget(Utterance_Text)
+		Utterance_Text.append(result)
+
+
+		self.tabUtterances.setCurrentIndex(index)# donne le focus a l'onglet créé
+		self.SubWdwNE.setCurrentIndex(3)# donne le focus a l'onglet Networks
 
 def main():
 	app = QtGui.QApplication(sys.argv)
