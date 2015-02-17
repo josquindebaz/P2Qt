@@ -666,7 +666,7 @@ class Principal(QtGui.QMainWindow):
 		"""Add message to the history window"""
 		self.status.showMessage(message)
 		time = u"%s" % datetime.datetime.now()
-		self.History.append("%s: %s" % (time[:19],message))
+		self.History.append("%s %s" % (time[:19],message))
 
 
 	def recup_liste_textes(self):
@@ -833,9 +833,11 @@ class Principal(QtGui.QMainWindow):
 				#liste les representants
 				self.client.eval_var("%s.rep[0:]"% self.semantique_liste_item)
 				result = re.split(", ", self.client.eval_var_result)
+				
 				if ( result != [u''] ):
 					self.liste_D_unsorted = []
 					for r in range(len(result)):
+                                                #affiche directement sur la liste E
 						if (sem in ["$cat_ent"]):
 							ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
 							self.client.eval_var(ask)
@@ -843,6 +845,7 @@ class Principal(QtGui.QMainWindow):
 							to_add = "%d %s"%(val, result[r] )
 							self.NOT12_E.addItem( to_add  ) 
 						else :
+#TODO if len(result) == 1 : afficher directement E
 							if (self.which  == "occurences" ):
 								ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
 								self.client.eval_var(ask)
@@ -867,6 +870,7 @@ class Principal(QtGui.QMainWindow):
 
 
 	def liste_D_item_changed(self):
+                """quand un item de D est sélectionné, afficher représentants dans E"""
 		itemT = self.NOT12_D.currentItem()
 		if (itemT):
 			if (self.which in ["occurences","deployement"]):
@@ -885,8 +889,12 @@ class Principal(QtGui.QMainWindow):
 				result = re.split(", ", result)
 				for r in range(len(result)):
 					ask = "%s.rep%d.rep%d.val"% (self.semantique_liste_item,row,r)
+					print ask
 					self.client.eval_var(ask)
 					val = int(self.client.eval_var_result)
+					print val
+					if val == 0:
+                                                pass
 					self.NOT12_E.addItem("%d %s"%(val, result[r] )) 
 					#self.NOT12_E.addItem( r ) 
 
