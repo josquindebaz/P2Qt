@@ -889,12 +889,12 @@ class Principal(QtGui.QMainWindow):
 				result = re.split(", ", result)
 				for r in range(len(result)):
 					ask = "%s.rep%d.rep%d.val"% (self.semantique_liste_item,row,r)
-					print ask
 					self.client.eval_var(ask)
 					val = int(self.client.eval_var_result)
-					print val
-					if val == 0:
-                                                pass
+                                        #quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
+					if (val == 0):
+                                                self.NOT12_E.addItems( map(lambda x : "0 %s" %x ,result[r:]) )
+                                                break
 					self.NOT12_E.addItem("%d %s"%(val, result[r] )) 
 					#self.NOT12_E.addItem( r ) 
 
