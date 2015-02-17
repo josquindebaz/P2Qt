@@ -815,8 +815,8 @@ class Principal(QtGui.QMainWindow):
 
 
 	def liste_item_changed(self):
-		""" suite au changement de sélection d'un élément , mettre à jour les vues dépendantes """ 
-#TODO si D unique, ouvrir direct
+		""" suite au changement de sélection , mettre à jour les vues dépendantes """ 
+
 		itemT = self.NOT12.currentItem()
 		if (itemT):
 			if (self.which in ["occurences","deployement"]):
@@ -845,24 +845,37 @@ class Principal(QtGui.QMainWindow):
 							to_add = "%d %s"%(val, result[r] )
 							self.NOT12_E.addItem( to_add  ) 
 						else :
-#TODO if len(result) == 1 : afficher directement E
 							if (self.which  == "occurences" ):
 								ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
 								self.client.eval_var(ask)
 								val = int(self.client.eval_var_result)
 								to_add = "%d %s"%(val, result[r] )
+								#quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
+								if (val == 0):
+                                                                        self.liste_D_unsorted.extend( map(lambda x : "0 %s" %x ,result[r:]) )
+                                                                        break
 							elif (self.which  == "deployement" ):
 								ask = "%s.rep%d.dep"% (self.semantique_liste_item,r)
 								self.client.eval_var(ask)
 								val = int(self.client.eval_var_result)
 								to_add = "%d %s"%(val, result[r] )
+								#quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
+								if (val == 0):
+                                                                        self.liste_D_unsorted.extend( map(lambda x : "0 %s" %x ,result[r:]) )
+                                                                        break
 							else :
 								to_add = "%s"% result[r] 
 							self.liste_D_unsorted.append(to_add)
-							#self.NOT12_D.addItem( to_add  ) 
+							#self.NOT12_D.addItem( to_add  )
+							
 					if (sem not in ["$cat_ent"]):
 						liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : int(re.split(" ",x)[0]),reverse =  1)
 						self.NOT12_D.addItems(liste_D_sorted)
+
+                                                if len(result) == 1 : # afficher directement E s'il ny a qu'une sous-catégorie
+                                                        self.NOT12_D.setCurrentItem(self.NOT12_D.item(0))
+                                                        self.liste_D_item_changed()
+
 
 
 			#activation des boutons de commande
