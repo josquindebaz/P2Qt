@@ -454,6 +454,7 @@ class ConnecteurPII (threading.Thread):
 		if not is_random_var(var):
 			self.m_cache_var[var]  = ev
 		self.m_threadlock.release()
+		print var , "  " , ev
 		return ev
 	
 
@@ -512,8 +513,8 @@ class ConnecteurPII (threading.Thread):
 		
 		lexpr = []
 		lexpr.append("FONC:" +fonc)
-		lexpr.append("ARG:" +element)
-		lexpr.append("ARG:" +sem)
+		lexpr.append("ARG:" +element.encode('utf-8')) 
+		lexpr.append("ARG:" +sem.encode('utf-8'))
 		lexpr.append('F')
 		if (verbose) :
 			print lexpr
