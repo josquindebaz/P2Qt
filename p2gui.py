@@ -1025,18 +1025,20 @@ class Principal(QtGui.QMainWindow):
 		
 	def show_textProperties(self ,  sem_txt):
 		"""Show text sailent properties"""
-#TODO  pouvoir deployer
 		#les actants
 		self.saillantesAct.clear()
+		self.saillantesAct_deployes = []
 		list_act_sem = "%s.act[0:]" % sem_txt
 		self.client.eval_var(list_act_sem)
 		list_act  = self.client.eval_var_result
-		list_act = re.split(", ",list_act)
-		for i in range(len(list_act)) :
+		self.list_act = re.split(", ",list_act)
+		self.liste_act_valued = {}
+		for i in range(len(self.list_act)) :
 			self.client.eval_var(u"%s.act%d.val"%(sem_txt,i))
 			val = int(self.client.eval_var_result)
-			self.saillantesAct.addItem(u"%d %s" % (val, list_act[i]))
-		#self.saillantesAct.addItems())
+			self.liste_act_valued [self.list_act[i]] = [ val, 0 ] 
+			self.saillantesAct.addItem(u"%d %s" % (val, self.list_act[i]))
+			
 
 		#les catégories
 #TODO trier par le poids ?
@@ -1046,25 +1048,57 @@ class Principal(QtGui.QMainWindow):
 			list_cat  = self.client.eval_var_result
 			self.saillantesCat.clear()
 			liste_cat_items = re.split(", ",list_cat)
-			for i in range(len(liste_cat_items)):
-				ask = u"%s.%s%d.val"%(sem_txt,typ,i)
-				self.client.eval_var(ask)
-				val = int(self.client.eval_var_result)
-				self.saillantesCat.addItem(u"%d %s" % (val, liste_cat_items[i]))
-			#self.saillantesCat.addItems(re.split(", ",list_cat)) 
+##			for i in range(len(liste_cat_items)):
+##				ask = u"%s.%s%d.val"%(sem_txt,typ,i)
+##				self.client.eval_var(ask)
+##				val = int(self.client.eval_var_result)
+##				self.saillantesCat.addItem(u"%d %s" % (val, liste_cat_items[i]))
+			self.saillantesCat.addItems(re.split(", ",list_cat)) 
 
 		# les collections
 		list_col_sem = "%s.col[0:]" % sem_txt
 		self.client.eval_var(list_col_sem)
 		self.saillantesCol.clear()
 		list_col = re.split(", ",self.client.eval_var_result)	
-		for i in range(len(list_col)) :
-#WARNING donne occurences pas deploiement
-			self.client.eval_var(u"%s.col%d.dep"%(sem_txt,i))
-			val = int(self.client.eval_var_result)
-			self.saillantesCol.addItem(u"%d %s" % (val, list_col[i]))
-		#self.saillantesCol.addItems(re.split(", ",self.client.eval_var_result))	
+##		for i in range(len(list_col)) :
+###WARNING donne occurences pas deploiement
+##			self.client.eval_var(u"%s.col%d.dep"%(sem_txt,i))
+##			val = int(self.client.eval_var_result)
+##			self.saillantesCol.addItem(u"%d %s" % (val, list_col[i]))
+		self.saillantesCol.addItems(re.split(", ",self.client.eval_var_result))	
 
+	def deploie_Actant(self):
+		item = self.saillantesAct.currentItem().text()
+		item = re.sub("^\d* ","",item)
+		self.activity(u"%s selected from text %s" % (item,self.semantique_txt_item))
+                self.saillantesAct.clear()
+                for r in self.list_act:
+                        self.saillantesAct.addItem(u"%d %s" % (self.liste_act_valued[r][0], r))
+                        
+                        if ( (r == item) and (item in self.saillantesAct_deployes) ):
+                                self.saillantesAct_deployes.remove(item)
+                        elif (r == item) :
+                                self.saillantesAct_deployes.append(item)
+                                
+                        if (r in self.saillantesAct_deployes):                     
+                                ask = "%s.act%d.rep_present[0:]"%(self.semantique_txt_item,self.list_act.index(r))
+                                self.client.eval_var(ask)
+                                result = self.client.eval_var_result
+                                if (result != u''):
+                                        result = re.split(", ",result)
+                                        for sub_n in range(len(result)) :
+                                                if ( result[sub_n] not in self.liste_act_valued.keys() ):
+                                                        ask = "%s.act%d.rep_present%d.val"%(self.semantique_txt_item,self.list_act.index(r),sub_n)
+                                                        self.client.eval_var(ask)
+                                                        res = self.client.eval_var_result
+                                                        self.liste_act_valued[result[sub_n]] = [res,2]
+                                                i = QtGui.QListWidgetItem()
+                                                i.setText(u"\u00B7  %s %s"%(self.liste_act_valued[result[sub_n]][0],result[sub_n]))
+                                                i.setBackground(QtGui.QColor( 245,245,245))
+                                                self.saillantesAct.addItem(i)
+                                        
+                                
+                        
 
 
 	def show_network(self):
@@ -1253,26 +1287,7 @@ class Principal(QtGui.QMainWindow):
 		self.SubWdwSO.setCurrentIndex(0)# donne le focus a l'onglet Texts
 		self.SOT1.tabBar().setTabToolTip(index,"%s %d"%(element,len(liste_textes)))
 
-	def deploie_Actant(self):
-#TODO double-clic replie
-#TODO Seulement pour concepts
-#TODO decale row si deploye
-		item = self.saillantesAct.currentItem().text()
-		item = re.sub("^\d* ","",item)
-		self.activity(u"%s selected from text %s" % (item,self.semantique_txt_item))
-		ask = "%s.act%d.rep_present[0:]"%(self.semantique_txt_item,self.saillantesAct.currentRow())
-		self.client.eval_var(ask)
-		result = self.client.eval_var_result
-		if (result != [u'']):
-                        r = self.saillantesAct.currentRow() 
-			sub_n = 0
-                        for sub_item in re.split(", ",result):
-				ask = "%s.act%d.rep_present%d.val"%(self.semantique_txt_item,self.saillantesAct.currentRow(),sub_n)
-				self.client.eval_var(ask)
-				res = self.client.eval_var_result
-                                r += 1
-                                self.saillantesAct.insertItem(r,u"  %s %s"%(res,sub_item))
-				sub_n += 1
+
                         
 	def teste_wording(self):
 		item = self.NOT12_E.currentItem().text()
