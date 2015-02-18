@@ -151,18 +151,18 @@ class Principal(QtGui.QMainWindow):
 		self.liste_champs_ctx = liste_champs_ajuste	
 		
 		# précalcule de valeurs associées 
-		for type_var in [ "$ent" , "$ef" , "$col"]
-		for type_calcul in ["freq","dep", "nbaut", "nbtxt","lapp","fapp"]:
-			L = self.client.eval_vector("$ent", type_calcul)
-			L = L.split(',')	 
-			if (type_calcul == "freq"):
-				t_calc = "val"
-			else:
-				t_calc = type_calcul
-			indice = 0
-			for val in L :
-				self.client.add_cache_var ("$ent%s.%s"%(str(indice),t_calc),val)
-				indice+=1
+		for type_var in [ "$ent" ]: #, "$ef" , "$col"] :
+			for type_calcul in ["freq","dep", "nbaut", "nbtxt","lapp","fapp"]:
+				L = self.client.eval_vector(type_var, type_calcul)
+				L = L.split(',')	 
+				if (type_calcul == "freq"):
+					t_calc = "val"
+				else:
+					t_calc = type_calcul
+				indice = 0
+				for val in L :
+					self.client.add_cache_var ("%s%s.%s"%(type_var,str(indice),t_calc),val)
+					indice+=1
 			
 			
 		'''

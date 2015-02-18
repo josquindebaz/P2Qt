@@ -475,7 +475,7 @@ class ConnecteurPII (threading.Thread):
 			if not self.connect():
 				print "acces P-II impossible"
 				return 
-	def creer_msg_search(self,fonc ,element, indice_resultat,txt=False,ptxt='',,ph=False,pph='',val=False):
+	def creer_msg_search(self,fonc ,element, pelement='',txt=False,ptxt='',ph=False,pph='',val=False):
 		"""
 		fonc = $search.rac  $search.pre $search.suf
 		element = chaine recherchée
@@ -484,6 +484,8 @@ class ConnecteurPII (threading.Thread):
 		
 		creer_msg_search ( "$search.rac" , "présid" , "0" )
 			$search.rac.présid.pO
+		creer_msg_search ( "$search.rac" , "présid" , "[0:]" )
+			$search.rac.présid.p[0: ]
 		creer_msg_search ( "$search.rac" , "présid" , "0" , val=True)	
 			$search.rac.présid.pO.val
 		creer_msg_search ( "$search.rac" , "présid" , "0" ,txt=True, ptxt="0", val=True)	
@@ -504,20 +506,52 @@ class ConnecteurPII (threading.Thread):
 		
 		
   		lexpr.append("E:" +signature)
-		if indice_resultat:
-			POS : "P:"+indice_resultat
+  		'''
+		if pelement:
+			POS = "P:"+pelement
 		else:
 			POS=""
-		lexpr.append("V:" +signature + "." +  POS )
+		'''
+		lexpr.append("V:" +signature + "." +  pelement )
 		
 		lexpr.append("ARG:" +element)
-		if indice_resultat:
-			lexpr.append("P:" + indice_resultat  )
+		if pelement:
+			L = self.get_token_tranche(pelement)
+			lexpr += L
+			
+			
 		if txt :
-			lexpr.append("V:txt:txt" + POS  )
+			lexpr.append("V:txt:txt" + ptxt  )
+			if ptxt:
+				L = self.get_token_tranche(ptxt)
+				lexpr += L
+		if ph:
+			
+			lexpr.append("V:ph:ph" + pph  )
+
+			if pph:
+				L = self.get_token_tranche(pph)
+				lexpr += L
+		if val:
+			lexpr.append("V:val:val" )
 		lexpr.append('F')
 		if (verbose) :
 			print lexpr
+		return lexpr
+	def get_token_tranche(self, data):
+		lexpr=[]
+		m2 = regex_tranche.search(data) 
+		if m2 :
+ 			if not m2.groupdict('BI')['BI'] : g1 = 999999
+			else : g1 = m2.groupdict('BI')['BI']
+			if not m2.groupdict('BS')['BS'] : g2 = 999999
+			else : g2 = m2.groupdict('BS')['BS']
+			g1 = str(g1)
+			g2 = str(g2)
+			lexpr.append("BI:" + g1)
+			lexpr.append("BS:" + g2)
+		else:
+			lexpr.append("P:"+ data  )		
 		return lexpr
 	def creer_msg_fonct(self,fonc,element,sem):
 		"""
@@ -1045,8 +1079,24 @@ if __name__ == "__main__" :
 
 	c = ConnecteurPII()
 	#L= c.creer_msg_ctx("titre","[0:]")
-	c.set( '192.168.1.43','4000' )
+	c.set( '192.168.1.99','4000' )
 	#v = c.eval_variable("$ent0")
+	L = c.creer_msg_search ( u"$search.rac" , u"présid" , pelement="0" ,txt=True, ptxt="0", ph=True ,pph="[0:]")
+	for  x in L : print x	
+	L= c.creer_msg_search ( u"$search.rac" , u"présid" , pelement="[0:]" ,txt=True, ptxt="")
+	for  x in L : print x	
+	L = c.creer_msg_search ( u"$search.rac" , u"présid" , "0" )
+	for  x in L : print x
+	L = c.creer_msg_search ( u"$search.rac" , u"présid" , "0" , val=True)
+	for  x in L : print x
+	L = c.creer_msg_search ( u"$search.rac" , u"présid" , "0" ,txt=True, ptxt="0", val=True)	
+	for  x in L : print x
+	L = c.creer_msg_search ( u"$search.rac" , u"présid" , "0" ,txt=True, ptxt="[0:]")	
+	for  x in L : print x
+	L = c.creer_msg_search ( u"$search.rac" , u"présid" , "0" ,txt=True, ptxt="0", ph=True ,pph="[0:]")
+	for  x in L : print x	
+
+	
 	L = c.creer_msg_vect("$ent", "freq")
 	v = c.eval_vect_values("$ent", "nbaut")
 	v = c.eval_vect_values("$ent", "nbtxt")
