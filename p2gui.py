@@ -792,6 +792,7 @@ class Principal(QtGui.QMainWindow):
 			else :
 				act.setEnabled(True)
 				act.setIcon(QtGui.QIcon())
+		self.NOT1Commands1.setText(u"\u2195 %s"%self.which)
 			
 
 	def affiche_liste_scores_alpha(self):
