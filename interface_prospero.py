@@ -987,6 +987,7 @@ class ConnecteurPII (threading.Thread):
 				
 			
 		"""
+		data = data.encode('utf-8')
 		mask = "TUVXYZ"
 
 		# provisoire : repérage des {}

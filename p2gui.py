@@ -1088,7 +1088,7 @@ class Principal(QtGui.QMainWindow):
 		self.list_cat_txt = {} 
 		self.saillantesCat.clear()
 		self.saillantesCat_deployes = []
-		for typ in [u"cat_qua",u"cat_mar",u"cat_epr",u"cat_ent"]:
+		for typ in [u"cat_ent"]:
 			list_cat_sem = "%s.%s[0:]" % (sem_txt,typ)
 			self.client.eval_var(list_cat_sem)
 			list_cat  = self.client.eval_var_result
