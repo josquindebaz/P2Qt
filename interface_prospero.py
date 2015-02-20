@@ -1124,9 +1124,12 @@ if __name__ == "__main__" :
 
 	c = ConnecteurPII()
 	#L= c.creer_msg_ctx("titre","[0:]")
-	#c.set( '192.168.1.99','4000' )
-	c.set( 'marloweb.eu','60000' )
+	c.set( '192.168.1.99','4000' )
+	#c.set( 'marloweb.eu','60000' )
 	#v = c.eval_variable("$ent0")
+	L = c.creer_msg_vect("$ent", "freq")
+	v = c.eval_variable("$ent[0:]")
+	v = c.eval_variable("$col[0:]")
 	v = c.eval (c.creer_msg_search ( u"$search.suf" , u"aient" , pelement="0" ,txt=True, ptxt="[0:10]", ph=True ,pph="[0:]",val=False))
 	print v
 	v = c.eval (c.creer_msg_search ( u"$search.rac" , u"api" , pelement="0" ,txt=True, ptxt="[0:]", ph=False ,pph="[0:]",val=False))
