@@ -265,6 +265,33 @@ class ConnecteurPII (threading.Thread):
 		self.add_cache_var(cle, value)
 		self.m_threadlock.release()
 		return value
+	def eval (self, L):
+		"""
+			on calcul la forme/clé et la lexpr  avant.
+			ex :
+				L = c.creer_msg_search ( u"$search.rac" , u"présid" , pelement="0" ,txt=True, ptxt="0", ph=True ,pph="[0:]")
+				cle = "$search.rac" +	
+		"""
+		cle = L[0]
+		lexpr = L[1]
+		self.m_threadlock.acquire()
+		
+		if cle in self.m_cache_fonc.keys():
+			self.m_threadlock.release()
+			return self.m_cache_fonc[cle]
+		
+		
+		if not self.connexion : 
+			if not self.connect():
+				self.m_threadlock.release()
+				return ""
+
+		for exp in lexpr :
+			self.send_expression(exp)
+		value = self.get_value()
+		self.add_cache_fonc(cle, value)
+		self.m_threadlock.release()
+		return value
 
 	def eval_fonct (self, fonc, element,sem):
 		"""
@@ -477,6 +504,9 @@ class ConnecteurPII (threading.Thread):
 				return 
 	def creer_msg_search(self,fonc ,element, pelement='',txt=False,ptxt='',ph=False,pph='',val=False):
 		"""
+			calculer la liste des messages aux serveurs
+			renvoyer cette liste et la clé pour la mise en cache locale
+		
 		fonc = $search.rac  $search.pre $search.suf
 		element = chaine recherchée
 		
@@ -503,7 +533,7 @@ class ConnecteurPII (threading.Thread):
 		fonc = fonc.encode('utf-8')
 		element =  element.encode('utf-8')
 		signature = fonc + '.' + element
-		
+		cle = signature
 		
   		lexpr.append("E:" +signature)
   		'''
@@ -512,32 +542,45 @@ class ConnecteurPII (threading.Thread):
 		else:
 			POS=""
 		'''
-		lexpr.append("V:" +signature + "." +  pelement )
-		
+		lexpr.append("V:search:" +signature + "." +  pelement )
+		# le premier ARG indiquera rac pre ou suf
+		if signature.find('.rac.') != -1:
+			lexpr.append("ARG:rac" )
+		if signature.find('.pre.') != -1:
+			lexpr.append("ARG:pre" )
+		if signature.find('.suf.') != -1:
+			lexpr.append("ARG:suf" )
 		lexpr.append("ARG:" +element)
+		lexpr.append("FARG:")	# ajouté pour signaler la fin des arg sur WSearch
+		
 		if pelement:
 			L = self.get_token_tranche(pelement)
 			lexpr += L
-			
+			cle += pelement
 			
 		if txt :
 			lexpr.append("V:txt:txt" + ptxt  )
+			cle += "txt"
 			if ptxt:
 				L = self.get_token_tranche(ptxt)
 				lexpr += L
+				cle +=ptxt
+				
 		if ph:
 			
 			lexpr.append("V:ph:ph" + pph  )
-
+			cle += "ph"
 			if pph:
 				L = self.get_token_tranche(pph)
 				lexpr += L
+				cle += pph
 		if val:
 			lexpr.append("V:val:val" )
+			cle +="val"
 		lexpr.append('F')
 		if (verbose) :
 			print lexpr
-		return lexpr
+		return (cle, lexpr)
 	def get_token_tranche(self, data):
 		lexpr=[]
 		m2 = regex_tranche.search(data) 
@@ -553,6 +596,8 @@ class ConnecteurPII (threading.Thread):
 		else:
 			lexpr.append("P:"+ data  )		
 		return lexpr
+	
+	
 	def creer_msg_fonct(self,fonc,element,sem):
 		"""
 		
@@ -1079,11 +1124,20 @@ if __name__ == "__main__" :
 
 	c = ConnecteurPII()
 	#L= c.creer_msg_ctx("titre","[0:]")
-	c.set( '192.168.1.99','4000' )
+	#c.set( '192.168.1.99','4000' )
+	c.set( 'marloweb.eu','60000' )
 	#v = c.eval_variable("$ent0")
-	L = c.creer_msg_search ( u"$search.rac" , u"présid" , pelement="0" ,txt=True, ptxt="0", ph=True ,pph="[0:]")
-	for  x in L : print x	
-	L= c.creer_msg_search ( u"$search.rac" , u"présid" , pelement="[0:]" ,txt=True, ptxt="")
+	v = c.eval (c.creer_msg_search ( u"$search.suf" , u"aient" , pelement="0" ,txt=True, ptxt="[0:10]", ph=True ,pph="[0:]",val=False))
+	print v
+	v = c.eval (c.creer_msg_search ( u"$search.rac" , u"api" , pelement="0" ,txt=True, ptxt="[0:]", ph=False ,pph="[0:]",val=False))
+	
+	v = c.eval (c.creer_msg_search ( u"$search.rac" , u"api" , pelement="[0:]" ,txt=False, ptxt="0", ph=False ,pph="[0:]", val=False))
+		
+	v = c.eval (c.creer_msg_search ( u"$search.rac" , u"api" , pelement="0" ,txt=True, ptxt="[0:]", ph=False ,pph="[0:]",val=False))
+
+	v = c.eval (c.creer_msg_search ( u"$search.rac" , u"api" , pelement="[0:]" ,txt=False, ptxt="0", ph=False ,pph="[0:]", val=True))
+
+	L= c.creer_msg_search ( u"$search.rac" , u"api" , pelement="[0:]" ,txt=True, ptxt="")
 	for  x in L : print x	
 	L = c.creer_msg_search ( u"$search.rac" , u"présid" , "0" )
 	for  x in L : print x
