@@ -521,16 +521,17 @@ class Principal(QtGui.QMainWindow):
 		self.NOT1Commands1 = QtGui.QPushButton()
 		self.NOT1Commands1.setText(u"\u2195")
 		self.NOT1Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
-		NOT1Commands1Menu = QtGui.QMenu(self)
+		self.NOT1Commands1Menu = QtGui.QMenu(self)
 		#NOT1Commands1Menu.addAction('&search')
 		#submenu_sort = QtGui.QMenu('&sort')
 		#NOT1Commands1Menu.addMenu(submenu_sort)
-		self.menu_occurences = NOT1Commands1Menu.addAction('occurences',self.affiche_liste_scores_oc)
-		self.menu_deployement = NOT1Commands1Menu.addAction('deployement',self.affiche_liste_scores_dep)
+		self.menu_occurences = self.NOT1Commands1Menu.addAction('occurences',self.affiche_liste_scores_oc)
+		self.menu_deployement = self.NOT1Commands1Menu.addAction('deployement',self.affiche_liste_scores_dep)
+		self.menu_alphabetical = self.NOT1Commands1Menu.addAction('alphabetical',self.affiche_liste_scores_alpha)
 #TODO ajouter pondere, nb textes, nb auteurs, nb jours presents, relatif nb jours, nb representants, nb elements reseau
 		#NOT1Commands1Menu.addAction('&sort')
 		#NOT1Commands1Menu.addAction('&filter')
-		self.NOT1Commands1.setMenu(NOT1Commands1Menu)
+		self.NOT1Commands1.setMenu(self.NOT1Commands1Menu)
 		NOT1VHC.addWidget(self.NOT1Commands1)
 
 
@@ -783,21 +784,32 @@ class Principal(QtGui.QMainWindow):
 		self.NOT12_E.clear()
 		self.NOT12.addItems(content)
 
+	def choose_score_tick(self):
+		"""tick and disable the choosen order selected, untick and enable others"""
+		for act in self.NOT1Commands1Menu.actions():
+			if (act.text() == self.which):
+				act.setIcon(QtGui.QIcon("Tick.gif"))
+				act.setEnabled(False)
+			else :
+				act.setEnabled(True)
+				act.setIcon(QtGui.QIcon())
+		self.NOT1Commands1.setText(u"\u2195 %s"%self.which)
+			
+
+	def affiche_liste_scores_alpha(self):
+		self.which = "alphabetical"
+		self.choose_score_tick()
+		self.affiche_liste_scores()
+
 	def affiche_liste_scores_oc(self):
 		self.which = "occurences"
+		self.choose_score_tick()
 		self.affiche_liste_scores()
-		self.menu_deployement.setIcon(QtGui.QIcon())
-		self.menu_deployement.setEnabled(True) 
-		self.menu_occurences.setIcon(QtGui.QIcon("Tick.gif"))
-		self.menu_occurences.setEnabled(False) 
 
 	def affiche_liste_scores_dep(self):
 		self.which = "deployement"
+		self.choose_score_tick()
 		self.affiche_liste_scores()
-		self.menu_occurences.setIcon(QtGui.QIcon())
-		self.menu_occurences.setEnabled(True) 
-		self.menu_deployement.setIcon(QtGui.QIcon("Tick.gif"))
-		self.menu_deployement.setEnabled(False) 
 
 	def affiche_liste_scores(self):
 		typ = self.NOT1select.currentText()
@@ -806,13 +818,15 @@ class Principal(QtGui.QMainWindow):
 		self.activity(u"Displaying %s list (%d items) ordered by %s" % (typ,len(content), self.which))
 		liste_valued =[]
 		for row  in range(len(content)):
-			if (self.which == "occurences"):
+			if (self.which == "occurences" or self.which == "alphabetical"):
 				order = "val"
 				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
 			elif (self.which == "deployement"):
 				order = "dep"
 				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
+
 			self.client.eval_var( ask )
+
 			try :
 				val = int(self.client.eval_var_result)
 				if (self.sem_liste_concept == "$ent" and self.which == "deployement" and val == 0):
@@ -824,10 +838,16 @@ class Principal(QtGui.QMainWindow):
 			liste_valued.append([val,content[row]])
 		liste_final =[]
 		self.content_liste_concept = []
-		for i in sorted(liste_valued,key=lambda x : x[0],reverse = 1):
-			item_resume = u"%s %s" % (i[0], i[1])
-			liste_final.append(item_resume) 
-			self.content_liste_concept.append(i[1])
+		if (self.which == "alphabetical" ):
+			for i in sorted(liste_valued,key=lambda x : x[1],reverse = 0):
+				item_resume = u"%s %s" % (i[0], i[1])
+				liste_final.append(item_resume) 
+				self.content_liste_concept.append(i[1])
+		else :
+			for i in sorted(liste_valued,key=lambda x : x[0],reverse = 1):
+				item_resume = u"%s %s" % (i[0], i[1])
+				liste_final.append(item_resume) 
+				self.content_liste_concept.append(i[1])
 		self.change_liste(liste_final)
 
 
@@ -836,11 +856,9 @@ class Principal(QtGui.QMainWindow):
 
 		itemT = self.NOT12.currentItem()
 		if (itemT):
-			if (self.which in ["occurences","deployement"]):
-				item = re.sub("^\d* ","",itemT.text())
-			else :
-				item = itemT.text() # l'element selectionné
-			self.activity("%s selected" % item)
+			item = re.sub("^\d* ","",itemT.text())
+			row = self.NOT12.currentRow() 
+			self.activity("%s selected, rank %d" % (item,row+1))
 			self.NOT12_D.clear() # on efface la liste
 			self.NOT12_E.clear()
 			sem = self.sem_liste_concept
@@ -852,42 +870,39 @@ class Principal(QtGui.QMainWindow):
 				result = re.split(", ", self.client.eval_var_result)
 				
 				if ( result != [u''] ):
-					self.liste_D_unsorted = []
-					for r in range(len(result)):
-                                                #affiche directement sur la liste E
-						if (sem in ["$cat_ent"]):
+
+					if (sem in ["$cat_ent"]):#affiche directement sur la liste E
+						liste_scoree = []
+						for r in range(len(result)):
 							ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
 							self.client.eval_var(ask)
 							val = int(self.client.eval_var_result)
-							to_add = "%d %s"%(val, result[r] )
-							self.NOT12_E.addItem( to_add  ) 
-						else :
-							if (self.which  == "occurences" ):
+							liste_scoree.append( [ result[r] , val ])
+						if (self.which == "alphabetical"):
+							liste_scoree.sort()
+						self.NOT12_E.addItems(map(lambda x : "%d %s"% (x[1], x[0]),liste_scoree))   
+
+					else:
+						self.liste_D_unsorted = []
+						for r in range(len(result)):
+							if (self.which  == "occurences" or self.which == "alphabetical"):
 								ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
-								self.client.eval_var(ask)
-								val = int(self.client.eval_var_result)
-								to_add = "%d %s"%(val, result[r] )
-								#quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
-								if (val == 0):
-                                                                        self.liste_D_unsorted.extend( map(lambda x : "0 %s" %x ,result[r:]) )
-                                                                        break
 							elif (self.which  == "deployement" ):
 								ask = "%s.rep%d.dep"% (self.semantique_liste_item,r)
-								self.client.eval_var(ask)
-								res = self.client.eval_var_result
-								val = int(res)
-								to_add = "%d %s"%(val, result[r] )
-								#quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
-								if (val == 0):
-                                                                        self.liste_D_unsorted.extend( map(lambda x : "0 %s" %x ,result[r:]) )
-                                                                        break
-							else :
-								to_add = "%s"% result[r] 
+							self.client.eval_var(ask)
+							val = int(self.client.eval_var_result)
+							to_add = "%d %s"%(val, result[r] )
+							#quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
+							if (val == 0):
+								self.liste_D_unsorted.extend( map(lambda x : "0 %s" %x ,result[r:]) )
+								break
 							self.liste_D_unsorted.append(to_add)
-							#self.NOT12_D.addItem( to_add  )
 							
 					if (sem not in ["$cat_ent"]):
-						liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : int(re.split(" ",x)[0]),reverse =  1)
+						if (self.which == "alphabetical"):
+							liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : re.split(" ",x)[1],reverse =  0)
+						else :
+							liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : int(re.split(" ",x)[0]),reverse =  1)
 						self.NOT12_D.addItems(liste_D_sorted)
 
                                                 if len(result) == 1 : # afficher directement E s'il ny a qu'une sous-catégorie
@@ -909,7 +924,7 @@ class Principal(QtGui.QMainWindow):
 				item = itemT.text() # l'element selectionné
 			#row = self.NOT12_D.currentRow() 
 			row = self.liste_D_unsorted.index(itemT.text())
-			self.activity("%s selected" % item)
+			#self.activity("%s selected" % item)
 			self.NOT12_E.clear() # on efface la liste
 			ask = "%s.rep%d.rep[0:]" % (self.semantique_liste_item,row)
 			self.semantique_liste_item_D = u"%s.rep%d" % (self.semantique_liste_item,  row)
@@ -917,16 +932,24 @@ class Principal(QtGui.QMainWindow):
 			result = self.client.eval_var_result
 			if (result != "") :
 				result = re.split(", ", result)
-				for r in range(len(result)):
-					ask = "%s.rep%d.rep%d.val"% (self.semantique_liste_item,row,r)
-					self.client.eval_var(ask)
-					val = int(self.client.eval_var_result)
-                                        #quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
-					if (val == 0):
-                                                self.NOT12_E.addItems( map(lambda x : "0 %s" %x ,result[r:]) )
-                                                break
-					self.NOT12_E.addItem("%d %s"%(val, result[r] )) 
-					#self.NOT12_E.addItem( r ) 
+				if (self.which == "alphabetical"):
+					liste_scoree = []
+					for r in range(len(result)):
+						ask = "%s.rep%d.rep%d.val"% (self.semantique_liste_item,row,r)
+						self.client.eval_var(ask)
+						val = int(self.client.eval_var_result)
+						liste_scoree.append([result[r],val])
+					self.NOT12_E.addItems(map(lambda x : "%d %s"% (x[1], x[0]),sorted(liste_scoree)))
+				else :
+					for r in range(len(result)):
+						ask = "%s.rep%d.rep%d.val"% (self.semantique_liste_item,row,r)
+						self.client.eval_var(ask)
+						val = int(self.client.eval_var_result)
+						#quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
+						if (val == 0):
+							self.NOT12_E.addItems( map(lambda x : "0 %s" %x ,result[r:]) )
+							break
+						self.NOT12_E.addItem("%d %s"%(val, result[r] )) 
 
 	def liste_E_item_changed(self):
 		itemT = self.NOT12_E.currentItem()
@@ -1263,6 +1286,7 @@ class Principal(QtGui.QMainWindow):
 		self.SubWdwSO.setCurrentIndex(1)# donne le focus a l'onglet Networks
 
 	def show_texts(self):
+#TODO scorer/trier
 		"""Show texts containing a selected item"""
 		if  self.NOT12_E.currentItem() :
 			element = self.NOT12_E.currentItem().text() 
@@ -1359,6 +1383,10 @@ class Principal(QtGui.QMainWindow):
 		show_texts_box.addWidget(texts_list)
 		show_texts_box.addWidget(anticorpus)
 		"""
+
+
+
+
 		show_texts_widget = QtGui.QWidget()
 		HBox_texts = QtGui.QHBoxLayout()
 		HBox_texts.setContentsMargins(0,0,0,0) 
@@ -1382,6 +1410,11 @@ class Principal(QtGui.QMainWindow):
 				self.l_anticorp_ord.append(T)
 				self.show_texts_anticorpus.addItem(txt_resume)
 
+		#si la tab de l'element existe déjà, on efface l'ancienne
+		for i in range(0, self.SOT1.count() ):
+			if (re.search("^%s (\d*)"%element,self.SOT1.tabText(i) ) ):
+				self.SOT1.removeTab(i)
+			
 
 		index = self.SOT1.addTab(show_texts_widget,"%s (%d)" % (element,len(liste_textes)))
 		self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
