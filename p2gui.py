@@ -226,6 +226,10 @@ class Principal(QtGui.QMainWindow):
 
 	# onglet proprietes du texte
 		self.textProperties = QtGui.QTabWidget()
+
+		
+
+
 	# sous onglet proprietes saillantes
 		saillantes = QtGui.QWidget()
 		self.textProperties.addTab(saillantes,"Sailent structures")
@@ -282,10 +286,25 @@ class Principal(QtGui.QMainWindow):
 		self.textContent = QtGui.QTextEdit() 
 
 
-		SubWdwSE = QtGui.QTabWidget()
-		SubWdwSE.addTab(self.textProperties,"Properties")
-		SubWdwSE.addTab(self.textCTX,"Context")
-		SubWdwSE.addTab(self.textContent,"Text")
+		SubWdwSETabs = QtGui.QTabWidget()
+
+		SubWdwSE = QtGui.QWidget()
+
+		SETabV = QtGui.QVBoxLayout()
+		SETabV.setContentsMargins(0,0,0,0) 
+		SETabV.setSpacing(0) 
+		SETabVH = QtGui.QHBoxLayout()
+		SETabV.addLayout(SETabVH)
+		self.SETabTextDescr = QtGui.QLabel()
+		SETabVH.addWidget(self.SETabTextDescr)
+		SETabVH.addWidget(SubWdwSETabs)
+
+		SubWdwSE.setLayout(SETabV)
+		SETabV.addWidget(SubWdwSETabs)
+
+		SubWdwSETabs.addTab(self.textProperties,"Properties")
+		SubWdwSETabs.addTab(self.textCTX,"Context")
+		SubWdwSETabs.addTab(self.textContent,"Text")
 
 
 ##################################################
@@ -752,6 +771,7 @@ class Principal(QtGui.QMainWindow):
 
 	def onSelectText(self,sem_txt,item_txt):
 		"""Update text properties windows when a text is selected """
+		self.SETabTextDescr.setText(item_txt)
 		self.show_textProperties( sem_txt)
 		self.show_textCTX(sem_txt) 
 		self.show_textContent( sem_txt)
@@ -1068,6 +1088,7 @@ class Principal(QtGui.QMainWindow):
 	def show_textProperties(self ,  sem_txt):
 		"""Show text sailent properties"""
 		#les actants
+		#les actants en tête sont calculés par le serveur
 		self.saillantesAct.clear()
 		self.saillantesAct_deployes = []
 		list_act_sem = "%s.act[0:]" % sem_txt
@@ -1084,6 +1105,11 @@ class Principal(QtGui.QMainWindow):
 			
 
 		#les catégories
+		#le serveur renvoie toutes les éléments de la catégorie
+		#si len(cat_ent[0:]) > 2, deux algos a tester pour économiser les interactions avec le serveur :
+		# si cat_ent0.val < len(cat_ent[0:]) on approxime le cumul des frequences de valeur par celui du rapport du nb d'element analysés sur le nb d'element total qu'on multiplie par cat_ent0.val, on arrête quand on atteint 0,5 ou on affiche les cat tant qu'elles ont le même score
+		# si cat_ent0.val > len(cat_ent[0:]) on fait le rapport des valeurs cumulees sur la somme totale si les valeurs suivantes avaient le même score que le dernier obtenu : Val_cumul / ( (len(cat_ent[0:]) - i ) * cat_ent[i].val + Val_cumul ) on s'arrete en atteignant 0,25 ou etc
+
 		self.list_cat_valued = {}
 		self.list_cat_txt = {} 
 		self.saillantesCat.clear()
@@ -1113,6 +1139,7 @@ class Principal(QtGui.QMainWindow):
 			
 
 		# les collections
+		# on met toutes les collections parce que leur émergence est donnée par leur déploiement
 		self.saillantesCol.clear()
 		self.saillantesCol_deployees = []
 		list_col_sem = "%s.col[0:]" % sem_txt
@@ -1289,6 +1316,12 @@ class Principal(QtGui.QMainWindow):
 	def show_texts(self):
 #TODO scorer/trier
 		"""Show texts containing a selected item"""
+		
+		#vide les listes des proprietes saillantes pour eviter confusion
+		self.saillantesAct.clear()
+		self.saillantesCat.clear()
+		self.saillantesCol.clear()
+
 		if  self.NOT12_E.currentItem() :
 			element = self.NOT12_E.currentItem().text() 
 			element = re.sub("^\d* ","",element)
