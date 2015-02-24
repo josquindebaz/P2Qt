@@ -584,20 +584,42 @@ class Principal(QtGui.QMainWindow):
 #TODO desactiver si presence nulle
 		self.NOT12_E.doubleClicked.connect(self.teste_wording)
 
+################################################
 
 		#NOT2 =  QtGui.QLabel()
 #		FrmlImage = QtGui.QPixmap("formul.png")
 #		NOT2.setPixmap(FrmlImage)
 
-		#NOT3 =  QtGui.QLabel()
-#		ExploImage = QtGui.QPixmap("explo.png")
-#		NOT3.setPixmap(ExploImage)
+################################################
+#Explorer
+		NOT3 =  QtGui.QWidget()
+		NOT3V = QtGui.QVBoxLayout()
+		NOT3.setLayout(NOT3V)
+		# on prend toute la place
+		#NOT3V.setContentsMargins(0,0,0,0) 
+		#NOT3V.setSpacing(0) 
+
+		self.Explo_saisie = QtGui.QLineEdit()
+		NOT3V.addWidget(self.Explo_saisie)
+
+		NOT3VH = QtGui.QHBoxLayout()
+		NOT3V.addLayout(NOT3VH)
+
+#QButtonGroup
+		self.Explo_check = QtGui.QRadioButton("prefix")	
+		NOT3VH.addWidget(self.Explo_check)
+		Explo_action = QtGui.QPushButton("search")
+		NOT3VH.addWidget(Explo_action)
+
+		self.Explo_liste = QtGui.QListWidget()
+		NOT3V.addWidget(self.Explo_liste)
 
 
 
 		SubWdwNO.addTab(NOT1,"Lists")
 #		SubWdwNO.addTab(NOT2,"Formulae")
-#		SubWdwNO.addTab(NOT3,"Explorer")
+		SubWdwNO.addTab(NOT3,"Explorer")
+		#SubWdwNO.setCurrentIndex(0) #Focus sur l'onglet listes concepts
 
 ################################################
 ################################################
@@ -699,6 +721,7 @@ class Principal(QtGui.QMainWindow):
 
 	def recup_liste_textes(self):
 		"""display texts for the corpus"""
+#TODO creer objet textes, meme methodes pour textes du corpus et sous-corpus, deselectionner texte dans un onglet quand il l'est dans l'autre, faire un titre a afficher dans listes et en-tête du quadran, ne demander proprietes que quand clic sur onglet
 		#self.activity(u"Waiting for text list"   )
 		self.client.recup_texts()
 		self.activity(u"Displaying text list (%d items)" %len(self.client.txts)  )
