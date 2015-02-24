@@ -87,15 +87,20 @@ class Principal(QtGui.QMainWindow):
 		listeTextes = self.client.txts
 		indice = 0
 		
+		self.activity("pre-computing : texts")
 		
 		nbre_txt = len (listeTextes)
 		# mise en cache  valeur - semtxt
 		for text in listeTextes :
+
+
 			sem = u"$txt%s"%indice
 			txt_name = listeTextes[indice]
 			cle = txt_name + u"$txt"
 			self.client.add_cache_fonct(cle, sem )
 			indice +=1
+			self.PrgBar.setValue(  indice   * 50 / nbre_txt )	
+		
 			
 		# récupération des champs ctx
 		self.client.eval_var("$ctx")
@@ -150,8 +155,11 @@ class Principal(QtGui.QMainWindow):
 		# on se sert de la liste des champs dans l'onglet CTX			
 		self.liste_champs_ctx = liste_champs_ajuste	
 		
+		prgbar_val = 50
+
 		# précalcule de valeurs associées 
 		for type_var in [ "$ent" , "$ef" , "$col"] :
+			self.activity("pre-computing : %s " % (type_var))
 		#for type_var in [ "$ent" ]:
 			for type_calcul in ["freq","dep", "nbaut", "nbtxt","lapp","fapp"]:
 				L = self.client.eval_vector(type_var, type_calcul)
@@ -164,6 +172,13 @@ class Principal(QtGui.QMainWindow):
 				for val in L :
 					self.client.add_cache_var ("%s%s.%s"%(type_var,str(indice),t_calc),val)
 					indice+=1
+				
+				prgbar_val += 3
+				self.PrgBar.setValue(  prgbar_val )
+			prgbar_val -= 2
+
+		self.PrgBar.reset()
+
 			
 			
 		'''
@@ -188,11 +203,19 @@ class Principal(QtGui.QMainWindow):
 		# create the status bar
 		self.status = self.statusBar()
 		self.status.showMessage(u"Ready")
+
+		#create the progressebar
+		self.PrgBar = QtGui.QProgressBar(self)
+		self.PrgBar.setMaximumSize(199, 19)
+		self.status.addPermanentWidget(self.PrgBar)
+
 	
 		# create the toolbar
 		toolbar = self.addToolBar("toolbar")	
-		toolbar.setIconSize(QtCore.QSize(16, 16))
+		#toolbar.setIconSize(QtCore.QSize(16, 16))
 		toolbar.setMovable( 0 )
+
+		
 
 		#Saction = QtGui.QAction(QtGui.QIcon('Prospero-II.png'), 'Server', self)
 		#toolbar.addAction(Saction)
@@ -595,9 +618,6 @@ class Principal(QtGui.QMainWindow):
 		NOT3 =  QtGui.QWidget()
 		NOT3V = QtGui.QVBoxLayout()
 		NOT3.setLayout(NOT3V)
-		# on prend toute la place
-		#NOT3V.setContentsMargins(0,0,0,0) 
-		#NOT3V.setSpacing(0) 
 
 		self.Explo_saisie = QtGui.QLineEdit()
 		NOT3V.addWidget(self.Explo_saisie)
@@ -605,14 +625,41 @@ class Principal(QtGui.QMainWindow):
 		NOT3VH = QtGui.QHBoxLayout()
 		NOT3V.addLayout(NOT3VH)
 
-#QButtonGroup
-		self.Explo_check = QtGui.QRadioButton("prefix")	
-		NOT3VH.addWidget(self.Explo_check)
-		Explo_action = QtGui.QPushButton("search")
-		NOT3VH.addWidget(Explo_action)
 
+		self.Explo_check_prefix = QtGui.QRadioButton("prefix")	
+		self.Explo_check_prefix.setChecked(True)
+		self.Explo_check_suffix = QtGui.QRadioButton("suffix")	
+		self.Explo_check_infix = QtGui.QRadioButton("infix")	
+
+		NOT3VH.addWidget(self.Explo_check_prefix)
+		NOT3VH.addWidget(self.Explo_check_suffix)
+		NOT3VH.addWidget(self.Explo_check_infix)
+
+		self.Explo_radioGroup = QtGui.QButtonGroup()
+		self.Explo_radioGroup.addButton(self.Explo_check_prefix)
+		self.Explo_radioGroup.addButton(self.Explo_check_suffix)
+		self.Explo_radioGroup.addButton(self.Explo_check_infix)
+
+
+		Explo_spacer1 = QtGui.QLabel()
+		Explo_spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+		NOT3VH.addWidget(Explo_spacer1)
+
+		self.Explo_action = QtGui.QPushButton("search")
+		self.Explo_action.setEnabled(False) #desactivé au lancement
+		self.Explo_action.clicked.connect(self.Explorer)
+		NOT3VH.addWidget(self.Explo_action)
+
+		NOT3VH2 = QtGui.QHBoxLayout()
+		NOT3V.addLayout(NOT3VH2)
 		self.Explo_liste = QtGui.QListWidget()
-		NOT3V.addWidget(self.Explo_liste)
+		NOT3VH2.addWidget(self.Explo_liste)
+		self.Explo_concepts = QtGui.QLabel()
+		tempImage = QtGui.QPixmap("Prospero-II.png")
+		self.Explo_concepts.setPixmap(tempImage)
+		NOT3VH2.addWidget(self.Explo_concepts)
+
+		
 
 
 
@@ -729,6 +776,8 @@ class Principal(QtGui.QMainWindow):
 		self.CorpusTexts.clear()
 
 		self.liste_txt_corpus = {}
+
+
 		for T in range(len(self.client.txts)):
 			sem_txt = "$txt%d" % T
 			self.client.eval_var(u"%s.date_txt" % (sem_txt))
@@ -738,6 +787,9 @@ class Principal(QtGui.QMainWindow):
 			self.client.eval_var(u"%s.titre_txt" % (sem_txt))
 			titre = re.sub("^\s*","",self.client.eval_var_result)
 			self.liste_txt_corpus[self.client.txts[T]] = [date, auteur, titre]
+
+			self.PrgBar.setValue(T * 100 / len(self.client.txts) ) 
+
 		#ordonne chrono par defaut
 		self.liste_txt_ord = []
 		for T,V in  sorted(self.liste_txt_corpus.items(),key=lambda (k,v) : "%s%s%s".join(reversed(re.split("/",v[0])))):
@@ -746,6 +798,7 @@ class Principal(QtGui.QMainWindow):
 			self.CorpusTexts.addItem(txt_resume)
 			self.liste_txt_ord.append(T)
 
+		self.PrgBar.reset()
 
 	def onSelectTextFromCorpus(self):
 		"""When a text is selected from the list of texts for the entire corpus"""
@@ -879,6 +932,12 @@ class Principal(QtGui.QMainWindow):
 				print [ask]
 				val = 0
 			liste_valued.append([val,content[row]])
+	
+			self.PrgBar.setValue(row * 100 / len(content))
+
+
+
+
 		liste_final =[]
 		self.content_liste_concept = []
 		if (self.which == "alphabetical" ):
@@ -892,6 +951,9 @@ class Principal(QtGui.QMainWindow):
 				liste_final.append(item_resume) 
 				self.content_liste_concept.append(i[1])
 		self.change_liste(liste_final)
+
+		self.PrgBar.reset()
+
 
 
 	def liste_item_changed(self):
@@ -1066,18 +1128,24 @@ class Principal(QtGui.QMainWindow):
 		if (self.client.Etat):
 			# calcule en avance
 			self.pre_calcule()
+
 			# affiche liste au demarrage
 			self.select_liste(self.NOT1select.currentText())
+
 			self.NOT1Commands1.setEnabled(True) 
 			self.list_research_button.setEnabled(True) 
 			self.NOT1select.setEnabled(True) 
+
 			# affiche textes au demarrage
 			self.recup_liste_textes()
+
 			self.Param_Server_B.clicked.connect(self.disconnect_server)
 			self.Param_Server_B.setText("Disconnect")
 			self.Param_Server_B.setStyleSheet(None)  #supprime css bouton vert
 			# donne le focus a l'onglet history
 			self.SubWdwNE.setCurrentIndex(self.History_index)
+
+			self.Explo_action.setEnabled(True) 
 		
 	def disconnect_server(self):
 		"""Disconnect"""
@@ -1125,6 +1193,7 @@ class Principal(QtGui.QMainWindow):
 				val = int(self.client.eval_var_result)
 				self.liste_act_valued [self.list_act[i]] = [ val, 0 ] 
 				self.saillantesAct.addItem(u"%d %s" % (val, self.list_act[i]))
+				self.PrgBar.setValue ( i * 33 / len(self.list_act) )
 			
 
 		#les catégories
@@ -1153,6 +1222,7 @@ class Principal(QtGui.QMainWindow):
 					self.client.eval_var(ask)
 					val = int(self.client.eval_var_result)
 					self.list_cat_valued[list_cat_items[i]] = val
+					self.PrgBar.setValue ( 33 + ( i * 34 / len(list_cat_items) ) )
 
 		self.list_cat_valued_ord = []
 		for cat in sorted( self.list_cat_valued.items(), key = lambda(k,v) : v,reverse=1):
@@ -1176,6 +1246,10 @@ class Principal(QtGui.QMainWindow):
 				val = int(self.client.eval_var_result)
 				self.saillantesCol.addItem(u"%d %s" % (val, self.list_col[i]))
 				self.list_col_valued[self.list_col[i]] = val
+				self.PrgBar.setValue ( 66 + ( i * 34 / len(self.list_col) ) )
+
+		self.PrgBar.reset()
+
 
 	def deploie_Col(self):
 		item = self.saillantesCol.currentItem().text()
@@ -1532,6 +1606,11 @@ class Principal(QtGui.QMainWindow):
 				elt  = self.detect.pop(1)
 				row =  self.content_liste_concept.index(elt)
 				self.NOT12.setCurrentRow(row)
+
+	def Explorer(self):
+		motif = self.Explo_saisie.text()
+		if (motif != ""):
+			print motif, self.Explo_radioGroup.checkedButton(), self.Explo_radioGroup.checkedId()
 				
 
 def main():
