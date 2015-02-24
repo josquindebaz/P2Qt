@@ -578,9 +578,12 @@ class ConnecteurPII (threading.Thread):
 			lexpr.append("V:val:val" )
 			cle +="val"
 		lexpr.append('F')
+
 		if (verbose) :
 			print lexpr
+
 		return (cle, lexpr)
+
 	def get_token_tranche(self, data):
 		lexpr=[]
 		m2 = regex_tranche.search(data) 

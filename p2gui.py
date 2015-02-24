@@ -60,10 +60,16 @@ class client(object):
 
 	def add_cache_var(self,cle,val):
 		self.c.add_cache_var(cle,val)
+
 	# pour anticiper les getsem /corpus/texte $txt
 	def add_cache_fonct(self,cle,val):
 		self.c.add_cache_fonc(cle,val)
 	
+	def creer_msg_search(self,fonc ,element, pelement='',txt=False,ptxt='',ph=False,pph='',val=False):
+		return self.c.creer_msg_search(fonc ,element, pelement,txt,ptxt,ph,pph,val)
+
+	def eval (self, L):
+		return self.c.eval(L)
 
 
 class Principal(QtGui.QMainWindow):
@@ -205,9 +211,11 @@ class Principal(QtGui.QMainWindow):
 		self.status.showMessage(u"Ready")
 
 		#create the progressebar
-		self.PrgBar = QtGui.QProgressBar(self)
+		self.PrgBar = QtGui.QProgressBar(self.status)
 		self.PrgBar.setMaximumSize(199, 19)
 		self.status.addPermanentWidget(self.PrgBar)
+
+		
 
 	
 		# create the toolbar
@@ -618,6 +626,9 @@ class Principal(QtGui.QMainWindow):
 		NOT3 =  QtGui.QWidget()
 		NOT3V = QtGui.QVBoxLayout()
 		NOT3.setLayout(NOT3V)
+		# on prend toute la place
+		NOT3V.setContentsMargins(0,0,0,0) 
+		NOT3V.setSpacing(0) 
 
 		self.Explo_saisie = QtGui.QLineEdit()
 		NOT3V.addWidget(self.Explo_saisie)
@@ -626,19 +637,19 @@ class Principal(QtGui.QMainWindow):
 		NOT3V.addLayout(NOT3VH)
 
 
-		self.Explo_check_prefix = QtGui.QRadioButton("prefix")	
-		self.Explo_check_prefix.setChecked(True)
-		self.Explo_check_suffix = QtGui.QRadioButton("suffix")	
-		self.Explo_check_infix = QtGui.QRadioButton("infix")	
+		Explo_check_prefix = QtGui.QRadioButton("prefix")	
+		Explo_check_prefix.setChecked(True)
+		Explo_check_suffix = QtGui.QRadioButton("suffix")	
+		Explo_check_infix = QtGui.QRadioButton("infix")	
 
-		NOT3VH.addWidget(self.Explo_check_prefix)
-		NOT3VH.addWidget(self.Explo_check_suffix)
-		NOT3VH.addWidget(self.Explo_check_infix)
+		NOT3VH.addWidget(Explo_check_prefix)
+		NOT3VH.addWidget(Explo_check_suffix)
+		NOT3VH.addWidget(Explo_check_infix)
 
 		self.Explo_radioGroup = QtGui.QButtonGroup()
-		self.Explo_radioGroup.addButton(self.Explo_check_prefix)
-		self.Explo_radioGroup.addButton(self.Explo_check_suffix)
-		self.Explo_radioGroup.addButton(self.Explo_check_infix)
+		self.Explo_radioGroup.addButton(Explo_check_prefix,0)
+		self.Explo_radioGroup.addButton(Explo_check_suffix,1)
+		self.Explo_radioGroup.addButton(Explo_check_infix,2)
 
 
 		Explo_spacer1 = QtGui.QLabel()
@@ -659,6 +670,9 @@ class Principal(QtGui.QMainWindow):
 		self.Explo_concepts.setPixmap(tempImage)
 		NOT3VH2.addWidget(self.Explo_concepts)
 
+		# on prend toute la place
+		#NOT3VH2.setContentsMargins(0,0,0,0) 
+		#NOT3VH2.setSpacing(0) 
 		
 
 
@@ -1608,9 +1622,20 @@ class Principal(QtGui.QMainWindow):
 				self.NOT12.setCurrentRow(row)
 
 	def Explorer(self):
+		self.Explo_liste.clear()
 		motif = self.Explo_saisie.text()
 		if (motif != ""):
-			print motif, self.Explo_radioGroup.checkedButton(), self.Explo_radioGroup.checkedId()
+			if (self.Explo_radioGroup.checkedId() == 0):
+				type_search = u"$search.pre"
+			elif (self.Explo_radioGroup.checkedId() == 1):
+				type_search = u"$search.suf"
+			elif (self.Explo_radioGroup.checkedId() == 2):
+				type_search = u"$search.rac"
+
+			ask = self.client.creer_msg_search(type_search,motif,"[0:]")
+			result = self.client.eval( ask )
+			result = re.split(", ", result)
+			self.Explo_liste.addItems(result)
 				
 
 def main():
