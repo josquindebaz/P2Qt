@@ -83,6 +83,8 @@ class Principal(QtGui.QMainWindow):
 				$txtX.date_txt   à partir de date
 				
 		'''
+
+		
 		self.client.recup_texts()
 		listeTextes = self.client.txts
 		indice = 0
