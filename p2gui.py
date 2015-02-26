@@ -425,7 +425,8 @@ class Principal(QtGui.QMainWindow):
 #configurer les parametres de connexion au serveur distant
 		self.Param_Server_val_host = QtGui.QLineEdit()
 		Param_Server_R.addRow("&host",self.Param_Server_val_host)
-		self.Param_Server_val_host.setText('prosperologie.org')#prosperologie.org
+		#self.Param_Server_val_host.setText('prosperologie.org')#prosperologie.org
+		self.Param_Server_val_host.setText('localhost')
 		self.Param_Server_val_port = QtGui.QLineEdit()
 		Param_Server_R.addRow("&port",self.Param_Server_val_port)
 		self.Param_Server_val_port.setText('60000')
@@ -595,6 +596,7 @@ class Principal(QtGui.QMainWindow):
 		self.NOT1Commands2.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
 		NOT1Commands2Menu = QtGui.QMenu(self)
 		NOT1Commands2Menu.addAction('network' , self.show_network)
+		self.liste_text_lists= []	
 		NOT1Commands2Menu.addAction('texts' , self.show_texts)
 		self.NOT1Commands2.setMenu(NOT1Commands2Menu)
 		NOT1VHC.addWidget(self.NOT1Commands2)
@@ -825,20 +827,20 @@ class Principal(QtGui.QMainWindow):
 		item_txt = self.liste_txt_ord[self.CorpusTexts.currentRow()]
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
 		self.onSelectText(self.semantique_txt_item,item_txt)
-		self.activity(u"%s (%s) selected " % (item_txt,self.semantique_txt_item)) 
+		#self.activity(u"%s (%s) selected " % (item_txt,self.semantique_txt_item)) 
 
 	def onSelectTextFromElement(self):
 		"""When a text is selected from the list of texts for a given item"""
 		item_txt = self.l_corp_ord[self.show_texts_corpus.currentRow()]
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
-		self.activity(u"%s (%s) selected" % (item_txt,self.semantique_txt_item)) 
+		#self.activity(u"%s (%s) selected" % (item_txt,self.semantique_txt_item)) 
 		self.onSelectText(u"$txt%d"%self.client.txts.index(item_txt),item_txt)
 
 	def onSelectTextFromAnticorpus(self):
 		"""When a text is selected from the list of anticorpus texts for a given item"""
 		item_txt = self.l_anticorp_ord[self.show_texts_anticorpus.currentRow()]
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
-		self.activity(u"%s (%s) selected" % (item_txt,self.semantique_txt_item)) 
+		#self.activity(u"%s (%s) selected" % (item_txt,self.semantique_txt_item)) 
 		self.onSelectText(u"$txt%d"%self.client.txts.index(item_txt),item_txt)
 
 
@@ -867,10 +869,27 @@ class Principal(QtGui.QMainWindow):
 
 	def onSelectText(self,sem_txt,item_txt):
 		"""Update text properties windows when a text is selected """
-		self.SETabTextDescr.setText(item_txt)
+		self.deselectText()
+		#V =  self.liste_txt_corpus[item_txt]
+		#txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
+		#self.SETabTextDescr.setText(txt_resume)
 		self.show_textProperties( sem_txt)
 		self.show_textCTX(sem_txt) 
 		self.show_textContent( sem_txt)
+
+
+	def deselectText(self):
+		#vide les listes des proprietes saillantes pour eviter confusion
+		self.saillantesAct.clear()
+		self.saillantesCat.clear()
+		self.saillantesCol.clear()
+		self.SETabTextDescr.setText("")
+#TODO effacer CTX, content
+		self.CorpusTexts.clearSelection()
+		if (self.SOT1.count() > 1):
+			for o in self.liste_text_lists:
+				o.clearSelection()
+
 
 	def getvalueFromSem(self,item_txt,type):	
 		sem = self.client.eval_get_sem(item_txt, type )
@@ -1438,10 +1457,8 @@ class Principal(QtGui.QMainWindow):
 #TODO scorer/trier
 		"""Show texts containing a selected item"""
 		
-		#vide les listes des proprietes saillantes pour eviter confusion
-		self.saillantesAct.clear()
-		self.saillantesCat.clear()
-		self.saillantesCol.clear()
+		
+		self.deselectText()
 
 		if  self.NOT12_E.currentItem() :
 			element = self.NOT12_E.currentItem().text() 
@@ -1550,9 +1567,11 @@ class Principal(QtGui.QMainWindow):
 		self.show_texts_corpus = QtGui.QListWidget()
 		self.show_texts_corpus.currentItemChanged.connect(self.onSelectTextFromElement) 
 		HBox_texts.addWidget(self.show_texts_corpus)
+		self.liste_text_lists.append(self.show_texts_corpus)
 		self.show_texts_anticorpus = QtGui.QListWidget()
 		self.show_texts_anticorpus.currentItemChanged.connect(self.onSelectTextFromAnticorpus) 
 		HBox_texts.addWidget(self.show_texts_anticorpus)
+		self.liste_text_lists.append(self.show_texts_anticorpus)
 
 		self.l_corp_ord = []
 		self.l_anticorp_ord = []
@@ -1642,10 +1661,19 @@ class Principal(QtGui.QMainWindow):
 			elif (self.Explo_radioGroup.checkedId() == 2):
 				type_search = u"$search.rac"
 
-			ask = self.client.creer_msg_search(type_search,motif,"[0:]")
+			ask = self.client.creer_msg_search(type_search,motif,"[0:]") #la liste des match
 			result = self.client.eval( ask )
-			result = re.split(", ", result)
-			self.Explo_liste.addItems(result)
+			if (result != u''):
+				liste_result = re.split(", ", result)
+				self.activity("searching for {%s} %d results"%(motif,len(liste_result)))
+				for i in range(len(liste_result)):
+					ask = self.client.creer_msg_search(type_search,motif,"%d"%i,val=True) #la valeur du match
+#TODO comprendre les 0, get_sem, liste textes, énoncés
+					r = self.client.eval( ask )
+					self.Explo_liste.addItem("%s %s"% (r,liste_result[i]))
+			else :
+
+				self.activity("searching for [%s] : 0 result")
 				
 
 def main():
