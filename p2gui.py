@@ -686,7 +686,7 @@ class Principal(QtGui.QMainWindow):
 
 		SubWdwNO.addTab(NOT1,"Lists")
 #		SubWdwNO.addTab(NOT2,"Formulae")
-		SubWdwNO.addTab(NOT3,"Explorer")
+		SubWdwNO.addTab(NOT3,"Search")
 		#SubWdwNO.setCurrentIndex(0) #Focus sur l'onglet listes concepts
 
 ################################################
@@ -1339,7 +1339,8 @@ class Principal(QtGui.QMainWindow):
                                                 i = QtGui.QListWidgetItem()
                                                 i.setText(u"  %s %s"%(self.list_col_valued[result[sub_n]],result[sub_n]))
 #TODO trouver couleur par defaut du alternate
-                                                i.setBackground(QtGui.QColor( 245,245,245))
+                                                #i.setBackground(QtGui.QColor( 245,245,245)) # gris clair
+                                                i.setBackground(QtGui.QColor( 237,243,254)) # cyan
                                                 self.saillantesCol.addItem(i)
                                 
 	def deploie_Cat(self):
@@ -1371,7 +1372,8 @@ class Principal(QtGui.QMainWindow):
                                                 i = QtGui.QListWidgetItem()
                                                 i.setText(u"  %s %s"%(self.list_cat_valued[result[sub_n]][0],result[sub_n]))
 #TODO trouver couleur par defaut du alternate
-                                                i.setBackground(QtGui.QColor( 245,245,245))
+                                                #i.setBackground(QtGui.QColor( 245,245,245))
+                                                i.setBackground(QtGui.QColor( 237,243,254)) # cyan
                                                 self.saillantesCat.addItem(i)
                                         	
                           
@@ -1403,7 +1405,8 @@ class Principal(QtGui.QMainWindow):
                                                 i = QtGui.QListWidgetItem()
                                                 i.setText(u"  %s %s"%(self.liste_act_valued[result[sub_n]][0],result[sub_n]))
 #TODO trouver couleur par defaut du alternate
-                                                i.setBackground(QtGui.QColor( 245,245,245))
+                                                #i.setBackground(QtGui.QColor( 245,245,245))
+                                                i.setBackground(QtGui.QColor( 237,243,254)) # cyan
                                                 self.saillantesAct.addItem(i)
                                         
                                 
@@ -1687,7 +1690,10 @@ class Principal(QtGui.QMainWindow):
 					ask = self.client.creer_msg_search(type_search,motif,"%d"%i,val=True) #la valeur du match
 #TODO comprendre les 0, get_sem, liste textes, énoncés
 					r = self.client.eval( ask )
+					self.PrgBar.setValue(  100 * i / len(liste_result) )	
+					QtGui.QApplication.processEvents()
 					self.Explo_liste.addItem("%s %s"% (r,liste_result[i]))
+				self.PrgBar.reset()
 			else :
 
 				self.activity("searching for [%s] : 0 result")
