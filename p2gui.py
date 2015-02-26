@@ -1220,7 +1220,7 @@ class Principal(QtGui.QMainWindow):
 		"""Show text sailent properties"""
 		#les actants
 		#les actants en tête sont calculés par le serveur
-		self.saillantesAct.clear()
+		#self.saillantesAct.clear()
 		self.saillantesAct_deployes = []
 		list_act_sem = "%s.act[0:]" % sem_txt
 		self.client.eval_var(list_act_sem)
@@ -1245,7 +1245,7 @@ class Principal(QtGui.QMainWindow):
 
 		self.list_cat_valued = {}
 		self.list_cat_txt = {} 
-		self.saillantesCat.clear()
+		#self.saillantesCat.clear()
 		self.saillantesCat_deployes = []
 		#for typ in [u"cat_qua",u"cat_mar",u"cat_epr",u"cat_ent"]:
 		for typ in [u"cat_ent"]: #uniquement les cat_ent
@@ -1258,10 +1258,22 @@ class Principal(QtGui.QMainWindow):
 				for c in list_cat_items:
 					self.list_cat_txt[c] = [typ,r]
 					r += 1
+				cum = 0
+				old_val = 0
+				#old_val2 = 0
 				for i in range(len(list_cat_items)):
 					ask = u"%s.%s%d.val"%(sem_txt,typ,i)
 					self.client.eval_var(ask)
 					val = int(self.client.eval_var_result)
+					if (val < old_val):
+						break
+					cum += val
+					C = float(cum) / (cum + ( (len(list_cat_items) - i ) * val ) )
+					#C2 = float(i) / len(list_cat_items) * val
+					#if (C2 > 0.50 and old_val2 == 0) :
+					#	old_val2 = val	
+					if (C > 0.25 and old_val == 0) :
+						old_val = val	
 					self.list_cat_valued[list_cat_items[i]] = val
 					self.PrgBar.setValue ( 33 + ( i * 34 / len(list_cat_items) ) )
 					QtGui.QApplication.processEvents()
@@ -1270,12 +1282,17 @@ class Principal(QtGui.QMainWindow):
 		for cat in sorted( self.list_cat_valued.items(), key = lambda(k,v) : v,reverse=1):
 			self.list_cat_valued_ord.append(cat[0])
 			resume = u"%d %s" % (int(cat[1]), cat[0])
+			#if int(cat[1]) < old_val:
+			#	resume = "D" + resume
+			#if int(cat[1]) < old_val2:
+			#	resume = "E" + resume
 			self.saillantesCat.addItem(resume)
 			
 
 		# les collections
 		# on met toutes les collections parce que leur émergence est donnée par leur déploiement
-		self.saillantesCol.clear()
+#TODO ordonner
+		#self.saillantesCol.clear()
 		self.saillantesCol_deployees = []
 		list_col_sem = "%s.col[0:]" % sem_txt
 		self.client.eval_var(list_col_sem)
