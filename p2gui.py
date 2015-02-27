@@ -16,7 +16,6 @@ import subprocess, threading
 from PySide.QtGui import QMdiArea
 
 
-
 class client(object):
 	def __init__(self,h = 'prosperologie.org',p = '60000'):
 		self.c = interface_prospero.ConnecteurPII() 
@@ -76,6 +75,7 @@ class Principal(QtGui.QMainWindow):
 	def __init__(self):
 		super(Principal, self).__init__()
 		self.initUI()
+		
 
 		
 		
@@ -90,12 +90,14 @@ class Principal(QtGui.QMainWindow):
 				
 		'''
 
-		
+
 		self.client.recup_texts()
 		listeTextes = self.client.txts
 		indice = 0
 		
+
 		self.activity("pre-computing : texts")
+
 		
 		nbre_txt = len (listeTextes)
 		# mise en cache  valeur - semtxt
@@ -108,12 +110,12 @@ class Principal(QtGui.QMainWindow):
 			self.client.add_cache_fonct(cle, sem )
 			indice +=1
 			self.PrgBar.setValue(  indice   * 50 / nbre_txt )	
+			QtGui.QApplication.processEvents()
 		
 			
 		# récupération des champs ctx
 		self.client.eval_var("$ctx")
 		string_ctx = self.client.eval_var_result 
-		
 		
 		
 		
@@ -183,6 +185,7 @@ class Principal(QtGui.QMainWindow):
 				
 				prgbar_val += 3
 				self.PrgBar.setValue(  prgbar_val )
+				QtGui.QApplication.processEvents()
 			prgbar_val -= 2
 
 		self.PrgBar.reset()
@@ -213,7 +216,7 @@ class Principal(QtGui.QMainWindow):
 		self.status.showMessage(u"Ready")
 
 		#create the progressebar
-		self.PrgBar = QtGui.QProgressBar(self.status)
+		self.PrgBar = QtGui.QProgressBar()
 		self.PrgBar.setMaximumSize(199, 19)
 		self.status.addPermanentWidget(self.PrgBar)
 
@@ -805,6 +808,7 @@ class Principal(QtGui.QMainWindow):
 			self.liste_txt_corpus[self.client.txts[T]] = [date, auteur, titre]
 
 			self.PrgBar.setValue(T * 100 / len(self.client.txts) ) 
+			QtGui.QApplication.processEvents()
 
 		#ordonne chrono par defaut
 		self.liste_txt_ord = []
@@ -950,6 +954,7 @@ class Principal(QtGui.QMainWindow):
 			liste_valued.append([val,content[row]])
 	
 			self.PrgBar.setValue(row * 100 / len(content))
+			QtGui.QApplication.processEvents()
 
 
 
@@ -1210,6 +1215,7 @@ class Principal(QtGui.QMainWindow):
 				self.liste_act_valued [self.list_act[i]] = [ val, 0 ] 
 				self.saillantesAct.addItem(u"%d %s" % (val, self.list_act[i]))
 				self.PrgBar.setValue ( i * 33 / len(self.list_act) )
+				QtGui.QApplication.processEvents()
 			
 
 		#les catégories
@@ -1239,6 +1245,7 @@ class Principal(QtGui.QMainWindow):
 					val = int(self.client.eval_var_result)
 					self.list_cat_valued[list_cat_items[i]] = val
 					self.PrgBar.setValue ( 33 + ( i * 34 / len(list_cat_items) ) )
+					QtGui.QApplication.processEvents()
 
 		self.list_cat_valued_ord = []
 		for cat in sorted( self.list_cat_valued.items(), key = lambda(k,v) : v,reverse=1):
@@ -1263,6 +1270,7 @@ class Principal(QtGui.QMainWindow):
 				self.saillantesCol.addItem(u"%d %s" % (val, self.list_col[i]))
 				self.list_col_valued[self.list_col[i]] = val
 				self.PrgBar.setValue ( 66 + ( i * 34 / len(self.list_col) ) )
+				QtGui.QApplication.processEvents()
 
 		self.PrgBar.reset()
 
