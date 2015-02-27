@@ -425,8 +425,8 @@ class Principal(QtGui.QMainWindow):
 #configurer les parametres de connexion au serveur distant
 		self.Param_Server_val_host = QtGui.QLineEdit()
 		Param_Server_R.addRow("&host",self.Param_Server_val_host)
-		#self.Param_Server_val_host.setText('prosperologie.org')#prosperologie.org
-		self.Param_Server_val_host.setText('localhost')
+		self.Param_Server_val_host.setText('prosperologie.org')#prosperologie.org
+		#self.Param_Server_val_host.setText('localhost')
 		self.Param_Server_val_port = QtGui.QLineEdit()
 		Param_Server_R.addRow("&port",self.Param_Server_val_port)
 		self.Param_Server_val_port.setText('60000')
@@ -558,12 +558,13 @@ class Principal(QtGui.QMainWindow):
 
 	#le champ de recherche
 		self.list_research = QtGui.QLineEdit()
-		self.list_research_button = QtGui.QPushButton()
-		self.list_research_button.setIcon(QtGui.QIcon("loupe.png"))
-		self.list_research_button.clicked.connect(self.list_concept_search)
+		self.list_research.returnPressed.connect(self.list_concept_search)
+		#self.list_research_button = QtGui.QPushButton()
+		#self.list_research_button.setIcon(QtGui.QIcon("loupe.png"))
+		#self.list_research_button.clicked.connect(self.list_concept_search)
 		NOT1VHC.addWidget(self.list_research)
-		NOT1VHC.addWidget(self.list_research_button)
-		self.list_research_button.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
+		#NOT1VHC.addWidget(self.list_research_button)
+		#self.list_research_button.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
 		
 
 
@@ -1173,7 +1174,7 @@ class Principal(QtGui.QMainWindow):
 			self.select_liste(self.NOT1select.currentText())
 
 			self.NOT1Commands1.setEnabled(True) 
-			self.list_research_button.setEnabled(True) 
+			#self.list_research_button.setEnabled(True) 
 			self.NOT1select.setEnabled(True) 
 
 			# affiche textes au demarrage
