@@ -19,6 +19,7 @@ from PySide.QtGui import QMdiArea
 class client(object):
 	def __init__(self,h = 'prosperologie.org',p = '60000'):
 		self.c = interface_prospero.ConnecteurPII() 
+		#self.c.start()
 		self.c.set(h,p)
 		self.teste_connect()
 		self.liste_champs_ctx =[]	# init by pre_calcule()
@@ -46,6 +47,8 @@ class client(object):
 
 
 	def eval_var(self,var):
+		#self.c.put_to_eval(var)
+		
 		self.eval_var_result = self.c.eval_variable(var)
 		
 	def eval_var_ctx(self,props,ctx_range):
@@ -89,7 +92,7 @@ class Principal(QtGui.QMainWindow):
 				$txtX.date_txt   à partir de date
 				
 		'''
-
+		
 
 		self.client.recup_texts()
 		listeTextes = self.client.txts
@@ -114,6 +117,7 @@ class Principal(QtGui.QMainWindow):
 		
 			
 		# récupération des champs ctx
+		#self.client.c.put_to_eval("$ctx")
 		self.client.eval_var("$ctx")
 		string_ctx = self.client.eval_var_result 
 		
@@ -425,10 +429,10 @@ class Principal(QtGui.QMainWindow):
 #configurer les parametres de connexion au serveur distant
 		self.Param_Server_val_host = QtGui.QLineEdit()
 		Param_Server_R.addRow("&host",self.Param_Server_val_host)
-		self.Param_Server_val_host.setText('prosperologie.org')#prosperologie.org
+		self.Param_Server_val_host.setText('192.168.1.63')#prosperologie.org
 		self.Param_Server_val_port = QtGui.QLineEdit()
 		Param_Server_R.addRow("&port",self.Param_Server_val_port)
-		self.Param_Server_val_port.setText('60000')
+		self.Param_Server_val_port.setText('4000')
 		self.Param_Server_B = QtGui.QPushButton('Connect to server')
 		self.Param_Server_B.setStyleSheet(" background-color : green; color : white; ") # bouton vert pour attirer le regard
 		self.Param_Server_B.clicked.connect(self.connect_server)
