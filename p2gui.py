@@ -194,16 +194,12 @@ class Principal(QtGui.QMainWindow):
 
 		self.PrgBar.reset()
 
-			
-			
-		'''
-		v = c.eval_vect_values("$ent", "nbaut")
-		v = c.eval_vect_values("$ent", "nbtxt")
-		v = c.eval_vect_values("$ent", "lapp")
-		v = c.eval_vect_values("$ent", "fapp")
-		v = c.eval_vect_values("$ent", "dep")
-		v = c.eval_vect_values("$ent", "freq")
-		'''
+
+
+
+
+		
+
 	
 	def initUI(self):
 
@@ -429,7 +425,10 @@ class Principal(QtGui.QMainWindow):
 #configurer les parametres de connexion au serveur distant
 		self.Param_Server_val_host = QtGui.QLineEdit()
 		Param_Server_R.addRow("&host",self.Param_Server_val_host)
-		self.Param_Server_val_host.setText('192.168.1.63')#prosperologie.org
+
+		self.Param_Server_val_host.setText('prosperologie.org')#prosperologie.org
+		#self.Param_Server_val_host.setText('localhost')
+
 		self.Param_Server_val_port = QtGui.QLineEdit()
 		Param_Server_R.addRow("&port",self.Param_Server_val_port)
 		self.Param_Server_val_port.setText('4000')
@@ -561,12 +560,13 @@ class Principal(QtGui.QMainWindow):
 
 	#le champ de recherche
 		self.list_research = QtGui.QLineEdit()
-		self.list_research_button = QtGui.QPushButton()
-		self.list_research_button.setIcon(QtGui.QIcon("loupe.png"))
-		self.list_research_button.clicked.connect(self.list_concept_search)
+		self.list_research.returnPressed.connect(self.list_concept_search)
+		#self.list_research_button = QtGui.QPushButton()
+		#self.list_research_button.setIcon(QtGui.QIcon("loupe.png"))
+		#self.list_research_button.clicked.connect(self.list_concept_search)
 		NOT1VHC.addWidget(self.list_research)
-		NOT1VHC.addWidget(self.list_research_button)
-		self.list_research_button.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
+		#NOT1VHC.addWidget(self.list_research_button)
+		#self.list_research_button.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
 		
 
 
@@ -586,7 +586,7 @@ class Principal(QtGui.QMainWindow):
 		#NOT1Commands1Menu.addMenu(submenu_sort)
 		self.menu_occurences = self.NOT1Commands1Menu.addAction('occurences',self.affiche_liste_scores_oc)
 		self.menu_deployement = self.NOT1Commands1Menu.addAction('deployement',self.affiche_liste_scores_dep)
-		self.menu_alphabetical = self.NOT1Commands1Menu.addAction('alphabetical',self.affiche_liste_scores_alpha)
+		self.menu_alphabetical = self.NOT1Commands1Menu.addAction('alphabetically',self.affiche_liste_scores_alpha)
 #TODO ajouter pondere, nb textes, nb auteurs, nb jours presents, relatif nb jours, nb representants, nb elements reseau
 		#NOT1Commands1Menu.addAction('&sort')
 		#NOT1Commands1Menu.addAction('&filter')
@@ -599,6 +599,7 @@ class Principal(QtGui.QMainWindow):
 		self.NOT1Commands2.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
 		NOT1Commands2Menu = QtGui.QMenu(self)
 		NOT1Commands2Menu.addAction('network' , self.show_network)
+		self.liste_text_lists= []	
 		NOT1Commands2Menu.addAction('texts' , self.show_texts)
 		self.NOT1Commands2.setMenu(NOT1Commands2Menu)
 		NOT1VHC.addWidget(self.NOT1Commands2)
@@ -624,11 +625,6 @@ class Principal(QtGui.QMainWindow):
 #TODO desactiver si presence nulle
 		self.NOT12_E.doubleClicked.connect(self.teste_wording)
 
-################################################
-
-		#NOT2 =  QtGui.QLabel()
-#		FrmlImage = QtGui.QPixmap("formul.png")
-#		NOT2.setPixmap(FrmlImage)
 
 ################################################
 #Explorer
@@ -662,7 +658,7 @@ class Principal(QtGui.QMainWindow):
 
 
 		Explo_spacer1 = QtGui.QLabel()
-		Explo_spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+		Explo_spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
 		NOT3VH.addWidget(Explo_spacer1)
 
 		self.Explo_action = QtGui.QPushButton("search")
@@ -684,11 +680,49 @@ class Principal(QtGui.QMainWindow):
 		#NOT3VH2.setSpacing(0) 
 		
 
+################################################
+#Acces par CTX
+		NOT5 = QtGui.QWidget()
+
+
+	#une box verticale
+		NOT5V = QtGui.QVBoxLayout()
+		NOT5.setLayout(NOT5V)
+		# on prend toute la place
+		NOT5V.setContentsMargins(0,0,0,0) 
+		NOT5V.setSpacing(0) 
+
+	#une ligne horizontale qui contient les commandes au dessus-de la liste 
+		NOT5VHC = QtGui.QHBoxLayout()
+		NOT5V.addLayout(NOT5VHC)
+
+		spacer_CTX_1 = QtGui.QLabel()
+		spacer_CTX_1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum )
+		NOT5VHC.addWidget(spacer_CTX_1)
+	
+		self.NOT5Commands1 = QtGui.QPushButton()
+		self.NOT5Commands1.setIcon(QtGui.QIcon("gear.png"))
+		self.NOT5Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
+		NOT5VHC.addWidget(self.NOT5Commands1)
+
+
+
+	#une box horizontale pour liste et deploiement
+		NOT5VH = QtGui.QHBoxLayout()
+		NOT5V.addLayout(NOT5VH) 
+		self.NOT5_list = QtGui.QListWidget()
+		self.NOT5_list.setAlternatingRowColors(True)
+		#self.NOT5_list.currentItemChanged.connect() 
+		NOT5VH.addWidget(self.NOT5_list)
+		self.NOT5_cont = QtGui.QListWidget()
+		NOT5VH.addWidget(self.NOT5_cont)
+#		self.NOT5_cont.currentItemChanged.connect() 
 
 
 		SubWdwNO.addTab(NOT1,"Lists")
-#		SubWdwNO.addTab(NOT2,"Formulae")
-		SubWdwNO.addTab(NOT3,"Explorer")
+		SubWdwNO.addTab(NOT3,"Search")
+		SubWdwNO.addTab(NOT5,"Contexts")
+
 		#SubWdwNO.setCurrentIndex(0) #Focus sur l'onglet listes concepts
 
 ################################################
@@ -829,20 +863,20 @@ class Principal(QtGui.QMainWindow):
 		item_txt = self.liste_txt_ord[self.CorpusTexts.currentRow()]
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
 		self.onSelectText(self.semantique_txt_item,item_txt)
-		self.activity(u"%s (%s) selected " % (item_txt,self.semantique_txt_item)) 
+		#self.activity(u"%s (%s) selected " % (item_txt,self.semantique_txt_item)) 
 
 	def onSelectTextFromElement(self):
 		"""When a text is selected from the list of texts for a given item"""
 		item_txt = self.l_corp_ord[self.show_texts_corpus.currentRow()]
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
-		self.activity(u"%s (%s) selected" % (item_txt,self.semantique_txt_item)) 
+		#self.activity(u"%s (%s) selected" % (item_txt,self.semantique_txt_item)) 
 		self.onSelectText(u"$txt%d"%self.client.txts.index(item_txt),item_txt)
 
 	def onSelectTextFromAnticorpus(self):
 		"""When a text is selected from the list of anticorpus texts for a given item"""
 		item_txt = self.l_anticorp_ord[self.show_texts_anticorpus.currentRow()]
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
-		self.activity(u"%s (%s) selected" % (item_txt,self.semantique_txt_item)) 
+		#self.activity(u"%s (%s) selected" % (item_txt,self.semantique_txt_item)) 
 		self.onSelectText(u"$txt%d"%self.client.txts.index(item_txt),item_txt)
 
 
@@ -871,10 +905,27 @@ class Principal(QtGui.QMainWindow):
 
 	def onSelectText(self,sem_txt,item_txt):
 		"""Update text properties windows when a text is selected """
-		self.SETabTextDescr.setText(item_txt)
+		self.deselectText()
+		#V =  self.liste_txt_corpus[item_txt]
+		#txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
+		#self.SETabTextDescr.setText(txt_resume)
 		self.show_textProperties( sem_txt)
 		self.show_textCTX(sem_txt) 
 		self.show_textContent( sem_txt)
+
+
+	def deselectText(self):
+		#vide les listes des proprietes saillantes pour eviter confusion
+		self.saillantesAct.clear()
+		self.saillantesCat.clear()
+		self.saillantesCol.clear()
+		self.SETabTextDescr.setText("")
+#TODO effacer CTX, content
+		self.CorpusTexts.clearSelection()
+		if (self.SOT1.count() > 1):
+			for o in self.liste_text_lists:
+				o.clearSelection()
+
 
 	def getvalueFromSem(self,item_txt,type):	
 		sem = self.client.eval_get_sem(item_txt, type )
@@ -917,7 +968,7 @@ class Principal(QtGui.QMainWindow):
 			
 
 	def affiche_liste_scores_alpha(self):
-		self.which = "alphabetical"
+		self.which = "alphabetically"
 		self.choose_score_tick()
 		self.affiche_liste_scores()
 
@@ -938,7 +989,7 @@ class Principal(QtGui.QMainWindow):
 		self.activity(u"Displaying %s list (%d items) ordered by %s" % (typ,len(content), self.which))
 		liste_valued =[]
 		for row  in range(len(content)):
-			if (self.which == "occurences" or self.which == "alphabetical"):
+			if (self.which == "occurences" or self.which == "alphabetically"):
 				order = "val"
 				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
 			elif (self.which == "deployement"):
@@ -965,7 +1016,7 @@ class Principal(QtGui.QMainWindow):
 
 		liste_final =[]
 		self.content_liste_concept = []
-		if (self.which == "alphabetical" ):
+		if (self.which == "alphabetically" ):
 			for i in sorted(liste_valued,key=lambda x : x[1],reverse = 0):
 				item_resume = u"%s %s" % (i[0], i[1])
 				liste_final.append(item_resume) 
@@ -1008,14 +1059,14 @@ class Principal(QtGui.QMainWindow):
 							self.client.eval_var(ask)
 							val = int(self.client.eval_var_result)
 							liste_scoree.append( [ result[r] , val ])
-						if (self.which == "alphabetical"):
+						if (self.which == "alphabetically"):
 							liste_scoree.sort()
 						self.NOT12_E.addItems(map(lambda x : "%d %s"% (x[1], x[0]),liste_scoree))   
 
 					else:
 						self.liste_D_unsorted = []
 						for r in range(len(result)):
-							if (self.which  == "occurences" or self.which == "alphabetical"):
+							if (self.which  == "occurences" or self.which == "alphabetically"):
 								ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
 							elif (self.which  == "deployement" ):
 								ask = "%s.rep%d.dep"% (self.semantique_liste_item,r)
@@ -1029,7 +1080,7 @@ class Principal(QtGui.QMainWindow):
 							self.liste_D_unsorted.append(to_add)
 							
 					if (sem not in ["$cat_ent"]):
-						if (self.which == "alphabetical"):
+						if (self.which == "alphabetically"):
 							liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : re.split(" ",x)[1],reverse =  0)
 						else :
 							liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : int(re.split(" ",x)[0]),reverse =  1)
@@ -1062,13 +1113,15 @@ class Principal(QtGui.QMainWindow):
 			result = self.client.eval_var_result
 			if (result != "") :
 				result = re.split(", ", result)
-				if (self.which == "alphabetical"):
+				if (self.which == "alphabetically"):
 					liste_scoree = []
 					for r in range(len(result)):
 						ask = "%s.rep%d.rep%d.val"% (self.semantique_liste_item,row,r)
 						self.client.eval_var(ask)
 						val = int(self.client.eval_var_result)
 						liste_scoree.append([result[r],val])
+						self.PrgBar.setValue(  r * 100 /len(result) )
+						QtGui.QApplication.processEvents()
 					self.NOT12_E.addItems(map(lambda x : "%d %s"% (x[1], x[0]),sorted(liste_scoree)))
 				else :
 					for r in range(len(result)):
@@ -1080,6 +1133,9 @@ class Principal(QtGui.QMainWindow):
 							self.NOT12_E.addItems( map(lambda x : "0 %s" %x ,result[r:]) )
 							break
 						self.NOT12_E.addItem("%d %s"%(val, result[r] )) 
+						self.PrgBar.setValue(  r * 100 /len(result) )
+						QtGui.QApplication.processEvents()
+				self.PrgBar.reset()
 
 	def liste_E_item_changed(self):
 		itemT = self.NOT12_E.currentItem()
@@ -1158,11 +1214,15 @@ class Principal(QtGui.QMainWindow):
 			self.select_liste(self.NOT1select.currentText())
 
 			self.NOT1Commands1.setEnabled(True) 
-			self.list_research_button.setEnabled(True) 
+			#self.list_research_button.setEnabled(True) 
 			self.NOT1select.setEnabled(True) 
 
 			# affiche textes au demarrage
 			self.recup_liste_textes()
+
+
+			#Contexts
+			self.recup_ctx()
 
 			self.Param_Server_B.clicked.connect(self.disconnect_server)
 			self.Param_Server_B.setText("Disconnect")
@@ -1205,7 +1265,7 @@ class Principal(QtGui.QMainWindow):
 		"""Show text sailent properties"""
 		#les actants
 		#les actants en tête sont calculés par le serveur
-		self.saillantesAct.clear()
+		#self.saillantesAct.clear()
 		self.saillantesAct_deployes = []
 		list_act_sem = "%s.act[0:]" % sem_txt
 		self.client.eval_var(list_act_sem)
@@ -1230,7 +1290,7 @@ class Principal(QtGui.QMainWindow):
 
 		self.list_cat_valued = {}
 		self.list_cat_txt = {} 
-		self.saillantesCat.clear()
+		#self.saillantesCat.clear()
 		self.saillantesCat_deployes = []
 		#for typ in [u"cat_qua",u"cat_mar",u"cat_epr",u"cat_ent"]:
 		for typ in [u"cat_ent"]: #uniquement les cat_ent
@@ -1243,10 +1303,22 @@ class Principal(QtGui.QMainWindow):
 				for c in list_cat_items:
 					self.list_cat_txt[c] = [typ,r]
 					r += 1
+				cum = 0
+				old_val = 0
+				#old_val2 = 0
 				for i in range(len(list_cat_items)):
 					ask = u"%s.%s%d.val"%(sem_txt,typ,i)
 					self.client.eval_var(ask)
 					val = int(self.client.eval_var_result)
+					if (val < old_val):
+						break
+					cum += val
+					C = float(cum) / (cum + ( (len(list_cat_items) - i ) * val ) )
+					#C2 = float(i) / len(list_cat_items) * val
+					#if (C2 > 0.50 and old_val2 == 0) :
+					#	old_val2 = val	
+					if (C > 0.25 and old_val == 0) :
+						old_val = val	
 					self.list_cat_valued[list_cat_items[i]] = val
 					self.PrgBar.setValue ( 33 + ( i * 34 / len(list_cat_items) ) )
 					QtGui.QApplication.processEvents()
@@ -1255,12 +1327,17 @@ class Principal(QtGui.QMainWindow):
 		for cat in sorted( self.list_cat_valued.items(), key = lambda(k,v) : v,reverse=1):
 			self.list_cat_valued_ord.append(cat[0])
 			resume = u"%d %s" % (int(cat[1]), cat[0])
+			#if int(cat[1]) < old_val:
+			#	resume = "D" + resume
+			#if int(cat[1]) < old_val2:
+			#	resume = "E" + resume
 			self.saillantesCat.addItem(resume)
 			
 
 		# les collections
 		# on met toutes les collections parce que leur émergence est donnée par leur déploiement
-		self.saillantesCol.clear()
+#TODO ordonner
+		#self.saillantesCol.clear()
 		self.saillantesCol_deployees = []
 		list_col_sem = "%s.col[0:]" % sem_txt
 		self.client.eval_var(list_col_sem)
@@ -1307,7 +1384,8 @@ class Principal(QtGui.QMainWindow):
                                                 i = QtGui.QListWidgetItem()
                                                 i.setText(u"  %s %s"%(self.list_col_valued[result[sub_n]],result[sub_n]))
 #TODO trouver couleur par defaut du alternate
-                                                i.setBackground(QtGui.QColor( 245,245,245))
+                                                #i.setBackground(QtGui.QColor( 245,245,245)) # gris clair
+                                                i.setBackground(QtGui.QColor( 237,243,254)) # cyan
                                                 self.saillantesCol.addItem(i)
                                 
 	def deploie_Cat(self):
@@ -1339,7 +1417,8 @@ class Principal(QtGui.QMainWindow):
                                                 i = QtGui.QListWidgetItem()
                                                 i.setText(u"  %s %s"%(self.list_cat_valued[result[sub_n]][0],result[sub_n]))
 #TODO trouver couleur par defaut du alternate
-                                                i.setBackground(QtGui.QColor( 245,245,245))
+                                                #i.setBackground(QtGui.QColor( 245,245,245))
+                                                i.setBackground(QtGui.QColor( 237,243,254)) # cyan
                                                 self.saillantesCat.addItem(i)
                                         	
                           
@@ -1371,7 +1450,8 @@ class Principal(QtGui.QMainWindow):
                                                 i = QtGui.QListWidgetItem()
                                                 i.setText(u"  %s %s"%(self.liste_act_valued[result[sub_n]][0],result[sub_n]))
 #TODO trouver couleur par defaut du alternate
-                                                i.setBackground(QtGui.QColor( 245,245,245))
+                                                #i.setBackground(QtGui.QColor( 245,245,245))
+                                                i.setBackground(QtGui.QColor( 237,243,254)) # cyan
                                                 self.saillantesAct.addItem(i)
                                         
                                 
@@ -1442,10 +1522,8 @@ class Principal(QtGui.QMainWindow):
 #TODO scorer/trier
 		"""Show texts containing a selected item"""
 		
-		#vide les listes des proprietes saillantes pour eviter confusion
-		self.saillantesAct.clear()
-		self.saillantesCat.clear()
-		self.saillantesCol.clear()
+		
+		self.deselectText()
 
 		if  self.NOT12_E.currentItem() :
 			element = self.NOT12_E.currentItem().text() 
@@ -1554,9 +1632,11 @@ class Principal(QtGui.QMainWindow):
 		self.show_texts_corpus = QtGui.QListWidget()
 		self.show_texts_corpus.currentItemChanged.connect(self.onSelectTextFromElement) 
 		HBox_texts.addWidget(self.show_texts_corpus)
+		self.liste_text_lists.append(self.show_texts_corpus)
 		self.show_texts_anticorpus = QtGui.QListWidget()
 		self.show_texts_anticorpus.currentItemChanged.connect(self.onSelectTextFromAnticorpus) 
 		HBox_texts.addWidget(self.show_texts_anticorpus)
+		self.liste_text_lists.append(self.show_texts_anticorpus)
 
 		self.l_corp_ord = []
 		self.l_anticorp_ord = []
@@ -1646,10 +1726,32 @@ class Principal(QtGui.QMainWindow):
 			elif (self.Explo_radioGroup.checkedId() == 2):
 				type_search = u"$search.rac"
 
-			ask = self.client.creer_msg_search(type_search,motif,"[0:]")
+			ask = self.client.creer_msg_search(type_search,motif,"[0:]") #la liste des match
 			result = self.client.eval( ask )
-			result = re.split(", ", result)
-			self.Explo_liste.addItems(result)
+			if (result != u''):
+				liste_result = re.split(", ", result)
+				self.activity("searching for {%s} %d results"%(motif,len(liste_result)))
+				for i in range(len(liste_result)):
+					ask = self.client.creer_msg_search(type_search,motif,"%d"%i,val=True) #la valeur du match
+#TODO comprendre les 0, get_sem, liste textes, énoncés
+					r = self.client.eval( ask )
+					self.PrgBar.setValue(  100 * i / len(liste_result) )	
+					QtGui.QApplication.processEvents()
+					self.Explo_liste.addItem("%s %s"% (r,liste_result[i]))
+				self.PrgBar.reset()
+			else :
+
+				self.activity("searching for [%s] : 0 result")
+				result = re.split(", ", self.client.eval_var_result)
+
+
+	def recup_ctx(self):
+		self.NOT5_list.clear()
+		self.activity("evaluating context list")
+		self.client.eval_var(u"$ctx[0:]")
+		result = re.split(", ", self.client.eval_var_result)
+		self.NOT5_list.addItems(result)
+		
 				
 
 def main():

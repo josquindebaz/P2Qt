@@ -87,10 +87,27 @@ class ConnecteurPII (threading.Thread):
 		self.m_cache_index = {}
 		self.m_cache_var ={}
 		self.m_threadlock = threading.RLock() # verrou reentrant
+		self.data_to_eval=None
 	def set(self, ip, port):
 		self.host = ip
 		self.port = port 
-
+	def run (self):
+		if verbose : print "thread running"
+		if not self.connexion : 
+			if not self.connect():
+				return ""			
+		while 1:
+			
+			if self.data_to_eval :
+				#if verbose : print "evalue " + self.data_to_eval
+				ev= self.eval_variable(self.data_to_eval)	# bloquant
+				#if verbose : print "valeur =  ",ev
+				self.data_to_eval=None
+				
+				
+	def put_to_eval(self,data):			
+		self.data_to_eval=data		
+				
 	def connect(self):
 		self.connexion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.connexion.setblocking(1)
@@ -196,6 +213,7 @@ class ConnecteurPII (threading.Thread):
 			type_value= freq
 			renvoit le vecteur des frequence des entités
 		'''
+		print sem_type,"     ",type_value
 		self.m_threadlock.acquire()
 		
 		cle = sem_type + type_value
@@ -404,10 +422,11 @@ class ConnecteurPII (threading.Thread):
 		try:
 			taille = self.connexion.recv(10)
 			taille_mess = int(taille)
-
+			print "---taille data à recevoir : " ,taille_mess
 			#data = self.connexion.recv(taille_mess)
 			data = self.connexion.makefile().read(taille_mess)
-
+			print "---taille data reçue :  " ,len(data)
+			print data
 		except :
 			print "get_value() echec connexion  ressaye"
 			if not self.connect(): # on ressaye
@@ -438,7 +457,7 @@ class ConnecteurPII (threading.Thread):
 		""" 
 			
 		"""
-
+		
 		self.m_threadlock.acquire()
 
 		if var in self.m_cache_var.keys():
@@ -456,6 +475,7 @@ class ConnecteurPII (threading.Thread):
 			return ''
 		for exp in lmess :
 			self.send_expression(exp)
+			
 		ev = self.get_value(var)
 		
 		if not is_random_var(var):
@@ -466,12 +486,6 @@ class ConnecteurPII (threading.Thread):
 		return ev
 	
 
-	def run(self):
-		"""
-
-		
-		"""
-		pass
 	
 
 
