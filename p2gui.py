@@ -190,16 +190,12 @@ class Principal(QtGui.QMainWindow):
 
 		self.PrgBar.reset()
 
-			
-			
-		'''
-		v = c.eval_vect_values("$ent", "nbaut")
-		v = c.eval_vect_values("$ent", "nbtxt")
-		v = c.eval_vect_values("$ent", "lapp")
-		v = c.eval_vect_values("$ent", "fapp")
-		v = c.eval_vect_values("$ent", "dep")
-		v = c.eval_vect_values("$ent", "freq")
-		'''
+
+
+
+
+		
+
 	
 	def initUI(self):
 
@@ -584,7 +580,7 @@ class Principal(QtGui.QMainWindow):
 		#NOT1Commands1Menu.addMenu(submenu_sort)
 		self.menu_occurences = self.NOT1Commands1Menu.addAction('occurences',self.affiche_liste_scores_oc)
 		self.menu_deployement = self.NOT1Commands1Menu.addAction('deployement',self.affiche_liste_scores_dep)
-		self.menu_alphabetical = self.NOT1Commands1Menu.addAction('alphabetical',self.affiche_liste_scores_alpha)
+		self.menu_alphabetical = self.NOT1Commands1Menu.addAction('alphabetically',self.affiche_liste_scores_alpha)
 #TODO ajouter pondere, nb textes, nb auteurs, nb jours presents, relatif nb jours, nb representants, nb elements reseau
 		#NOT1Commands1Menu.addAction('&sort')
 		#NOT1Commands1Menu.addAction('&filter')
@@ -623,11 +619,6 @@ class Principal(QtGui.QMainWindow):
 #TODO desactiver si presence nulle
 		self.NOT12_E.doubleClicked.connect(self.teste_wording)
 
-################################################
-
-		#NOT2 =  QtGui.QLabel()
-#		FrmlImage = QtGui.QPixmap("formul.png")
-#		NOT2.setPixmap(FrmlImage)
 
 ################################################
 #Explorer
@@ -661,7 +652,7 @@ class Principal(QtGui.QMainWindow):
 
 
 		Explo_spacer1 = QtGui.QLabel()
-		Explo_spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+		Explo_spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
 		NOT3VH.addWidget(Explo_spacer1)
 
 		self.Explo_action = QtGui.QPushButton("search")
@@ -683,11 +674,49 @@ class Principal(QtGui.QMainWindow):
 		#NOT3VH2.setSpacing(0) 
 		
 
+################################################
+#Acces par CTX
+		NOT5 = QtGui.QWidget()
+
+
+	#une box verticale
+		NOT5V = QtGui.QVBoxLayout()
+		NOT5.setLayout(NOT5V)
+		# on prend toute la place
+		NOT5V.setContentsMargins(0,0,0,0) 
+		NOT5V.setSpacing(0) 
+
+	#une ligne horizontale qui contient les commandes au dessus-de la liste 
+		NOT5VHC = QtGui.QHBoxLayout()
+		NOT5V.addLayout(NOT5VHC)
+
+		spacer_CTX_1 = QtGui.QLabel()
+		spacer_CTX_1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum )
+		NOT5VHC.addWidget(spacer_CTX_1)
+	
+		self.NOT5Commands1 = QtGui.QPushButton()
+		self.NOT5Commands1.setIcon(QtGui.QIcon("gear.png"))
+		self.NOT5Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
+		NOT5VHC.addWidget(self.NOT5Commands1)
+
+
+
+	#une box horizontale pour liste et deploiement
+		NOT5VH = QtGui.QHBoxLayout()
+		NOT5V.addLayout(NOT5VH) 
+		self.NOT5_list = QtGui.QListWidget()
+		self.NOT5_list.setAlternatingRowColors(True)
+		#self.NOT5_list.currentItemChanged.connect() 
+		NOT5VH.addWidget(self.NOT5_list)
+		self.NOT5_cont = QtGui.QListWidget()
+		NOT5VH.addWidget(self.NOT5_cont)
+#		self.NOT5_cont.currentItemChanged.connect() 
 
 
 		SubWdwNO.addTab(NOT1,"Lists")
-#		SubWdwNO.addTab(NOT2,"Formulae")
 		SubWdwNO.addTab(NOT3,"Search")
+		SubWdwNO.addTab(NOT5,"Contexts")
+
 		#SubWdwNO.setCurrentIndex(0) #Focus sur l'onglet listes concepts
 
 ################################################
@@ -933,7 +962,7 @@ class Principal(QtGui.QMainWindow):
 			
 
 	def affiche_liste_scores_alpha(self):
-		self.which = "alphabetical"
+		self.which = "alphabetically"
 		self.choose_score_tick()
 		self.affiche_liste_scores()
 
@@ -954,7 +983,7 @@ class Principal(QtGui.QMainWindow):
 		self.activity(u"Displaying %s list (%d items) ordered by %s" % (typ,len(content), self.which))
 		liste_valued =[]
 		for row  in range(len(content)):
-			if (self.which == "occurences" or self.which == "alphabetical"):
+			if (self.which == "occurences" or self.which == "alphabetically"):
 				order = "val"
 				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
 			elif (self.which == "deployement"):
@@ -981,7 +1010,7 @@ class Principal(QtGui.QMainWindow):
 
 		liste_final =[]
 		self.content_liste_concept = []
-		if (self.which == "alphabetical" ):
+		if (self.which == "alphabetically" ):
 			for i in sorted(liste_valued,key=lambda x : x[1],reverse = 0):
 				item_resume = u"%s %s" % (i[0], i[1])
 				liste_final.append(item_resume) 
@@ -1024,14 +1053,14 @@ class Principal(QtGui.QMainWindow):
 							self.client.eval_var(ask)
 							val = int(self.client.eval_var_result)
 							liste_scoree.append( [ result[r] , val ])
-						if (self.which == "alphabetical"):
+						if (self.which == "alphabetically"):
 							liste_scoree.sort()
 						self.NOT12_E.addItems(map(lambda x : "%d %s"% (x[1], x[0]),liste_scoree))   
 
 					else:
 						self.liste_D_unsorted = []
 						for r in range(len(result)):
-							if (self.which  == "occurences" or self.which == "alphabetical"):
+							if (self.which  == "occurences" or self.which == "alphabetically"):
 								ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
 							elif (self.which  == "deployement" ):
 								ask = "%s.rep%d.dep"% (self.semantique_liste_item,r)
@@ -1045,7 +1074,7 @@ class Principal(QtGui.QMainWindow):
 							self.liste_D_unsorted.append(to_add)
 							
 					if (sem not in ["$cat_ent"]):
-						if (self.which == "alphabetical"):
+						if (self.which == "alphabetically"):
 							liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : re.split(" ",x)[1],reverse =  0)
 						else :
 							liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : int(re.split(" ",x)[0]),reverse =  1)
@@ -1078,13 +1107,15 @@ class Principal(QtGui.QMainWindow):
 			result = self.client.eval_var_result
 			if (result != "") :
 				result = re.split(", ", result)
-				if (self.which == "alphabetical"):
+				if (self.which == "alphabetically"):
 					liste_scoree = []
 					for r in range(len(result)):
 						ask = "%s.rep%d.rep%d.val"% (self.semantique_liste_item,row,r)
 						self.client.eval_var(ask)
 						val = int(self.client.eval_var_result)
 						liste_scoree.append([result[r],val])
+						self.PrgBar.setValue(  r * 100 /len(result) )
+						QtGui.QApplication.processEvents()
 					self.NOT12_E.addItems(map(lambda x : "%d %s"% (x[1], x[0]),sorted(liste_scoree)))
 				else :
 					for r in range(len(result)):
@@ -1096,6 +1127,9 @@ class Principal(QtGui.QMainWindow):
 							self.NOT12_E.addItems( map(lambda x : "0 %s" %x ,result[r:]) )
 							break
 						self.NOT12_E.addItem("%d %s"%(val, result[r] )) 
+						self.PrgBar.setValue(  r * 100 /len(result) )
+						QtGui.QApplication.processEvents()
+				self.PrgBar.reset()
 
 	def liste_E_item_changed(self):
 		itemT = self.NOT12_E.currentItem()
@@ -1179,6 +1213,10 @@ class Principal(QtGui.QMainWindow):
 
 			# affiche textes au demarrage
 			self.recup_liste_textes()
+
+
+			#Contexts
+			self.recup_ctx()
 
 			self.Param_Server_B.clicked.connect(self.disconnect_server)
 			self.Param_Server_B.setText("Disconnect")
@@ -1698,6 +1736,16 @@ class Principal(QtGui.QMainWindow):
 			else :
 
 				self.activity("searching for [%s] : 0 result")
+				result = re.split(", ", self.client.eval_var_result)
+
+
+	def recup_ctx(self):
+		self.NOT5_list.clear()
+		self.activity("evaluating context list")
+		self.client.eval_var(u"$ctx[0:]")
+		result = re.split(", ", self.client.eval_var_result)
+		self.NOT5_list.addItems(result)
+		
 				
 
 def main():
