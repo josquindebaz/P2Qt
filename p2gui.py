@@ -363,16 +363,16 @@ class Principal(QtGui.QMainWindow):
 		self.CorpusTexts.currentItemChanged.connect(self.onSelectTextFromCorpus) #fonctionne avec clavier et souris, mais selectionne le 1er texte au chargement
 		
 		#l'onglet des réseaux
-		#self.tabNetworks = QtGui.QTabWidget()
-		#self.tabNetworks.setTabsClosable(True)
-		#self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
+		self.tabNetworks = QtGui.QTabWidget()
+		self.tabNetworks.setTabsClosable(True)
+		self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
 
 #TODO les expressions englobantes
 
 		#mise en place des onglets
 
 		self.SubWdwSO.addTab(self.SOT1,"Texts")
-		#self.SubWdwSO.addTab(self.tabNetworks,"Networks")
+		self.SubWdwSO.addTab(self.tabNetworks,"Networks")
 
 
 ##################################################
@@ -699,17 +699,18 @@ class Principal(QtGui.QMainWindow):
 		self.NOT5Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
 		NOT5VHC.addWidget(self.NOT5Commands1)
 
-
-
 	#une box horizontale pour liste et deploiement
 		NOT5VH = QtGui.QHBoxLayout()
 		NOT5V.addLayout(NOT5VH) 
 		self.NOT5_list = QtGui.QListWidget()
 		self.NOT5_list.setAlternatingRowColors(True)
-		#self.NOT5_list.currentItemChanged.connect() 
+		self.NOT5_list.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Preferred)
+		self.NOT5_list.currentItemChanged.connect(self.contexts_contents) 
 		NOT5VH.addWidget(self.NOT5_list)
 		self.NOT5_cont = QtGui.QListWidget()
+		self.NOT5_cont.setAlternatingRowColors(True)
 		NOT5VH.addWidget(self.NOT5_cont)
+		self.NOT5_cont.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Preferred)
 #		self.NOT5_cont.currentItemChanged.connect() 
 
 
@@ -1472,17 +1473,17 @@ class Principal(QtGui.QMainWindow):
 			res_semantique = "%s.res[0:]" % self.semantique_liste_item  
 
 		#cree l'onglet des réseaux si premier reseau calculé
-		tab_networks = 0
-		for i in range(self.SubWdwSO.count()):
-			if (self.SubWdwSO.tabText(i) == "Networks"):
-				tab_networks = 1
-				pass
+		#tab_networks = 0
+		#for i in range(self.SubWdwSO.count()):
+		#	if (self.SubWdwSO.tabText(i) == "Networks"):
+		#		tab_networks = 1
+		#		pass
 
-		if (tab_networks == 0):
-			self.tabNetworks = QtGui.QTabWidget()
-			self.tabNetworks.setTabsClosable(True)
-			self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
-			self.SubWdwSO.addTab(self.tabNetworks,"Networks")
+		#if (tab_networks == 0):
+		#	self.tabNetworks = QtGui.QTabWidget()
+		#	self.tabNetworks.setTabsClosable(True)
+		#	self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
+		#	self.SubWdwSO.addTab(self.tabNetworks,"Networks")
 		
 
 		#si la tab de l'element existe déjà, on efface l'ancienne
@@ -1743,9 +1744,23 @@ class Principal(QtGui.QMainWindow):
 		self.NOT5_list.clear()
 		self.activity("evaluating context list")
 		self.client.eval_var(u"$ctx[0:]")
-		result = re.split(", ", self.client.eval_var_result)
+		result = re.split(", ",self.client.eval_var_result )
 		self.NOT5_list.addItems(result)
 		
+	def contexts_contents(self):
+		self.NOT5_cont.clear()
+		champ = self.NOT5_list.currentItem().text()
+		self.client.eval_var(u"$ctx.%s[0:]" % champ)
+		result = self.client.eval_var_result
+		result = re.split("(?<!\\\), ",result )#negative lookbehind assertion
+		dic_CTX = {}
+		for r in result:
+			if r in dic_CTX.keys():
+				dic_CTX[r] = dic_CTX[r] + 1
+			else:
+				dic_CTX[r] = 1
+		for el in sorted(dic_CTX.items(), key= lambda (k,v) : (-v,k)):
+			self.NOT5_cont.addItem(u"%d %s"%(el[1],re.sub("\\\,",",",el[0])))
 				
 
 def main():
