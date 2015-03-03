@@ -259,9 +259,6 @@ class Principal(QtGui.QMainWindow):
 	# onglet proprietes du texte
 		self.textProperties = QtGui.QTabWidget()
 
-		
-
-
 	# sous onglet proprietes saillantes
 		saillantes = QtGui.QWidget()
 		self.textProperties.addTab(saillantes,"Sailent structures")
@@ -308,11 +305,13 @@ class Principal(QtGui.QMainWindow):
 #		SET1.addTab(SET14,u"Textes proches")
 #		SET1.addTab(SET15,u"Textes identiques")
 
-
-
 	# onglet contenu du CTX
-		self.textCTX = QtGui.QListWidget()	
-		self.textCTX.currentItemChanged.connect(self.onSelectChampCtx) 
+		self.textCTX = QtGui.QTableWidget()
+		self.textCTX.verticalHeader().setVisible(False)
+		self.textCTX.setColumnCount(2)
+		self.textCTX.setHorizontalHeaderLabels([u'field',u'value'])
+		self.textCTX.horizontalHeader().setStretchLastSection(True)	
+		#self.textCTX.currentItemChanged.connect(self.onSelectChampCtx) 
 
 	# onglet contenu du texte
 		self.textContent = QtGui.QTextEdit() 
@@ -320,19 +319,22 @@ class Principal(QtGui.QMainWindow):
 
 		SubWdwSETabs = QtGui.QTabWidget()
 
-		SubWdwSE = QtGui.QWidget()
+		#SubWdwSE = QtGui.QWidget()
 
 		SETabV = QtGui.QVBoxLayout()
 		SETabV.setContentsMargins(0,0,0,0) 
 		SETabV.setSpacing(0) 
 		SETabVH = QtGui.QHBoxLayout()
 		SETabV.addLayout(SETabVH)
-		self.SETabTextDescr = QtGui.QLabel()
-		SETabVH.addWidget(self.SETabTextDescr)
+
+		#self.SETabTextDescr = QtGui.QLabel()
+		#SETabVH.addWidget(self.SETabTextDescr)
+		#self.SETabTextDescr.setStyleSheet("color: white")
+
 		SETabVH.addWidget(SubWdwSETabs)
 
-		SubWdwSE.setLayout(SETabV)
-		SETabV.addWidget(SubWdwSETabs)
+		#SubWdwSE.setLayout(SETabV)
+		#SETabV.addWidget(SubWdwSETabs)
 
 		SubWdwSETabs.addTab(self.textProperties,"Properties")
 		SubWdwSETabs.addTab(self.textCTX,"Context")
@@ -488,27 +490,6 @@ class Principal(QtGui.QMainWindow):
 
 # on donne le focus à la connection au serveur
 		self.SubWdwNE.setCurrentIndex(2)
-
-		# on fait disparaître le bouton close des tabs, a gauche pour les mac
-#		if self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.RightSide):
-#			self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.RightSide).resize(0,0)
-#			self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.RightSide).hide()
-#		elif self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.LeftSide):
-#			self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).resize(0,0)
-#			self.SubWdwNE.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).hide()
-#		if self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.RightSide):
-#			self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.RightSide).resize(0,0)
-#			self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.RightSide).hide()
-#		elif self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.LeftSide):
-#			self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.LeftSide).resize(0,0)
-#			self.SubWdwNE.tabBar().tabButton(1, QtGui.QTabBar.LeftSide).hide()
-#		if self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.RightSide):
-#			self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.RightSide).resize(0,0)
-#			self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.RightSide).hide()
-#		elif self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.LeftSide):
-#			self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.LeftSide).resize(0,0)
-#			self.SubWdwNE.tabBar().tabButton(2, QtGui.QTabBar.LeftSide).hide()
-
 
 
 
@@ -771,7 +752,8 @@ class Principal(QtGui.QMainWindow):
 		grid.addWidget(SubWdwNO,0,0)
 		grid.addWidget(self.SubWdwNE,0,1)
 		grid.addWidget(self.SubWdwSO,1,0)
-		grid.addWidget(SubWdwSE,1,1)
+		#grid.addWidget(SubWdwSE,1,1)
+		grid.addWidget(SubWdwSETabs,1,1)
 		main.setLayout(grid)
 		self.setCentralWidget(main)
 
@@ -903,23 +885,24 @@ class Principal(QtGui.QMainWindow):
 		self.deselectText()
 		#V =  self.liste_txt_corpus[item_txt]
 		#txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
-		#self.SETabTextDescr.setText(txt_resume)
+		#self.SETabTextDescr.setText(item_txt)
 		self.show_textProperties( sem_txt)
 		self.show_textCTX(sem_txt) 
 		self.show_textContent( sem_txt)
 
 
 	def deselectText(self):
-		#vide les listes des proprietes saillantes pour eviter confusion
+		"""vide les listes des proprietes saillantes pour eviter confusion"""
 		self.saillantesAct.clear()
 		self.saillantesCat.clear()
 		self.saillantesCol.clear()
-		self.SETabTextDescr.setText("")
-#TODO effacer CTX, content
+		#self.SETabTextDescr.setText("")
 		self.CorpusTexts.clearSelection()
 		if (self.SOT1.count() > 1):
 			for o in self.liste_text_lists:
 				o.clearSelection()
+		self.efface_textCTX()
+		self.textContent.clear()
 
 
 	def getvalueFromSem(self,item_txt,type):	
@@ -1245,17 +1228,32 @@ class Principal(QtGui.QMainWindow):
 		#move cursor to the beginning of the text
 		self.textContent.moveCursor(QtGui.QTextCursor.Start)
 		
+	def efface_textCTX(self):
+		self.textCTX.clear()
+		self.textCTX.setRowCount(0)
+		self.textCTX.setHorizontalHeaderLabels([u'field',u'value']) #on remet les headers apres le clear
+
 	def show_textCTX(self, sem_txt):
 		"""Show text metadata"""
 		self.m_current_selected_semtext = sem_txt	# on met de côté la sem du text
-		self.textCTX.clear()
+		self.efface_textCTX()
+		self.textCTX.setRowCount(len(self.liste_champs_ctx))
+		r = 0
 		for props in self.liste_champs_ctx :
 			props_sem = "%s.%s" % (sem_txt,props)
 			self.client.eval_var(props_sem)
 			value = self.client.eval_var_result
-			# vite fait -- pour exemple
-			self.textCTX.addItem(props + u" :::  "  +value)
-		
+			itemCTXwidget_field = QtGui.QTableWidgetItem(props)
+			#font = itemCTXwidget_field.font()
+			#font.setBold(True)
+			#itemCTXwidget_field.setFont(font)
+			self.textCTX.setItem(r,0,itemCTXwidget_field)
+			itemCTXwidget_val = QtGui.QTableWidgetItem(value)
+			self.textCTX.setItem(r,1,itemCTXwidget_val)
+			r += 1
+		#self.textCTX.resizeColumnsToContents()
+		self.textCTX.resizeRowsToContents()
+
 	def show_textProperties(self ,  sem_txt):
 		"""Show text sailent properties"""
 		#les actants
@@ -1545,80 +1543,6 @@ class Principal(QtGui.QMainWindow):
 		self.activity(u"Displaying %d texts for %s" % (len(liste_textes),element) )
 
 
-		"""ancien affichage
-		texts_list = QtGui.QTableWidget()
-		texts_list.verticalHeader().setVisible(False)
-		texts_list.setRowCount(len(liste_textes))
-		texts_list.setColumnCount(3)
-		texts_list.setHorizontalHeaderLabels([u'date',u'name',u'title'])
-		row = 0 
-		for txt in liste_textes:
-			name = re.split("/",txt)[-1]
-
-			itemwidget = QtGui.QTableWidgetItem(name)
-			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non-editable
-			texts_list.setItem(row,1,itemwidget)
-
-
-			txt_sem = self.client.eval_get_sem(txt, u"$txt" )
-			self.client.eval_var(u"%s.titre_txt"%txt_sem)
-			txt_title = self.client.eval_var_result
-			
-			
-			itemwidget = QtGui.QTableWidgetItem(txt_title)
-			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non-editable
-		
-			texts_list.setItem(row,2,itemwidget)
-			
-			
-			
-			self.client.eval_var("%s.date_txt"%txt_sem)
-			txt_title = self.client.eval_var_result
-			
-			
-			itemwidget = QtGui.QTableWidgetItem(txt_title)
-			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non-editable
-		
-			texts_list.setItem(row,0,itemwidget)
-			
-			
-			
-			row += 1
-		texts_list.resizeColumnToContents(0)
-		texts_list.resizeColumnToContents(1)
-		texts_list.horizontalHeader().setStretchLastSection(True)
-		texts_list.resizeRowsToContents()
-
-		# anticorpus
-		Lanticorpus = list( set(self.client.txts)-set(liste_textes))
-		anticorpus = QtGui.QTableWidget()
-		anticorpus.verticalHeader().setVisible(False)
-		anticorpus.setRowCount(len(Lanticorpus))
-		anticorpus.setColumnCount(2)
-		anticorpus.setHorizontalHeaderLabels(['date','name'])
-		row = 0 
-		for txt in Lanticorpus:
-			name = re.split("/",txt)[-1]
-			itemwidget = QtGui.QTableWidgetItem(name)
-			itemwidget.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable) #non-editable
-			anticorpus.setItem(row,1,itemwidget)
-			row += 1
-		anticorpus.resizeColumnToContents(0)
-		anticorpus.resizeColumnToContents(1)
-		anticorpus.resizeRowsToContents()
-		
-		show_texts_widget = QtGui.QListWidget()
-		show_texts_box = QtGui.QHBoxLayout()
-		show_texts_box.setContentsMargins(0,0,0,0) 
-		show_texts_box.setSpacing(0) 
-		show_texts_widget.setLayout(show_texts_box)		
-		show_texts_box.addWidget(texts_list)
-		show_texts_box.addWidget(anticorpus)
-		"""
-
-
-
-
 		show_texts_widget = QtGui.QWidget()
 		HBox_texts = QtGui.QHBoxLayout()
 		HBox_texts.setContentsMargins(0,0,0,0) 
@@ -1762,6 +1686,7 @@ class Principal(QtGui.QMainWindow):
 		for el in sorted(dic_CTX.items(), key= lambda (k,v) : (-v,k)):
 			self.NOT5_cont.addItem(u"%d %s"%(el[1],re.sub("\\\,",",",el[0])))
 				
+
 
 def main():
 	app = QtGui.QApplication(sys.argv)
