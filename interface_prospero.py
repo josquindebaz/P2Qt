@@ -188,8 +188,10 @@ class ConnecteurPII (threading.Thread):
 
 	def add_cache_fonc (self, data, value):
 		self.m_cache_fonc[data] = value
+
 	def add_cache_index(self, data, value):
 		self.m_cache_index[data] = value
+
 	def eval_vect_values(self,  sem_type, type_value):
 		'''
 			sem_type = $ent
@@ -215,6 +217,7 @@ class ConnecteurPII (threading.Thread):
 		self.add_cache_var(cle, value)
 		self.m_threadlock.release()
 		return value		
+
 	def eval_set_ctx(self,text, props,value):
 		'''
 	
@@ -238,6 +241,7 @@ class ConnecteurPII (threading.Thread):
 		self.add_cache_var(cle, value)
 		self.m_threadlock.release()
 		return value		
+
 	def eval_ctx(self,props,ctx_range):
 		'''
 		usage vecteur de data 
@@ -265,6 +269,7 @@ class ConnecteurPII (threading.Thread):
 		self.add_cache_var(cle, value)
 		self.m_threadlock.release()
 		return value
+
 	def eval (self, L):
 		"""
 			on calcul la forme/clé et la lexpr  avant.
@@ -342,6 +347,7 @@ class ConnecteurPII (threading.Thread):
 		
 		self.m_threadlock.release()
 		return ev
+
 	def eval_index(self, data):
 		""" interrogation de P-II sur le/les types associés à data
 		"""
@@ -502,6 +508,7 @@ class ConnecteurPII (threading.Thread):
 			if not self.connect():
 				print "acces P-II impossible"
 				return 
+
 	def creer_msg_search(self,fonc ,element, pelement='',txt=False,ptxt='',ph=False,pph='',val=False):
 		"""
 			calculer la liste des messages aux serveurs

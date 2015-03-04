@@ -44,7 +44,6 @@ class client(object):
 	def eval_vector(self,type, type_calc):
 		return self.c.eval_vect_values(type, type_calc)
 
-
 	def eval_var(self,var):
 		self.eval_var_result = self.c.eval_variable(var)
 		
@@ -135,6 +134,7 @@ class Principal(QtGui.QMainWindow):
 			self.liste_champs_ctx.append ( champ_ctx)		
 		
 		liste_champs_ajuste = []
+
 		for champ in self.liste_champs_ctx :
 			 #title[0\]  date[0:]  etc on ne met pas le $ctx  ici...
 			 
@@ -170,7 +170,6 @@ class Principal(QtGui.QMainWindow):
 		# précalcule de valeurs associées 
 		for type_var in [ "$ent" , "$ef" , "$col"] :
 			self.activity("pre-computing : %s " % (type_var))
-		#for type_var in [ "$ent" ]:
 			for type_calcul in ["freq","dep", "nbaut", "nbtxt","lapp","fapp"]:
 				L = self.client.eval_vector(type_var, type_calcul)
 				L = L.split(',')	 
@@ -676,18 +675,30 @@ class Principal(QtGui.QMainWindow):
 		self.Explo_radioGroup.addButton(Explo_check_infix,2)
 
 
-		Explo_spacer1 = QtGui.QLabel()
-		Explo_spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-		NOT3VH.addWidget(Explo_spacer1)
 
 		self.Explo_action = QtGui.QPushButton("search")
 		self.Explo_action.setEnabled(False) #desactivé au lancement
 		self.Explo_action.clicked.connect(self.Explorer)
 		NOT3VH.addWidget(self.Explo_action)
 
+		Explo_spacer1 = QtGui.QLabel()
+		Explo_spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+		NOT3VH.addWidget(Explo_spacer1)
+
+
+		self.Explo_commands = QtGui.QPushButton()
+		self.Explo_commands.setIcon(QtGui.QIcon("gear.png"))
+		self.Explo_commands.setEnabled(False) 
+		NOT3VH.addWidget(self.Explo_commands)
+		Explo_commands_texts= QtGui.QMenu(self)
+		Explo_commands_texts.addAction('texts' , self.explo_show_text)
+		self.Explo_commands.setMenu(Explo_commands_texts)
+
+
 		NOT3VH2 = QtGui.QHBoxLayout()
 		NOT3V.addLayout(NOT3VH2)
 		self.Explo_liste = QtGui.QListWidget()
+		self.Explo_liste.currentItemChanged.connect(self.explo_item_selected)
 		NOT3VH2.addWidget(self.Explo_liste)
 		self.Explo_concepts = QtGui.QLabel()
 		tempImage = QtGui.QPixmap("Prospero-II.png")
@@ -846,7 +857,7 @@ class Principal(QtGui.QMainWindow):
 
 	def recup_liste_textes(self):
 		"""display texts for the corpus"""
-#TODO creer objet textes, meme methodes pour textes du corpus et sous-corpus, deselectionner texte dans un onglet quand il l'est dans l'autre, faire un titre a afficher dans listes et en-tête du quadran, ne demander proprietes que quand clic sur onglet
+#TODO creer objet textes, meme methodes pour textes du corpus et sous-corpus,  faire un titre a afficher dans listes et en-tête du quadran, 
 		#self.activity(u"Waiting for text list"   )
 		self.client.recup_texts()
 		self.activity(u"Displaying text list (%d items)" %len(self.client.txts)  )
@@ -1483,7 +1494,6 @@ class Principal(QtGui.QMainWindow):
                                                         self.list_cat_valued[result[sub_n]] = res
                                                 i = QtGui.QListWidgetItem()
                                                 i.setText(u"  %s %s"%(self.list_cat_valued[result[sub_n]][0],result[sub_n]))
-#TODO trouver couleur par defaut du alternate
                                                 #i.setBackground(QtGui.QColor( 245,245,245))
                                                 i.setBackground(QtGui.QColor( 237,243,254)) # cyan
                                                 self.saillantesCat.addItem(i)
@@ -1516,7 +1526,6 @@ class Principal(QtGui.QMainWindow):
                                                         self.liste_act_valued[result[sub_n]] = [res,2]
                                                 i = QtGui.QListWidgetItem()
                                                 i.setText(u"  %s %s"%(self.liste_act_valued[result[sub_n]][0],result[sub_n]))
-#TODO trouver couleur par defaut du alternate
                                                 #i.setBackground(QtGui.QColor( 245,245,245))
                                                 i.setBackground(QtGui.QColor( 237,243,254)) # cyan
                                                 self.saillantesAct.addItem(i)
@@ -1585,11 +1594,75 @@ class Principal(QtGui.QMainWindow):
 		self.tabNetworks.setCurrentIndex(index)# donne le focus a l'onglet créé
 		self.SubWdwSO.setCurrentIndex(1)# donne le focus a l'onglet Networks
 
+	def explo_item_selected(self):
+		self.Explo_commands.setEnabled(True) 
+		"""
+		motif = re.sub("^\d* ","",self.Explo_liste.currentItem().text())
+		self.client.eval_var("$ef[0:]")
+		liste_ef =re.split(", ",self.client.eval_var_result) 
+		for efN in  range(len(liste_ef)):
+			self.client.eval_var("$ef%d.rep_present[0:]"%efN)
+			result = re.split(", ",self.client.eval_var_result) 
+			if motif in  result:
+				 self.Explo_concepts.setText(liste_ef[efN])
+		"""	
+
+
+	def explo_show_text(self):
+		"""Show texts containing a pattern"""
+		motif = self.Explo_saisie.text()
+		row =  self.Explo_liste.currentRow()
+		ask = self.client.creer_msg_search("$search.rac",motif,"%d"%row,txt=True,ptxt="[0:]")
+		result = self.client.eval( ask )
+		liste_textes = re.split(", ",result)
+		self.activity(u"Displaying %d texts for %s" % (len(liste_textes),motif))
+
+		self.deselectText()
+
+		show_texts_widget = QtGui.QWidget()
+		HBox_texts = QtGui.QHBoxLayout()
+		HBox_texts.setContentsMargins(0,0,0,0) 
+		HBox_texts.setSpacing(0) 
+		show_texts_widget.setLayout(HBox_texts)
+		self.show_texts_corpus = QtGui.QListWidget()
+		self.show_texts_corpus.setAlternatingRowColors(True)
+		self.show_texts_corpus.currentItemChanged.connect(self.onSelectTextFromElement) 
+		HBox_texts.addWidget(self.show_texts_corpus)
+		self.liste_text_lists.append(self.show_texts_corpus)
+		self.show_texts_anticorpus = QtGui.QListWidget()
+		self.show_texts_anticorpus.setAlternatingRowColors(True)
+		self.show_texts_anticorpus.currentItemChanged.connect(self.onSelectTextFromAnticorpus) 
+		HBox_texts.addWidget(self.show_texts_anticorpus)
+		self.liste_text_lists.append(self.show_texts_anticorpus)
+
+		self.l_corp_ord = []
+		self.l_anticorp_ord = []
+		for T,V in  sorted(self.liste_txt_corpus.items(),key=lambda (k,v) : "%s%s%s".join(reversed(re.split("/",v[0])))):
+			txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
+			if T in liste_textes: 
+				self.l_corp_ord.append(T)
+				self.show_texts_corpus.addItem(txt_resume)
+			else:
+				self.l_anticorp_ord.append(T)
+				self.show_texts_anticorpus.addItem(txt_resume)
+
+		#si la tab de l'element existe déjà, on efface l'ancienne
+		for i in range(0, self.SOT1.count() ):
+			if (re.search("^{%s} (\d*)"%motif,self.SOT1.tabText(i) ) ):
+				self.SOT1.removeTab(i)
+			
+		index = self.SOT1.addTab(show_texts_widget,"{%s} (%d)" % (motif,len(liste_textes)))
+		self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
+		self.SubWdwSO.setCurrentIndex(0)# donne le focus a l'onglet Texts
+		self.SOT1.tabBar().setTabToolTip(index,"{%s} %d"%(motif,len(liste_textes)))
+
+
+
+
+
 	def show_texts(self):
 #TODO scorer/trier
 		"""Show texts containing a selected item"""
-		
-		
 		self.deselectText()
 
 		if  self.NOT12_E.currentItem() :
@@ -1728,14 +1801,14 @@ class Principal(QtGui.QMainWindow):
 				self.activity("searching for {%s} %d results"%(motif,len(liste_result)))
 				for i in range(len(liste_result)):
 					ask = self.client.creer_msg_search(type_search,motif,"%d"%i,val=True) #la valeur du match
-#TODO comprendre les 0, get_sem, liste textes, énoncés
+#TODO get_sem, liste textes, énoncés
+#TODO select all
 					r = self.client.eval( ask )
 					self.PrgBar.setValue(  100 * i / len(liste_result) )	
 					QtGui.QApplication.processEvents()
 					self.Explo_liste.addItem("%s %s"% (r,liste_result[i]))
 				self.PrgBar.reset()
 			else :
-
 				self.activity("searching for [%s] : 0 result")
 				result = re.split(", ", self.client.eval_var_result)
 
