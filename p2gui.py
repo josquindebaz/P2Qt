@@ -201,7 +201,23 @@ class Principal(QtGui.QMainWindow):
 
 
 		# create the menu bar
-		#menubar = self.menuBar()
+		Menubar = self.menuBar()
+
+		Menu_Corpus = Menubar.addMenu('&Corpus')
+		Menu_distant = QtGui.QAction(QtGui.QIcon('distant.png'), '&prosperologie.org', self)        
+		#.setShortcut('Ctrl+Q')
+		Menu_distant.setStatusTip('Connect to prosperologie.org server')
+		Menu_distant.triggered.connect(self.connect_server)
+		Menu_Corpus.addAction(Menu_distant)
+		Menu_local = QtGui.QAction(QtGui.QIcon('home.png'), '&local', self)        
+		Menu_local.setStatusTip('Launch a local server')
+		Menu_Corpus.addAction(Menu_local)
+		Menu_local.setEnabled(False)
+	
+
+
+
+
 #		ParamMenu = menubar.addMenu('&Parameter')
 # parametrage du Gui : langue etc
 #		ConstelMenu = menubar.addMenu('&Constellation')
@@ -311,13 +327,44 @@ class Principal(QtGui.QMainWindow):
 		self.textCTX.setColumnCount(2)
 		self.textCTX.setHorizontalHeaderLabels([u'field',u'value'])
 		self.textCTX.horizontalHeader().setStretchLastSection(True)	
-		#self.textCTX.currentItemChanged.connect(self.onSelectChampCtx) 
+		self.textCTX.cellChanged.connect(self.onChangeCTX)
+	
+		Vbox_textCTX = QtGui.QVBoxLayout()
+		Vbox_textCTX.setContentsMargins(0,0,0,0) 
+		Vbox_textCTX.setSpacing(0) 
+
+		Vbox_textCTX.addWidget(self.textCTX)
+		Vbox_textCTX_W = QtGui.QWidget()
+		Vbox_textCTX_W.setLayout(Vbox_textCTX)
+		
+		self.Hbox_textCTX_commands = QtGui.QHBoxLayout()
+		self.textCTX_valid = QtGui.QPushButton("save")
+		self.textCTX_valid.setEnabled(False)
+		self.Hbox_textCTX_commands.addWidget(self.textCTX_valid)
+		self.textCTX_reset = QtGui.QPushButton("reset")
+		self.textCTX_reset.clicked.connect(self.resetCTX)
+		self.Hbox_textCTX_commands.addWidget(self.textCTX_reset)
+		self.textCTX_reset.setEnabled(False)
+		Hbox_textCTX_commands_spacer = QtGui.QLabel()
+		Hbox_textCTX_commands_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+#TOTO add, delete
+		self.Hbox_textCTX_commands.addWidget(Hbox_textCTX_commands_spacer) 
+		textCTX_commandsButton = QtGui.QPushButton(u"\u25cb")
+		self.Hbox_textCTX_commands.addWidget(textCTX_commandsButton)
+		textCTX_commandsButton.setEnabled(False)
+		Vbox_textCTX.addLayout(self.Hbox_textCTX_commands)
+
+
+		"""
+		self.textCTX.setRowCount(1)
+		itTest = QtGui.QTableWidgetItem("t1")
+		self.textCTX.setItem(0,0,itTest)
+		"""
 
 	# onglet contenu du texte
 		self.textContent = QtGui.QTextEdit() 
 
-
-		SubWdwSETabs = QtGui.QTabWidget()
+		self.SubWdwSETabs = QtGui.QTabWidget()
 
 		#SubWdwSE = QtGui.QWidget()
 
@@ -331,14 +378,18 @@ class Principal(QtGui.QMainWindow):
 		#SETabVH.addWidget(self.SETabTextDescr)
 		#self.SETabTextDescr.setStyleSheet("color: white")
 
-		SETabVH.addWidget(SubWdwSETabs)
+		SETabVH.addWidget(self.SubWdwSETabs)
 
 		#SubWdwSE.setLayout(SETabV)
-		#SETabV.addWidget(SubWdwSETabs)
+		#SETabV.addWidget(self.SubWdwSETabs)
 
-		SubWdwSETabs.addTab(self.textProperties,"Properties")
-		SubWdwSETabs.addTab(self.textCTX,"Context")
-		SubWdwSETabs.addTab(self.textContent,"Text")
+		self.SubWdwSETabs.addTab(self.textProperties,"Properties")
+		self.SubWdwSETabs.addTab(Vbox_textCTX_W,"Context")
+		#self.SubWdwSETabs.addTab(self.textCTX,"Context")
+		self.SubWdwSETabs.addTab(self.textContent,"Text")
+
+
+		self.SubWdwSETabs.currentChanged.connect(self.change_SETab)
 
 
 ##################################################
@@ -486,7 +537,7 @@ class Principal(QtGui.QMainWindow):
 #		SubWdwNE.addTab(NET1,"Marlowe")
 		self.History_index = self.SubWdwNE.addTab(self.History,"History")
 		self.SubWdwNE.addTab(server_vars,"Vars")
-		self.SubWdwNE.addTab(Param_Server,"Server")
+		#self.SubWdwNE.addTab(Param_Server,"Server")
 
 # on donne le focus à la connection au serveur
 		self.SubWdwNE.setCurrentIndex(2)
@@ -543,13 +594,6 @@ class Principal(QtGui.QMainWindow):
 		#NOT1VHC.addWidget(self.list_research_button)
 		#self.list_research_button.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
 		
-
-
-
-##pquoi ici le popup de CTX ???
-	# essai popup
-		self.popupCtx = QtGui.QMenu(self)
-		self.popupCtx.addMenu('modifier')
 
 	# les commandes
 		self.NOT1Commands1 = QtGui.QPushButton()
@@ -753,7 +797,7 @@ class Principal(QtGui.QMainWindow):
 		grid.addWidget(self.SubWdwNE,0,1)
 		grid.addWidget(self.SubWdwSO,1,0)
 		#grid.addWidget(SubWdwSE,1,1)
-		grid.addWidget(SubWdwSETabs,1,1)
+		grid.addWidget(self.SubWdwSETabs,1,1)
 		main.setLayout(grid)
 		self.setCentralWidget(main)
 
@@ -840,56 +884,34 @@ class Principal(QtGui.QMainWindow):
 		item_txt = self.liste_txt_ord[self.CorpusTexts.currentRow()]
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
 		self.onSelectText(self.semantique_txt_item,item_txt)
-		#self.activity(u"%s (%s) selected " % (item_txt,self.semantique_txt_item)) 
 
 	def onSelectTextFromElement(self):
 		"""When a text is selected from the list of texts for a given item"""
 		item_txt = self.l_corp_ord[self.show_texts_corpus.currentRow()]
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
-		#self.activity(u"%s (%s) selected" % (item_txt,self.semantique_txt_item)) 
 		self.onSelectText(u"$txt%d"%self.client.txts.index(item_txt),item_txt)
 
 	def onSelectTextFromAnticorpus(self):
 		"""When a text is selected from the list of anticorpus texts for a given item"""
 		item_txt = self.l_anticorp_ord[self.show_texts_anticorpus.currentRow()]
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
-		#self.activity(u"%s (%s) selected" % (item_txt,self.semantique_txt_item)) 
 		self.onSelectText(u"$txt%d"%self.client.txts.index(item_txt),item_txt)
 
 
-	def onSelectChampCtx(self):	
-		'''essais pour modifier un champ ctx
-		
-		self.m_current_selected_semtext contient le $txtX
-		
-		# appel pour enregistrer un titre pour un texte ( mettre ensuite à jour le cache local avec le titre)
-		# rappel : PII a des noms de champ en anglais par défaut.
-		eval_set_ctx(  "$txt1","title","ceci est un titre")
-		eval_set_ctx(  "$txt1","date","04/02/2015")
-		
-		'''
-		item_txt = self.textCTX.currentItem().text() 
-		
-		champ = item_txt.split(':::')[0].strip()
-		value  = item_txt.split(':::')[1].strip()
-		print champ
-		print value
-		print self.m_current_selected_semtext
-		#P =QtGui.QMouseEvent.globalX()
-		#P = PySide.QtGui.QMouseEvent.globalPos()
-		#print P
-		#self.popupCtx.popup()
-
 	def onSelectText(self,sem_txt,item_txt):
 		"""Update text properties windows when a text is selected """
+		self.activity(u"%s (%s) selected " % (item_txt,sem_txt)) 
 		self.deselectText()
 		#V =  self.liste_txt_corpus[item_txt]
 		#txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
 		#self.SETabTextDescr.setText(item_txt)
-		self.show_textProperties( sem_txt)
-		self.show_textCTX(sem_txt) 
-		self.show_textContent( sem_txt)
-
+		#pour accélérer l'affichage, on ne remplit que l'onglet sélectionné
+		if ( self.SubWdwSETabs.currentIndex () == 0 ):
+			self.show_textProperties( sem_txt)
+		elif ( self.SubWdwSETabs.currentIndex () == 1 ):
+			self.show_textCTX(sem_txt) 
+		elif ( self.SubWdwSETabs.currentIndex () == 2 ):
+			self.show_textContent( sem_txt)
 
 	def deselectText(self):
 		"""vide les listes des proprietes saillantes pour eviter confusion"""
@@ -904,6 +926,57 @@ class Principal(QtGui.QMainWindow):
 		self.efface_textCTX()
 		self.textContent.clear()
 
+	def change_SETab(self):
+		if  hasattr(self,"semantique_txt_item" ):
+			sem_txt = self.semantique_txt_item
+			if ( self.SubWdwSETabs.currentIndex () == 0 ):
+				self.saillantesAct.clear()
+				self.saillantesCat.clear()
+				self.saillantesCol.clear()
+				self.show_textProperties( sem_txt)
+			elif ( self.SubWdwSETabs.currentIndex () == 1 ):
+				self.efface_textCTX()
+				self.show_textCTX(sem_txt) 
+			elif ( self.SubWdwSETabs.currentIndex () == 2 ):
+				self.textContent.clear()
+				self.show_textContent( sem_txt)
+			self.resetCTX()	
+
+
+	def onChangeCTX(self):
+		r = self.textCTX.currentRow()
+		if (r != -1):
+			self.textCTX.currentItem().setBackground(QtGui.QColor( 237,243,254)) # cyan
+			#self.textCTX_valid.setEnabled(True)
+			self.textCTX_reset.setEnabled(True)
+			"""
+			c = self.textCTX.currentColumn()
+			if (c == 1): 
+				#modif de la valeur d'une prop
+				print  self.textCTX.currentItem().text()
+			elif (c == 0 ):
+				#modif du nom d'une prop
+				print  self.textCTX.currentItem().text()
+			"""
+			
+
+		'''essais pour modifier un champ ctx
+		
+		self.m_current_selected_semtext contient le $txtX
+		
+		# appel pour enregistrer un titre pour un texte ( mettre ensuite à jour le cache local avec le titre)
+		# rappel : PII a des noms de champ en anglais par défaut.
+		eval_set_ctx(  "$txt1","title","ceci est un titre")
+		eval_set_ctx(  "$txt1","date","04/02/2015")
+		
+		'''
+		
+
+	def resetCTX(self):
+		self.textCTX_valid.setEnabled(False)
+		self.textCTX_reset.setEnabled(False)
+		self.show_textCTX(self.m_current_selected_semtext)
+		
 
 	def getvalueFromSem(self,item_txt,type):	
 		sem = self.client.eval_get_sem(item_txt, type )
@@ -1182,7 +1255,8 @@ class Principal(QtGui.QMainWindow):
 
 	def connect_server(self):
 		self.activity("Connecting to server")
-		self.client=client(self.Param_Server_val_host.text(),self.Param_Server_val_port.text())
+		#self.client=client(self.Param_Server_val_host.text(),self.Param_Server_val_port.text())
+		self.client=client("prosperologie.org","60000")
 		self.client.teste_connect()
 		if (self.client.Etat):
 			# calcule en avance
@@ -1202,9 +1276,9 @@ class Principal(QtGui.QMainWindow):
 			#Contexts
 			self.recup_ctx()
 
-			self.Param_Server_B.clicked.connect(self.disconnect_server)
-			self.Param_Server_B.setText("Disconnect")
-			self.Param_Server_B.setStyleSheet(None)  #supprime css bouton vert
+			#self.Param_Server_B.clicked.connect(self.disconnect_server)
+			#self.Param_Server_B.setText("Disconnect")
+			#self.Param_Server_B.setStyleSheet(None)  #supprime css bouton vert
 			# donne le focus a l'onglet history
 			self.SubWdwNE.setCurrentIndex(self.History_index)
 
@@ -1549,10 +1623,12 @@ class Principal(QtGui.QMainWindow):
 		HBox_texts.setSpacing(0) 
 		show_texts_widget.setLayout(HBox_texts)
 		self.show_texts_corpus = QtGui.QListWidget()
+		self.show_texts_corpus.setAlternatingRowColors(True)
 		self.show_texts_corpus.currentItemChanged.connect(self.onSelectTextFromElement) 
 		HBox_texts.addWidget(self.show_texts_corpus)
 		self.liste_text_lists.append(self.show_texts_corpus)
 		self.show_texts_anticorpus = QtGui.QListWidget()
+		self.show_texts_anticorpus.setAlternatingRowColors(True)
 		self.show_texts_anticorpus.currentItemChanged.connect(self.onSelectTextFromAnticorpus) 
 		HBox_texts.addWidget(self.show_texts_anticorpus)
 		self.liste_text_lists.append(self.show_texts_anticorpus)
