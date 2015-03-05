@@ -558,7 +558,9 @@ class Principal(QtGui.QMainWindow):
 		SubWdwNO =  QtGui.QTabWidget()
 		
 
-##### L'onglet des listes
+##### L'onglet des listes des briques syntaxiques (Lexicon)
+
+
 		NOT1 = QtGui.QWidget()
 
 	#une box verticale
@@ -576,9 +578,15 @@ class Principal(QtGui.QMainWindow):
 	#une liste deroulante pour choisir le contenu de la liste
 		self.NOT1select = QtGui.QComboBox()
 		self.NOT1select.addItem(u"entities") 
-		self.NOT1select.addItem(u"collections")
-		self.NOT1select.addItem(u"fictions")
-		self.NOT1select.addItem(u"entitie's categories")
+		self.NOT1select.addItem(u"qualities") 
+		self.NOT1select.addItem(u"markers") 
+		self.NOT1select.addItem(u"events") 
+		self.NOT1select.addItem(u"numbers") 
+		self.NOT1select.addItem(u"function words") 
+		self.NOT1select.addItem(u"undefineds") 
+		#self.NOT1select.addItem(u"collections")
+		#self.NOT1select.addItem(u"fictions")
+		#self.NOT1select.addItem(u"entitie's categories")
 		NOT1VHC.addWidget(self.NOT1select)
 		self.connect(self.NOT1select,QtCore.SIGNAL("currentIndexChanged(const QString)"), self.select_liste)
 		self.NOT1select.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
@@ -648,6 +656,66 @@ class Principal(QtGui.QMainWindow):
 		self.NOT12_E.currentItemChanged.connect(self.liste_E_item_changed) #changement d'un item
 #TODO desactiver si presence nulle
 		self.NOT12_E.doubleClicked.connect(self.teste_wording)
+
+
+##### L'onglet des listes de concepts
+		NOT2 = QtGui.QWidget()
+		NOT2V = QtGui.QVBoxLayout()
+		NOT2.setLayout(NOT2V)
+		NOT2V.setContentsMargins(0,0,0,0) 
+		NOT2V.setSpacing(0) 
+		NOT2VHC = QtGui.QHBoxLayout()
+		NOT2V.addLayout(NOT2VHC)
+		self.NOT2select = QtGui.QComboBox()
+		self.NOT2select.addItem(u"collections")
+		self.NOT2select.addItem(u"fictions")
+		self.NOT2select.addItem(u"entitie's categories")
+		NOT2VHC.addWidget(self.NOT2select)
+		#changer pour concept	self.connect(self.NOT2select,QtCore.SIGNAL("currentIndexChanged(const QString)"), self.select_liste)
+		self.NOT2select.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
+		NOT2_spacer = QtGui.QLabel()
+		NOT2_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+		NOT2VHC.addWidget(NOT2_spacer)
+		#changer pour concept self.list_research = QtGui.QLineEdit()
+		#changer pour concept self.list_research.returnPressed.connect(self.list_concept_search)
+		#changer pour concept NOT2VHC.addWidget(self.list_research)
+		self.NOT2Commands1 = QtGui.QPushButton()
+		self.NOT2Commands1.setText(u"\u2195")
+		self.NOT2Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
+		self.NOT2Commands1Menu = QtGui.QMenu(self)
+		#self.menu_occurences = self.NOT1Commands1Menu.addAction('occurences',self.affiche_liste_scores_oc)
+		#self.menu_deployement = self.NOT1Commands1Menu.addAction('deployement',self.affiche_liste_scores_dep)
+		#self.menu_alphabetical = self.NOT1Commands1Menu.addAction('alphabetically',self.affiche_liste_scores_alpha)
+		self.NOT2Commands1.setMenu(self.NOT2Commands1Menu)
+		NOT2VHC.addWidget(self.NOT2Commands1)
+		self.NOT2Commands2 = QtGui.QPushButton()
+		self.NOT2Commands2.setIcon(QtGui.QIcon("gear.png"))
+		self.NOT2Commands2.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
+		NOT2Commands2Menu = QtGui.QMenu(self)
+		NOT2Commands2Menu.addAction('network' , self.show_network)
+		#self.liste_text_lists= []	
+		NOT2Commands2Menu.addAction('texts' , self.show_texts)
+		self.NOT2Commands2.setMenu(NOT2Commands2Menu)
+		NOT2VHC.addWidget(self.NOT2Commands2)
+	#une box horizontale pour liste, score et deploiement
+		NOT2VH = QtGui.QHBoxLayout()
+		NOT2V.addLayout(NOT2VH) 
+	#la liste
+		self.NOT22 = QtGui.QListWidget()
+		self.NOT22.setAlternatingRowColors(True)
+		self.NOT22.currentItemChanged.connect(self.liste_item_changed) #changement d'un item
+		NOT2VH.addWidget(self.NOT22)
+	#le deploiement
+		self.NOT22_D = QtGui.QListWidget()
+		NOT2VH.addWidget(self.NOT22_D)
+		self.NOT22_D.currentItemChanged.connect(self.liste_D_item_changed) #changement d'un item
+	#le deploiement II
+		self.NOT22_E = QtGui.QListWidget()
+		NOT2VH.addWidget(self.NOT22_E)
+		self.NOT22_E.currentItemChanged.connect(self.liste_E_item_changed) #changement d'un item
+#TODO desactiver si presence nulle
+		#self.NOT22_E.doubleClicked.connect(self.teste_wording)
+
 
 
 ################################################
@@ -757,7 +825,6 @@ class Principal(QtGui.QMainWindow):
 
 
 
-		NOT2 = QtGui.QWidget()
 
 
 		SubWdwNO.addTab(NOT1,"Lexicon")
@@ -981,31 +1048,15 @@ class Principal(QtGui.QMainWindow):
 			val =  self.textCTX.currentItem().text()
 		sem_txt = self.semantique_txt_item
 		
-		self.client.creer_msg_set_ctx ( (sem_txt, field, val) )
+		#self.client.creer_msg_set_ctx ( (sem_txt, field, val) )
+		print (sem_txt, field, val)
 		
 
 		self.textCTX_valid.setEnabled(False)
 		self.textCTX_reset.setEnabled(False)
 		self.show_textCTX(self.m_current_selected_semtext)
 
-		"""
-			#modif de la valeur d'une prop
-		elif (c == 0 ):
-			#modif du nom d'une prop
-			print  self.textCTX.currentItem().text()
-		"""
-			
 
-		'''essais pour modifier un champ ctx
-		
-		self.m_current_selected_semtext contient le $txtX
-		
-		# appel pour enregistrer un titre pour un texte ( mettre ensuite à jour le cache local avec le titre)
-		# rappel : PII a des noms de champ en anglais par défaut.
-		eval_set_ctx(  "$txt1","title","ceci est un titre")
-		eval_set_ctx(  "$txt1","date","04/02/2015")
-		
-		'''
 		
 
 	def resetCTX(self):
@@ -1835,7 +1886,7 @@ class Principal(QtGui.QMainWindow):
 					self.Explo_liste.addItem("%s %s"% (r,liste_result[i]))
 				self.PrgBar.reset()
 			else :
-				self.activity("searching for [%s] : 0 result")
+				self.activity("searching for {%s} : 0 result" % motif)
 				result = re.split(", ", self.client.eval_var_result)
 
 
