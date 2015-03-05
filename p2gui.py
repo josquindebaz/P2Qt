@@ -584,9 +584,7 @@ class Principal(QtGui.QMainWindow):
 		self.NOT1select.addItem(u"numbers") 
 		self.NOT1select.addItem(u"function words") 
 		self.NOT1select.addItem(u"undefineds") 
-		#self.NOT1select.addItem(u"collections")
-		#self.NOT1select.addItem(u"fictions")
-		#self.NOT1select.addItem(u"entitie's categories")
+		self.NOT1select.addItem(u"persons") 
 		NOT1VHC.addWidget(self.NOT1select)
 		self.connect(self.NOT1select,QtCore.SIGNAL("currentIndexChanged(const QString)"), self.select_liste)
 		self.NOT1select.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
