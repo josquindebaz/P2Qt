@@ -171,7 +171,7 @@ class Principal(QtGui.QMainWindow):
 		prgbar_val = 50
 
 		# précalcule de valeurs associées 
-		for type_var in [ "$ent" , "$ef" , "$col"] :
+		for type_var in [ "$ent" , "$ef" , "$col", "$qualite"] :
 			self.activity("pre-computing : %s " % (type_var))
 			for type_calcul in ["freq","dep", "nbaut", "nbtxt","lapp","fapp"]:
 				L = self.client.eval_vector(type_var, type_calcul)
@@ -389,7 +389,7 @@ class Principal(QtGui.QMainWindow):
 		#SETabV.addWidget(self.SubWdwSETabs)
 
 		self.SubWdwSETabs.addTab(self.textProperties,"Properties")
-		self.SubWdwSETabs.addTab(Vbox_textCTX_W,"Context")
+		self.SubWdwSETabs.addTab(Vbox_textCTX_W,"Metadata")
 		#self.SubWdwSETabs.addTab(self.textCTX,"Context")
 		self.SubWdwSETabs.addTab(self.textContent,"Text")
 
@@ -579,12 +579,12 @@ class Principal(QtGui.QMainWindow):
 		self.NOT1select = QtGui.QComboBox()
 		self.NOT1select.addItem(u"entities") 
 		self.NOT1select.addItem(u"qualities") 
-		self.NOT1select.addItem(u"markers") 
-		self.NOT1select.addItem(u"events") 
-		self.NOT1select.addItem(u"numbers") 
-		self.NOT1select.addItem(u"function words") 
-		self.NOT1select.addItem(u"undefineds") 
-		self.NOT1select.addItem(u"persons") 
+		#self.NOT1select.addItem(u"markers") 
+		#self.NOT1select.addItem(u"events") 
+		#self.NOT1select.addItem(u"numbers") 
+		#self.NOT1select.addItem(u"function words") 
+		#self.NOT1select.addItem(u"undefineds") 
+		#self.NOT1select.addItem(u"persons") 
 		NOT1VHC.addWidget(self.NOT1select)
 		self.connect(self.NOT1select,QtCore.SIGNAL("currentIndexChanged(const QString)"), self.select_liste)
 		self.NOT1select.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
@@ -598,12 +598,7 @@ class Principal(QtGui.QMainWindow):
 	#le champ de recherche
 		self.list_research = QtGui.QLineEdit()
 		self.list_research.returnPressed.connect(self.list_concept_search)
-		#self.list_research_button = QtGui.QPushButton()
-		#self.list_research_button.setIcon(QtGui.QIcon("loupe.png"))
-		#self.list_research_button.clicked.connect(self.list_concept_search)
 		NOT1VHC.addWidget(self.list_research)
-		#NOT1VHC.addWidget(self.list_research_button)
-		#self.list_research_button.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
 		
 
 	# les commandes
@@ -614,9 +609,9 @@ class Principal(QtGui.QMainWindow):
 		#NOT1Commands1Menu.addAction('&search')
 		#submenu_sort = QtGui.QMenu('&sort')
 		#NOT1Commands1Menu.addMenu(submenu_sort)
-		self.menu_occurences = self.NOT1Commands1Menu.addAction('occurences',self.affiche_liste_scores_oc)
-		self.menu_deployement = self.NOT1Commands1Menu.addAction('deployement',self.affiche_liste_scores_dep)
-		self.menu_alphabetical = self.NOT1Commands1Menu.addAction('alphabetically',self.affiche_liste_scores_alpha)
+		self.NOT1Commands1Menu.addAction('occurences',self.affiche_liste_scores_oc)
+		self.NOT1Commands1Menu.addAction('deployement',self.affiche_liste_scores_dep)
+		self.NOT1Commands1Menu.addAction('alphabetically',self.affiche_liste_scores_alpha)
 #TODO ajouter pondere, nb textes, nb auteurs, nb jours presents, relatif nb jours, nb representants, nb elements reseau
 		#NOT1Commands1Menu.addAction('&sort')
 		#NOT1Commands1Menu.addAction('&filter')
@@ -669,21 +664,21 @@ class Principal(QtGui.QMainWindow):
 		self.NOT2select.addItem(u"fictions")
 		self.NOT2select.addItem(u"entitie's categories")
 		NOT2VHC.addWidget(self.NOT2select)
-		#changer pour concept	self.connect(self.NOT2select,QtCore.SIGNAL("currentIndexChanged(const QString)"), self.select_liste)
+		self.connect(self.NOT2select,QtCore.SIGNAL("currentIndexChanged(const QString)"), self.select_concept)
 		self.NOT2select.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
 		NOT2_spacer = QtGui.QLabel()
 		NOT2_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
 		NOT2VHC.addWidget(NOT2_spacer)
-		#changer pour concept self.list_research = QtGui.QLineEdit()
-		#changer pour concept self.list_research.returnPressed.connect(self.list_concept_search)
-		#changer pour concept NOT2VHC.addWidget(self.list_research)
+		self.concept_research = QtGui.QLineEdit()
+		#self.list_research.returnPressed.connect(self.list_concept_search)
+		NOT2VHC.addWidget(self.concept_research)
 		self.NOT2Commands1 = QtGui.QPushButton()
 		self.NOT2Commands1.setText(u"\u2195")
 		self.NOT2Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
 		self.NOT2Commands1Menu = QtGui.QMenu(self)
-		#self.menu_occurences = self.NOT1Commands1Menu.addAction('occurences',self.affiche_liste_scores_oc)
-		#self.menu_deployement = self.NOT1Commands1Menu.addAction('deployement',self.affiche_liste_scores_dep)
-		#self.menu_alphabetical = self.NOT1Commands1Menu.addAction('alphabetically',self.affiche_liste_scores_alpha)
+		self.NOT2Commands1Menu.addAction('occurences',self.affiche_concepts_scores_oc)
+		self.NOT2Commands1Menu.addAction('deployement',self.affiche_concepts_scores_dep) 
+		self.NOT2Commands1Menu.addAction('alphabetically',self.affiche_concepts_scores_alpha)
 		self.NOT2Commands1.setMenu(self.NOT2Commands1Menu)
 		NOT2VHC.addWidget(self.NOT2Commands1)
 		self.NOT2Commands2 = QtGui.QPushButton()
@@ -727,6 +722,7 @@ class Principal(QtGui.QMainWindow):
 
 		self.Explo_saisie = QtGui.QLineEdit()
 		NOT3V.addWidget(self.Explo_saisie)
+		self.Explo_saisie.returnPressed.connect(self.Explorer)
 
 		NOT3VH = QtGui.QHBoxLayout()
 		NOT3V.addLayout(NOT3VH)
@@ -748,10 +744,10 @@ class Principal(QtGui.QMainWindow):
 
 
 
-		self.Explo_action = QtGui.QPushButton("search")
-		self.Explo_action.setEnabled(False) #desactivé au lancement
-		self.Explo_action.clicked.connect(self.Explorer)
-		NOT3VH.addWidget(self.Explo_action)
+		#self.Explo_action = QtGui.QPushButton("search")
+		#self.Explo_action.setEnabled(False) #desactivé au lancement
+		#self.Explo_action.clicked.connect(self.Explorer)
+		#NOT3VH.addWidget(self.Explo_action)
 
 		Explo_spacer1 = QtGui.QLabel()
 		Explo_spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -828,7 +824,7 @@ class Principal(QtGui.QMainWindow):
 		SubWdwNO.addTab(NOT1,"Lexicon")
 		SubWdwNO.addTab(NOT2,"Concepts")
 		SubWdwNO.addTab(NOT3,"Search")
-		SubWdwNO.addTab(NOT5,"Metadata")
+		SubWdwNO.addTab(NOT5,"Metadatas")
 
 		#SubWdwNO.setCurrentIndex(0) #Focus sur l'onglet listes concepts
 
@@ -911,16 +907,21 @@ class Principal(QtGui.QMainWindow):
 		path = QtGui.QFileDialog.getOpenFileName(self, 'Select corpus path')
 		self.Param_Server_path_PRC.setText(path[0])
 
+	def get_semantique_concepts(self):
+		if (self.NOT2select.currentText()=="collections") : 
+			return '$col'
+		elif ( self.NOT2select.currentText()=="fictions" ) : 
+			return '$ef'
+		elif (self.NOT2select.currentText()=="entitie's categories") : 
+			return '$cat_ent'
+		else : 
+			return False
 
 	def get_semantique(self):
 		if (self.NOT1select.currentText()=="entities") : 
 			return '$ent'
-		elif (self.NOT1select.currentText()=="collections") : 
-			return '$col'
-		elif ( self.NOT1select.currentText()=="fictions" ) : 
-			return '$ef'
-		elif (self.NOT1select.currentText()=="entitie's categories") : 
-			return '$cat_ent'
+		elif (self.NOT1select.currentText()=="qualities") : 
+			return '$qualite'
 		else : 
 			return False
 
@@ -1068,28 +1069,34 @@ class Principal(QtGui.QMainWindow):
 		val = self.client.eval_var(sem)
 		return val
 
+	def select_concept(self,typ):
+		""" quand un element de Concepts est selectionné """
+		self.sem_concept = self.get_semantique_concepts()
+		print self.sem_concept
+		if (self.sem_concept in ["$col"]):
+			self.affiche_concepts_scores_dep()
+		else :
+			self.affiche_concepts_scores_oc()
+
 	def select_liste(self,typ):
-		""" quand un type de liste est selectionné """
-		#self.activity(u"Waiting for  %s list" % (typ)) 
+		""" quand un element de Lexicon est selectionné """
 		self.sem_liste_concept = self.get_semantique()
-		#content = self.client.recup_liste_concept(self.sem_liste_concept)
-		#self.activity(u"Displaying %s list (%d items)" % (typ,len(content)))
-		#self.change_liste(content)
-		#self.which = None
-
 		self.detect = ["abracadabri"]
-
-		if (self.sem_liste_concept in ["$ef","$ent","$cat_ent"]):
-			self.affiche_liste_scores_oc()
-		elif (self.sem_liste_concept in ["$col"]):
-			self.affiche_liste_scores_dep()
-		
+		self.affiche_liste_scores_oc()
 
 	def change_liste(self,content):
 		self.NOT12.clear()
 		self.NOT12_D.clear()
 		self.NOT12_E.clear()
 		self.NOT12.addItems(content)
+
+
+	def change_liste_concepts(self,content):
+		self.NOT22.clear()
+		self.NOT22_D.clear()
+		self.NOT22_E.clear()
+		self.NOT22.addItems(content)
+
 
 	def choose_score_tick(self):
 		"""tick and disable the choosen order selected, untick and enable others"""
@@ -1101,6 +1108,17 @@ class Principal(QtGui.QMainWindow):
 				act.setEnabled(True)
 				act.setIcon(QtGui.QIcon())
 		self.NOT1Commands1.setText(u"\u2195 %s"%self.which)
+	
+	def choose_score_concepts_tick(self):
+		"""tick and disable the choosen order selected, untick and enable others"""
+		for act in self.NOT2Commands1Menu.actions():
+			if (act.text() == self.which_concepts):
+				act.setIcon(QtGui.QIcon("Tick.gif"))
+				act.setEnabled(False)
+			else :
+				act.setEnabled(True)
+				act.setIcon(QtGui.QIcon())
+		self.NOT2Commands1.setText(u"\u2195 %s"%self.which_concepts)
 			
 
 	def affiche_liste_scores_alpha(self):
@@ -1117,6 +1135,74 @@ class Principal(QtGui.QMainWindow):
 		self.which = "deployement"
 		self.choose_score_tick()
 		self.affiche_liste_scores()
+
+
+	def affiche_concepts_scores_alpha(self):
+		self.which_concepts = "alphabetically"
+		self.choose_score_concepts_tick()
+		self.affiche_concepts_scores()
+
+	def affiche_concepts_scores_oc(self):
+		self.which_concepts = "occurences"
+		self.choose_score_concepts_tick()
+		self.affiche_concepts_scores()
+
+	def affiche_concepts_scores_dep(self):
+		self.which_concepts = "deployement"
+		self.choose_score_concepts_tick()
+		self.affiche_concepts_scores()
+
+
+
+	def affiche_concepts_scores(self):
+		typ = self.NOT2select.currentText()
+		self.sem_concept = self.get_semantique_concepts()
+		content = self.client.recup_liste_concept(self.sem_concept)
+		self.activity(u"Displaying %s list (%d items) ordered by %s" % (typ,len(content), self.which_concepts))
+		liste_valued =[]
+		for row  in range(len(content)):
+			if (self.which_concepts == "occurences" or self.which_concepts == "alphabetically"):
+				order = "val"
+				ask = "%s%d.%s"% ( self.sem_concept, row, order)
+			elif (self.which_concepts == "deployement"):
+				order = "dep"
+				ask = "%s%d.%s"% ( self.sem_concept, row, order)
+
+
+			self.client.eval_var( ask )
+
+			try :
+				val = int(self.client.eval_var_result)
+			except:
+				#en cas de non reponse
+				print [ask]
+				val = 0
+			liste_valued.append([val,content[row]])
+	
+			self.PrgBar.setValue(row * 100 / len(content))
+			QtGui.QApplication.processEvents()
+
+
+
+
+		liste_final =[]
+		self.content_liste_concept = []
+		if (self.which_concepts == "alphabetically" ):
+			for i in sorted(liste_valued,key=lambda x : x[1],reverse = 0):
+				item_resume = u"%s %s" % (i[0], i[1])
+				liste_final.append(item_resume) 
+				self.content_liste_concept.append(i[1])
+		else :
+			for i in sorted(liste_valued,key=lambda x : x[0],reverse = 1):
+				item_resume = u"%s %s" % (i[0], i[1])
+				liste_final.append(item_resume) 
+				self.content_liste_concept.append(i[1])
+		self.change_liste_concepts(liste_final)
+
+		self.PrgBar.reset()
+
+
+
 
 	def affiche_liste_scores(self):
 		typ = self.NOT1select.currentText()
@@ -1352,8 +1438,9 @@ class Principal(QtGui.QMainWindow):
 			self.select_liste(self.NOT1select.currentText())
 
 			self.NOT1Commands1.setEnabled(True) 
-			#self.list_research_button.setEnabled(True) 
 			self.NOT1select.setEnabled(True) 
+			self.NOT2Commands1.setEnabled(True) 
+			self.NOT2select.setEnabled(True) 
 
 			# affiche textes au demarrage
 			self.recup_liste_textes()
@@ -1368,7 +1455,7 @@ class Principal(QtGui.QMainWindow):
 			# donne le focus a l'onglet history
 			self.SubWdwNE.setCurrentIndex(self.History_index)
 
-			self.Explo_action.setEnabled(True) 
+			#self.Explo_action.setEnabled(True) 
 		
 	def disconnect_server(self):
 		"""Disconnect"""
@@ -1890,7 +1977,7 @@ class Principal(QtGui.QMainWindow):
 
 	def recup_ctx(self):
 		self.NOT5_list.clear()
-		self.activity("evaluating context list")
+		self.activity("evaluating metadatas list")
 		self.client.eval_var(u"$ctx[0:]")
 		result = re.split(", ",self.client.eval_var_result )
 		self.NOT5_list.addItems(result)
