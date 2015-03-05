@@ -69,6 +69,9 @@ class client(object):
 	def eval (self, L):
 		return self.c.eval(L)
 
+	def creer_msg_set_ctx(self,data):
+		return self.c.creer_msg_set_ctx(data)
+
 
 class Principal(QtGui.QMainWindow):
 	def __init__(self):
@@ -186,6 +189,8 @@ class Principal(QtGui.QMainWindow):
 				self.PrgBar.setValue(  prgbar_val )
 				QtGui.QApplication.processEvents()
 			prgbar_val -= 2
+
+
 
 		self.PrgBar.reset()
 
@@ -338,6 +343,7 @@ class Principal(QtGui.QMainWindow):
 		
 		self.Hbox_textCTX_commands = QtGui.QHBoxLayout()
 		self.textCTX_valid = QtGui.QPushButton("save")
+		self.textCTX_valid.clicked.connect(self.saveCTX)
 		self.textCTX_valid.setEnabled(False)
 		self.Hbox_textCTX_commands.addWidget(self.textCTX_valid)
 		self.textCTX_reset = QtGui.QPushButton("reset")
@@ -750,9 +756,14 @@ class Principal(QtGui.QMainWindow):
 #		self.NOT5_cont.currentItemChanged.connect() 
 
 
-		SubWdwNO.addTab(NOT1,"Lists")
+
+		NOT2 = QtGui.QWidget()
+
+
+		SubWdwNO.addTab(NOT1,"Lexicon")
+		SubWdwNO.addTab(NOT2,"Concepts")
 		SubWdwNO.addTab(NOT3,"Search")
-		SubWdwNO.addTab(NOT5,"Contexts")
+		SubWdwNO.addTab(NOT5,"Metadata")
 
 		#SubWdwNO.setCurrentIndex(0) #Focus sur l'onglet listes concepts
 
@@ -958,17 +969,31 @@ class Principal(QtGui.QMainWindow):
 		r = self.textCTX.currentRow()
 		if (r != -1):
 			self.textCTX.currentItem().setBackground(QtGui.QColor( 237,243,254)) # cyan
-			#self.textCTX_valid.setEnabled(True)
+			self.textCTX_valid.setEnabled(True)
 			self.textCTX_reset.setEnabled(True)
-			"""
-			c = self.textCTX.currentColumn()
-			if (c == 1): 
-				#modif de la valeur d'une prop
-				print  self.textCTX.currentItem().text()
-			elif (c == 0 ):
-				#modif du nom d'une prop
-				print  self.textCTX.currentItem().text()
-			"""
+
+
+	def saveCTX(self):
+		c = self.textCTX.currentColumn()
+		r = self.textCTX.currentRow()
+		if (c == 1): 
+			field = self.textCTX.item(r,0).text()
+			val =  self.textCTX.currentItem().text()
+		sem_txt = self.semantique_txt_item
+		
+		self.client.creer_msg_set_ctx ( (sem_txt, field, val) )
+		
+
+		self.textCTX_valid.setEnabled(False)
+		self.textCTX_reset.setEnabled(False)
+		self.show_textCTX(self.m_current_selected_semtext)
+
+		"""
+			#modif de la valeur d'une prop
+		elif (c == 0 ):
+			#modif du nom d'une prop
+			print  self.textCTX.currentItem().text()
+		"""
 			
 
 		'''essais pour modifier un champ ctx
@@ -1268,6 +1293,7 @@ class Principal(QtGui.QMainWindow):
 		self.activity("Connecting to server")
 		#self.client=client(self.Param_Server_val_host.text(),self.Param_Server_val_port.text())
 		self.client=client("prosperologie.org","60000")
+		#self.client=client("localhost","60000")
 		self.client.teste_connect()
 		if (self.client.Etat):
 			# calcule en avance

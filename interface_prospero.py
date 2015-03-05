@@ -633,6 +633,7 @@ class ConnecteurPII (threading.Thread):
 		if (verbose) :
 			print lexpr
 		return lexpr
+
 	def creer_msg_set_ctx (self,data):
 		'''
 			data -> ($txt4 , champ, valeur)
@@ -880,6 +881,7 @@ class ConnecteurPII (threading.Thread):
 		L.append(VBS)
 		L.append("F")
 		return L
+
 	def creer_msg_ctx(self,props, ctx_range):
 		'''
 			$ctx.titre[0:]
