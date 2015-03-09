@@ -18,6 +18,7 @@ from PySide.QtGui import QMdiArea
 
 class client(object):
 	def __init__(self,h = 'prosperologie.org',p = '60000'):
+	#def __init__(self,h = '192.168.1.99',p = '4000'):
 		self.c = interface_prospero.ConnecteurPII() 
 		self.c.set(h,p)
 		self.teste_connect()
@@ -1256,7 +1257,8 @@ class Principal(QtGui.QMainWindow):
 	def connect_server(self):
 		self.activity("Connecting to server")
 		#self.client=client(self.Param_Server_val_host.text(),self.Param_Server_val_port.text())
-		self.client=client("prosperologie.org","60000")
+		#self.client=client("prosperologie.org","60000")
+		self.client=client("192.168.1.99","4000")
 		self.client.teste_connect()
 		if (self.client.Etat):
 			# calcule en avance
