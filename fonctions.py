@@ -20,6 +20,7 @@ liste_var_list=["$list_cat_txt","$list_col_txt","$list_ac","$list_rep_present","
 list_var_count=["nbpg","val","nbtxt","eno" ,"det"]
 list_var_count_spec=["cpt"]
 list_var_attribut=["auteur_txt","titre_txt","date_txt"]
+list_exclusion = [ "ctx"]
 
 def is_random_var(var):
 	"""test si on a une variable aléatoire (non cachable !)
@@ -40,7 +41,8 @@ def is_random_var(var):
 		if r:
 			flg_is_alea_if_next_is_spec = False
 			continue
-		
+		if terme in list_exclusion:	# $txt2.ctx.title les ctx renvois tj à un objet précis
+			return False
 		
 		
 		# ni indice ni tranche ? est-ce une aléatoire ou une exception
@@ -389,7 +391,27 @@ def rewrite (data):
 	#print "après : ", data
 		
 	return data
-	
+
+
+def translate (data):
+	dic={
+		"title" : "titre",
+		"author" : "auteur",
+		"date" : "date" , 
+		"narrator" : "narrateur",
+		"type of support" : "type de support",
+		"author status" : " statut de l'auteur",
+		"Free-field 1" : "champ libre n°1",
+		"????" : "????",
+		"place of emission" : "lieu d'émission",
+		"presence author  ??" : "présence de l'auteur"
+		
+		}
+	if data in dic.keys():
+		return dic[data]
+	return data
+
+
 if 	__name__ == '__main__' :
 	#save_log_eval_var("mrlw-II-eval.log","$var.truc.machin", "toto")
 	#save_log_eval_var("mrlw-II-eval.log","$var.truc.machin.bidule.truc", "toto")
