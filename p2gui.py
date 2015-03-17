@@ -69,9 +69,8 @@ class client(object):
 	def eval (self, L):
 		return self.c.eval(L)
 
-	def creer_msg_set_ctx(self,data):
-		return self.c.creer_msg_set_ctx(data)
-
+	def eval_set_ctx(self,text,props,value):
+		return self.c.eval_set_ctx
 
 class Principal(QtGui.QMainWindow):
 	def __init__(self):
@@ -152,12 +151,12 @@ class Principal(QtGui.QMainWindow):
 			indice = 0
 			if len (liste_data_ok_ctx) != nbre_txt :
 				print "problemo qq part les listes doivent avoir le même nbre d'éléments"
-			if champ == "title" :
-				champ = u"titre_txt"
-			if champ == "date" :
-				champ = u"date_txt"
-			if champ == "author" :
-				champ = u"auteur_txt"
+			#if champ == "title" :
+			#	champ = u"titre_txt"
+			#if champ == "date" :
+			#	champ = u"date_txt"
+			#if champ == "author" :
+			#	champ = u"auteur_txt"
 				
 			liste_champs_ajuste.append (champ)
 			for text in listeTextes :
@@ -167,12 +166,14 @@ class Principal(QtGui.QMainWindow):
 				indice +=1	
 		# on se sert de la liste des champs dans l'onglet CTX			
 		self.liste_champs_ctx = liste_champs_ajuste	
+#TODO ordonner la liste pour la faire commencer par les champs typiques : titre, auteur, narrateur, destinataire, date, support, type support, observation, qualite auteur, lieu, CL1 (période),  CL2 (sous-corpus)
 		
 		prgbar_val = 50
 
 		# précalcule de valeurs associées 
 		for type_var in [ "$ent" , "$ef" , "$col", "$qualite"] :
 			self.activity("pre-computing : %s " % (type_var))
+#freq et nbaut ne marche pas ?
 			for type_calcul in ["freq","dep", "nbaut", "nbtxt","lapp","fapp"]:
 				L = self.client.eval_vector(type_var, type_calcul)
 				L = L.split(',')	 
@@ -208,8 +209,8 @@ class Principal(QtGui.QMainWindow):
 		Menubar = self.menuBar()
 
 		Menu_Corpus = Menubar.addMenu('&Corpus')
+		#Menu_Corpus.setShortcut('Ctrl+C')
 		Menu_distant = QtGui.QAction(QtGui.QIcon('distant.png'), '&prosperologie.org', self)        
-		#.setShortcut('Ctrl+Q')
 		Menu_distant.setStatusTip('Connect to prosperologie.org server')
 		Menu_distant.triggered.connect(self.connect_server)
 		Menu_Corpus.addAction(Menu_distant)
@@ -217,7 +218,14 @@ class Principal(QtGui.QMainWindow):
 		Menu_local.setStatusTip('Launch a local server')
 		Menu_local.triggered.connect(self.connect_server_localhost)
 		Menu_Corpus.addAction(Menu_local)
-		#Menu_local.setEnabled(False)
+
+		Menu_Texts = Menubar.addMenu('&Texts')
+		Menu_AddTex = QtGui.QAction('&Add a new text', self)        
+		Menu_Texts.addAction(Menu_AddTex)
+		Menu_AddTex.setEnabled(False)
+		Menu_ModTex = QtGui.QAction('&Action on selected texts', self)        
+		Menu_Texts.addAction(Menu_ModTex)
+		Menu_ModTex.setEnabled(False)
 	
 
 
@@ -613,6 +621,10 @@ class Principal(QtGui.QMainWindow):
 		self.NOT1Commands1Menu.addAction('occurences',self.affiche_liste_scores_oc)
 		self.NOT1C1_dep = self.NOT1Commands1Menu.addAction('deployement',self.affiche_liste_scores_dep)
 		self.NOT1Commands1Menu.addAction('alphabetically',self.affiche_liste_scores_alpha)
+#TODO verifier anglais
+		self.NOT1Commands1Menu.addAction('text number',self.affiche_liste_scores_texts)
+		self.NOT1Commands1Menu.addAction('first apparition',self.affiche_liste_scores_fapp)
+		self.NOT1Commands1Menu.addAction('last apparition',self.affiche_liste_scores_lapp)
 #TODO ajouter pondere, nb textes, nb auteurs, nb jours presents, relatif nb jours, nb representants, nb elements reseau
 		#NOT1Commands1Menu.addAction('&sort')
 		#NOT1Commands1Menu.addAction('&filter')
@@ -626,7 +638,7 @@ class Principal(QtGui.QMainWindow):
 		NOT1Commands2Menu = QtGui.QMenu(self)
 		NOT1Commands2Menu.addAction('network' , self.show_network)
 		self.liste_text_lists= []	
-		self.liste_text_lists_items= []
+		self.liste_text_lists_items= {}
 		NOT1Commands2Menu.addAction('texts' , self.show_texts)
 		self.NOT1Commands2.setMenu(NOT1Commands2Menu)
 		NOT1VHC.addWidget(self.NOT1Commands2)
@@ -680,6 +692,9 @@ class Principal(QtGui.QMainWindow):
 		self.NOT2Commands1Menu.addAction('occurences',self.affiche_concepts_scores_oc)
 		self.NOT2Commands1Menu.addAction('deployement',self.affiche_concepts_scores_dep) 
 		self.NOT2Commands1Menu.addAction('alphabetically',self.affiche_concepts_scores_alpha)
+		self.NOT2Commands1Menu.addAction('text number',self.affiche_concepts_scores_texts)
+		self.NOT2Commands1Menu.addAction('first apparition',self.affiche_concepts_scores_fapp)
+		self.NOT2Commands1Menu.addAction('last apparition',self.affiche_concepts_scores_lapp)
 		self.NOT2Commands1.setMenu(self.NOT2Commands1Menu)
 		NOT2VHC.addWidget(self.NOT2Commands1)
 		self.NOT2Commands2 = QtGui.QPushButton()
@@ -946,11 +961,14 @@ class Principal(QtGui.QMainWindow):
 
 		for T in range(len(self.client.txts)):
 			sem_txt = "$txt%d" % T
-			self.client.eval_var(u"%s.date_txt" % (sem_txt))
+			#self.client.eval_var(u"%s.date_txt" % (sem_txt))
+			self.client.eval_var(u"%s.date" % (sem_txt))
 			date = re.sub("^\s*","",self.client.eval_var_result)
-			self.client.eval_var(u"%s.auteur_txt" % (sem_txt))
+			#self.client.eval_var(u"%s.auteur_txt" % (sem_txt))
+			self.client.eval_var(u"%s.auteur" % (sem_txt))
 			auteur = re.sub("^\s*","",self.client.eval_var_result)
-			self.client.eval_var(u"%s.titre_txt" % (sem_txt))
+			#self.client.eval_var(u"%s.titre_txt" % (sem_txt))
+			self.client.eval_var(u"%s.titre" % (sem_txt))
 			titre = re.sub("^\s*","",self.client.eval_var_result)
 			self.liste_txt_corpus[self.client.txts[T]] = [date, auteur, titre]
 
@@ -1013,6 +1031,7 @@ class Principal(QtGui.QMainWindow):
 		self.CorpusTexts.clearSelection()
 		if (self.SOT1.count() > 1):
 			for o in self.liste_text_lists:
+				#o.reset() #mieux mais pas encore ça
 				o.clearSelection()
 		self.efface_textCTX()
 		self.textContent.clear()
@@ -1049,19 +1068,20 @@ class Principal(QtGui.QMainWindow):
 
 
 	def saveCTX(self):
-		c = self.textCTX.currentColumn()
-		r = self.textCTX.currentRow()
-		if (c == 1): 
+		for r in range( self.textCTX.rowCount()):
 			field = self.textCTX.item(r,0).text()
-			val =  self.textCTX.currentItem().text()
-		sem_txt = self.semantique_txt_item
+			val =  self.textCTX.item(r,1).text()
+			ask = u"%s.%s" % ( self.m_current_selected_semtext,field)
+			self.client.eval_var(ask)
+			result = re.sub(u"^\s*","",self.client.eval_var_result)
+			if (result != val):
+				print [field, result, val]
+				self.client.eval_set_ctx( self.m_current_selected_semtext,field,val)
 		
-		#self.client.creer_msg_set_ctx ( (sem_txt, field, val) )
-		print (sem_txt, field, val)
 		
-
 		self.textCTX_valid.setEnabled(False)
 		self.textCTX_reset.setEnabled(False)
+#TODO verifier que le cache soit mis à jour
 		self.show_textCTX(self.m_current_selected_semtext)
 
 
@@ -1138,6 +1158,23 @@ class Principal(QtGui.QMainWindow):
 		self.choose_score_tick()
 		self.affiche_liste_scores()
 
+
+	def affiche_liste_scores_texts(self):
+		self.which = "text number"
+		self.choose_score_tick()
+		self.affiche_liste_scores()
+
+	def affiche_liste_scores_fapp(self):
+		self.which = "first apparition"
+		self.choose_score_tick()
+		self.affiche_liste_scores()
+
+
+	def affiche_liste_scores_lapp(self):
+		self.which = "last apparition"
+		self.choose_score_tick()
+		self.affiche_liste_scores()
+
 	def affiche_liste_scores_oc(self):
 		self.which = "occurences"
 		self.choose_score_tick()
@@ -1153,6 +1190,25 @@ class Principal(QtGui.QMainWindow):
 		self.which_concepts = "alphabetically"
 		self.choose_score_concepts_tick()
 		self.affiche_concepts_scores()
+
+
+	def affiche_concepts_scores_texts(self):
+		self.which_concepts = "text number"
+		self.choose_score_tick()
+		self.affiche_concepts_scores()
+
+	def affiche_concepts_scores_fapp(self):
+		self.which_concepts = "first apparition"
+		self.choose_score_tick()
+		self.affiche_concepts_scores()
+
+
+	def affiche_concepts_scores_lapp(self):
+		self.which_concepts = "last apparition"
+		self.choose_score_tick()
+		self.affiche_concepts_scores()
+
+
 
 	def affiche_concepts_scores_oc(self):
 		self.which_concepts = "occurences"
@@ -1179,12 +1235,24 @@ class Principal(QtGui.QMainWindow):
 			elif (self.which_concepts == "deployement"):
 				order = "dep"
 				ask = "%s%d.%s"% ( self.sem_concept, row, order)
+			elif (self.which_concepts == "text number"):
+				order = "nbtxt"
+				ask = "%s%d.%s"% ( self.sem_concept, row, order)
+			elif (self.which_concepts == "first apparition"):
+				order = "fapp"
+				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
+			elif (self.which_concepts == "last apparition"):
+				order = "lapp"
+				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
 
 
 			self.client.eval_var( ask )
 
 			try :
-				val = int(self.client.eval_var_result)
+				if self.which_concepts  in ["first apparition",  "last apparition"]:
+					val = re.sub(u"^\s*","",self.client.eval_var_result)
+				else :
+					val = int(self.client.eval_var_result)
 			except:
 				#en cas de non reponse
 				print [ask]
@@ -1231,11 +1299,23 @@ class Principal(QtGui.QMainWindow):
 			elif (self.which == "deployement"):
 				order = "dep"
 				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
+			elif (self.which == "text number"):
+				order = "nbtxt"
+				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
+			elif (self.which == "first apparition"):
+				order = "fapp"
+				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
+			elif (self.which == "last apparition"):
+				order = "lapp"
+				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
 
 			self.client.eval_var( ask )
 
 			try :
-				val = int(self.client.eval_var_result)
+				if self.which  in ["first apparition",  "last apparition"]:
+					val = re.sub(u"^\s*","",self.client.eval_var_result)
+				else :
+					val = int(self.client.eval_var_result)
 				if (self.sem_liste_concept == "$ent" and self.which == "deployement" and val == 0):
 					val = 1
 			except:
@@ -1294,6 +1374,9 @@ class Principal(QtGui.QMainWindow):
 							ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
 						elif (self.which  == "deployement" ):
 							ask = "%s.rep%d.dep"% (self.semantique_liste_item,r)
+						elif (self.which  == "text number" ):
+#TODO corriger : il donne la valeur de l'EF entier
+							ask = "%s.rep%d.nbtxt"% (self.semantique_liste_item,r)
 						self.client.eval_var(ask)
 						val = int(self.client.eval_var_result)
 						to_add = "%d %s"%(val, result[r] )
@@ -1303,16 +1386,15 @@ class Principal(QtGui.QMainWindow):
 							break
 						self.liste_D_unsorted.append(to_add)
 							
-					#if (sem not in ["$cat_ent"]):
 					if (self.which == "alphabetically"):
 						liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : re.split(" ",x)[1],reverse =  0)
 					else :
 						liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : int(re.split(" ",x)[0]),reverse =  1)
 					self.NOT12_D.addItems(liste_D_sorted)
 
-					if len(result) == 1 : # afficher directement E s'il ny a qu'une sous-catégorie
-						self.NOT12_D.setCurrentItem(self.NOT12_D.item(0))
-						self.liste_D_item_changed()
+					# afficher directement E du premier element de D 
+					self.NOT12_D.setCurrentItem(self.NOT12_D.item(0))
+					self.liste_D_item_changed()
 			else :
 				self.semantique_liste_item =  sem 
 
@@ -1397,14 +1479,22 @@ class Principal(QtGui.QMainWindow):
 			if ( result != [u''] ):
 				if (sem in ["$cat_ent"]):#affiche directement sur la liste E
 					liste_scoree = []
+					prgbar_val = 0
 					for r in range(len(result)):
-						ask = "%s.rep%d.val"% (self.semantique_concept_item,r)
+						if (self.which_concepts == "text number"):
+#TODO corriger, il donne la valeur de la categorie entiere
+							ask = "%s.rep%d.nbtxt"% (self.semantique_concept_item,r)
+						else :
+							ask = "%s.rep%d.val"% (self.semantique_concept_item,r)
 						self.client.eval_var(ask)
 						val = int(self.client.eval_var_result)
 						liste_scoree.append( [ result[r] , val ])
+						self.PrgBar.setValue( r * 100 / len(result)  )
+						QtGui.QApplication.processEvents()
 					if (self.which_concepts == "alphabetically"):
 						liste_scoree.sort()
 					self.NOT22_E.addItems(map(lambda x : "%d %s"% (x[1], x[0]),liste_scoree))   
+					self.PrgBar.reset()
 
 				else:
 					self.liste_D_concepts_unsorted = []
@@ -1429,9 +1519,9 @@ class Principal(QtGui.QMainWindow):
 							liste_D_sorted = sorted(self.liste_D_concepts_unsorted,key = lambda x : int(re.split(" ",x)[0]),reverse =  1)
 					self.NOT22_D.addItems(liste_D_sorted)
 
-					if len(result) == 1 : # afficher directement E s'il ny a qu'une sous-catégorie
-						self.NOT22_D.setCurrentItem(self.NOT22_D.item(0))
-						self.liste_D_concept_changed()
+					# afficher directement E du premier item de D
+					self.NOT22_D.setCurrentItem(self.NOT22_D.item(0))
+					self.liste_D_concept_changed()
 
 
 			#activation des boutons de commande
@@ -1614,7 +1704,8 @@ class Principal(QtGui.QMainWindow):
 		for props in self.liste_champs_ctx :
 			props_sem = "%s.%s" % (sem_txt,props)
 			self.client.eval_var(props_sem)
-			value = self.client.eval_var_result
+			value = re.sub(u"^\s*","",self.client.eval_var_result)
+			#value = self.client.eval_var_result
 			itemCTXwidget_field = QtGui.QTableWidgetItem(props)
 			#font = itemCTXwidget_field.font()
 			#font.setBold(True)
@@ -2000,18 +2091,16 @@ class Principal(QtGui.QMainWindow):
 
 		self.l_corp_ord = []
 		self.l_anticorp_ord = []
+		#self.liste_text_lists_items[self.show_texts_corpus] =  []
 		for T,V in  sorted(self.liste_txt_corpus.items(),key=lambda (k,v) : "%s%s%s".join(reversed(re.split("/",v[0])))):
 			txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
 			if T in liste_textes: 
 				self.l_corp_ord.append(T)
 				self.show_texts_corpus.addItem(txt_resume)
-				I = self.show_texts_corpus.item( self.show_texts_corpus.count() -1)
 			else:
 				self.l_anticorp_ord.append(T)
 				self.show_texts_anticorpus.addItem(txt_resume)
-				I = self.show_texts_anticorpus.item( self.show_texts_anticorpus.count() -1)
-#TODO erreur I not hashable
-			self.liste_text_lists_items.append([I,  T])
+			#self.liste_text_lists_items[self.show_texts_corpus].append( T )
 
 
 		#si la tab de l'element existe déjà, on efface l'ancienne
