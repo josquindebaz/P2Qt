@@ -989,24 +989,16 @@ class Principal(QtGui.QMainWindow):
 			sem_txt = "$txt%d" % T
 			#self.client.eval_var(u"%s.date_txt" % (sem_txt))
 
-			"""old josdev
-			self.client.eval_var(u"%s.date" % (sem_txt))
-			date = re.sub("^\s*","",self.client.eval_var_result)
-			#self.client.eval_var(u"%s.auteur_txt" % (sem_txt))
-			self.client.eval_var(u"%s.author" % (sem_txt))
-			auteur = re.sub("^\s*","",self.client.eval_var_result)
-			#self.client.eval_var(u"%s.titre_txt" % (sem_txt))
-			self.client.eval_var(u"%s.title" % (sem_txt))
-			"""
 
 			self.client.eval_var(u"%s.ctx.date" % (sem_txt))
 			date = re.sub("^\s*","",self.client.eval_var_result)
 			#self.client.eval_var(u"%s.auteur_txt" % (sem_txt))
 			self.client.eval_var(u"%s.ctx.author" % (sem_txt))
-			auteur = re.sub("^\s*","",self.client.eval_var_result)
+			author = re.sub("^\s*","",self.client.eval_var_result)
 			self.client.eval_var(u"%s.ctx.title" % (sem_txt))
-			titre = re.sub("^\s*","",self.client.eval_var_result)
-			self.liste_txt_corpus[self.client.txts[T]] = [date, auteur, titre,sem_txt]
+			title = re.sub("^\s*","",self.client.eval_var_result)
+
+			self.liste_txt_corpus[self.client.txts[T]] = [date, author, title,sem_txt]
 
 			self.PrgBar.setValue(T * 100 / len(self.client.txts) ) 
 			QtGui.QApplication.processEvents()
@@ -1120,14 +1112,14 @@ class Principal(QtGui.QMainWindow):
 			ask = u"%s.%s" % ( self.m_current_selected_semtext,field)
 			self.client.eval_var(ask)
 			result = re.sub(u"^\s*","",self.client.eval_var_result)
+#TODO ne met pas à jour le CTX, a un pb avec result
 			if (result != val):
 				print [field, result, val]
-#TODO ne met pas à jour le CTX
 				self.client.eval_set_ctx( self.m_current_selected_semtext,field,val)
 		
 		#self.client.creer_msg_set_ctx ( (sem_txt, field, val) )
-		self.client.eval_set_ctx(sem_txt, field, val)
-		print (sem_txt, field, val)
+		#self.client.eval_set_ctx(sem_txt, field, val)
+		#print (sem_txt, field, val)
 		
 		self.textCTX_valid.setEnabled(False)
 		self.textCTX_reset.setEnabled(False)
@@ -2162,12 +2154,11 @@ class Principal(QtGui.QMainWindow):
 			if T in liste_textes: 
 				self.l_corp_ord.append(T)
 				self.show_texts_corpus.addItem(txt_resume)
-				
-				self.liste_text_lists[self.show_texts_corpus].append(V[3])
+				#self.liste_text_lists[self.show_texts_corpus].append(V[3])
 			else:
 				self.l_anticorp_ord.append(T)
 				self.show_texts_anticorpus.addItem(txt_resume)
-				self.liste_text_lists[self.show_texts_anticorpus].append(V[3])
+				#self.liste_text_lists[self.show_texts_anticorpus].append(V[3])
 
 
 		#si la tab de l'element existe déjà, on efface l'ancienne
