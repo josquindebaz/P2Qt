@@ -1120,6 +1120,7 @@ class Principal(QtGui.QMainWindow):
 			if (result != val):
 				print [field, result, val]
 				self.client.eval_set_ctx( self.m_current_selected_semtext,field,val)
+				self.client.add_cache_var(self.m_current_selected_semtext +".ctx."+field,val)
 		
 		#self.client.creer_msg_set_ctx ( (sem_txt, field, val) )
 		#self.client.eval_set_ctx(sem_txt, field, val)
