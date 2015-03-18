@@ -25,7 +25,6 @@ class client(object):
 		#self.c.start()
 		self.c.set(h,p)
 		self.teste_connect()
-		self.liste_champs_ctx =[]	# init by pre_calcule()
 
 	def teste_connect(self):
 		teste = self.c.connect()
@@ -41,17 +40,13 @@ class client(object):
 		var = "%s[0:]" % sem
 		return re.split(", ",self.c.eval_variable(var))
 	
-	def recup_texts(self):
-		txts = self.c.eval_variable("$txt[0:]")
-		self.txts = re.split(", ",txts)
 
 	def eval_vector(self,type, type_calc):
 		return self.c.eval_vect_values(type, type_calc)
 
 	def eval_var(self,var):
-		#self.c.put_to_eval(var)
-		
-		self.eval_var_result = self.c.eval_variable(var)
+		#self.eval_var_result = self.c.eval_variable(var)
+		return self.c.eval_variable(var)
 		
 	def eval_var_ctx(self,props,ctx_range):
 		return self.c.eval_ctx(props,ctx_range)
@@ -83,9 +78,7 @@ class client(object):
 class Principal(QtGui.QMainWindow):
 	def __init__(self):
 		super(Principal, self).__init__()
-		self.initUI()
-		
-
+		self.UI = self.initUI()
 		
 		
 	def pre_calcule(self):
@@ -100,65 +93,56 @@ class Principal(QtGui.QMainWindow):
 		'''
 		
 
-		self.client.recup_texts()
-		listeTextes = self.client.txts
-		indice = 0
-		
-
 		self.activity("pre-computing : texts")
+		self.listeTextes = self.recup_texts()
+		self.listeObjetsTextes = {}
+		for t in range(len(self.listeTextes)):
+			self.listeObjetsTextes[self.listeTextes[t]] =  Texte("$txt%d"%(t),self.listeTextes[t])
 
 		
-		nbre_txt = len (listeTextes)
+		"""
+		nbre_txt = len (self.listeTextes)
 		# mise en cache  valeur - semtxt
-		for text in listeTextes :
+		for text in self.listeTextes :
 			sem = u"$txt%s"%indice
-			txt_name = listeTextes[indice]
+			txt_name = self.listeTextes[indice]
 			cle = txt_name + u"$txt"
 			self.client.add_cache_fonct(cle, sem )
 			indice +=1
-			self.PrgBar.setValue(  indice   * 50 / nbre_txt )	
-			QtGui.QApplication.processEvents()
-		
+		"""
 			
 		# récupération des champs ctx
-		#self.client.c.put_to_eval("$ctx")
-		self.client.eval_var("$ctx")
-		string_ctx = self.client.eval_var_result 
-		
+		string_ctx =	self.client.eval_var("$ctx")
 		
 		
 		# les virgules contenues dans les titres ont été remplacées par \,
 		# la manip suivante permet de remplacer dans un premier temps les \,par un TAG
 		# ensuite de créer la liste, puis de remettre les virgules à la place des \,
 		TAG="AZETYT"	# on peut mettre presque n'importe quoi ...
-		
-		
 		string_ctx = string_ctx.replace ('\,', TAG )
 		liste_ctx = string_ctx.split(',')
-		self.liste_champs_ctx = []
+		liste_champs_ctx = []
 		for champ_ctx in liste_ctx:
 			champ_ctx = champ_ctx.strip()
 			if champ_ctx.find (TAG) != -1 :
 				champ_ctx = champ_ctx.replace(TAG,',')
-			self.liste_champs_ctx.append ( champ_ctx)		
+			liste_champs_ctx.append ( champ_ctx)		
 		
 		liste_champs_ajuste = []
 
-		for champ in self.liste_champs_ctx :
+		for champ in liste_champs_ctx :
 			 #title[0\]  date[0:]  etc on ne met pas le $ctx  ici...
-			 
-			#string_ctx = self.client.eval_var_ctx("%s"%champ,"[0:]") 
-			self.client.eval_var("$ctx.%s%s"%(champ,"[0:]")) 
-			string_ctx = self.client.eval_var_result
+			string_ctx =self.client.eval_var("$ctx.%s%s"%(champ,"[0:]")) 
 			string_ctx = string_ctx.replace ('\,', TAG )
 			liste_data_ctx = string_ctx.split(',')	
 			liste_data_ok_ctx =[]	
+
 			for data in liste_data_ctx :
 				if data.find(TAG) != -1:
 					data = data.replace(TAG,',')
 				liste_data_ok_ctx.append ( data)
-			indice = 0
-			if len (liste_data_ok_ctx) != nbre_txt :
+
+			if len (liste_data_ok_ctx) != len (self.listeTextes):
 				print "problemo qq part les listes doivent avoir le même nbre d'éléments"
 				
 			# pb non résolu
@@ -177,20 +161,27 @@ class Principal(QtGui.QMainWindow):
 				
 				#ne pas traduire pour les calculs, uniquement pour la visualisation
 			#champ = translate(champ)
+			
+
 			liste_champs_ajuste.append (champ)
-			for text in listeTextes :
-				sem = u"$txt%s"%indice
+
+			for indice in range (len(self.listeTextes)):
+				txt = self.listeObjetsTextes[self.listeTextes[indice]]
 				data = liste_data_ok_ctx[indice]
-				#self.client.add_cache_var( sem + ".%s"%champ, data)
 				# sématique avec les noms des champs anglais
-				self.client.add_cache_var( sem + ".ctx.%s"%champ, data)
-				indice +=1	
-		# on se sert de la liste des champs dans l'onglet CTX			
-		self.liste_champs_ctx = liste_champs_ajuste	
-#TODO ordonner la liste pour la faire commencer par les champs typiques : titre, auteur, narrateur, destinataire, date, support, type support, observation, qualite auteur, lieu, CL1 (période),  CL2 (sous-corpus)
-		
+				self.client.add_cache_var( txt.sem + ".ctx.%s"%champ, data)
+				txt.setCTX(champ,data)
+
+				self.PrgBar.setValue(  indice   * 50 / len(self.listeTextes))
+				QtGui.QApplication.processEvents()
+
+
+		self.liste_champs_ctx = liste_champs_ajuste
+
+
 		prgbar_val = 50
 
+		
 		# précalcule de valeurs associées 
 		for type_var in [ "$ent" , "$ef" , "$col", "$qualite"] :
 			self.activity("pre-computing : %s " % (type_var))
@@ -215,11 +206,6 @@ class Principal(QtGui.QMainWindow):
 
 
 		self.PrgBar.reset()
-
-
-
-
-
 		
 
 	
@@ -663,7 +649,6 @@ class Principal(QtGui.QMainWindow):
 		NOT1Commands2Menu = QtGui.QMenu(self)
 		NOT1Commands2Menu.addAction('network' , self.show_network)
 		self.liste_text_lists= []	
-		self.liste_text_lists_items= {}
 		NOT1Commands2Menu.addAction('texts' , self.show_texts)
 		self.NOT1Commands2.setMenu(NOT1Commands2Menu)
 		NOT1VHC.addWidget(self.NOT1Commands2)
@@ -974,32 +959,22 @@ class Principal(QtGui.QMainWindow):
 
 	def recup_liste_textes(self):
 		"""display texts for the corpus"""
-#TODO creer objet textes, meme methodes pour textes du corpus et sous-corpus,  faire un titre a afficher dans listes et en-tête du quadran, 
+#TODO meme methodes pour textes du corpus et sous-corpus,  faire un titre a afficher dans listes et en-tête du quadran, 
 		#self.activity(u"Waiting for text list"   )
-		self.client.recup_texts()
-		self.activity(u"Displaying text list (%d items)" %len(self.client.txts)  )
-		self.SOT1.tabBar().setTabText(0,"corpus (%d)"%len(self.client.txts))
+		self.activity(u"Displaying text list (%d items)" %len(self.listeTextes)  )
+		self.SOT1.tabBar().setTabText(0,"corpus (%d)"%len(self.listeTextes))
 		self.CorpusTexts.clear()
 
 		self.liste_txt_corpus = {}
 
 
-		for T in range(len(self.client.txts)):
-			sem_txt = "$txt%d" % T
-			#self.client.eval_var(u"%s.date_txt" % (sem_txt))
+		for T in range(len(self.listeTextes)):
+			txt = self.listeObjetsTextes[self.listeTextes[T]]
+			date, author, title = txt.getResume()
 
+			self.liste_txt_corpus[self.listeTextes[T]] = [date, author, title,txt.sem]
 
-			self.client.eval_var(u"%s.ctx.date" % (sem_txt))
-			date = re.sub("^\s*","",self.client.eval_var_result)
-			#self.client.eval_var(u"%s.auteur_txt" % (sem_txt))
-			self.client.eval_var(u"%s.ctx.author" % (sem_txt))
-			author = re.sub("^\s*","",self.client.eval_var_result)
-			self.client.eval_var(u"%s.ctx.title" % (sem_txt))
-			title = re.sub("^\s*","",self.client.eval_var_result)
-
-			self.liste_txt_corpus[self.client.txts[T]] = [date, author, title,sem_txt]
-
-			self.PrgBar.setValue(T * 100 / len(self.client.txts) ) 
+			self.PrgBar.setValue(T * 100 / len(self.listeTextes) ) 
 			QtGui.QApplication.processEvents()
 
 		#ordonne chrono par defaut
@@ -1110,16 +1085,16 @@ class Principal(QtGui.QMainWindow):
 			field = self.textCTX.item(r,0).text()
 			val =  self.textCTX.item(r,1).text()
 			ask = u"%s.ctx.%s" % ( self.m_current_selected_semtext,field)
-			self.client.eval_var(ask)
-			result = re.sub(u"^\s*","",self.client.eval_var_result)
+			result = re.sub(u"^\s*","",self.client.eval_var(ask))
+			
 			if (result != val):
 				print [field, result, val]
-				self.client.eval_set_ctx( self.m_current_selected_semtext,field,val)
-				self.client.eval_set_ctx( self.m_current_selected_semtext,"test",val)
+				print self.client.eval_set_ctx( self.m_current_selected_semtext,field,val)
+				print self.client.eval_set_ctx( self.m_current_selected_semtext,"test",val)
 		
 		self.textCTX_valid.setEnabled(False)
 		self.textCTX_reset.setEnabled(False)
-#TODO ne met pas à jour le CTX, 
+#TODO ne met pas à jour le CTX, a marché un moment et plus rien
 #TODO verifier que le cache soit mis à jour
 		#self.show_textCTX(self.m_current_selected_semtext)
 		self.resetCTX()
@@ -1286,16 +1261,16 @@ class Principal(QtGui.QMainWindow):
 				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
 
 
-			self.client.eval_var( ask )
+			result  = self.client.eval_var( ask )
 
 			try :
 				if self.which_concepts  in ["first apparition",  "last apparition"]:
-					val = re.sub(u"^\s*","",self.client.eval_var_result)
+					val = re.sub(u"^\s*","",result)
 				else :
-					val = int(self.client.eval_var_result)
+					val = int(result)
 			except:
 				#en cas de non reponse
-				print [ask]
+				print "pb",[ask]
 				val = 0
 			liste_valued.append([val,content[row]])
 	
@@ -1349,18 +1324,18 @@ class Principal(QtGui.QMainWindow):
 				order = "lapp"
 				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
 
-			self.client.eval_var( ask )
+			result = self.client.eval_var( ask )
 
 			try :
 				if self.which  in ["first apparition",  "last apparition"]:
-					val = re.sub(u"^\s*","",self.client.eval_var_result)
+					val = re.sub(u"^\s*","",result)
 				else :
-					val = int(self.client.eval_var_result)
+					val = int(result)
 				if (self.sem_liste_concept == "$ent" and self.which == "deployement" and val == 0):
 					val = 1
 			except:
 				#en cas de non reponse
-				print [ask]
+				print "pb2",[ask]
 				val = 0
 			liste_valued.append([val,content[row]])
 	
@@ -1403,8 +1378,8 @@ class Principal(QtGui.QMainWindow):
 				# recupere la designation semantique de l'element
 				self.semantique_liste_item = self.client.eval_get_sem(item, sem )
 				#liste les representants
-				self.client.eval_var("%s.rep[0:]"% self.semantique_liste_item)
-				result = re.split(", ", self.client.eval_var_result)
+				result = re.split(", ", self.client.eval_var("%s.rep[0:]"% self.semantique_liste_item))
+				
 				
 				if ( result != [u''] ):
 
@@ -1417,8 +1392,8 @@ class Principal(QtGui.QMainWindow):
 						elif (self.which  == "number of texts" ):
 #TODO corriger : il donne la valeur de l'EF entier
 							ask = "%s.rep%d.nbtxt"% (self.semantique_liste_item,r)
-						self.client.eval_var(ask)
-						val = int(self.client.eval_var_result)
+						val = int(self.client.eval_var(ask))
+						
 						to_add = "%d %s"%(val, result[r] )
 						#quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
 						if (val == 0):
@@ -1461,16 +1436,16 @@ class Principal(QtGui.QMainWindow):
 			self.NOT12_E.clear() # on efface la liste
 			ask = "%s.rep%d.rep[0:]" % (self.semantique_liste_item,row)
 			self.semantique_liste_item_D = u"%s.rep%d" % (self.semantique_liste_item,  row)
-			self.client.eval_var(ask)
-			result = self.client.eval_var_result
+			result =self.client.eval_var(ask)
+			 
 			if (result != "") :
 				result = re.split(", ", result)
 				if (self.which == "alphabetically"):
 					liste_scoree = []
 					for r in range(len(result)):
 						ask = "%s.rep%d.rep%d.val"% (self.semantique_liste_item,row,r)
-						self.client.eval_var(ask)
-						val = int(self.client.eval_var_result)
+						val = int(self.client.eval_var(ask))
+						
 						liste_scoree.append([result[r],val])
 						self.PrgBar.setValue(  r * 100 /len(result) )
 						QtGui.QApplication.processEvents()
@@ -1478,8 +1453,8 @@ class Principal(QtGui.QMainWindow):
 				else :
 					for r in range(len(result)):
 						ask = "%s.rep%d.rep%d.val"% (self.semantique_liste_item,row,r)
-						self.client.eval_var(ask)
-						val = int(self.client.eval_var_result)
+						val = int(self.client.eval_var(ask))
+						
 						#quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
 						if (val == 0):
 							self.NOT12_E.addItems( map(lambda x : "0 %s" %x ,result[r:]) )
@@ -1513,8 +1488,8 @@ class Principal(QtGui.QMainWindow):
 			self.NOT22_E.clear()
 			sem = self.sem_concept # recupere la designation semantique de l'element
 			self.semantique_concept_item = self.client.eval_get_sem(item, sem ) #liste les representants
-			self.client.eval_var("%s.rep[0:]"% self.semantique_concept_item)
-			result = re.split(", ", self.client.eval_var_result)
+			result = re.split(", ", self.client.eval_var("%s.rep[0:]"% self.semantique_concept_item))
+			
 			
 			if ( result != [u''] ):
 				if (sem in ["$cat_ent"]):#affiche directement sur la liste E
@@ -1526,8 +1501,8 @@ class Principal(QtGui.QMainWindow):
 							ask = "%s.rep%d.nbtxt"% (self.semantique_concept_item,r)
 						else :
 							ask = "%s.rep%d.val"% (self.semantique_concept_item,r)
-						self.client.eval_var(ask)
-						val = int(self.client.eval_var_result)
+						val = int(self.client.eval_var(ask))
+						
 						liste_scoree.append( [ result[r] , val ])
 						self.PrgBar.setValue( r * 100 / len(result)  )
 						QtGui.QApplication.processEvents()
@@ -1543,8 +1518,8 @@ class Principal(QtGui.QMainWindow):
 							ask = "%s.rep%d.val"% (self.semantique_concept_item,r)
 						elif (self.which_concepts  == "deployement" ):
 							ask = "%s.rep%d.dep"% (self.semantique_concept_item,r)
-						self.client.eval_var(ask)
-						val = int(self.client.eval_var_result)
+						val = int(self.client.eval_var(ask))
+						
 						to_add = "%d %s"%(val, result[r] )
 						#quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
 						if (val == 0):
@@ -1578,16 +1553,16 @@ class Principal(QtGui.QMainWindow):
 			self.NOT22_E.clear() # on efface la liste
 			ask = "%s.rep%d.rep[0:]" % (self.semantique_concept_item,row)
 			self.semantique_concept_item_D = u"%s.rep%d" % (self.semantique_concept_item,  row)
-			self.client.eval_var(ask)
-			result = self.client.eval_var_result
+			result = self.client.eval_var(ask)
+			
 			if (result != "") :
 				result = re.split(", ", result)
 				if (self.which_concepts == "alphabetically"):
 					liste_scoree = []
 					for r in range(len(result)):
 						ask = "%s.rep%d.rep%d.val"% (self.semantique_concept_item,row,r)
-						self.client.eval_var(ask)
-						val = int(self.client.eval_var_result)
+						val = int(self.client.eval_var(ask))
+						
 						liste_scoree.append([result[r],val])
 						self.PrgBar.setValue(  r * 100 /len(result) )
 						QtGui.QApplication.processEvents()
@@ -1595,8 +1570,8 @@ class Principal(QtGui.QMainWindow):
 				else :
 					for r in range(len(result)):
 						ask = "%s.rep%d.rep%d.val"% (self.semantique_concept_item,row,r)
-						self.client.eval_var(ask)
-						val = int(self.client.eval_var_result)
+						val = int(self.client.eval_var(ask))
+						
 						#quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
 						if (val == 0):
 							self.NOT22_E.addItems( map(lambda x : "0 %s" %x ,result[r:]) )
@@ -1707,7 +1682,7 @@ class Principal(QtGui.QMainWindow):
 
 
 			#Contexts
-			self.recup_ctx()
+			self.NOT5_list.addItems(self.liste_champs_ctx)
 
 			#self.Param_Server_B.clicked.connect(self.disconnect_server)
 			#self.Param_Server_B.setText("Disconnect")
@@ -1728,8 +1703,8 @@ class Principal(QtGui.QMainWindow):
 	def show_textContent(self ,  sem_txt):
 		"""Insert text content in the dedicated window"""
 		contentText_semantique = "%s.ph[0:]" % sem_txt
-		self.client.eval_var(contentText_semantique)
-		txt_content = self.client.eval_var_result
+		txt_content = self.client.eval_var(contentText_semantique)
+		
 		self.textContent.clear()
 		self.textContent.append(txt_content)
 		#move cursor to the beginning of the text
@@ -1744,12 +1719,13 @@ class Principal(QtGui.QMainWindow):
 		"""Show text metadata"""
 		self.m_current_selected_semtext = sem_txt	# on met de côté la sem du text
 		self.efface_textCTX()
+		#ATTENTION NOUVEL ACCES
 		self.textCTX.setRowCount(len(self.liste_champs_ctx))
 		r = 0
 		for props in self.liste_champs_ctx :
 			props_sem = "%s.ctx.%s" % (sem_txt,props)
-			self.client.eval_var(props_sem)
-			value = re.sub(u"^\s*","",self.client.eval_var_result)
+			value = re.sub(u"^\s*","",self.client.eval_var(props_sem))
+			
 			#value = self.client.eval_var_result
 			itemCTXwidget_field = QtGui.QTableWidgetItem(props)
 			#font = itemCTXwidget_field.font()
@@ -1769,24 +1745,23 @@ class Principal(QtGui.QMainWindow):
 		#self.saillantesAct.clear()
 		self.saillantesAct_deployes = []
 		list_act_sem = "%s.act[0:]" % sem_txt
-		self.client.eval_var(list_act_sem)
+		result = self.client.eval_var(list_act_sem)
 		pos = 0
-		list_act = self.client.eval_var_result.split(',')
+		list_act = result.split(',')
 		list_act_sem_val = list_act_sem + ".val"
-		self.client.eval_var(list_act_sem_val)
-		list_act_val = self.client.eval_var_result.split(',')
+		result = self.client.eval_var(list_act_sem_val)
+		list_act_val = result.split(',')
 		for act in list_act :
 			self.client.add_cache_var("%s.act%s"%(sem_txt,pos), act)
 			self.client.add_cache_var("%s.act%s.val"%(sem_txt,pos), list_act_val[pos])
 			pos +=1
-		#list_act  = self.client.eval_var_result
 		if (list_act):
 			#self.list_act = re.split(", ",list_act)
 			self.list_act = list_act
 			self.liste_act_valued = {}
 			for i in range(len(self.list_act)) :
-				self.client.eval_var(u"%s.act%d.val"%(sem_txt,i))
-				val = int(self.client.eval_var_result)
+				val = int(self.client.eval_var(u"%s.act%d.val"%(sem_txt,i)))
+				
 				self.liste_act_valued [self.list_act[i]] = [ val, 0 ] 
 				self.saillantesAct.addItem(u"%d %s" % (val, self.list_act[i]))
 				self.PrgBar.setValue ( i * 33 / len(self.list_act) )
@@ -1806,8 +1781,8 @@ class Principal(QtGui.QMainWindow):
 		#for typ in [u"cat_qua",u"cat_mar",u"cat_epr",u"cat_ent"]:
 		for typ in [u"cat_ent"]: #uniquement les cat_ent
 			list_cat_sem = "%s.%s[0:]" % (sem_txt,typ)
-			self.client.eval_var(list_cat_sem)
-			list_cat  = self.client.eval_var_result
+			list_cat  = self.client.eval_var(list_cat_sem)
+			
 			if (list_cat != u''):
 				list_cat_items = re.split(", ",list_cat)
 				r = 0
@@ -1819,8 +1794,8 @@ class Principal(QtGui.QMainWindow):
 				#old_val2 = 0
 				for i in range(len(list_cat_items)):
 					ask = u"%s.%s%d.val"%(sem_txt,typ,i)
-					self.client.eval_var(ask)
-					val = int(self.client.eval_var_result)
+					val = int(self.client.eval_var(ask))
+					
 					if (val < old_val):
 						break
 					cum += val
@@ -1851,14 +1826,14 @@ class Principal(QtGui.QMainWindow):
 		#self.saillantesCol.clear()
 		self.saillantesCol_deployees = []
 		list_col_sem = "%s.col[0:]" % sem_txt
-		self.client.eval_var(list_col_sem)
-		result = self.client.eval_var_result
+		result = self.client.eval_var(list_col_sem)
+		
 		if (result != u""):
 			self.list_col = re.split(", ",result)	
 			self.list_col_valued = {}
 			for i in range(len(self.list_col)) :
-				self.client.eval_var(u"%s.col%d.dep"%(sem_txt,i))
-				val = int(self.client.eval_var_result)
+				val = int(self.client.eval_var(u"%s.col%d.dep"%(sem_txt,i)))
+				
 				self.saillantesCol.addItem(u"%d %s" % (val, self.list_col[i]))
 				self.list_col_valued[self.list_col[i]] = val
 				self.PrgBar.setValue ( 66 + ( i * 34 / len(self.list_col) ) )
@@ -1882,15 +1857,15 @@ class Principal(QtGui.QMainWindow):
 
                         if (r in self.saillantesCol_deployees):                     
                                 ask = "%s.col%d.rep_present[0:]"%(self.semantique_txt_item,self.list_col.index(r))
-                                self.client.eval_var(ask)
-                                result = self.client.eval_var_result
+                                result = self.client.eval_var(ask)
+                                
 				if (result != u''):
                                         result = re.split(", ",result)
                                         for sub_n in range(len(result)) :
                                                 if ( result[sub_n] not in self.list_col_valued.keys() ):
                                                         ask = "%s.col%d.rep_present%d.val"%(self.semantique_txt_item,self.list_col.index(r),sub_n)
-                                                        self.client.eval_var(ask)
-                                                        res = self.client.eval_var_result
+                                                        res = self.client.eval_var(ask)
+                                                        
                                                         self.list_col_valued[result[sub_n]] = res
                                                 i = QtGui.QListWidgetItem()
                                                 i.setText(u"  %s %s"%(self.list_col_valued[result[sub_n]],result[sub_n]))
@@ -1915,15 +1890,15 @@ class Principal(QtGui.QMainWindow):
                         if (cat in self.saillantesCat_deployes):                     
 				sem = self.list_cat_txt[cat]
                                 ask = "%s.%s%d.rep_present[0:]"%(self.semantique_txt_item,sem[0],sem[1])
-                                self.client.eval_var(ask)
-                                result = self.client.eval_var_result
+                                result = self.client.eval_var(ask)
+                                
                                 if (result != u''):
                                         result = re.split(", ",result)
                                         for sub_n in range(len(result)) :
                                                 if ( result[sub_n] not in self.list_cat_valued.keys() ):
 							ask = "%s.%s%d.rep_present%d.val"%(self.semantique_txt_item,sem[0],sem[1],sub_n)
-                                                        self.client.eval_var(ask)
-                                                        res = self.client.eval_var_result
+                                                        res = self.client.eval_var(ask)
+                                                        
                                                         self.list_cat_valued[result[sub_n]] = res
                                                 i = QtGui.QListWidgetItem()
                                                 i.setText(u"  %s %s"%(self.list_cat_valued[result[sub_n]][0],result[sub_n]))
@@ -1947,15 +1922,15 @@ class Principal(QtGui.QMainWindow):
                                 
                         if (r in self.saillantesAct_deployes):                     
                                 ask = "%s.act%d.rep_present[0:]"%(self.semantique_txt_item,self.list_act.index(r))
-                                self.client.eval_var(ask)
-				result = self.client.eval_var_result
+                                result = self.client.eval_var(ask)
+				
                                 if (result != u''):
                                         result = re.split(", ",result)
                                         for sub_n in range(len(result)) :
                                                 if ( result[sub_n] not in self.liste_act_valued.keys() ):
                                                         ask = "%s.act%d.rep_present%d.val"%(self.semantique_txt_item,self.list_act.index(r),sub_n)
-                                                        self.client.eval_var(ask)
-                                                        res = self.client.eval_var_result
+                                                        res = self.client.eval_var(ask)
+                                                        
                                                         self.liste_act_valued[result[sub_n]] = [res,2]
                                                 i = QtGui.QListWidgetItem()
                                                 i.setText(u"  %s %s"%(self.liste_act_valued[result[sub_n]][0],result[sub_n]))
@@ -2036,8 +2011,8 @@ class Principal(QtGui.QMainWindow):
 
 		Network_list =  QtGui.QListWidget()
 		show_network_box.addWidget(Network_list)
-		self.client.eval_var(res_semantique)
-		result_network =   re.split(", ",self.client.eval_var_result)
+		result_network =   re.split(", ", self.client.eval_var(res_semantique))
+		
 		self.activity(u"Displaying network for %s (%d items)" % (element,len(result_network))  )
 		Network_list.addItems(result_network)
 		self.tabNetworks.setCurrentIndex(index)# donne le focus a l'onglet créé
@@ -2120,11 +2095,11 @@ class Principal(QtGui.QMainWindow):
 			sem,element = self.recup_element_concepts()
 		txts_semantique = "%s.txt[0:]" % (sem)
 
-		self.client.eval_var(txts_semantique)
-		if  (self.client.eval_var_result == ""):
+		result = self.client.eval_var(txts_semantique)
+		if  (result == ""):
 			liste_textes = []
 		else :
-			liste_textes = re.split(", ",self.client.eval_var_result)
+			liste_textes = re.split(", ",result)
 		self.activity(u"Displaying %d texts for %s" % (len(liste_textes),element) )
 
 
@@ -2137,21 +2112,23 @@ class Principal(QtGui.QMainWindow):
 		self.show_texts_corpus.setAlternatingRowColors(True)
 		self.show_texts_corpus.currentItemChanged.connect(self.onSelectTextFromElement) 
 		HBox_texts.addWidget(self.show_texts_corpus)
-		self.liste_text_lists.append([self.show_texts_corpus,[]])
+		#self.liste_text_lists.append([self.show_texts_corpus,[]])
 		self.show_texts_anticorpus = QtGui.QListWidget()
 		self.show_texts_anticorpus.setAlternatingRowColors(True)
 		self.show_texts_anticorpus.currentItemChanged.connect(self.onSelectTextFromAnticorpus) 
 		HBox_texts.addWidget(self.show_texts_anticorpus)
-		self.liste_text_lists.append([self.show_texts_anticorpus,[]])
+		#self.liste_text_lists.append([self.show_texts_anticorpus,[]])
 
 		self.l_corp_ord = []
 		self.l_anticorp_ord = []
-		#self.liste_text_lists_items[self.show_texts_corpus] =  []
 		for T,V in  sorted(self.liste_txt_corpus.items(),key=lambda (k,v) : "%s%s%s".join(reversed(re.split("/",v[0])))):
 			txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
 			if T in liste_textes: 
 				self.l_corp_ord.append(T)
 				self.show_texts_corpus.addItem(txt_resume)
+				test = QtGui.QListWidgetItem("test" + txt_resume)
+				self.show_texts_corpus.addItem(test)
+				print test
 				#self.liste_text_lists[self.show_texts_corpus].append(V[3])
 			else:
 				self.l_anticorp_ord.append(T)
@@ -2182,8 +2159,8 @@ class Principal(QtGui.QMainWindow):
 		self.activity(u"%s double click" % (item))
 		if (int(score)):
 			ask = "$ph.+%s"%(item)
-			self.client.eval_var(ask)
-			result = self.client.eval_var_result
+			result = self.client.eval_var(ask)
+			
 			
 			tab_utterance = 0
 			for i in range(self.SubWdwNE.count()):
@@ -2271,23 +2248,21 @@ class Principal(QtGui.QMainWindow):
 					self.Explo_liste.addItem("%s %s"% (r,liste_result[i]))
 				self.PrgBar.reset()
 			else :
-				self.activity("searching for {%s} : 0 result" % motif)
-				result = re.split(", ", self.client.eval_var_result)
+				result = re.split(", ", self.activity("searching for {%s} : 0 result" % motif))
+				
 
 
 	def recup_ctx(self):
 		self.NOT5_list.clear()
 		self.activity("evaluating metadatas list")
-		#self.client.eval_var(u"$ctx[0:]")
-		self.client.eval_var(u"$ctx")
-		result = re.split(", ",self.client.eval_var_result )
+		result = re.split(", ",self.client.eval_var(u"$ctx")) #pb si , dans champ voir precalcul
 		self.NOT5_list.addItems(result)
 		
 	def contexts_contents(self):
 		self.NOT5_cont.clear()
 		champ = self.NOT5_list.currentItem().text()
-		self.client.eval_var(u"$ctx.%s[0:]" % champ)
-		result = self.client.eval_var_result
+		result = self.client.eval_var(u"$ctx.%s[0:]" % champ)
+		
 		result = re.split("(?<!\\\), ",result )#negative lookbehind assertion
 		dic_CTX = {}
 		for r in result:
@@ -2297,8 +2272,30 @@ class Principal(QtGui.QMainWindow):
 				dic_CTX[r] = 1
 		for el in sorted(dic_CTX.items(), key= lambda (k,v) : (-v,k)):
 			self.NOT5_cont.addItem(u"%d %s"%(el[1],re.sub("\\\,",",",el[0])))
-				
 
+
+	def recup_texts(self):
+		txts = self.client.eval_var("$txt[0:]")
+		return re.split(", ",txts)
+
+				
+class Texte(object):
+	def __init__(self,sem,path):
+		self.sem = sem 
+		self.path = path
+		self.CTX = {}
+
+	def setCTX(self,field, value):
+		self.CTX[field] = value
+	
+	def getCTXall(self):
+		return self.CTX
+
+	def getCTX(self,field):
+		return self.CTX[field]
+
+	def getResume(self):
+		return (self.CTX["date"],self.CTX["author"],self.CTX["title"])
 
 def main():
 	app = QtGui.QApplication(sys.argv)
