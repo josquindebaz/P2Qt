@@ -134,7 +134,8 @@ class Principal(QtGui.QMainWindow):
 			 #title[0\]  date[0:]  etc on ne met pas le $ctx  ici...
 			string_ctx =self.client.eval_var("$ctx.%s%s"%(champ,"[0:]")) 
 			string_ctx = string_ctx.replace ('\,', TAG )
-			liste_data_ctx = string_ctx.split(',')	
+			#liste_data_ctx = string_ctx.split(',')	
+			liste_data_ctx = string_ctx.split(', ')	
 			liste_data_ok_ctx =[]	
 
 			for data in liste_data_ctx :
@@ -409,7 +410,6 @@ class Principal(QtGui.QMainWindow):
 
 		self.SubWdwSETabs.addTab(self.textProperties,"Properties")
 		self.SubWdwSETabs.addTab(Vbox_textCTX_W,"Metadata")
-		#self.SubWdwSETabs.addTab(self.textCTX,"Context")
 		self.SubWdwSETabs.addTab(self.textContent,"Text")
 
 
@@ -806,7 +806,6 @@ class Principal(QtGui.QMainWindow):
 #Acces par CTX
 		NOT5 = QtGui.QWidget()
 
-
 	#une box verticale
 		NOT5V = QtGui.QVBoxLayout()
 		NOT5.setLayout(NOT5V)
@@ -971,19 +970,20 @@ class Principal(QtGui.QMainWindow):
 		for T in range(len(self.listeTextes)):
 			txt = self.listeObjetsTextes[self.listeTextes[T]]
 			date, author, title = txt.getResume()
-
 			self.liste_txt_corpus[self.listeTextes[T]] = [date, author, title,txt.sem]
 
 			self.PrgBar.setValue(T * 100 / len(self.listeTextes) ) 
 			QtGui.QApplication.processEvents()
 
-		#ordonne chrono par defaut
 		self.liste_txt_ord = []
 		self.liste_semtxt_ord = []
+		#ordonne chrono par defaut
 		for T,V in  sorted(self.liste_txt_corpus.items(),key=lambda (k,v) : "%s%s%s".join(reversed(re.split("/",v[0])))):
-			txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
-			i = QtGui.QListWidgetItem()
-			self.CorpusTexts.addItem(txt_resume)
+			txt = self.listeObjetsTextes[T]
+			txt.createWidgetitem()
+			self.CorpusTexts.addItem(txt.Widgetitem)
+			self.CorpusTexts.setItemWidget(txt.Widgetitem,txt.WidgetitemLabel)
+			
 			self.liste_txt_ord.append(T)
 			self.liste_semtxt_ord.append(V[3])
 
@@ -1021,7 +1021,7 @@ class Principal(QtGui.QMainWindow):
 		if ( self.SubWdwSETabs.currentIndex () == 0 ):
 			self.show_textProperties( sem_txt)
 		elif ( self.SubWdwSETabs.currentIndex () == 1 ):
-			self.show_textCTX(sem_txt) 
+			self.show_textCTX(item_txt) 
 		elif ( self.SubWdwSETabs.currentIndex () == 2 ):
 			self.show_textContent( sem_txt)
 
@@ -1096,7 +1096,6 @@ class Principal(QtGui.QMainWindow):
 		self.textCTX_reset.setEnabled(False)
 #TODO ne met pas à jour le CTX, a marché un moment et plus rien
 #TODO verifier que le cache soit mis à jour
-		#self.show_textCTX(self.m_current_selected_semtext)
 		self.resetCTX()
 
 
@@ -1715,27 +1714,18 @@ class Principal(QtGui.QMainWindow):
 		self.textCTX.setRowCount(0)
 		self.textCTX.setHorizontalHeaderLabels([u'field',u'value']) #on remet les headers apres le clear
 
-	def show_textCTX(self, sem_txt):
+	def show_textCTX(self, item_txt):
 		"""Show text metadata"""
-		self.m_current_selected_semtext = sem_txt	# on met de côté la sem du text
 		self.efface_textCTX()
-		#ATTENTION NOUVEL ACCES
-		self.textCTX.setRowCount(len(self.liste_champs_ctx))
+		ctx = self.listeObjetsTextes[item_txt].getCTXall()
+		self.textCTX.setRowCount(len(ctx))
 		r = 0
-		for props in self.liste_champs_ctx :
-			props_sem = "%s.ctx.%s" % (sem_txt,props)
-			value = re.sub(u"^\s*","",self.client.eval_var(props_sem))
-			
-			#value = self.client.eval_var_result
-			itemCTXwidget_field = QtGui.QTableWidgetItem(props)
-			#font = itemCTXwidget_field.font()
-			#font.setBold(True)
-			#itemCTXwidget_field.setFont(font)
+		for field,value in ctx.iteritems() :
+			itemCTXwidget_field = QtGui.QTableWidgetItem(field)
 			self.textCTX.setItem(r,0,itemCTXwidget_field)
 			itemCTXwidget_val = QtGui.QTableWidgetItem(value)
 			self.textCTX.setItem(r,1,itemCTXwidget_val)
 			r += 1
-		#self.textCTX.resizeColumnsToContents()
 		self.textCTX.resizeRowsToContents()
 
 	def show_textProperties(self ,  sem_txt):
@@ -2296,6 +2286,11 @@ class Texte(object):
 
 	def getResume(self):
 		return (self.CTX["date"],self.CTX["author"],self.CTX["title"])
+
+	def createWidgetitem(self):
+		self.Widgetitem = QtGui.QListWidgetItem()
+		txt_resume = u"%s <span style=\"font: bold\">%s</span> %s" % self.getResume()
+		self.WidgetitemLabel = QtGui.QLabel(txt_resume)
 
 def main():
 	app = QtGui.QApplication(sys.argv)
