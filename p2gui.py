@@ -17,6 +17,7 @@ import subprocess, threading
 from PySide.QtGui import QMdiArea
 
 
+
 class client(object):
 
 	def __init__(self,h,p):
@@ -256,8 +257,11 @@ class Principal(QtGui.QMainWindow):
 
 
 
-#		ParamMenu = menubar.addMenu('&Parameter')
 # parametrage du Gui : langue etc
+		#ParamMenu = Menubar.addMenu(self.tr('&Parameters'))
+		#LangInterface = ParamMenu.addMenu(self.tr("&Interface language"))
+		#LangInterface.addAction("en_GB",self.lang_en_GB)
+		#LangInterface.addAction("fr_FR",self.lang_fr_FR)
 #		ConstelMenu = menubar.addMenu('&Constellation')
 #		HelpMenu = menubar.addMenu('&Help')
 
@@ -463,8 +467,8 @@ class Principal(QtGui.QMainWindow):
 
 		#mise en place des onglets
 
-		self.SubWdwSO.addTab(self.SOT1,"Texts")
-		self.SubWdwSO.addTab(self.tabNetworks,"Networks")
+		self.SubWdwSO.addTab(self.SOT1,self.tr("Texts"))
+		self.SubWdwSO.addTab(self.tabNetworks,self.tr("Networks"))
 
 
 ##################################################
@@ -861,7 +865,7 @@ class Principal(QtGui.QMainWindow):
 
 
 
-		self.SubWdwNO.addTab(NOT1,"Lexicon")
+		self.SubWdwNO.addTab(NOT1,self.tr("Lexicon"))
 		self.SubWdwNO.addTab(NOT2,"Concepts")
 		self.SubWdwNO.addTab(NOT3,"Search")
 		self.SubWdwNO.addTab(NOT5,"Metadatas")
@@ -2304,6 +2308,13 @@ class Principal(QtGui.QMainWindow):
 
 def main():
 	app = QtGui.QApplication(sys.argv)
+
+	translator = QtCore.QTranslator()
+	#self.translator.load('translations/en_GB') 
+	#translator.load('translations/fr_FR') 
+	translator.load('translations/'+ QtCore.QLocale.system().name())
+	app.installTranslator(translator)
+
 	ex  = Principal()
 	sys.exit(app.exec_())
 
