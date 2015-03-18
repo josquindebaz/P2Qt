@@ -621,8 +621,7 @@ class Principal(QtGui.QMainWindow):
 		self.NOT1Commands1Menu.addAction('occurences',self.affiche_liste_scores_oc)
 		self.NOT1C1_dep = self.NOT1Commands1Menu.addAction('deployement',self.affiche_liste_scores_dep)
 		self.NOT1Commands1Menu.addAction('alphabetically',self.affiche_liste_scores_alpha)
-#TODO verifier anglais
-		self.NOT1Commands1Menu.addAction('text number',self.affiche_liste_scores_texts)
+		self.NOT1Commands1Menu.addAction('number of texts',self.affiche_liste_scores_texts)
 		self.NOT1Commands1Menu.addAction('first apparition',self.affiche_liste_scores_fapp)
 		self.NOT1Commands1Menu.addAction('last apparition',self.affiche_liste_scores_lapp)
 #TODO ajouter pondere, nb textes, nb auteurs, nb jours presents, relatif nb jours, nb representants, nb elements reseau
@@ -692,7 +691,7 @@ class Principal(QtGui.QMainWindow):
 		self.NOT2Commands1Menu.addAction('occurences',self.affiche_concepts_scores_oc)
 		self.NOT2Commands1Menu.addAction('deployement',self.affiche_concepts_scores_dep) 
 		self.NOT2Commands1Menu.addAction('alphabetically',self.affiche_concepts_scores_alpha)
-		self.NOT2Commands1Menu.addAction('text number',self.affiche_concepts_scores_texts)
+		self.NOT2Commands1Menu.addAction('number of texts',self.affiche_concepts_scores_texts)
 		self.NOT2Commands1Menu.addAction('first apparition',self.affiche_concepts_scores_fapp)
 		self.NOT2Commands1Menu.addAction('last apparition',self.affiche_concepts_scores_lapp)
 		self.NOT2Commands1.setMenu(self.NOT2Commands1Menu)
@@ -965,23 +964,25 @@ class Principal(QtGui.QMainWindow):
 			self.client.eval_var(u"%s.date" % (sem_txt))
 			date = re.sub("^\s*","",self.client.eval_var_result)
 			#self.client.eval_var(u"%s.auteur_txt" % (sem_txt))
-			self.client.eval_var(u"%s.auteur" % (sem_txt))
+			self.client.eval_var(u"%s.author" % (sem_txt))
 			auteur = re.sub("^\s*","",self.client.eval_var_result)
 			#self.client.eval_var(u"%s.titre_txt" % (sem_txt))
-			self.client.eval_var(u"%s.titre" % (sem_txt))
+			self.client.eval_var(u"%s.title" % (sem_txt))
 			titre = re.sub("^\s*","",self.client.eval_var_result)
-			self.liste_txt_corpus[self.client.txts[T]] = [date, auteur, titre]
+			self.liste_txt_corpus[self.client.txts[T]] = [date, auteur, titre,sem_txt]
 
 			self.PrgBar.setValue(T * 100 / len(self.client.txts) ) 
 			QtGui.QApplication.processEvents()
 
 		#ordonne chrono par defaut
 		self.liste_txt_ord = []
+		self.liste_semtxt_ord = []
 		for T,V in  sorted(self.liste_txt_corpus.items(),key=lambda (k,v) : "%s%s%s".join(reversed(re.split("/",v[0])))):
 			txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
 			i = QtGui.QListWidgetItem()
 			self.CorpusTexts.addItem(txt_resume)
 			self.liste_txt_ord.append(T)
+			self.liste_semtxt_ord.append(V[3])
 
 		self.PrgBar.reset()
 
@@ -1021,20 +1022,28 @@ class Principal(QtGui.QMainWindow):
 		elif ( self.SubWdwSETabs.currentIndex () == 2 ):
 			self.show_textContent( sem_txt)
 
+		self.CorpusTexts.setCurrentRow(self.liste_semtxt_ord.index(self.semantique_txt_item))
+		#TODO selectionner les memes textes selectionnes dans les listes differentes
+		if (self.SOT1.count() > 1):
+			for o in self.liste_text_lists:
+				print o[1]
+
+
+
 	def deselectText(self):
 		"""vide les listes des proprietes saillantes pour eviter confusion"""
 		self.saillantesAct.clear()
 		self.saillantesCat.clear()
 		self.saillantesCol.clear()
 		#self.SETabTextDescr.setText("")
-#TODO selectionner les memes textes selectionnes dans les listes differentes
 		self.CorpusTexts.clearSelection()
 		if (self.SOT1.count() > 1):
 			for o in self.liste_text_lists:
-				#o.reset() #mieux mais pas encore ça
-				o.clearSelection()
+				o[0].clearSelection()
 		self.efface_textCTX()
 		self.textContent.clear()
+
+
 
 	def change_NOTab(self):
 		if ( self.SubWdwNO.currentIndex() == 1) : # si l'onglet des Concepts est sélectionné
@@ -1076,6 +1085,7 @@ class Principal(QtGui.QMainWindow):
 			result = re.sub(u"^\s*","",self.client.eval_var_result)
 			if (result != val):
 				print [field, result, val]
+#TODO ne met pas à jour le CTX
 				self.client.eval_set_ctx( self.m_current_selected_semtext,field,val)
 		
 		
@@ -1160,7 +1170,7 @@ class Principal(QtGui.QMainWindow):
 
 
 	def affiche_liste_scores_texts(self):
-		self.which = "text number"
+		self.which = "number of texts"
 		self.choose_score_tick()
 		self.affiche_liste_scores()
 
@@ -1193,7 +1203,7 @@ class Principal(QtGui.QMainWindow):
 
 
 	def affiche_concepts_scores_texts(self):
-		self.which_concepts = "text number"
+		self.which_concepts = "number of texts"
 		self.choose_score_tick()
 		self.affiche_concepts_scores()
 
@@ -1235,7 +1245,7 @@ class Principal(QtGui.QMainWindow):
 			elif (self.which_concepts == "deployement"):
 				order = "dep"
 				ask = "%s%d.%s"% ( self.sem_concept, row, order)
-			elif (self.which_concepts == "text number"):
+			elif (self.which_concepts == "number of texts"):
 				order = "nbtxt"
 				ask = "%s%d.%s"% ( self.sem_concept, row, order)
 			elif (self.which_concepts == "first apparition"):
@@ -1299,7 +1309,7 @@ class Principal(QtGui.QMainWindow):
 			elif (self.which == "deployement"):
 				order = "dep"
 				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
-			elif (self.which == "text number"):
+			elif (self.which == "number of texts"):
 				order = "nbtxt"
 				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
 			elif (self.which == "first apparition"):
@@ -1374,7 +1384,7 @@ class Principal(QtGui.QMainWindow):
 							ask = "%s.rep%d.val"% (self.semantique_liste_item,r)
 						elif (self.which  == "deployement" ):
 							ask = "%s.rep%d.dep"% (self.semantique_liste_item,r)
-						elif (self.which  == "text number" ):
+						elif (self.which  == "number of texts" ):
 #TODO corriger : il donne la valeur de l'EF entier
 							ask = "%s.rep%d.nbtxt"% (self.semantique_liste_item,r)
 						self.client.eval_var(ask)
@@ -1481,7 +1491,7 @@ class Principal(QtGui.QMainWindow):
 					liste_scoree = []
 					prgbar_val = 0
 					for r in range(len(result)):
-						if (self.which_concepts == "text number"):
+						if (self.which_concepts == "number of texts"):
 #TODO corriger, il donne la valeur de la categorie entiere
 							ask = "%s.rep%d.nbtxt"% (self.semantique_concept_item,r)
 						else :
@@ -2022,12 +2032,12 @@ class Principal(QtGui.QMainWindow):
 		self.show_texts_corpus.setAlternatingRowColors(True)
 		self.show_texts_corpus.currentItemChanged.connect(self.onSelectTextFromElement) 
 		HBox_texts.addWidget(self.show_texts_corpus)
-		self.liste_text_lists.append(self.show_texts_corpus)
+		self.liste_text_lists.append([self.show_texts_corpus,[]])
 		self.show_texts_anticorpus = QtGui.QListWidget()
 		self.show_texts_anticorpus.setAlternatingRowColors(True)
 		self.show_texts_anticorpus.currentItemChanged.connect(self.onSelectTextFromAnticorpus) 
 		HBox_texts.addWidget(self.show_texts_anticorpus)
-		self.liste_text_lists.append(self.show_texts_anticorpus)
+		self.liste_text_lists.append([self.show_texts_anticorpus,"a"])
 
 		self.l_corp_ord = []
 		self.l_anticorp_ord = []
@@ -2082,12 +2092,12 @@ class Principal(QtGui.QMainWindow):
 		self.show_texts_corpus.setAlternatingRowColors(True)
 		self.show_texts_corpus.currentItemChanged.connect(self.onSelectTextFromElement) 
 		HBox_texts.addWidget(self.show_texts_corpus)
-		self.liste_text_lists.append(self.show_texts_corpus)
+		self.liste_text_lists.append([self.show_texts_corpus,[]])
 		self.show_texts_anticorpus = QtGui.QListWidget()
 		self.show_texts_anticorpus.setAlternatingRowColors(True)
 		self.show_texts_anticorpus.currentItemChanged.connect(self.onSelectTextFromAnticorpus) 
 		HBox_texts.addWidget(self.show_texts_anticorpus)
-		self.liste_text_lists.append(self.show_texts_anticorpus)
+		self.liste_text_lists.append([self.show_texts_anticorpus,[]])
 
 		self.l_corp_ord = []
 		self.l_anticorp_ord = []
@@ -2097,10 +2107,12 @@ class Principal(QtGui.QMainWindow):
 			if T in liste_textes: 
 				self.l_corp_ord.append(T)
 				self.show_texts_corpus.addItem(txt_resume)
+				
+				self.liste_text_lists[self.show_texts_corpus].append(V[3])
 			else:
 				self.l_anticorp_ord.append(T)
 				self.show_texts_anticorpus.addItem(txt_resume)
-			#self.liste_text_lists_items[self.show_texts_corpus].append( T )
+				self.liste_text_lists[self.show_texts_anticorpus].append(V[3])
 
 
 		#si la tab de l'element existe déjà, on efface l'ancienne
