@@ -10,6 +10,7 @@ from PySide import QtCore
 from PySide import QtGui 
 
 import interface_prospero
+from fonctions import translate
 import re
 import datetime
 import subprocess, threading
@@ -17,8 +18,11 @@ from PySide.QtGui import QMdiArea
 
 
 class client(object):
+
 	def __init__(self,h,p):
+
 		self.c = interface_prospero.ConnecteurPII() 
+		#self.c.start()
 		self.c.set(h,p)
 		self.teste_connect()
 		self.liste_champs_ctx =[]	# init by pre_calcule()
@@ -45,6 +49,8 @@ class client(object):
 		return self.c.eval_vect_values(type, type_calc)
 
 	def eval_var(self,var):
+		#self.c.put_to_eval(var)
+		
 		self.eval_var_result = self.c.eval_variable(var)
 		
 	def eval_var_ctx(self,props,ctx_range):
@@ -69,8 +75,12 @@ class client(object):
 	def eval (self, L):
 		return self.c.eval(L)
 
-	def eval_set_ctx(self,text,props,value):
-		return self.c.eval_set_ctx
+	def eval_set_ctx(self, sem_txt, field, val):
+		return self.c.eval_set_ctx(sem_txt, field, val)
+
+	def creer_msg_set_ctx(self,data):
+		return self.c.creer_msg_set_ctx(data)
+
 
 class Principal(QtGui.QMainWindow):
 	def __init__(self):
@@ -90,7 +100,7 @@ class Principal(QtGui.QMainWindow):
 				$txtX.date_txt   à partir de date
 				
 		'''
-
+		
 
 		self.client.recup_texts()
 		listeTextes = self.client.txts
@@ -115,6 +125,7 @@ class Principal(QtGui.QMainWindow):
 		
 			
 		# récupération des champs ctx
+		#self.client.c.put_to_eval("$ctx")
 		self.client.eval_var("$ctx")
 		string_ctx = self.client.eval_var_result 
 		
@@ -140,7 +151,9 @@ class Principal(QtGui.QMainWindow):
 		for champ in self.liste_champs_ctx :
 			 #title[0\]  date[0:]  etc on ne met pas le $ctx  ici...
 			 
-			string_ctx = self.client.eval_var_ctx("%s"%champ,"[0:]") 
+			#string_ctx = self.client.eval_var_ctx("%s"%champ,"[0:]") 
+			self.client.eval_var("$ctx.%s%s"%(champ,"[0:]")) 
+			string_ctx = self.client.eval_var_result
 			string_ctx = string_ctx.replace ('\,', TAG )
 			liste_data_ctx = string_ctx.split(',')	
 			liste_data_ok_ctx =[]	
@@ -151,18 +164,30 @@ class Principal(QtGui.QMainWindow):
 			indice = 0
 			if len (liste_data_ok_ctx) != nbre_txt :
 				print "problemo qq part les listes doivent avoir le même nbre d'éléments"
-			#if champ == "title" :
-			#	champ = u"titre_txt"
-			#if champ == "date" :
-			#	champ = u"date_txt"
-			#if champ == "author" :
-			#	champ = u"auteur_txt"
 				
+			# pb non résolu
+			# entre l'attribut de $txt -> titre_txt date_txt auteur_txt
+			# proatique pour accéder à ces propriétés
+			# et d'autres part les noms des champs ...
+			
+			'''	
+			if champ == "title" :
+				champ = u"titre_txt"
+			if champ == "date" :
+				champ = u"date_txt"
+			if champ == "author" :
+				champ = u"auteur_txt"
+			'''
+				
+				#ne pas traduire pour les calculs, uniquement pour la visualisation
+			#champ = translate(champ)
 			liste_champs_ajuste.append (champ)
 			for text in listeTextes :
 				sem = u"$txt%s"%indice
 				data = liste_data_ok_ctx[indice]
-				self.client.add_cache_var( sem + ".%s"%champ, data)
+				#self.client.add_cache_var( sem + ".%s"%champ, data)
+				# sématique avec les noms des champs anglais
+				self.client.add_cache_var( sem + ".ctx.%s"%champ, data)
 				indice +=1	
 		# on se sert de la liste des champs dans l'onglet CTX			
 		self.liste_champs_ctx = liste_champs_ajuste	
@@ -488,11 +513,13 @@ class Principal(QtGui.QMainWindow):
 #configurer les parametres de connexion au serveur distant
 		self.Param_Server_val_host = QtGui.QLineEdit()
 		Param_Server_R.addRow("&host",self.Param_Server_val_host)
+
 		self.Param_Server_val_host.setText('prosperologie.org')#prosperologie.org
 		#self.Param_Server_val_host.setText('localhost')
+
 		self.Param_Server_val_port = QtGui.QLineEdit()
 		Param_Server_R.addRow("&port",self.Param_Server_val_port)
-		self.Param_Server_val_port.setText('60000')
+		self.Param_Server_val_port.setText('4000')
 		self.Param_Server_B = QtGui.QPushButton('Connect to server')
 		self.Param_Server_B.setStyleSheet(" background-color : green; color : white; ") # bouton vert pour attirer le regard
 		self.Param_Server_B.clicked.connect(self.connect_server)
@@ -961,6 +988,8 @@ class Principal(QtGui.QMainWindow):
 		for T in range(len(self.client.txts)):
 			sem_txt = "$txt%d" % T
 			#self.client.eval_var(u"%s.date_txt" % (sem_txt))
+
+			"""old josdev
 			self.client.eval_var(u"%s.date" % (sem_txt))
 			date = re.sub("^\s*","",self.client.eval_var_result)
 			#self.client.eval_var(u"%s.auteur_txt" % (sem_txt))
@@ -968,6 +997,14 @@ class Principal(QtGui.QMainWindow):
 			auteur = re.sub("^\s*","",self.client.eval_var_result)
 			#self.client.eval_var(u"%s.titre_txt" % (sem_txt))
 			self.client.eval_var(u"%s.title" % (sem_txt))
+			"""
+
+			self.client.eval_var(u"%s.ctx.date" % (sem_txt))
+			date = re.sub("^\s*","",self.client.eval_var_result)
+			#self.client.eval_var(u"%s.auteur_txt" % (sem_txt))
+			self.client.eval_var(u"%s.ctx.author" % (sem_txt))
+			auteur = re.sub("^\s*","",self.client.eval_var_result)
+			self.client.eval_var(u"%s.ctx.title" % (sem_txt))
 			titre = re.sub("^\s*","",self.client.eval_var_result)
 			self.liste_txt_corpus[self.client.txts[T]] = [date, auteur, titre,sem_txt]
 
@@ -1088,6 +1125,9 @@ class Principal(QtGui.QMainWindow):
 #TODO ne met pas à jour le CTX
 				self.client.eval_set_ctx( self.m_current_selected_semtext,field,val)
 		
+		#self.client.creer_msg_set_ctx ( (sem_txt, field, val) )
+		self.client.eval_set_ctx(sem_txt, field, val)
+		print (sem_txt, field, val)
 		
 		self.textCTX_valid.setEnabled(False)
 		self.textCTX_reset.setEnabled(False)
@@ -1645,15 +1685,20 @@ class Principal(QtGui.QMainWindow):
 		self.Param_Server_R_button.clicked.connect(self.lance_server)
 	
 	def connect_server_localhost(self):
-		self.connect_server('localhost')
-
+		#self.connect_server('localhost')
+		self.connect_server(h='192.168.1.99',p='60000')
 
 	def connect_server(self,h = 'prosperologie.org',p = '60000'):
 		self.activity("Connecting to server")
 		#self.client=client(self.Param_Server_val_host.text(),self.Param_Server_val_port.text())
+
+		#self.client=client("prosperologie.org","60000")
+		#self.client=client("192.168.1.99","4000")
+
 		self.client=client(h,p)
 		#self.client=client("prosperologie.org","60000")
 		#self.client=client("localhost","60000")
+
 		self.client.teste_connect()
 		if (self.client.Etat):
 			# calcule en avance
@@ -1712,7 +1757,7 @@ class Principal(QtGui.QMainWindow):
 		self.textCTX.setRowCount(len(self.liste_champs_ctx))
 		r = 0
 		for props in self.liste_champs_ctx :
-			props_sem = "%s.%s" % (sem_txt,props)
+			props_sem = "%s.ctx.%s" % (sem_txt,props)
 			self.client.eval_var(props_sem)
 			value = re.sub(u"^\s*","",self.client.eval_var_result)
 			#value = self.client.eval_var_result
@@ -1735,9 +1780,19 @@ class Principal(QtGui.QMainWindow):
 		self.saillantesAct_deployes = []
 		list_act_sem = "%s.act[0:]" % sem_txt
 		self.client.eval_var(list_act_sem)
-		list_act  = self.client.eval_var_result
+		pos = 0
+		list_act = self.client.eval_var_result.split(',')
+		list_act_sem_val = list_act_sem + ".val"
+		self.client.eval_var(list_act_sem_val)
+		list_act_val = self.client.eval_var_result.split(',')
+		for act in list_act :
+			self.client.add_cache_var("%s.act%s"%(sem_txt,pos), act)
+			self.client.add_cache_var("%s.act%s.val"%(sem_txt,pos), list_act_val[pos])
+			pos +=1
+		#list_act  = self.client.eval_var_result
 		if (list_act):
-			self.list_act = re.split(", ",list_act)
+			#self.list_act = re.split(", ",list_act)
+			self.list_act = list_act
 			self.liste_act_valued = {}
 			for i in range(len(self.list_act)) :
 				self.client.eval_var(u"%s.act%d.val"%(sem_txt,i))
@@ -2234,7 +2289,8 @@ class Principal(QtGui.QMainWindow):
 	def recup_ctx(self):
 		self.NOT5_list.clear()
 		self.activity("evaluating metadatas list")
-		self.client.eval_var(u"$ctx[0:]")
+		#self.client.eval_var(u"$ctx[0:]")
+		self.client.eval_var(u"$ctx")
 		result = re.split(", ",self.client.eval_var_result )
 		self.NOT5_list.addItems(result)
 		

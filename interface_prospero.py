@@ -42,7 +42,11 @@ import threading, socket, time , re
 #from eval_variable import eval_variables
 #from globals import getMapDossiers , log_file_name_messages
 from fonctions import is_random_var
-
+# regex pour isoler les parties d'une variable ctx
+#  $txt10.ctx.titre  $ctx  $ctx.titre[0:]  (?P<V_TRANCHE>(\[.*\]))
+regex_txt_ctx = re.compile (r"""\$(?P<V_TXT>txt)(?P<V_POS>(\d+))(\$|\.)(?P<V_CTX>ctx)(\.)(?P<V_FIELD>(.*))""", re.VERBOSE | re.DOTALL)
+regex_ctx = re.compile (r"""(\$|\.)(?P<V_CTX>(ctx))\.(?P<V_FIELD>(.*?))(?P<V_TRANCHE>(\[.*\]))""", re.VERBOSE | re.DOTALL)
+regex_uniq_tranche  = re.compile (r"""(\[)(?P<BI>-?\d*):(?P<BS>-?\d*)(\])""", re.VERBOSE | re.DOTALL)
 # on exclue le signe + pour ne pas reconnaître +truc+bidule
 regex_var = re.compile (r"""(?P<VAR>[a-zA-Z_]+)($|\s)+""", re.VERBOSE | re.DOTALL)
 # pour $aut0.phadt[0:10].+truc+machin ou '+truc+machin' est analysée par la regex
@@ -87,10 +91,27 @@ class ConnecteurPII (threading.Thread):
 		self.m_cache_index = {}
 		self.m_cache_var ={}
 		self.m_threadlock = threading.RLock() # verrou reentrant
+		self.data_to_eval=None
 	def set(self, ip, port):
 		self.host = ip
 		self.port = port 
-
+	def run (self):
+		if verbose : print "thread running"
+		if not self.connexion : 
+			if not self.connect():
+				return ""			
+		while 1:
+			
+			if self.data_to_eval :
+				#if verbose : print "evalue " + self.data_to_eval
+				ev= self.eval_variable(self.data_to_eval)	# bloquant
+				#if verbose : print "valeur =  ",ev
+				self.data_to_eval=None
+				
+				
+	def put_to_eval(self,data):			
+		self.data_to_eval=data		
+				
 	def connect(self):
 		self.connexion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.connexion.setblocking(1)
@@ -198,6 +219,7 @@ class ConnecteurPII (threading.Thread):
 			type_value= freq
 			renvoit le vecteur des frequence des entités
 		'''
+		#print sem_type,"     ",type_value
 		self.m_threadlock.acquire()
 		
 		cle = sem_type + type_value
@@ -237,7 +259,10 @@ class ConnecteurPII (threading.Thread):
 		lexpr = self.creer_msg_set_ctx( (text,props,value) )
 		for exp in lexpr :
 			self.send_expression(exp)
-		value = self.get_value()
+		#value = self.get_value()
+		# est-ce nécessaire ????
+		self.get_value()
+		# on met en cache la nouvelle valeur
 		self.add_cache_var(cle, value)
 		self.m_threadlock.release()
 		return value		
@@ -410,10 +435,11 @@ class ConnecteurPII (threading.Thread):
 		try:
 			taille = self.connexion.recv(10)
 			taille_mess = int(taille)
-
+			#print "---taille data à recevoir : " ,taille_mess
 			#data = self.connexion.recv(taille_mess)
 			data = self.connexion.makefile().read(taille_mess)
-
+			#print "---taille data reçue :  " ,len(data)
+			#print data
 		except :
 			print "get_value() echec connexion  ressaye"
 			if not self.connect(): # on ressaye
@@ -445,6 +471,9 @@ class ConnecteurPII (threading.Thread):
 			
 		"""
 
+		if (verbose):
+			print var 
+
 		self.m_threadlock.acquire()
 
 		if var in self.m_cache_var.keys():
@@ -462,6 +491,7 @@ class ConnecteurPII (threading.Thread):
 			return ''
 		for exp in lmess :
 			self.send_expression(exp)
+			
 		ev = self.get_value(var)
 		
 		if not is_random_var(var):
@@ -472,12 +502,6 @@ class ConnecteurPII (threading.Thread):
 		return ev
 	
 
-	def run(self):
-		"""
-
-		
-		"""
-		pass
 	
 
 
@@ -882,7 +906,7 @@ class ConnecteurPII (threading.Thread):
 		L.append("F")
 		return L
 
-	def creer_msg_ctx(self,props, ctx_range):
+	def creer_msg_ctx_old(self,props, ctx_range):
 		'''
 			$ctx.titre[0:]
 			$ctx.date[0:]
@@ -920,9 +944,74 @@ class ConnecteurPII (threading.Thread):
 		L.append ("F")
 		return L
 
+	def creer_msg_ctx(self,data):
+		'''
+		data = 
+			$ctx.titre[0:]
+			$ctx.date[0:]
+			$ctx.auteur[0:]
+			$ctx.champ libre 1[0:]		# ??? � voir
+			
+			$txt0.ctx.titre
+			$txt0.ctx.champ du cadre de ref
+			
+			
+			E:signature	# les objets que calcule P-II sont mis en cache . la signature permet d'y acc�der
+			V:typeVariable:signature  
+			P:n  		 # position/indice de la variable
+			BI:n   		# cas d'un acc�s par tranche  []
+			BS:m
+			ARG:xxx		# lorsque des param�tres sont transmis ( $aut0.phadt[0:10].+xxx  sp�cifiant une contrainte suppl�mentaire (pr�sence de xxx))
+			F:	
+			E:ctx.titre[0:]
+			PROPS:titre						# Ajouté
+			V:ctx:ctx.titre[0:]
+			BI:0
+			BS:99999
+			ARG:titre
+			F
+		'''
+		#print data
+		L=[]
+		L.append("E:" + data)
+		
+		if data == "$ctx":
+			L.append("V:ctx:ctx")
+			L.append ("F")
+			return L
+		r = regex_txt_ctx.search(data)
+		if r:
+			#print r.groupdict()
+			L.append("V:txt:"+r.groupdict()['V_TXT']+r.groupdict()['V_POS']) 
+			L.append("P::"+r.groupdict()['V_POS']) 
+			L.append("PROPS:"+r.groupdict()['V_FIELD'])
+			L.append("V:ctx:"+r.groupdict()['V_CTX']) 
+			L.append ("F")
+			return L
+		r = regex_ctx.search(data)
+		if r:
+			#print r.groupdict()
+			L.append("PROPS:"+r.groupdict()['V_FIELD'])
+			L.append("V:ctx:"+ data[1:])	# signature côté serveur
+			tranche = r.groupdict()['V_TRANCHE']
+			r1 = regex_uniq_tranche.search(tranche)
+			if r1:
+				#print r1.groupdict()
+				if not r1.groupdict('BI')['BI'] : g1 = 999999
+				else : g1 = r1.groupdict('BI')['BI']
+				if not r1.groupdict('BS')['BS'] : g2 = 999999
+				else : g2 = r1.groupdict('BS')['BS']
+				VBI = "BI:"+str(g1)
+				VBS =  "BS:"+str(g2)
+				L.append(VBI)
+				L.append(VBS)
+			L.append ("F")
+		return L
+
+
 			
 
-	def creer_msg(self, data,user_env,corpus_env,env_dialogue):
+	def creer_msg_old(self, data,user_env,corpus_env,env_dialogue):
 		"""
 			transforme l'expression en une séquence de messages qui seront envoyés à P-II
 			
@@ -1000,6 +1089,223 @@ class ConnecteurPII (threading.Thread):
 			
 		"""
 		data = data.encode('utf-8')
+		
+		if data.find ('ctx'):
+			return 
+		
+		
+		
+		
+		mask = "TUVXYZ"
+
+		# provisoire : repérage des {}
+		if data.find('{') != -1:
+			forme_liste = True
+		else:
+			forme_liste = False
+		
+
+		if data[0] == '$' : data = data[1:]
+		
+		# si on a une variable contenant des args $aut0.act0.ph.+$aut4.act0+$aut4.act0.res1 on masque '+...'
+
+		liste_eval_args=[]
+		r = regex_var_args.search(data)
+		if r:
+			args = r.group('ARG') # tout ce qui suit le premier '+'
+			data = data.replace(args,mask) 
+			"""
+				évaluer les args commençant par $ pour construire la liste des args évalués
+			"""
+			#largs =  r.group('arg_incorrect').split('+') # ['$V', '$X', 'bidule'] ???
+			largs = args.split('+')
+			for a in largs :
+				if not a : continue  # quand .+xxx+yyy arg_incorrect  ne contient rien !
+				if a[0] =='$' :
+					ev = eval_variables( a , user_env, corpus_env,env_dialogue)
+					if not ev: # échec de l'évaluation
+						return []
+					liste_eval_args.append(ev)
+				else:
+					liste_eval_args.append(a)
+			if not liste_eval_args:  # eviter le cas $phxxx.+
+				return []
+			new_args = "" + "+".join(liste_eval_args)
+		L = data.split('.')
+		lmess = [] # contiendra les messages à envoyer à P-II
+		
+		# signature particuliere pour les .res
+		signature = self.getSignature(data)
+		lmess.append("E:" + signature)
+
+		last_var_expr = ''  # pour l'accrochage des args  V:phadt:phadt0 --> V:phadt:phadt0.+xxx+yyy
+		
+		for terme in L :
+			
+			
+			m = regex_var_args.search(terme) # recherche in '+TUVXYZ' en premier avant regex_var
+			if m:
+				forme = "."
+				for arg in liste_eval_args :
+					lmess.append("ARG:" + arg)
+					forme = forme + "+" + arg
+					
+				# mettre à jour la signature de la dernière variable V:
+				if last_var_expr :
+					last_var_expr_with_args = last_var_expr + forme
+					# maj de la forme ds la liste lmess
+					for i in range(len(lmess)) :
+						if lmess[i] == last_var_expr : 
+							lmess[i] = last_var_expr_with_args
+							break
+				else:
+					print "error !" 
+				continue # !!
+
+
+			m = regex_var.search(terme)
+			if m : 
+
+				last_var_expr = "V:" + m.groupdict('VAR')['VAR'] + ":" + m.groupdict('VAR')['VAR']
+				lmess.append(last_var_expr)
+
+				
+			m = regex_indice.search(terme) 
+			if m :
+ 
+				last_var_expr = "V:" + m.groupdict('VAR')['VAR'] + ":" + m.groupdict('VAR')['VAR'] + m.groupdict('INDICE')['INDICE']
+				lmess.append(last_var_expr)
+				lmess.append("P:" + m.groupdict('INDICE')['INDICE'])
+			m = regex_tranche.search(terme) 
+			if m : 
+				# pb des aut[:-3] traduit par ('aut', '', '-3')
+				# ou aut[3:] ('aut', '3', '')
+
+				if not m.groupdict('BI')['BI'] : g1 = 999999
+				else : g1 = m.groupdict('BI')['BI']
+				if not m.groupdict('BS')['BS'] : g2 = 999999
+				else : g2 = m.groupdict('BS')['BS']
+				g1 = str(g1)
+				g2 = str(g2)
+				nom_var= m.groupdict('VAR')['VAR']
+				if forme_liste:
+					last_var_expr = "V:" + nom_var + ":" + nom_var + "{" + g1 + ":" + g2 + "}"
+				else:
+					last_var_expr = "V:" + nom_var + ":" + nom_var + "[" + g1 + ":" + g2 + "]"
+				lmess.append(last_var_expr)
+				lmess.append("BI:" + g1)
+				lmess.append("BS:" + g2)
+				
+			m = regex_tranche_indice.search(terme)
+			if m:  # on enverra un indice negatif ... gerer par P-II
+ 
+				indice =  m.groupdict('INDICE')['INDICE']
+				nom_var =  m.groupdict('VAR')['VAR']
+				
+				if forme_liste :
+					lmess.append("V:" + nom_var +":" + nom_var + "{" + indice + "}")
+				else:
+					lmess.append("V:" + nom_var +":" + nom_var + "[" + indice + "]")
+				lmess.append("PL:" + indice)
+				continue
+			
+			
+		if forme_liste:
+			lmess.append('L')
+		lmess.append('F')
+		
+		# si un mask , il reste un mask sur une signature ..
+		if r :
+			L = []
+			for terme in lmess:
+				L.append(terme.replace(mask,new_args))
+			lmess = L
+		return lmess
+
+		
+	def creer_msg(self, data,user_env='',corpus_env='',env_dialogue=''):
+		"""
+			transforme l'expression en une séquence de messages qui seront envoyés à P-II
+			
+			
+			E:signature	# les objets que calcule P-II sont mis en cache . la signature permet d'y accéder
+			V:typeVariable:signature  
+			P:n  		 # position/indice de la variable
+			BI:n   		# cas d'un accès par tranche  []
+			BS:m
+			ARG:xxx		# lorsque des paramètres sont transmis ( $aut0.phadt[0:10].+xxx  spécifiant une contrainte supplémentaire (présence de xxx))
+			F:			# fin du bloc de message 
+			
+			$aut0.act1.phadt sera converti en 
+			
+			E:aut0.act1.phadt
+			V:aut:aut0
+			P:0
+			V:act:act1
+			P:1
+			V:phadt:phadt
+			F
+	
+			code 'PL' pour indiquer une position partant de la fin d'une liste ( $act[-1]  )
+	
+			E:aut0.act1.phadt[-1]
+			V:aut:aut0
+			P:0
+			V:act:act1
+			P:1
+			V:phadt:phadt
+			PL:-1
+			F
+
+
+
+			avec des paramètres ...
+			$aut0.act1.phadt[0:10].+truc+machin sera converti en 
+			E:aut0.act1.phadt[0:10]   # signature
+			V:aut:aut0		
+			P:0
+			V:act:act1
+			P:1
+			V:phadt:phadt[0:10].+truc+machin   # il faut les args ds la signature !
+			BI:0
+			BS:10
+			ARG:truc
+			ARG:machin
+			F
+
+
+			E:signature utilisée ds le cache
+			remarque : pour les reseaux, (res, inf ,resact,respers ) la signature doit être sans les indices/tranches
+			puisque P-II calcule le réseau (d'entités, de catégories, d'acteurs,de personnes) d'un objet une fois,
+			$act0.res est calculé une fois, les accès $act0.res1 $act0.res2 $act0.res[0:10] se résumant à une sélection d'éléments
+			dans le réseau existant.
+			
+			$act0.res[0:10] -> $act0.res
+			$act0.res[0:98] -> $act0.res
+			$act0.res0 -> $act0.res
+			$act0.res1 -> $act0.res
+			$aut4.ph.+$aut4.act0+$aut4.act0.res1 --> d'où l'utilisation du mask, et l'évaluation des args 
+			
+			modification 3/07/2012
+			traitement des {} formes liste à renvoyer
+			
+				Pb du séparateur ',' utilisé dans les formes [] (quasi identique aux formes [] )
+				mais les variables $ph utilisées avec [] ou {} peuvent renvoyer du contenu avec des "," !!
+				il faut donc que le code de séparation des items renvoyés soit différent de "," dans le cas des {}
+			
+				chaque message reçu (getvalue) contiendra en première position S ou L indiquant le type string ou list
+				ds le cas du type list, getvalue créera une liste ( split(separ)) 
+				
+				il faut reconnaître les {} dans les variables afin d'envoyer un code 'L' à P-II pour qu'il indique 
+				
+			
+		"""
+		data = data.encode('utf-8')
+		
+		if data.find('ctx') != -1 :
+			return self.creer_msg_ctx(data)
+		
+		
 		mask = "TUVXYZ"
 
 		# provisoire : repérage des {}
@@ -1128,16 +1434,36 @@ class ConnecteurPII (threading.Thread):
 
 		
 	
-	
 m_connecteur_pII = ConnecteurPII()
 
 
 	
 if __name__ == "__main__" :
 
+
+	
+
 	c = ConnecteurPII()
 	#L= c.creer_msg_ctx("titre","[0:]")
-	c.set( '192.168.1.99','4000' )
+	c.set( '192.168.1.99','60000' )
+	x = c.eval_variable("$ctx" )
+	print x
+	x = c.eval_variable("$txt2.ctx.title" )
+	print x
+	x = c.eval_variable("$ctx.title[0:]" )
+	print x
+	x = c.eval_variable("$ctx.title[0:20]" )
+	print x
+	x = c.eval_variable("$txt2.ctx.title" )
+	print x
+	x = c.eval_variable("$ctx" )
+	print x
+	x = c.creer_msg("$ctx.titre[0:]" )
+	#c.set( 'marloweb.eu','60000' )
+	v =c.eval_ctx("title","[0:]")
+	x = c.eval_set_ctx(  "$txt0","title","ceci est un nouveau titre")
+	v =c.eval_ctx("title","[0:]")
+	v = c.eval_variable ("$ctx")
 	#c.set( 'marloweb.eu','60000' )
 	#v = c.eval_variable("$ent0")
 	L = c.creer_msg_vect("$ent", "freq")
