@@ -3,17 +3,17 @@
 <context>
     <name>Principal</name>
     <message>
-        <location filename="p2gui.py" line="868"/>
+        <location filename="p2gui.py" line="849"/>
         <source>Lexicon</source>
         <translation type="unfinished">Lexicon</translation>
     </message>
     <message>
-        <location filename="p2gui.py" line="470"/>
+        <location filename="p2gui.py" line="453"/>
         <source>Texts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="p2gui.py" line="471"/>
+        <location filename="p2gui.py" line="454"/>
         <source>Networks</source>
         <translation type="unfinished"></translation>
     </message>

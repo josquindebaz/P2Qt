@@ -96,8 +96,11 @@ class Principal(QtGui.QMainWindow):
 		self.activity("pre-computing : texts")
 		self.listeTextes = self.recup_texts()
 		self.listeObjetsTextes = {}
+		self.dicTxtSem = {}
 		for t in range(len(self.listeTextes)):
-			self.listeObjetsTextes[self.listeTextes[t]] =  Texte("$txt%d"%(t),self.listeTextes[t])
+			sem_texte = "$txt%d"%(t)
+			self.listeObjetsTextes[sem_texte] =  Texte(sem_texte,self.listeTextes[t])
+			self.dicTxtSem[self.listeTextes[t]] = sem_texte
 
 		
 		"""
@@ -167,7 +170,8 @@ class Principal(QtGui.QMainWindow):
 			liste_champs_ajuste.append (champ)
 
 			for indice in range (len(self.listeTextes)):
-				txt = self.listeObjetsTextes[self.listeTextes[indice]]
+				sem_texte = "$txt%d"%(indice)
+				txt = self.listeObjetsTextes[sem_texte]
 				data = liste_data_ok_ctx[indice]
 				# sématique avec les noms des champs anglais
 				self.client.add_cache_var( txt.sem + ".ctx.%s"%champ, data)
@@ -955,8 +959,19 @@ class Principal(QtGui.QMainWindow):
 		time = u"%s" % datetime.datetime.now()
 		self.History.append("%s %s" % (time[:19],message))
 
+	def ord_liste_txt(self,liste_sem,order="chrono"):
+		liste = {}
+		if order=="chrono":
+			for e in liste_sem :
+				txt = self.listeObjetsTextes[e]
+				date = txt.getCTX("date")
+				date,heure = re.split(" ",date) #sépare date et heure
+				liste[e] = "-".join(reversed(re.split("/",date)))
+			liste =   sorted(liste.items(),key=lambda (k,v) : v) 
+			return liste
+		
 
-	def recup_liste_textes(self):
+	def display_liste_textes_corpus(self):
 		"""display texts for the corpus"""
 #TODO meme methodes pour textes du corpus et sous-corpus,  faire un titre a afficher dans listes et en-tête du quadran, 
 		#self.activity(u"Waiting for text list"   )
@@ -964,13 +979,36 @@ class Principal(QtGui.QMainWindow):
 		self.SOT1.tabBar().setTabText(0,"corpus (%d)"%len(self.listeTextes))
 		self.CorpusTexts.clear()
 
+		i = 0
+		self.liste_txt_ord = []
+		self.liste_semtxt_ord = []
+		for sem,tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
+			txt =  self.listeObjetsTextes[sem]
+
+#TODO un objet pour ces listes de texte
+			self.liste_txt_ord.append(sem)
+			self.liste_semtxt_ord.append(sem) # a quoi ça sert déjà ? a selectionner le texte dans cet onglet quand il l'est dans un autre
+
+			txt.createWidgetitem()
+			self.CorpusTexts.addItem(txt.Widgetitem)
+			self.CorpusTexts.setItemWidget(txt.Widgetitem,txt.WidgetitemLabel)
+
+			i += 1
+			self.PrgBar.setValue(i * 100 / len(self.listeObjetsTextes))
+			QtGui.QApplication.processEvents()
+
+		self.PrgBar.reset()
+
+
+		"""
 		self.liste_txt_corpus = {}
 
 
 		for T in range(len(self.listeTextes)):
-			txt = self.listeObjetsTextes[self.listeTextes[T]]
+			sem_texte = "$txt%d"%(T)
+			txt = self.listeObjetsTextes[sem_texte]
 			date, author, title = txt.getResume()
-			self.liste_txt_corpus[self.listeTextes[T]] = [date, author, title,txt.sem]
+			self.liste_txt_corpus[txt.sem] = [date, author, title,self.listeTextes[T]]
 
 			self.PrgBar.setValue(T * 100 / len(self.listeTextes) ) 
 			QtGui.QApplication.processEvents()
@@ -983,17 +1021,17 @@ class Principal(QtGui.QMainWindow):
 			txt.createWidgetitem()
 			self.CorpusTexts.addItem(txt.Widgetitem)
 			self.CorpusTexts.setItemWidget(txt.Widgetitem,txt.WidgetitemLabel)
-			
+					
 			self.liste_txt_ord.append(T)
-			self.liste_semtxt_ord.append(V[3])
+			self.liste_semtxt_ord.append(T) # a quoi ça sert déjà ? a selectionner le texte dans cet onglet quand il l'est dans un autre
 
 		self.PrgBar.reset()
+		"""
 
 	def onSelectTextFromCorpus(self):
 		"""When a text is selected from the list of texts for the entire corpus"""
-		item_txt = self.liste_txt_ord[self.CorpusTexts.currentRow()]
-		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
-		self.onSelectText(self.semantique_txt_item,item_txt)
+		self.semantique_txt_item = self.liste_txt_ord[self.CorpusTexts.currentRow()]
+		self.onSelectText(self.semantique_txt_item)
 
 	def onSelectTextFromElement(self):
 		"""When a text is selected from the list of texts for a given item"""
@@ -1008,9 +1046,10 @@ class Principal(QtGui.QMainWindow):
 		self.onSelectText(u"$txt%d"%self.client.txts.index(item_txt),item_txt)
 
 
-	def onSelectText(self,sem_txt,item_txt):
+	def onSelectText(self,sem_txt):
 		"""Update text properties windows when a text is selected """
-		self.activity(u"%s (%s) selected " % (item_txt,sem_txt)) 
+		txt = self.listeObjetsTextes[sem_txt]
+		self.activity(u"%s (%s) selected " % (txt.path,sem_txt)) 
 		self.deselectText()
 
 		#V =  self.liste_txt_corpus[item_txt]
@@ -1021,12 +1060,13 @@ class Principal(QtGui.QMainWindow):
 		if ( self.SubWdwSETabs.currentIndex () == 0 ):
 			self.show_textProperties( sem_txt)
 		elif ( self.SubWdwSETabs.currentIndex () == 1 ):
-			self.show_textCTX(item_txt) 
+			self.show_textCTX(sem_txt) 
 		elif ( self.SubWdwSETabs.currentIndex () == 2 ):
 			self.show_textContent( sem_txt)
 
-		#selectionne le texte dans l'onglet corpus
-		self.CorpusTexts.setCurrentRow(self.liste_semtxt_ord.index(self.semantique_txt_item))
+		#selectionne le texte dans l'onglet corpus s'il n'est pas actif
+		if (self.SOT1.currentIndex() != 0):
+			self.CorpusTexts.setCurrentRow(self.liste_semtxt_ord.index(self.semantique_txt_item))
 		#TODO selectionner les memes textes selectionnes dans les listes differentes
 		if (self.SOT1.count() > 1):
 			for o in self.liste_text_lists:
@@ -1104,7 +1144,7 @@ class Principal(QtGui.QMainWindow):
 	def resetCTX(self):
 		self.textCTX_valid.setEnabled(False)
 		self.textCTX_reset.setEnabled(False)
-		self.show_textCTX(self.m_current_selected_semtext)
+		self.show_textCTX(self.semantique_txt_item)
 		
 
 	def getvalueFromSem(self,item_txt,type):	
@@ -1649,8 +1689,8 @@ class Principal(QtGui.QMainWindow):
 		self.Param_Server_R_button.clicked.connect(self.lance_server)
 	
 	def connect_server_localhost(self):
-		#self.connect_server('localhost')
-		self.connect_server(h='192.168.1.99',p='60000')
+		self.connect_server('localhost')
+		#self.connect_server(h='192.168.1.99',p='60000')
 
 	def connect_server(self,h = 'prosperologie.org',p = '60000'):
 		self.activity("Connecting to server")
@@ -1677,7 +1717,7 @@ class Principal(QtGui.QMainWindow):
 			self.NOT2select.setEnabled(True) 
 
 			# affiche textes au demarrage
-			self.recup_liste_textes()
+			self.display_liste_textes_corpus()
 
 
 			#Contexts
@@ -1714,10 +1754,10 @@ class Principal(QtGui.QMainWindow):
 		self.textCTX.setRowCount(0)
 		self.textCTX.setHorizontalHeaderLabels([u'field',u'value']) #on remet les headers apres le clear
 
-	def show_textCTX(self, item_txt):
+	def show_textCTX(self, sem):
 		"""Show text metadata"""
 		self.efface_textCTX()
-		ctx = self.listeObjetsTextes[item_txt].getCTXall()
+		ctx = self.listeObjetsTextes[sem].getCTXall()
 		self.textCTX.setRowCount(len(ctx))
 		r = 0
 		for field,value in ctx.iteritems() :
@@ -2282,15 +2322,21 @@ class Texte(object):
 		return self.CTX
 
 	def getCTX(self,field):
-		return self.CTX[field]
+		if (field in self.CTX.keys()): 
+			return self.CTX[field]
+		else :
+			return False 
 
 	def getResume(self):
-		return (self.CTX["date"],self.CTX["author"],self.CTX["title"])
+		return (re.split(" ",self.CTX["date"])[0],self.CTX["author"],self.CTX["title"])
 
 	def createWidgetitem(self):
 		self.Widgetitem = QtGui.QListWidgetItem()
 		txt_resume = u"%s <span style=\"font: bold\">%s</span> %s" % self.getResume()
 		self.WidgetitemLabel = QtGui.QLabel(txt_resume)
+		#TODO texte en blanc quand selectionné
+
+
 
 def main():
 	app = QtGui.QApplication(sys.argv)
