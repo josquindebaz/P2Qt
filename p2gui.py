@@ -441,7 +441,8 @@ class Principal(QtGui.QMainWindow):
 			self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).resize(0,0)
 			self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).hide()
 		#self.CorpusTexts.itemClicked.connect(self.onSelectTextFromCorpus) #ne fonctionne pas avec le clavier
-		self.CorpusTexts.currentItemChanged.connect(self.onSelectTextFromCorpus) #fonctionne avec clavier et souris, mais selectionne le 1er texte au chargement
+		#self.CorpusTexts.currentItemChanged.connect(self.onSelectTextFromCorpus) #fonctionne avec clavier et souris, mais selectionne le 1er texte au chargement
+		self.CorpusTexts.currentItemChanged.connect(self.onSelectText) #fonctionne avec clavier et souris, mais selectionne le 1er texte au chargement
 		
 		#l'onglet des réseaux
 		self.tabNetworks = QtGui.QTabWidget()
@@ -986,7 +987,7 @@ class Principal(QtGui.QMainWindow):
 		i = 0
 		#self.liste_txt_ord = []
 		#self.liste_semtxt_ord = []
-		self.dic_widget_list_txt = { tab_title : []}
+		self.dic_widget_list_txt = { 0 : []}
 		for sem,tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
 			txt =  self.listeObjetsTextes[sem]
 
@@ -995,7 +996,7 @@ class Principal(QtGui.QMainWindow):
 			#self.liste_semtxt_ord.append(sem) # a quoi ça sert déjà ? a selectionner le texte dans cet onglet quand il l'est dans un autre
 
 			txt.createWidgetitem()
-			self.dic_widget_list_txt[tab_title].append(sem)
+			self.dic_widget_list_txt[0].append(sem)
 			
 			self.CorpusTexts.addItem(txt.Widgetitem)
 			self.CorpusTexts.setItemWidget(txt.Widgetitem,txt.WidgetitemLabel)
@@ -1035,6 +1036,7 @@ class Principal(QtGui.QMainWindow):
 		self.PrgBar.reset()
 		"""
 
+#TODO a effacer > debut
 	def onSelectTextFromCorpus(self):
 		"""When a text is selected from the list of texts for the entire corpus"""
 		tab = self.SOT1.tabText(self.SOT1.currentIndex())
@@ -1055,34 +1057,54 @@ class Principal(QtGui.QMainWindow):
 		item_txt = self.l_anticorp_ord[self.show_texts_anticorpus.currentRow()]
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
 		self.onSelectText(u"$txt%d"%self.client.txts.index(item_txt),item_txt)
+#TODO a effacer > fin
 
 
-	def onSelectText(self,sem_txt):
+	#def onSelectText(self):
+	def onSelectText(self,sem_txt=""): #temporaire
 		"""Update text properties windows when a text is selected """
-		txt = self.listeObjetsTextes[sem_txt]
-		self.activity(u"%s (%s) selected " % (txt.path,sem_txt)) 
+		if 	(self.SOT1.currentIndex() == 0 ) :
+			row = self.SOT1.currentWidget().currentRow()
+			self.semantique_txt_item =  self.dic_widget_list_txt[0][row]
+		else :
+			i = 0	
+			row =  self.SOT1.currentWidget().focusWidget().currentRow()
+			for listwidget in self.SOT1.currentWidget().findChildren(QtGui.QListWidget) :
+				r = listwidget.currentRow()
+				if (r != -1 ):
+				#	row = r
+					I = i
+				i += 1
+			tab = self.SOT1.tabText(self.SOT1.currentIndex())
+			self.semantique_txt_item =  self.dic_widget_list_txt[tab][I][row]
+			
+		
+		txt = self.listeObjetsTextes[self.semantique_txt_item]
+		self.activity(u"%s (%s) selected " % (txt.path,self.semantique_txt_item)) 
 		self.deselectText()
 
 		#V =  self.liste_txt_corpus[item_txt]
 		#txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
 		#self.SETabTextDescr.setText(item_txt)
 
-		#pour accélérer l'affichage, on ne remplit que l'onglet sélectionné
-		if ( self.SubWdwSETabs.currentIndex () == 0 ):
-			self.show_textProperties( sem_txt)
-		elif ( self.SubWdwSETabs.currentIndex () == 1 ):
-			self.show_textCTX(sem_txt) 
-		elif ( self.SubWdwSETabs.currentIndex () == 2 ):
-			self.show_textContent( sem_txt)
 
 		#selectionne le texte dans l'onglet corpus s'il n'est pas actif
 		if (self.SOT1.currentIndex() != 0):
-			self.CorpusTexts.setCurrentRow(self.liste_semtxt_ord.index(self.semantique_txt_item))
+			self.CorpusTexts.setCurrentRow( self.dic_widget_list_txt[0].index(self.semantique_txt_item))
+		"""
 		#TODO selectionner les memes textes selectionnes dans les listes differentes
 		if (self.SOT1.count() > 1):
 			for o in self.liste_text_lists:
 				print o[1]
+		"""
 
+		#pour accélérer l'affichage, on ne remplit que l'onglet sélectionné
+		if ( self.SubWdwSETabs.currentIndex () == 0 ):
+			self.show_textProperties( self.semantique_txt_item)
+		elif ( self.SubWdwSETabs.currentIndex () == 1 ):
+			self.show_textCTX(self.semantique_txt_item) 
+		elif ( self.SubWdwSETabs.currentIndex () == 2 ):
+			self.show_textContent( self.semantique_txt_item)
 
 
 	def deselectText(self):
@@ -1091,10 +1113,14 @@ class Principal(QtGui.QMainWindow):
 		self.saillantesCat.clear()
 		self.saillantesCol.clear()
 		#self.SETabTextDescr.setText("")
+		for listwidget in self.SOT1.findChildren(QtGui.QListWidget) :
+			listwidget.clearSelection()
+		"""
 		self.CorpusTexts.clearSelection()
 		if (self.SOT1.count() > 1):
 			for o in self.liste_text_lists:
 				o[0].clearSelection()
+		"""
 		self.efface_textCTX()
 		self.textContent.clear()
 
@@ -2134,8 +2160,10 @@ class Principal(QtGui.QMainWindow):
 			sem,element = self.recup_element_lexicon()
 		if ( self.SubWdwNO.currentIndex() == 1) : # si l'onglet concepts
 			sem,element = self.recup_element_concepts()
+
 		txts_semantique = "%s.txt[0:]" % (sem)
 		result = self.client.eval_var(txts_semantique)
+
 		if  (result == ""):
 			self.activity(u"No text to displaying for %s" % (element) )
 		else:
@@ -2145,18 +2173,23 @@ class Principal(QtGui.QMainWindow):
 			liste_textes = map(lambda k : self.dicTxtSem[k],liste_textes)
 
 			texts_widget = Liste_texte(element,liste_textes)
-
+			self.dic_widget_list_txt[ texts_widget.tab_title ] =  [ [],[] ]
 			for sem,tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
 				txt =  self.listeObjetsTextes[sem]
 				if sem in liste_textes: 
 					txt.createWidgetitem()
 					texts_widget.show_texts_corpus.addItem(txt.Widgetitem)
 					texts_widget.show_texts_corpus.setItemWidget(txt.Widgetitem,txt.WidgetitemLabel)
+					self.dic_widget_list_txt[texts_widget.tab_title][0].append(sem)
 				else :
 					txt.createWidgetitem()
 					texts_widget.show_texts_anticorpus.addItem(txt.Widgetitem)
 					texts_widget.show_texts_anticorpus.setItemWidget(txt.Widgetitem,txt.WidgetitemLabel)
+					self.dic_widget_list_txt[texts_widget.tab_title][1].append(sem)
 
+		
+			texts_widget.show_texts_corpus.currentItemChanged.connect(self.onSelectText) 
+			texts_widget.show_texts_anticorpus.currentItemChanged.connect(self.onSelectText)  
 
 			#si la tab de l'element existe déjà, on efface l'ancienne
 			for i in range(0, self.SOT1.count() ):
@@ -2383,11 +2416,9 @@ class Liste_texte(object):
 		self.show_texts_widget.setLayout(HBox_texts)
 		self.show_texts_corpus = QtGui.QListWidget()
 		self.show_texts_corpus.setAlternatingRowColors(True)
-		#show_texts_corpus.currentItemChanged.connect(self.onSelectTextFromElement) 
 		HBox_texts.addWidget(self.show_texts_corpus)
 		self.show_texts_anticorpus = QtGui.QListWidget()
 		self.show_texts_anticorpus.setAlternatingRowColors(True)
-		#self.show_texts_anticorpus.currentItemChanged.connect(self.onSelectTextFromAnticorpus) 
 		HBox_texts.addWidget(self.show_texts_anticorpus)
 
 def main():
