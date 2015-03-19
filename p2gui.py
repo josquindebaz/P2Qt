@@ -976,23 +976,27 @@ class Principal(QtGui.QMainWindow):
 		
 
 	def display_liste_textes_corpus(self):
-		"""display texts for the corpus"""
+		"""displays texts for the corpus"""
 #TODO meme methodes pour textes du corpus et sous-corpus,  faire un titre a afficher dans listes et en-tête du quadran, 
 		self.activity(u"Displaying text list (%d items)" %len(self.listeTextes)  )
-		self.SOT1.tabBar().setTabText(0,"corpus (%d)"%len(self.listeTextes))
+		tab_title ="corpus (%d)"%len(self.listeTextes) 
+		self.SOT1.tabBar().setTabText(0,tab_title)
 		self.CorpusTexts.clear()
 
 		i = 0
-		self.liste_txt_ord = []
-		self.liste_semtxt_ord = []
+		#self.liste_txt_ord = []
+		#self.liste_semtxt_ord = []
+		self.dic_widget_list_txt = { tab_title : []}
 		for sem,tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
 			txt =  self.listeObjetsTextes[sem]
 
 #TODO un objet pour ces listes de texte
-			self.liste_txt_ord.append(sem)
-			self.liste_semtxt_ord.append(sem) # a quoi ça sert déjà ? a selectionner le texte dans cet onglet quand il l'est dans un autre
+			#self.liste_txt_ord.append(sem)
+			#self.liste_semtxt_ord.append(sem) # a quoi ça sert déjà ? a selectionner le texte dans cet onglet quand il l'est dans un autre
 
 			txt.createWidgetitem()
+			self.dic_widget_list_txt[tab_title].append(sem)
+			
 			self.CorpusTexts.addItem(txt.Widgetitem)
 			self.CorpusTexts.setItemWidget(txt.Widgetitem,txt.WidgetitemLabel)
 
@@ -1033,7 +1037,11 @@ class Principal(QtGui.QMainWindow):
 
 	def onSelectTextFromCorpus(self):
 		"""When a text is selected from the list of texts for the entire corpus"""
-		self.semantique_txt_item = self.liste_txt_ord[self.CorpusTexts.currentRow()]
+		tab = self.SOT1.tabText(self.SOT1.currentIndex())
+		row = self.SOT1.currentWidget().currentRow()
+		self.semantique_txt_item =  self.dic_widget_list_txt[tab][row]
+
+		#self.semantique_txt_item = self.liste_txt_ord[self.CorpusTexts.currentRow()]
 		self.onSelectText(self.semantique_txt_item)
 
 	def onSelectTextFromElement(self):
