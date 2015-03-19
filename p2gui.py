@@ -305,7 +305,7 @@ class Principal(QtGui.QMainWindow):
 
 	# sous onglet proprietes saillantes
 		saillantes = QtGui.QWidget()
-		self.textProperties.addTab(saillantes,"Sailent structures")
+		self.textProperties.addTab(saillantes,self.tr("Sailent structures"))
 	
 	# une box horizontale pour contenir les 3 listes
 		saillantesH = QtGui.QHBoxLayout()
@@ -961,11 +961,15 @@ class Principal(QtGui.QMainWindow):
 
 	def ord_liste_txt(self,liste_sem,order="chrono"):
 		liste = {}
-		if order=="chrono":
+		if (order=="chrono"):
 			for e in liste_sem :
 				txt = self.listeObjetsTextes[e]
 				date = txt.getCTX("date")
-				date,heure = re.split(" ",date) #sépare date et heure
+				date = re.split(" ",date) #sépare date et heure
+				if (len(date) > 1):
+					date,heure = date
+				else:
+					date = date[0]
 				liste[e] = "-".join(reversed(re.split("/",date)))
 			liste =   sorted(liste.items(),key=lambda (k,v) : v) 
 			return liste
@@ -974,7 +978,6 @@ class Principal(QtGui.QMainWindow):
 	def display_liste_textes_corpus(self):
 		"""display texts for the corpus"""
 #TODO meme methodes pour textes du corpus et sous-corpus,  faire un titre a afficher dans listes et en-tête du quadran, 
-		#self.activity(u"Waiting for text list"   )
 		self.activity(u"Displaying text list (%d items)" %len(self.listeTextes)  )
 		self.SOT1.tabBar().setTabText(0,"corpus (%d)"%len(self.listeTextes))
 		self.CorpusTexts.clear()
@@ -2124,59 +2127,84 @@ class Principal(QtGui.QMainWindow):
 		if ( self.SubWdwNO.currentIndex() == 1) : # si l'onglet concepts
 			sem,element = self.recup_element_concepts()
 		txts_semantique = "%s.txt[0:]" % (sem)
-
 		result = self.client.eval_var(txts_semantique)
 		if  (result == ""):
-			liste_textes = []
-		else :
-			liste_textes = re.split(", ",result)
-		self.activity(u"Displaying %d texts for %s" % (len(liste_textes),element) )
+			self.activity(u"No text to displaying for %s" % (element) )
+		else:
+			liste_textes = re.split(", ",result) 
+			self.activity(u"Displaying %d texts for %s" % (len(liste_textes),element) )
+
+			liste_textes = map(lambda k : self.dicTxtSem[k],liste_textes)
+
+			texts_widget = Liste_texte(element,liste_textes)
+
+			for sem,tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
+				txt =  self.listeObjetsTextes[sem]
+				if sem in liste_textes: 
+					txt.createWidgetitem()
+					texts_widget.show_texts_corpus.addItem(txt.Widgetitem)
+					texts_widget.show_texts_corpus.setItemWidget(txt.Widgetitem,txt.WidgetitemLabel)
+				else :
+					txt.createWidgetitem()
+					texts_widget.show_texts_anticorpus.addItem(txt.Widgetitem)
+					texts_widget.show_texts_anticorpus.setItemWidget(txt.Widgetitem,txt.WidgetitemLabel)
 
 
-		show_texts_widget = QtGui.QWidget()
-		HBox_texts = QtGui.QHBoxLayout()
-		HBox_texts.setContentsMargins(0,0,0,0) 
-		HBox_texts.setSpacing(0) 
-		show_texts_widget.setLayout(HBox_texts)
-		self.show_texts_corpus = QtGui.QListWidget()
-		self.show_texts_corpus.setAlternatingRowColors(True)
-		self.show_texts_corpus.currentItemChanged.connect(self.onSelectTextFromElement) 
-		HBox_texts.addWidget(self.show_texts_corpus)
-		#self.liste_text_lists.append([self.show_texts_corpus,[]])
-		self.show_texts_anticorpus = QtGui.QListWidget()
-		self.show_texts_anticorpus.setAlternatingRowColors(True)
-		self.show_texts_anticorpus.currentItemChanged.connect(self.onSelectTextFromAnticorpus) 
-		HBox_texts.addWidget(self.show_texts_anticorpus)
-		#self.liste_text_lists.append([self.show_texts_anticorpus,[]])
+			#si la tab de l'element existe déjà, on efface l'ancienne
+			for i in range(0, self.SOT1.count() ):
+				if (re.search("^%s (\d*)"%element,self.SOT1.tabText(i) ) ):
+					self.SOT1.removeTab(i)
+				
+			index = self.SOT1.addTab(texts_widget.show_texts_widget,texts_widget.tab_title)
+			self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
+			self.SubWdwSO.setCurrentIndex(0)# donne le focus a l'onglet Texts
+			self.SOT1.tabBar().setTabToolTip(index,texts_widget.tab_title)
 
-		self.l_corp_ord = []
-		self.l_anticorp_ord = []
-		for T,V in  sorted(self.liste_txt_corpus.items(),key=lambda (k,v) : "%s%s%s".join(reversed(re.split("/",v[0])))):
-			txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
-			if T in liste_textes: 
-				self.l_corp_ord.append(T)
-				self.show_texts_corpus.addItem(txt_resume)
-				test = QtGui.QListWidgetItem("test" + txt_resume)
-				self.show_texts_corpus.addItem(test)
-				print test
-				#self.liste_text_lists[self.show_texts_corpus].append(V[3])
-			else:
-				self.l_anticorp_ord.append(T)
-				self.show_texts_anticorpus.addItem(txt_resume)
-				#self.liste_text_lists[self.show_texts_anticorpus].append(V[3])
+			"""
+			show_texts_widget = QtGui.QWidget()
+			HBox_texts = QtGui.QHBoxLayout()
+			HBox_texts.setContentsMargins(0,0,0,0) 
+			HBox_texts.setSpacing(0) 
+			show_texts_widget.setLayout(HBox_texts)
+			self.show_texts_corpus = QtGui.QListWidget()
+			self.show_texts_corpus.setAlternatingRowColors(True)
+			self.show_texts_corpus.currentItemChanged.connect(self.onSelectTextFromElement) 
+			HBox_texts.addWidget(self.show_texts_corpus)
+			#self.liste_text_lists.append([self.show_texts_corpus,[]])
+			self.show_texts_anticorpus = QtGui.QListWidget()
+			self.show_texts_anticorpus.setAlternatingRowColors(True)
+			self.show_texts_anticorpus.currentItemChanged.connect(self.onSelectTextFromAnticorpus) 
+			HBox_texts.addWidget(self.show_texts_anticorpus)
+			#self.liste_text_lists.append([self.show_texts_anticorpus,[]])
+
+			self.l_corp_ord = []
+			self.l_anticorp_ord = []
+			for T,V in  sorted(self.liste_txt_corpus.items(),key=lambda (k,v) : "%s%s%s".join(reversed(re.split("/",v[0])))):
+				txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
+				if T in liste_textes: 
+					self.l_corp_ord.append(T)
+					self.show_texts_corpus.addItem(txt_resume)
+					test = QtGui.QListWidgetItem("test" + txt_resume)
+					self.show_texts_corpus.addItem(test)
+					print test
+					#self.liste_text_lists[self.show_texts_corpus].append(V[3])
+				else:
+					self.l_anticorp_ord.append(T)
+					self.show_texts_anticorpus.addItem(txt_resume)
+					#self.liste_text_lists[self.show_texts_anticorpus].append(V[3])
 
 
-		#si la tab de l'element existe déjà, on efface l'ancienne
-		for i in range(0, self.SOT1.count() ):
-			if (re.search("^%s (\d*)"%element,self.SOT1.tabText(i) ) ):
-				self.SOT1.removeTab(i)
-			
+			#si la tab de l'element existe déjà, on efface l'ancienne
+			for i in range(0, self.SOT1.count() ):
+				if (re.search("^%s (\d*)"%element,self.SOT1.tabText(i) ) ):
+					self.SOT1.removeTab(i)
+				
 
-		index = self.SOT1.addTab(show_texts_widget,"%s (%d)" % (element,len(liste_textes)))
-		self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
-		self.SubWdwSO.setCurrentIndex(0)# donne le focus a l'onglet Texts
-		self.SOT1.tabBar().setTabToolTip(index,"%s %d"%(element,len(liste_textes)))
-
+			index = self.SOT1.addTab(show_texts_widget,"%s (%d)" % (element,len(liste_textes)))
+			self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
+			self.SubWdwSO.setCurrentIndex(0)# donne le focus a l'onglet Texts
+			self.SOT1.tabBar().setTabToolTip(index,"%s %d"%(element,len(liste_textes)))
+			"""
 
                         
 	def teste_wording(self):
@@ -2336,7 +2364,23 @@ class Texte(object):
 		self.WidgetitemLabel = QtGui.QLabel(txt_resume)
 		#TODO texte en blanc quand selectionné
 
-
+class Liste_texte(object):
+	def __init__(self,element,liste_textes):
+		self.tab_title = "%s (%d)" % (element,len(liste_textes))
+		
+		self.show_texts_widget = QtGui.QWidget()
+		HBox_texts = QtGui.QHBoxLayout()
+		HBox_texts.setContentsMargins(0,0,0,0) 
+		HBox_texts.setSpacing(0) 
+		self.show_texts_widget.setLayout(HBox_texts)
+		self.show_texts_corpus = QtGui.QListWidget()
+		self.show_texts_corpus.setAlternatingRowColors(True)
+		#show_texts_corpus.currentItemChanged.connect(self.onSelectTextFromElement) 
+		HBox_texts.addWidget(self.show_texts_corpus)
+		self.show_texts_anticorpus = QtGui.QListWidget()
+		self.show_texts_anticorpus.setAlternatingRowColors(True)
+		#self.show_texts_anticorpus.currentItemChanged.connect(self.onSelectTextFromAnticorpus) 
+		HBox_texts.addWidget(self.show_texts_anticorpus)
 
 def main():
 	app = QtGui.QApplication(sys.argv)
