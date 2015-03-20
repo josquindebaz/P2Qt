@@ -258,6 +258,7 @@ class ConnecteurPII (threading.Thread):
 				return ""
 		lexpr = self.creer_msg_set_ctx( (text,props,value) )
 		for exp in lexpr :
+			print exp
 			self.send_expression(exp)
 		#value = self.get_value()
 		# est-ce nécessaire ????
@@ -515,7 +516,7 @@ class ConnecteurPII (threading.Thread):
 			Si PB avec le serveur ... relancer la connexion 
 		"""
 		
-
+		expression = expression.encode('utf-8')
 		#data = chr(190) # ':' 0XBE 190
 		data = chr(16)  # DLE ? .. 0X10 16
 		try :

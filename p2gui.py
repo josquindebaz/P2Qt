@@ -1161,13 +1161,20 @@ class Principal(QtGui.QMainWindow):
 		for r in range( self.textCTX.rowCount()):
 			field = self.textCTX.item(r,0).text()
 			val =  self.textCTX.item(r,1).text()
+
+			#ask = u"%s.%s" % ( self.m_current_selected_semtext,field)
 			ask = u"%s.ctx.%s" % ( self.m_current_selected_semtext,field)
-			result = re.sub(u"^\s*","",self.client.eval_var(ask))
-			
+			self.client.eval_var(ask)
+			result = re.sub(u"^\s*","",self.client.eval_var_result)
+#TODO ne met pas à jour le CTX, a un pb avec result
 			if (result != val):
 				print [field, result, val]
-				print self.client.eval_set_ctx( self.m_current_selected_semtext,field,val)
-				print self.client.eval_set_ctx( self.m_current_selected_semtext,"test",val)
+				self.client.eval_set_ctx( self.m_current_selected_semtext,field,val)
+				self.client.add_cache_var(self.m_current_selected_semtext +".ctx."+field,val)
+		
+		#self.client.creer_msg_set_ctx ( (sem_txt, field, val) )
+		#self.client.eval_set_ctx(sem_txt, field, val)
+		#print (sem_txt, field, val)
 		
 		self.textCTX_valid.setEnabled(False)
 		self.textCTX_reset.setEnabled(False)
