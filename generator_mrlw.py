@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import re,random
+import re,random,os
 
 
 class mrlw_variables(object):
@@ -10,12 +10,16 @@ class mrlw_variables(object):
 		self.mrlw_vars_index  = []
 		self.files = []
 
-		self.add_vars(self.get_file_content(("mrlw/mrlw_varm.txt")))
+		self.add_vars(self.get_file_content("mrlw/mrlw_varm.txt"))
 
 	def get_file_content(self,path):
-		self.files.append(path)
-		B= open(path).read()
-		return B.decode('latin1')
+		if os.path.isfile(path):
+			self.files.append(path)
+			B= open(path).read()
+			return B.decode('latin1')
+		else :
+			print "pb path", path
+			return ""
 
 	def add_vars(self,file_content):
 		V =  re.split("\s*\[\$\]\s*",file_content)
