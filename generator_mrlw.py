@@ -22,7 +22,7 @@ class mrlw_variables(object):
 			return ""
 
 	def add_vars(self,file_content):
-		V =  re.split("\s*\[\$\]\s*",file_content)
+		V =  re.split("\s*\[\$\]\s*",file_content[:-2])
 		for v in V[1:]:
 			vs = re.split("\r\n",v)
 			self.mrlw_vars[ vs[0] ] = vs[1:]
@@ -35,7 +35,7 @@ class mrlw_variables(object):
 		liste = []
 		for k,vs in self.mrlw_vars.iteritems():
 			for v in vs:
-				if u" %s "%v in u" %s "%sentence:
+				if u" %s "%v in " %s " % sentence:
 					liste.append([v,k])
 		return liste
 
@@ -59,14 +59,14 @@ if __name__ == '__main__':
 
 
 	t  = u"mot"
-	print main.teste_var(t)
+	#print main.teste_var(t)
 
 	p = u"Une phrase informatique de test accentuée, pour avoir un avis partisan d'une myopie informatique, une causerie à l'EHESS, hein"
-	print p
+	#print p
 
 	v = main.get_vars_sentence(p)		
-	print v
-	for i in range(5):
+	#print v
+	for i in range(1):
 		print main.genere_phrase(v)
 
 

@@ -587,36 +587,57 @@ class Principal(QtGui.QMainWindow):
 
 		gen_mrlw_Vbox_left = QtGui.QVBoxLayout()
 		gen_mrlw_Hbox.addLayout(gen_mrlw_Vbox_left)
-		self.gen_mrlw_phrase = QtGui.QLineEdit()
-		#self.gen_mrlw_phrase = QtGui.QTextEdit() 
+		self.gen_mrlw_phrase = QtGui.QTextEdit() 
+		self.gen_mrlw_phrase.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+		self.gen_mrlw_phrase.setFixedHeight(70) 
 		gen_mrlw_Vbox_left.addWidget(self.gen_mrlw_phrase)
 		gen_mrlw_Button_varifie = QtGui.QPushButton(self.tr("Identify"))
+		width = gen_mrlw_Button_varifie.fontMetrics().boundingRect(gen_mrlw_Button_varifie.text()).width() + 30
+		gen_mrlw_Button_varifie.setMaximumWidth(width)
 		gen_mrlw_Button_varifie.clicked.connect(self.genere_identify)
 		gen_mrlw_Vbox_left.addWidget(gen_mrlw_Button_varifie)
 		gen_mrlw_Button_varifie_spacer = QtGui.QLabel()
 		
-		self.gen_mrlw_vars = QtGui.QLineEdit()
-		#self.gen_mrlw_vars = QtGui.QTextEdit() 
+		self.gen_mrlw_vars = QtGui.QTextEdit()
+		self.gen_mrlw_vars.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+		self.gen_mrlw_vars.setFixedHeight(70)
 		gen_mrlw_Vbox_left.addWidget(self.gen_mrlw_vars)
+		gen_mrlw_genere_Hbox =   QtGui.QHBoxLayout() 
+		gen_mrlw_Vbox_left.addLayout(gen_mrlw_genere_Hbox)
 		gen_mrlw_Button_genere = QtGui.QPushButton(self.tr("Generate"))
-		gen_mrlw_Vbox_left.addWidget(gen_mrlw_Button_genere)
+		width = gen_mrlw_Button_genere.fontMetrics().boundingRect(gen_mrlw_Button_genere.text()).width() + 30
+		gen_mrlw_Button_genere.setMaximumWidth(width)
+		gen_mrlw_genere_Hbox.addWidget(gen_mrlw_Button_genere)
 		gen_mrlw_Button_genere.clicked.connect(self.genere_generate)
+		gen_mrlw_genere_spacer = QtGui.QLabel()
+		gen_mrlw_genere_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+		gen_mrlw_genere_Hbox.addWidget(gen_mrlw_genere_spacer)
+
+		self.gen_genere_spinbox = QtGui.QSpinBox()
+		gen_mrlw_genere_Hbox.addWidget(self.gen_genere_spinbox)
+		self.gen_genere_spinbox.setValue(1)
 		self.gen_mrlw_result = QtGui.QTextEdit() 
-		#self.gen_mrlw_result = QtGui.QLineEdit()
+		self.gen_mrlw_result.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+		self.gen_mrlw_result.setFixedHeight(100)
 		gen_mrlw_Vbox_left.addWidget(self.gen_mrlw_result)
 
-		"""
 		gen_mrlw_Vbox_right = QtGui.QVBoxLayout()
 		gen_mrlw_Hbox.addLayout(gen_mrlw_Vbox_right)
 		self.gen_mrlw_test = QtGui.QLineEdit()
+		self.gen_mrlw_test.returnPressed.connect(self.genere_test)
+		self.gen_mrlw_test.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
 		gen_mrlw_Vbox_right.addWidget(self.gen_mrlw_test)
-		self.gen_mrlw_var_dep = QtGui.QTextEdit()
-		gen_mrlw_Vbox_right.addWidget(self.gen_mrlw_var_dep)
+		self.gen_mrlw_test_result = QtGui.QListWidget()
+		self.gen_mrlw_test_result.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
+		gen_mrlw_Vbox_right.addWidget(self.gen_mrlw_test_result)
 		self.gen_mrlw_files = QtGui.QListWidget()
+		self.gen_mrlw_files.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+		self.gen_mrlw_files.setFixedHeight(50)
 		gen_mrlw_Vbox_right.addWidget(self.gen_mrlw_files)
-		"""
 
 		self.genere_mrlw = generator_mrlw.mrlw_variables()
+		for F in self.genere_mrlw.files:
+			self.gen_mrlw_files.addItem(F)
 
 ##################################################
 #mise en place des onglets
@@ -629,7 +650,7 @@ class Principal(QtGui.QMainWindow):
 		self.History_index = self.SubWdwNE.addTab(self.History,"History")
 		self.SubWdwNE.addTab(server_vars,"Vars")
 		#self.SubWdwNE.addTab(Param_Server,"Server")
-		self.SubWdwNE.addTab(gen_mrlw,self.tr("Generator"))
+		self.SubWdwNE.addTab(gen_mrlw,self.tr("Variant generation"))
 
 		#self.SubWdwNE.setCurrentIndex(0)
 		self.SubWdwNE.setCurrentIndex(2)
@@ -2352,15 +2373,33 @@ class Principal(QtGui.QMainWindow):
 			self.NOT5_cont.addItem(u"%d %s"%(el[1],re.sub("\\\,",",",el[0])))
 
 	def genere_identify(self):
-		phrase = self.gen_mrlw_phrase.text()
+		phrase = self.gen_mrlw_phrase.toPlainText()
 		if  (phrase != u''):
 			self.gen_mrlw_vars.clear()
-			self.gen_mrlw_vars.insert(self.genere_mrlw.get_vars_sentence(phrase))
+			phrase = re.sub('[\r\n]',' ',phrase)
+			self.gen_mrlw_vars.append(self.genere_mrlw.get_vars_sentence(phrase))
+
+	def genere_test(self):
+		mot = self.gen_mrlw_test.text()
+		self.gen_mrlw_test_result.clear()	
+		recup = []
+		if (mot != u""):
+			if re.search("^/Var\S{1,}", mot):
+				mot = re.sub("\s*$","",mot)
+				if mot[1:] in self.genere_mrlw.mrlw_vars.keys():
+					recup = self.genere_mrlw.mrlw_vars[mot[1:]]
+					self.gen_mrlw_test_result.addItems(recup)
+			else :
+				recup = self.genere_mrlw.repere_vars(mot)
+				for i in recup:
+					self.gen_mrlw_test_result.addItem("/%s"%i[1])
+				
 
 	def genere_generate(self):
-		phrase = self.gen_mrlw_vars.text()
+		phrase = self.gen_mrlw_vars.toPlainText()
 		if  (phrase != u''):
-			self.gen_mrlw_result.append(self.genere_mrlw.genere_phrase(phrase))
+			for i in range( self.gen_genere_spinbox.value()):
+				self.gen_mrlw_result.append(self.genere_mrlw.genere_phrase(phrase))
 		
 	
 				

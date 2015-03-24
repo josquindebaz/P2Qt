@@ -3282,9 +3282,6 @@ Nous n'avons pas encore atteint le terminus
 Nous ne sommes pas sur notre fin, personnellement je reste plutôt sur ma faim
 [$]
 VarFantôme1
-
-
-
 le développement de
 la survie de
 la poursuite de
@@ -3292,9 +3289,6 @@ notre informaticien adoré de
 la poursuite du développement de
 [$]
 VarFantôme2
-
-
-
 ce qu'il est convenu d'appeler
 ce que l'on appelle
 ce que vous appelez
@@ -19258,7 +19252,6 @@ investigateurs
 VarPoirot
 Hercule Poirot
 Lemy Caution
-
 Sam Spade
 Nestor Burma
 Maigret
@@ -20191,7 +20184,6 @@ indéniable
 indubitable
 [$]
 VarSurExpression
-
 - c'est une expression dont je me sers /VAR=VarSouvent , j'en ai un certain nombre, des points de repère comme en ont /VAR=VarPeut-être tous ceux qui errent comme moi, craintifs, dans la pénombre de /VAR=VarCeQueVousAppelez " paysage intérieur "...
 [$]
 VarDangereux
@@ -23152,7 +23144,6 @@ Pourquoi tant /VAR=VarBifurqDeHaine ?
 VarViderLaFenêtre
 Voulez-vous que je nettoie la fenêtre ?
 Est-ce qu'il faut que je vide la fenêtre ?
-
 Faut-il que je nettoie l'écran ?
 Désirez-vous que je vide la fenêtre ?
 Est-ce que je peux vider une partie de la fenêtre ?
@@ -31311,7 +31302,7 @@ court à la catastrophe /VAR=VarAbsolue
 se précipite dans le néant
 tend vers son propre anéantissement
 se dirige tout droit vers la disparition pure et /VAR=VarEntière
-[$}
+[$]
 VarCeNEstPasBonSigne
 ce n'est pas bon signe
 ce n'est pas très bon signe
