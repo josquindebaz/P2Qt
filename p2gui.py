@@ -10,6 +10,8 @@ from PySide import QtCore
 from PySide import QtGui 
 
 import interface_prospero
+import generator_mrlw
+
 from fonctions import translate
 import re
 import datetime
@@ -573,6 +575,50 @@ class Principal(QtGui.QMainWindow):
 		self.server_vars_result = QtGui.QTextEdit(readOnly = True) 
 		server_vars_Vbox.addWidget(self.server_vars_result)
 
+
+
+##################################################
+#le "generateur" Marlowe
+		gen_mrlw = QtGui.QWidget()
+		gen_mrlw_Hbox =  QtGui.QHBoxLayout() 
+		gen_mrlw.setLayout(gen_mrlw_Hbox)
+		gen_mrlw_Hbox.setContentsMargins(0,0,0,0) 
+		gen_mrlw_Hbox.setSpacing(0) 
+
+		gen_mrlw_Vbox_left = QtGui.QVBoxLayout()
+		gen_mrlw_Hbox.addLayout(gen_mrlw_Vbox_left)
+		self.gen_mrlw_phrase = QtGui.QLineEdit()
+		#self.gen_mrlw_phrase = QtGui.QTextEdit() 
+		gen_mrlw_Vbox_left.addWidget(self.gen_mrlw_phrase)
+		gen_mrlw_Button_varifie = QtGui.QPushButton(self.tr("Identify"))
+		gen_mrlw_Button_varifie.clicked.connect(self.genere_identify)
+		gen_mrlw_Vbox_left.addWidget(gen_mrlw_Button_varifie)
+		gen_mrlw_Button_varifie_spacer = QtGui.QLabel()
+		
+		self.gen_mrlw_vars = QtGui.QLineEdit()
+		#self.gen_mrlw_vars = QtGui.QTextEdit() 
+		gen_mrlw_Vbox_left.addWidget(self.gen_mrlw_vars)
+		gen_mrlw_Button_genere = QtGui.QPushButton(self.tr("Generate"))
+		gen_mrlw_Vbox_left.addWidget(gen_mrlw_Button_genere)
+		gen_mrlw_Button_genere.clicked.connect(self.genere_generate)
+		self.gen_mrlw_result = QtGui.QTextEdit() 
+		#self.gen_mrlw_result = QtGui.QLineEdit()
+		gen_mrlw_Vbox_left.addWidget(self.gen_mrlw_result)
+
+		"""
+		gen_mrlw_Vbox_right = QtGui.QVBoxLayout()
+		gen_mrlw_Hbox.addLayout(gen_mrlw_Vbox_right)
+		self.gen_mrlw_test = QtGui.QLineEdit()
+		gen_mrlw_Vbox_right.addWidget(self.gen_mrlw_test)
+		self.gen_mrlw_var_dep = QtGui.QTextEdit()
+		gen_mrlw_Vbox_right.addWidget(self.gen_mrlw_var_dep)
+		self.gen_mrlw_files = QtGui.QListWidget()
+		gen_mrlw_Vbox_right.addWidget(self.gen_mrlw_files)
+		"""
+
+		self.genere_mrlw = generator_mrlw.mrlw_variables()
+
+##################################################
 #mise en place des onglets
 		self.SubWdwNE = QtGui.QTabWidget()
 #		self.SubWdwNE.setTabsClosable(True)
@@ -583,8 +629,9 @@ class Principal(QtGui.QMainWindow):
 		self.History_index = self.SubWdwNE.addTab(self.History,"History")
 		self.SubWdwNE.addTab(server_vars,"Vars")
 		#self.SubWdwNE.addTab(Param_Server,"Server")
+		self.SubWdwNE.addTab(gen_mrlw,self.tr("Generator"))
 
-# on donne le focus à la connection au serveur
+		#self.SubWdwNE.setCurrentIndex(0)
 		self.SubWdwNE.setCurrentIndex(2)
 
 
@@ -2303,8 +2350,20 @@ class Principal(QtGui.QMainWindow):
 				dic_CTX[r] = 1
 		for el in sorted(dic_CTX.items(), key= lambda (k,v) : (-v,k)):
 			self.NOT5_cont.addItem(u"%d %s"%(el[1],re.sub("\\\,",",",el[0])))
-				
 
+	def genere_identify(self):
+		phrase = self.gen_mrlw_phrase.text()
+		if  (phrase != u''):
+			self.gen_mrlw_vars.clear()
+			self.gen_mrlw_vars.insert(self.genere_mrlw.get_vars_sentence(phrase))
+
+	def genere_generate(self):
+		phrase = self.gen_mrlw_vars.text()
+		if  (phrase != u''):
+			self.gen_mrlw_result.append(self.genere_mrlw.genere_phrase(phrase))
+		
+	
+				
 
 def main():
 	app = QtGui.QApplication(sys.argv)
