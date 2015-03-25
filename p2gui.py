@@ -654,8 +654,8 @@ class Principal(QtGui.QMainWindow):
                 #self.SubWdwNE.addTab(Param_Server,"Server")
                 self.SubWdwNE.addTab(gen_mrlw,self.tr("Variant generation"))
 
-                #self.SubWdwNE.setCurrentIndex(0)
-                self.SubWdwNE.setCurrentIndex(2)
+                self.SubWdwNE.setCurrentIndex(0)
+                #self.SubWdwNE.setCurrentIndex(2)
 
 
 
