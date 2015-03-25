@@ -626,10 +626,12 @@ class Principal(QtGui.QMainWindow):
 		self.gen_mrlw_test = QtGui.QLineEdit()
 		self.gen_mrlw_test.returnPressed.connect(self.genere_test)
 		self.gen_mrlw_test.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+		self.gen_mrlw_test.setFixedWidth(256)
 		gen_mrlw_Vbox_right.addWidget(self.gen_mrlw_test)
 		self.gen_mrlw_test_result = QtGui.QListWidget()
 		self.gen_mrlw_test_result.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
 		gen_mrlw_Vbox_right.addWidget(self.gen_mrlw_test_result)
+		self.gen_mrlw_test_result.doubleClicked.connect(self.genere_test_result_dc)
 		self.gen_mrlw_files = QtGui.QListWidget()
 		self.gen_mrlw_files.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
 		self.gen_mrlw_files.setFixedHeight(50)
@@ -2402,6 +2404,11 @@ class Principal(QtGui.QMainWindow):
 				self.gen_mrlw_result.append(self.genere_mrlw.genere_phrase(phrase))
 		
 	
+	def genere_test_result_dc(self):
+		self.gen_mrlw_test.clear()
+		self.gen_mrlw_test.setText(  self.gen_mrlw_test_result.currentItem().text() )
+		self.genere_test()
+		
 				
 
 def main():
