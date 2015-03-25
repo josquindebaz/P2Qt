@@ -11,6 +11,7 @@ class mrlw_variables(object):
                 self.files = []
 
                 self.add_vars(self.get_file_content("mrlw/mrlw_varm.txt"))
+                self.add_vars(self.get_file_content("mrlw/mrlw_varu.txt"))
 
         def get_file_content(self,path):
                 if os.path.isfile(path):
