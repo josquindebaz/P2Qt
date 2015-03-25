@@ -42,6 +42,14 @@ class mrlw_variables(object):
                                         liste.append([v,k])
                 return liste
 
+        def repere_vars2(self,sentence):
+                liste = []
+                for k,vs in self.mrlw_vars.iteritems():
+                        for v in vs:
+                                if v == sentence:
+                                        liste.append([v,k])
+                return liste
+
         def get_vars_sentence(self,sentence):
                 while len(self.repere_vars(sentence)):
                         var_liste =  self.repere_vars(sentence)
