@@ -1057,10 +1057,9 @@ class Principal(QtGui.QMainWindow):
 		item_txt = self.l_anticorp_ord[self.show_texts_anticorpus.currentRow()]
 		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
 		self.onSelectText(u"$txt%d"%self.client.txts.index(item_txt),item_txt)
-#TODO a effacer > fin
-
 
 	#def onSelectText(self):
+#TODO a effacer > fin
 	def onSelectText(self,sem_txt=""): #temporaire
 		"""Update text properties windows when a text is selected """
 		if 	(self.SOT1.currentIndex() == 0 ) :
@@ -1114,6 +1113,7 @@ class Principal(QtGui.QMainWindow):
 		self.saillantesCol.clear()
 		#self.SETabTextDescr.setText("")
 		for listwidget in self.SOT1.findChildren(QtGui.QListWidget) :
+			print listwidget
 			listwidget.clearSelection()
 		"""
 		self.CorpusTexts.clearSelection()
