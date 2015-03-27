@@ -1305,20 +1305,19 @@ class Principal(QtGui.QMainWindow):
 
 	def affiche_concepts_scores_texts(self):
 		self.which_concepts = "number of texts"
-		self.choose_score_tick()
+		self.choose_score_concepts_tick()
 		self.affiche_concepts_scores()
 
 	def affiche_concepts_scores_fapp(self):
 		self.which_concepts = "first apparition"
-		self.choose_score_tick()
+		self.choose_score_concepts_tick()
 		self.affiche_concepts_scores()
 
 
 	def affiche_concepts_scores_lapp(self):
 		self.which_concepts = "last apparition"
-		self.choose_score_tick()
+		self.choose_score_concepts_tick()
 		self.affiche_concepts_scores()
-
 
 
 	def affiche_concepts_scores_oc(self):
@@ -1355,7 +1354,6 @@ class Principal(QtGui.QMainWindow):
 			elif (self.which_concepts == "last apparition"):
 				order = "lapp"
 				ask = "%s%d.%s"% ( self.sem_liste_concept, row, order)
-
 
 			result  = self.client.eval_var( ask )
 
@@ -1585,7 +1583,6 @@ class Principal(QtGui.QMainWindow):
 			self.semantique_concept_item = self.client.eval_get_sem(item, sem ) #liste les representants
 			result = re.split(", ", self.client.eval_var("%s.rep[0:]"% self.semantique_concept_item))
 			
-			
 			if ( result != [u''] ):
 				if (sem in ["$cat_ent"]):#affiche directement sur la liste E
 					liste_scoree = []
@@ -1613,6 +1610,8 @@ class Principal(QtGui.QMainWindow):
 							ask = "%s.rep%d.val"% (self.semantique_concept_item,r)
 						elif (self.which_concepts  == "deployement" ):
 							ask = "%s.rep%d.dep"% (self.semantique_concept_item,r)
+						elif (self.which_concepts == "number of texts"):
+							ask = "%s.rep%d.nbtxt"% (self.semantique_concept_item,r)
 						val = int(self.client.eval_var(ask))
 						
 						to_add = "%d %s"%(val, result[r] )

@@ -516,7 +516,10 @@ class ConnecteurPII (threading.Thread):
 			Si PB avec le serveur ... relancer la connexion 
 		"""
 		
-		expression = expression.encode('utf-8')
+		try:
+			expression = expression.encode('utf-8')
+		except:
+			pass
 		#data = chr(190) # ':' 0XBE 190
 		data = chr(16)  # DLE ? .. 0X10 16
 		try :
