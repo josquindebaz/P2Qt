@@ -440,9 +440,9 @@ class Principal(QtGui.QMainWindow):
 		elif self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.LeftSide):
 			self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).resize(0,0)
 			self.SOT1.tabBar().tabButton(0, QtGui.QTabBar.LeftSide).hide()
-		#self.CorpusTexts.itemClicked.connect(self.onSelectTextFromCorpus) #ne fonctionne pas avec le clavier
-		#self.CorpusTexts.currentItemChanged.connect(self.onSelectTextFromCorpus) #fonctionne avec clavier et souris, mais selectionne le 1er texte au chargement
-		self.CorpusTexts.currentItemChanged.connect(self.onSelectText) #fonctionne avec clavier et souris, mais selectionne le 1er texte au chargement
+
+		self.CorpusTexts.itemSelectionChanged.connect(self.onSelectText)
+		
 		
 		#l'onglet des réseaux
 		self.tabNetworks = QtGui.QTabWidget()
@@ -653,7 +653,6 @@ class Principal(QtGui.QMainWindow):
 		self.NOT1Commands2.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
 		NOT1Commands2Menu = QtGui.QMenu(self)
 		NOT1Commands2Menu.addAction('network' , self.show_network)
-		self.liste_text_lists= []	
 		NOT1Commands2Menu.addAction('texts' , self.show_texts)
 		self.NOT1Commands2.setMenu(NOT1Commands2Menu)
 		NOT1VHC.addWidget(self.NOT1Commands2)
@@ -978,26 +977,20 @@ class Principal(QtGui.QMainWindow):
 
 	def display_liste_textes_corpus(self):
 		"""displays texts for the corpus"""
-#TODO meme methodes pour textes du corpus et sous-corpus,  faire un titre a afficher dans listes et en-tête du quadran, 
 		self.activity(u"Displaying text list (%d items)" %len(self.listeTextes)  )
 		tab_title ="corpus (%d)"%len(self.listeTextes) 
 		self.SOT1.tabBar().setTabText(0,tab_title)
 		self.CorpusTexts.clear()
 
 		i = 0
-		#self.liste_txt_ord = []
-		#self.liste_semtxt_ord = []
 		self.dic_widget_list_txt = { 0 : []}
 		for sem,tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
 			txt =  self.listeObjetsTextes[sem]
 
-#TODO un objet pour ces listes de texte
-			#self.liste_txt_ord.append(sem)
-			#self.liste_semtxt_ord.append(sem) # a quoi ça sert déjà ? a selectionner le texte dans cet onglet quand il l'est dans un autre
 
 			txt.createWidgetitem()
-			self.dic_widget_list_txt[0].append(sem)
-			
+			self.dic_widget_list_txt[0].append(txt)
+
 			self.CorpusTexts.addItem(txt.Widgetitem)
 			self.CorpusTexts.setItemWidget(txt.Widgetitem,txt.WidgetitemLabel)
 
@@ -1008,94 +1001,47 @@ class Principal(QtGui.QMainWindow):
 		self.PrgBar.reset()
 
 
-		"""
-		self.liste_txt_corpus = {}
-
-
-		for T in range(len(self.listeTextes)):
-			sem_texte = "$txt%d"%(T)
-			txt = self.listeObjetsTextes[sem_texte]
-			date, author, title = txt.getResume()
-			self.liste_txt_corpus[txt.sem] = [date, author, title,self.listeTextes[T]]
-
-			self.PrgBar.setValue(T * 100 / len(self.listeTextes) ) 
-			QtGui.QApplication.processEvents()
-
-		self.liste_txt_ord = []
-		self.liste_semtxt_ord = []
-		#ordonne chrono par defaut
-		for T,V in  sorted(self.liste_txt_corpus.items(),key=lambda (k,v) : "%s%s%s".join(reversed(re.split("/",v[0])))):
-			txt = self.listeObjetsTextes[T]
-			txt.createWidgetitem()
-			self.CorpusTexts.addItem(txt.Widgetitem)
-			self.CorpusTexts.setItemWidget(txt.Widgetitem,txt.WidgetitemLabel)
-					
-			self.liste_txt_ord.append(T)
-			self.liste_semtxt_ord.append(T) # a quoi ça sert déjà ? a selectionner le texte dans cet onglet quand il l'est dans un autre
-
-		self.PrgBar.reset()
-		"""
-
-#TODO a effacer > debut
-	def onSelectTextFromCorpus(self):
-		"""When a text is selected from the list of texts for the entire corpus"""
-		tab = self.SOT1.tabText(self.SOT1.currentIndex())
-		row = self.SOT1.currentWidget().currentRow()
-		self.semantique_txt_item =  self.dic_widget_list_txt[tab][row]
-
-		#self.semantique_txt_item = self.liste_txt_ord[self.CorpusTexts.currentRow()]
-		self.onSelectText(self.semantique_txt_item)
-
-	def onSelectTextFromElement(self):
-		"""When a text is selected from the list of texts for a given item"""
-		item_txt = self.l_corp_ord[self.show_texts_corpus.currentRow()]
-		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
-		self.onSelectText(u"$txt%d"%self.client.txts.index(item_txt),item_txt)
-
-	def onSelectTextFromAnticorpus(self):
-		"""When a text is selected from the list of anticorpus texts for a given item"""
-		item_txt = self.l_anticorp_ord[self.show_texts_anticorpus.currentRow()]
-		self.semantique_txt_item = self.client.eval_get_sem(item_txt, "$txt" )
-		self.onSelectText(u"$txt%d"%self.client.txts.index(item_txt),item_txt)
-
-	#def onSelectText(self):
-#TODO a effacer > fin
-	def onSelectText(self,sem_txt=""): #temporaire
+	def onSelectText(self):
 		"""Update text properties windows when a text is selected """
-		if 	(self.SOT1.currentIndex() == 0 ) :
-			row = self.SOT1.currentWidget().currentRow()
-			self.semantique_txt_item =  self.dic_widget_list_txt[0][row]
+
+		tab = self.SOT1.tabText(self.SOT1.currentIndex())
+		row = self.SOT1.focusWidget().currentRow()
+
+		if (self.SOT1.currentIndex() == 0 ) :
+			txt = self.dic_widget_list_txt[0][row]
+			self.semantique_txt_item =  txt.sem
 		else :
-			i = 0	
-			row =  self.SOT1.currentWidget().focusWidget().currentRow()
+			i = 0
 			for listwidget in self.SOT1.currentWidget().findChildren(QtGui.QListWidget) :
-				r = listwidget.currentRow()
-				if (r != -1 ):
-				#	row = r
-					I = i
-				i += 1
-			tab = self.SOT1.tabText(self.SOT1.currentIndex())
-			self.semantique_txt_item =  self.dic_widget_list_txt[tab][I][row]
-			
-		
-		txt = self.listeObjetsTextes[self.semantique_txt_item]
+				if listwidget == self.SOT1.focusWidget():
+					txt = self.dic_widget_list_txt[tab][i][row]
+					self.semantique_txt_item = txt.sem
+				i = i+1
+
 		self.activity(u"%s (%s) selected " % (txt.path,self.semantique_txt_item)) 
-		self.deselectText()
+
+		if (self.SOT1.currentIndex() != 0): #selectionne le texte dans l'onglet corpus s'il n'est pas actif
+			self.CorpusTexts.itemSelectionChanged.disconnect(self.onSelectText)
+			self.CorpusTexts.setCurrentRow( self.dic_widget_list_txt[0].index(txt))
+			self.CorpusTexts.itemSelectionChanged.connect(self.onSelectText)
+		if (self.SOT1.count() > 1): #si plus d'une tab
+			for t in range (1,self.SOT1.count()): #parcourt les tabs
+				l =  self.SOT1.widget(t).findChildren(QtGui.QListWidget) #les listwidget de la tab
+				l[0].itemSelectionChanged.disconnect(self.onSelectText)
+				l[1].itemSelectionChanged.disconnect(self.onSelectText)
+				if txt in  self.dic_widget_list_txt[self.SOT1.tabText(t)][0]:#si l'objet txt est dans le dic de l'element
+					l[0].setCurrentRow( self.dic_widget_list_txt[self.SOT1.tabText(t)][0].index(txt)) #selectionne le txt
+					l[1].clearSelection()
+				else: #s'il est dans son anticorpus
+					l[1].setCurrentRow( self.dic_widget_list_txt[self.SOT1.tabText(t)][1].index(txt))
+					l[0].clearSelection()
+				l[0].itemSelectionChanged.connect(self.onSelectText)
+				l[1].itemSelectionChanged.connect(self.onSelectText)
+
 
 		#V =  self.liste_txt_corpus[item_txt]
 		#txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
 		#self.SETabTextDescr.setText(item_txt)
-
-
-		#selectionne le texte dans l'onglet corpus s'il n'est pas actif
-		if (self.SOT1.currentIndex() != 0):
-			self.CorpusTexts.setCurrentRow( self.dic_widget_list_txt[0].index(self.semantique_txt_item))
-		"""
-		#TODO selectionner les memes textes selectionnes dans les listes differentes
-		if (self.SOT1.count() > 1):
-			for o in self.liste_text_lists:
-				print o[1]
-		"""
 
 		#pour accélérer l'affichage, on ne remplit que l'onglet sélectionné
 		if ( self.SubWdwSETabs.currentIndex () == 0 ):
@@ -1106,23 +1052,24 @@ class Principal(QtGui.QMainWindow):
 			self.show_textContent( self.semantique_txt_item)
 
 
+
+
 	def deselectText(self):
-		"""vide les listes des proprietes saillantes pour eviter confusion"""
+		"""vide les listes pour eviter confusion et deselectionne les listwidget"""
 		self.saillantesAct.clear()
 		self.saillantesCat.clear()
 		self.saillantesCol.clear()
 		#self.SETabTextDescr.setText("")
-		for listwidget in self.SOT1.findChildren(QtGui.QListWidget) :
-			print listwidget
-			listwidget.clearSelection()
-		"""
-		self.CorpusTexts.clearSelection()
-		if (self.SOT1.count() > 1):
-			for o in self.liste_text_lists:
-				o[0].clearSelection()
-		"""
 		self.efface_textCTX()
 		self.textContent.clear()
+		if hasattr(self,"semantique_txt_item"):
+			del self.semantique_txt_item
+
+
+		for listwidget in self.SOT1.findChildren(QtGui.QListWidget) :
+			listwidget.itemSelectionChanged.disconnect(self.onSelectText)
+			listwidget.clearSelection()
+			listwidget.itemSelectionChanged.connect(self.onSelectText)
 
 
 
@@ -2108,6 +2055,9 @@ class Principal(QtGui.QMainWindow):
 
 	def explo_show_text(self):
 		"""Show texts containing a pattern"""
+#TODO scorer/trier
+		self.deselectText()
+
 		motif = self.Explo_saisie.text()
 		row =  self.Explo_liste.currentRow()
 		ask = self.client.creer_msg_search("$search.rac",motif,"%d"%row,txt=True,ptxt="[0:]")
@@ -2115,52 +2065,41 @@ class Principal(QtGui.QMainWindow):
 		liste_textes = re.split(", ",result)
 		self.activity(u"Displaying %d texts for %s" % (len(liste_textes),motif))
 
-		self.deselectText()
+		liste_textes = map(lambda k : self.dicTxtSem[k],liste_textes)
 
-		show_texts_widget = QtGui.QWidget()
-		HBox_texts = QtGui.QHBoxLayout()
-		HBox_texts.setContentsMargins(0,0,0,0) 
-		HBox_texts.setSpacing(0) 
-		show_texts_widget.setLayout(HBox_texts)
-		self.show_texts_corpus = QtGui.QListWidget()
-		self.show_texts_corpus.setAlternatingRowColors(True)
-		self.show_texts_corpus.currentItemChanged.connect(self.onSelectTextFromElement) 
-		HBox_texts.addWidget(self.show_texts_corpus)
-		self.liste_text_lists.append([self.show_texts_corpus,[]])
-		self.show_texts_anticorpus = QtGui.QListWidget()
-		self.show_texts_anticorpus.setAlternatingRowColors(True)
-		self.show_texts_anticorpus.currentItemChanged.connect(self.onSelectTextFromAnticorpus) 
-		HBox_texts.addWidget(self.show_texts_anticorpus)
-		self.liste_text_lists.append([self.show_texts_anticorpus,"a"])
+		texts_widget = Liste_texte(motif,liste_textes)
 
-		self.l_corp_ord = []
-		self.l_anticorp_ord = []
-		for T,V in  sorted(self.liste_txt_corpus.items(),key=lambda (k,v) : "%s%s%s".join(reversed(re.split("/",v[0])))):
-			txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
-			if T in liste_textes: 
-				self.l_corp_ord.append(T)
-				self.show_texts_corpus.addItem(txt_resume)
-			else:
-				self.l_anticorp_ord.append(T)
-				self.show_texts_anticorpus.addItem(txt_resume)
+		self.dic_widget_list_txt[ texts_widget.tab_title ] =  [ [],[] ]
+		for sem,tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
+			txt =  self.listeObjetsTextes[sem]
+			if sem in liste_textes: 
+				txt.createWidgetitem()
+				texts_widget.show_texts_corpus.addItem(txt.Widgetitem)
+				texts_widget.show_texts_corpus.setItemWidget(txt.Widgetitem,txt.WidgetitemLabel)
+				self.dic_widget_list_txt[texts_widget.tab_title][0].append(txt)
+			else :
+				txt.createWidgetitem()
+				texts_widget.show_texts_anticorpus.addItem(txt.Widgetitem)
+				texts_widget.show_texts_anticorpus.setItemWidget(txt.Widgetitem,txt.WidgetitemLabel)
+				self.dic_widget_list_txt[texts_widget.tab_title][1].append(txt)
+	
+		texts_widget.show_texts_corpus.itemSelectionChanged.connect(self.onSelectText) 
+		texts_widget.show_texts_anticorpus.itemSelectionChanged.connect(self.onSelectText)  
 
 		#si la tab de l'element existe déjà, on efface l'ancienne
 		for i in range(0, self.SOT1.count() ):
 			if (re.search("^{%s} (\d*)"%motif,self.SOT1.tabText(i) ) ):
 				self.SOT1.removeTab(i)
 			
-		index = self.SOT1.addTab(show_texts_widget,"{%s} (%d)" % (motif,len(liste_textes)))
+		index = self.SOT1.addTab(texts_widget.show_texts_widget,texts_widget.tab_title)
 		self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
 		self.SubWdwSO.setCurrentIndex(0)# donne le focus a l'onglet Texts
-		self.SOT1.tabBar().setTabToolTip(index,"{%s} %d"%(motif,len(liste_textes)))
-
-
-
+		self.SOT1.tabBar().setTabToolTip(index,texts_widget.tab_title)
 
 
 	def show_texts(self):
-#TODO scorer/trier
 		"""Show texts containing a selected item"""
+#TODO scorer/trier
 		self.deselectText()
 
 		if ( self.SubWdwNO.currentIndex() == 0) : # si l'onglet lexicon
@@ -2187,16 +2126,16 @@ class Principal(QtGui.QMainWindow):
 					txt.createWidgetitem()
 					texts_widget.show_texts_corpus.addItem(txt.Widgetitem)
 					texts_widget.show_texts_corpus.setItemWidget(txt.Widgetitem,txt.WidgetitemLabel)
-					self.dic_widget_list_txt[texts_widget.tab_title][0].append(sem)
+					self.dic_widget_list_txt[texts_widget.tab_title][0].append(txt)
 				else :
 					txt.createWidgetitem()
 					texts_widget.show_texts_anticorpus.addItem(txt.Widgetitem)
 					texts_widget.show_texts_anticorpus.setItemWidget(txt.Widgetitem,txt.WidgetitemLabel)
-					self.dic_widget_list_txt[texts_widget.tab_title][1].append(sem)
+					self.dic_widget_list_txt[texts_widget.tab_title][1].append(txt)
 
 		
-			texts_widget.show_texts_corpus.currentItemChanged.connect(self.onSelectText) 
-			texts_widget.show_texts_anticorpus.currentItemChanged.connect(self.onSelectText)  
+			texts_widget.show_texts_corpus.itemSelectionChanged.connect(self.onSelectText) 
+			texts_widget.show_texts_anticorpus.itemSelectionChanged.connect(self.onSelectText)  
 
 			#si la tab de l'element existe déjà, on efface l'ancienne
 			for i in range(0, self.SOT1.count() ):
@@ -2207,52 +2146,6 @@ class Principal(QtGui.QMainWindow):
 			self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
 			self.SubWdwSO.setCurrentIndex(0)# donne le focus a l'onglet Texts
 			self.SOT1.tabBar().setTabToolTip(index,texts_widget.tab_title)
-
-			"""
-			show_texts_widget = QtGui.QWidget()
-			HBox_texts = QtGui.QHBoxLayout()
-			HBox_texts.setContentsMargins(0,0,0,0) 
-			HBox_texts.setSpacing(0) 
-			show_texts_widget.setLayout(HBox_texts)
-			self.show_texts_corpus = QtGui.QListWidget()
-			self.show_texts_corpus.setAlternatingRowColors(True)
-			self.show_texts_corpus.currentItemChanged.connect(self.onSelectTextFromElement) 
-			HBox_texts.addWidget(self.show_texts_corpus)
-			#self.liste_text_lists.append([self.show_texts_corpus,[]])
-			self.show_texts_anticorpus = QtGui.QListWidget()
-			self.show_texts_anticorpus.setAlternatingRowColors(True)
-			self.show_texts_anticorpus.currentItemChanged.connect(self.onSelectTextFromAnticorpus) 
-			HBox_texts.addWidget(self.show_texts_anticorpus)
-			#self.liste_text_lists.append([self.show_texts_anticorpus,[]])
-
-			self.l_corp_ord = []
-			self.l_anticorp_ord = []
-			for T,V in  sorted(self.liste_txt_corpus.items(),key=lambda (k,v) : "%s%s%s".join(reversed(re.split("/",v[0])))):
-				txt_resume = u"%s %s %s" % (V[0],V[1],V[2])
-				if T in liste_textes: 
-					self.l_corp_ord.append(T)
-					self.show_texts_corpus.addItem(txt_resume)
-					test = QtGui.QListWidgetItem("test" + txt_resume)
-					self.show_texts_corpus.addItem(test)
-					print test
-					#self.liste_text_lists[self.show_texts_corpus].append(V[3])
-				else:
-					self.l_anticorp_ord.append(T)
-					self.show_texts_anticorpus.addItem(txt_resume)
-					#self.liste_text_lists[self.show_texts_anticorpus].append(V[3])
-
-
-			#si la tab de l'element existe déjà, on efface l'ancienne
-			for i in range(0, self.SOT1.count() ):
-				if (re.search("^%s (\d*)"%element,self.SOT1.tabText(i) ) ):
-					self.SOT1.removeTab(i)
-				
-
-			index = self.SOT1.addTab(show_texts_widget,"%s (%d)" % (element,len(liste_textes)))
-			self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
-			self.SubWdwSO.setCurrentIndex(0)# donne le focus a l'onglet Texts
-			self.SOT1.tabBar().setTabToolTip(index,"%s %d"%(element,len(liste_textes)))
-			"""
 
                         
 	def teste_wording(self):
@@ -2384,6 +2277,7 @@ class Principal(QtGui.QMainWindow):
 		txts = self.client.eval_var("$txt[0:]")
 		return re.split(", ",txts)
 
+
 				
 class Texte(object):
 	def __init__(self,sem,path):
@@ -2412,10 +2306,12 @@ class Texte(object):
 		self.WidgetitemLabel = QtGui.QLabel(txt_resume)
 		#TODO texte en blanc quand selectionné
 
+
+
 class Liste_texte(object):
 	def __init__(self,element,liste_textes):
 		self.tab_title = "%s (%d)" % (element,len(liste_textes))
-		
+
 		self.show_texts_widget = QtGui.QWidget()
 		HBox_texts = QtGui.QHBoxLayout()
 		HBox_texts.setContentsMargins(0,0,0,0) 
@@ -2427,6 +2323,8 @@ class Liste_texte(object):
 		self.show_texts_anticorpus = QtGui.QListWidget()
 		self.show_texts_anticorpus.setAlternatingRowColors(True)
 		HBox_texts.addWidget(self.show_texts_anticorpus)
+
+		
 
 def main():
 	app = QtGui.QApplication(sys.argv)
