@@ -9,6 +9,8 @@ from PySide import QtCore
 from PySide import QtGui 
 
 import interface_prospero
+import generator_mrlw
+
 from fonctions import translate
 import re
 import datetime
@@ -190,113 +192,111 @@ class Principal(QtGui.QMainWindow):
 		# précalcule de valeurs associées 
 		for type_var in [ "$ent" , "$ef" , "$col", "$qualite"] :
 			self.activity("pre-computing : %s " % (type_var))
+
 #freq et nbaut ne marche pas ?
-			for type_calcul in ["freq","dep", "nbaut", "nbtxt","lapp","fapp"]:
-				L = self.client.eval_vector(type_var, type_calcul)
-				L = L.split(',')	 
-				if (type_calcul == "freq"):
-					t_calc = "val"
-				else:
-					t_calc = type_calcul
-				indice = 0
-				for val in L :
-					self.client.add_cache_var ("%s%s.%s"%(type_var,str(indice),t_calc),val)
-					indice+=1
-				
-				prgbar_val += 3
-				self.PrgBar.setValue(  prgbar_val )
-				QtGui.QApplication.processEvents()
-			prgbar_val -= 2
-
-
+                        for type_calcul in ["freq","dep", "nbaut", "nbtxt","lapp","fapp"]:
+                                L = self.client.eval_vector(type_var, type_calcul)
+                                L = L.split(',')         
+                                if (type_calcul == "freq"):
+                                        t_calc = "val"
+                                else:
+                                        t_calc = type_calcul
+                                indice = 0
+                                for val in L :
+                                        self.client.add_cache_var ("%s%s.%s"%(type_var,str(indice),t_calc),val)
+                                        indice+=1
+                                
+                                prgbar_val += 3
+                                self.PrgBar.setValue(  prgbar_val )
+                                QtGui.QApplication.processEvents()
+                        prgbar_val -= 2
 
 		self.PrgBar.reset()
-		
 
-	
-	def initUI(self):
+        
+        def initUI(self):
 
 
-		# create the menu bar
-		Menubar = self.menuBar()
+                # create the menu bar
+                Menubar = self.menuBar()
 
-		Menu_Corpus = Menubar.addMenu('&Corpus')
-		#Menu_Corpus.setShortcut('Ctrl+C')
-		Menu_distant = QtGui.QAction(QtGui.QIcon('distant.png'), '&prosperologie.org', self)        
-		Menu_distant.setStatusTip('Connect to prosperologie.org server')
-		Menu_distant.triggered.connect(self.connect_server)
-		Menu_Corpus.addAction(Menu_distant)
-		Menu_local = QtGui.QAction(QtGui.QIcon('home.png'), '&local', self)        
-		Menu_local.setStatusTip('Launch a local server')
-		Menu_local.triggered.connect(self.connect_server_localhost)
-		Menu_Corpus.addAction(Menu_local)
+                Menu_Corpus = Menubar.addMenu('&Corpus')
+                #Menu_Corpus.setShortcut('Ctrl+C')
+                Menu_distant = QtGui.QAction(QtGui.QIcon('distant.png'), '&prosperologie.org', self)        
+                Menu_distant.setStatusTip('Connect to prosperologie.org server')
+                Menu_distant.triggered.connect(self.connect_server)
+                Menu_Corpus.addAction(Menu_distant)
+                Menu_local = QtGui.QAction(QtGui.QIcon('home.png'), '&local', self)        
+                Menu_local.setStatusTip('Launch a local server')
+                Menu_local.triggered.connect(self.connect_server_localhost)
+                Menu_Corpus.addAction(Menu_local)
 
-		Menu_Texts = Menubar.addMenu('&Texts')
-		Menu_AddTex = QtGui.QAction('&Add a new text', self)        
-		Menu_Texts.addAction(Menu_AddTex)
-		Menu_AddTex.setEnabled(False)
-		Menu_ModTex = QtGui.QAction('&Action on selected texts', self)        
-		Menu_Texts.addAction(Menu_ModTex)
-		Menu_ModTex.setEnabled(False)
-	
+                Menu_Texts = Menubar.addMenu('&Texts')
+                Menu_AddTex = QtGui.QAction('&Add a new text', self)        
+                Menu_Texts.addAction(Menu_AddTex)
+                Menu_AddTex.setEnabled(False)
+                Menu_ModTex = QtGui.QAction('&Action on selected texts', self)        
+                Menu_Texts.addAction(Menu_ModTex)
+                Menu_ModTex.setEnabled(False)
+        
 
 
 
 
 # parametrage du Gui : langue etc
-		#ParamMenu = Menubar.addMenu(self.tr('&Parameters'))
-		#LangInterface = ParamMenu.addMenu(self.tr("&Interface language"))
-		#LangInterface.addAction("en_GB",self.lang_en_GB)
-		#LangInterface.addAction("fr_FR",self.lang_fr_FR)
-#		ConstelMenu = menubar.addMenu('&Constellation')
-#		HelpMenu = menubar.addMenu('&Help')
+                #ParamMenu = Menubar.addMenu(self.tr('&Parameters'))
+                #LangInterface = ParamMenu.addMenu(self.tr("&Interface language"))
+                #LangInterface.addAction("en_GB",self.lang_en_GB)
+                #LangInterface.addAction("fr_FR",self.lang_fr_FR)
+#               ConstelMenu = menubar.addMenu('&Constellation')
+#               HelpMenu = menubar.addMenu('&Help')
 
-		# create the status bar
-		self.status = self.statusBar()
-		self.status.showMessage(u"Ready")
+                # create the status bar
+                self.status = self.statusBar()
+                self.status.showMessage(u"Ready")
 
-		#create the progressebar
-		self.PrgBar = QtGui.QProgressBar()
-		self.PrgBar.setMaximumSize(199, 19)
-		self.status.addPermanentWidget(self.PrgBar)
+                #create the progressebar
+                self.PrgBar = QtGui.QProgressBar()
+                self.PrgBar.setMaximumSize(199, 19)
+                self.status.addPermanentWidget(self.PrgBar)
 
-		
+                
 
-	
-		# create the toolbar
-		toolbar = self.addToolBar("toolbar")	
-		#toolbar.setIconSize(QtCore.QSize(16, 16))
-		toolbar.setMovable( 0 )
+        
+                # create the toolbar
+                toolbar = self.addToolBar("toolbar")    
+                #toolbar.setIconSize(QtCore.QSize(16, 16))
+                toolbar.setMovable( 0 )
 
-		
+                
 
-		#Saction = QtGui.QAction(QtGui.QIcon('Prospero-II.png'), 'Server', self)
-		#toolbar.addAction(Saction)
+                #Saction = QtGui.QAction(QtGui.QIcon('Prospero-II.png'), 'Server', self)
+                #toolbar.addAction(Saction)
 
-		list1 = QtGui.QComboBox()
-		#list1.addItem(u"Reference corpus")
-#		list1.addItem(u"auteur : AFP")
-		#toolbar.addWidget(list1)
+                list1 = QtGui.QComboBox()
+                #list1.addItem(u"Reference corpus")
+#               list1.addItem(u"auteur : AFP")
+                #toolbar.addWidget(list1)
 
-		spacer1 = QtGui.QLabel()
-		spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-		toolbar.addWidget(spacer1)
-		
-		etat1 = QtGui.QLabel()
-#		etat1.setText("234 textes 5,44 pages volume 234")
-		toolbar.addWidget(etat1)
-		
-		spacer2 = QtGui.QLabel()
-		spacer2.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-		toolbar.addWidget(spacer2)
+                spacer1 = QtGui.QLabel()
+                spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+                toolbar.addWidget(spacer1)
+                
+                etat1 = QtGui.QLabel()
+#               etat1.setText("234 textes 5,44 pages volume 234")
+                toolbar.addWidget(etat1)
+                
+                spacer2 = QtGui.QLabel()
+                spacer2.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+                toolbar.addWidget(spacer2)
 
-		etat2 = QtGui.QLabel()
-#		etat2.setText("/Users/gspr/corpus/Alarm and Controversies/AaC.prc")
-		toolbar.addWidget(etat2)
+                etat2 = QtGui.QLabel()
+#               etat2.setText("/Users/gspr/corpus/Alarm and Controversies/AaC.prc")
+                toolbar.addWidget(etat2)
 
 
 ##################################################
-		#quart SE
+                #quart SE
 ##################################################
 
 
@@ -377,51 +377,50 @@ class Principal(QtGui.QMainWindow):
 		Hbox_textCTX_commands_spacer = QtGui.QLabel()
 		Hbox_textCTX_commands_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
 #TOTO add, delete
-		self.Hbox_textCTX_commands.addWidget(Hbox_textCTX_commands_spacer) 
-		textCTX_commandsButton = QtGui.QPushButton(u"\u25cb")
-		self.Hbox_textCTX_commands.addWidget(textCTX_commandsButton)
-		textCTX_commandsButton.setEnabled(False)
-		Vbox_textCTX.addLayout(self.Hbox_textCTX_commands)
+                self.Hbox_textCTX_commands.addWidget(Hbox_textCTX_commands_spacer) 
+                textCTX_commandsButton = QtGui.QPushButton(u"\u25cb")
+                self.Hbox_textCTX_commands.addWidget(textCTX_commandsButton)
+                textCTX_commandsButton.setEnabled(False)
+                Vbox_textCTX.addLayout(self.Hbox_textCTX_commands)
 
 
-		"""
-		self.textCTX.setRowCount(1)
-		itTest = QtGui.QTableWidgetItem("t1")
-		self.textCTX.setItem(0,0,itTest)
-		"""
+                """
+                self.textCTX.setRowCount(1)
+                itTest = QtGui.QTableWidgetItem("t1")
+                self.textCTX.setItem(0,0,itTest)
+                """
 
-	# onglet contenu du texte
-		self.textContent = QtGui.QTextEdit() 
+        # onglet contenu du texte
+                self.textContent = QtGui.QTextEdit() 
 
-		self.SubWdwSETabs = QtGui.QTabWidget()
+                self.SubWdwSETabs = QtGui.QTabWidget()
 
-		#SubWdwSE = QtGui.QWidget()
+                #SubWdwSE = QtGui.QWidget()
 
-		SETabV = QtGui.QVBoxLayout()
-		SETabV.setContentsMargins(0,0,0,0) 
-		SETabV.setSpacing(0) 
-		SETabVH = QtGui.QHBoxLayout()
-		SETabV.addLayout(SETabVH)
+                SETabV = QtGui.QVBoxLayout()
+                SETabV.setContentsMargins(0,0,0,0) 
+                SETabV.setSpacing(0) 
+                SETabVH = QtGui.QHBoxLayout()
+                SETabV.addLayout(SETabVH)
 
-		#self.SETabTextDescr = QtGui.QLabel()
-		#SETabVH.addWidget(self.SETabTextDescr)
-		#self.SETabTextDescr.setStyleSheet("color: white")
+                #self.SETabTextDescr = QtGui.QLabel()
+                #SETabVH.addWidget(self.SETabTextDescr)
+                #self.SETabTextDescr.setStyleSheet("color: white")
 
-		SETabVH.addWidget(self.SubWdwSETabs)
+                SETabVH.addWidget(self.SubWdwSETabs)
 
-		#SubWdwSE.setLayout(SETabV)
-		#SETabV.addWidget(self.SubWdwSETabs)
+                #SubWdwSE.setLayout(SETabV)
+                #SETabV.addWidget(self.SubWdwSETabs)
 
 		self.SubWdwSETabs.addTab(self.textProperties,"Properties")
 		self.SubWdwSETabs.addTab(Vbox_textCTX_W,"Metadata")
 		self.SubWdwSETabs.addTab(self.textContent,"Text")
 
-
-		self.SubWdwSETabs.currentChanged.connect(self.change_SETab)
+                self.SubWdwSETabs.currentChanged.connect(self.change_SETab)
 
 
 ##################################################
-		#quart SO
+                #quart SO
 ##################################################
 		self.SubWdwSO = QtGui.QTabWidget()
 
@@ -451,201 +450,269 @@ class Principal(QtGui.QMainWindow):
 
 #TODO les expressions englobantes
 
-		#mise en place des onglets
+                #mise en place des onglets
 
-		self.SubWdwSO.addTab(self.SOT1,self.tr("Texts"))
-		self.SubWdwSO.addTab(self.tabNetworks,self.tr("Networks"))
+                self.SubWdwSO.addTab(self.SOT1,self.tr("Texts"))
+                self.SubWdwSO.addTab(self.tabNetworks,self.tr("Networks"))
 
 
 ##################################################
-		#quart NE
+                #quart NE
 ##################################################
 
 
 ##################################################
 #TODO logs
 #parametrer le serveur
-		Param_Server = QtGui.QWidget()
-		Param_Server_V = QtGui.QVBoxLayout()
-		Param_Server.setLayout(Param_Server_V)
+                Param_Server = QtGui.QWidget()
+                Param_Server_V = QtGui.QVBoxLayout()
+                Param_Server.setLayout(Param_Server_V)
 #lance le serveur local avec le PRC ciblé
-		Param_Server_R = QtGui.QFormLayout()
-		Param_Server_R.setFieldGrowthPolicy(QtGui.QFormLayout.ExpandingFieldsGrow)
-		Param_Server_V.addLayout(Param_Server_R)
+                Param_Server_R = QtGui.QFormLayout()
+                Param_Server_R.setFieldGrowthPolicy(QtGui.QFormLayout.ExpandingFieldsGrow)
+                Param_Server_V.addLayout(Param_Server_R)
 
-		self.Param_Server_path_P2 = QtGui.QLineEdit()
-		#Param_Server_R.addRow("Local server path",self.Param_Server_path_P2)
-		Param_Server_R.addRow(self.Param_Server_path_P2)
-		#self.Param_Server_path_P2.setText("/Users/gspr/Documents/Prospero-II-serveur/prospero-II.app/Contents/MacOS/prospero-II")
-		#self.Param_Server_path_P2.setText("/Users/gspr/Documents/Prospero-II-serveur/prospero-cocoa.app/Contents/MacOS/prospero-cocoa")
+                self.Param_Server_path_P2 = QtGui.QLineEdit()
+                #Param_Server_R.addRow("Local server path",self.Param_Server_path_P2)
+                Param_Server_R.addRow(self.Param_Server_path_P2)
+                #self.Param_Server_path_P2.setText("/Users/gspr/Documents/Prospero-II-serveur/prospero-II.app/Contents/MacOS/prospero-II")
+                #self.Param_Server_path_P2.setText("/Users/gspr/Documents/Prospero-II-serveur/prospero-cocoa.app/Contents/MacOS/prospero-cocoa")
 
-		Param_Server_path_P2_button = QtGui.QPushButton("select local server path")
-		Param_Server_R.addWidget(Param_Server_path_P2_button)
-		Param_Server_path_P2_button.clicked.connect(self.select_P2_path)
+                Param_Server_path_P2_button = QtGui.QPushButton("select local server path")
+                Param_Server_R.addWidget(Param_Server_path_P2_button)
+                Param_Server_path_P2_button.clicked.connect(self.select_P2_path)
 
-		self.Param_Server_path_PRC = QtGui.QLineEdit()
-		#Param_Server_R.addRow("Corpus path",self.Param_Server_path_PRC)
-		Param_Server_R.addRow(self.Param_Server_path_PRC)
-		#self.Param_Server_path_PRC.setText("/Users/gspr/corpus/telephonie/0-projets/TELasso.prc")
+                self.Param_Server_path_PRC = QtGui.QLineEdit()
+                #Param_Server_R.addRow("Corpus path",self.Param_Server_path_PRC)
+                Param_Server_R.addRow(self.Param_Server_path_PRC)
+                #self.Param_Server_path_PRC.setText("/Users/gspr/corpus/telephonie/0-projets/TELasso.prc")
 
-		Param_Server_path_PRC_button = QtGui.QPushButton("select corpus path")
-		Param_Server_R.addWidget(Param_Server_path_PRC_button)
-		Param_Server_path_PRC_button.clicked.connect(self.select_PRC_path)
-		self.Param_Server_R_button = QtGui.QPushButton('Start server')
-		self.Param_Server_R_button.clicked.connect(self.lance_server)
-		Param_Server_R.addWidget(self.Param_Server_R_button)
+                Param_Server_path_PRC_button = QtGui.QPushButton("select corpus path")
+                Param_Server_R.addWidget(Param_Server_path_PRC_button)
+                Param_Server_path_PRC_button.clicked.connect(self.select_PRC_path)
+                self.Param_Server_R_button = QtGui.QPushButton('Start server')
+                self.Param_Server_R_button.clicked.connect(self.lance_server)
+                Param_Server_R.addWidget(self.Param_Server_R_button)
 
 
-		#Param_Server_I = QtGui.QLabel()
-		#Param_Server_I.setPixmap(QtGui.QPixmap('Prospero-II.png'))
-		#Param_Server_V.addWidget(Param_Server_I)
+                #Param_Server_I = QtGui.QLabel()
+                #Param_Server_I.setPixmap(QtGui.QPixmap('Prospero-II.png'))
+                #Param_Server_V.addWidget(Param_Server_I)
 
 #configurer les parametres de connexion au serveur distant
-		self.Param_Server_val_host = QtGui.QLineEdit()
-		Param_Server_R.addRow("&host",self.Param_Server_val_host)
+                self.Param_Server_val_host = QtGui.QLineEdit()
+                Param_Server_R.addRow("&host",self.Param_Server_val_host)
 
-		self.Param_Server_val_host.setText('prosperologie.org')#prosperologie.org
-		#self.Param_Server_val_host.setText('localhost')
+                self.Param_Server_val_host.setText('prosperologie.org')#prosperologie.org
+                #self.Param_Server_val_host.setText('localhost')
 
-		self.Param_Server_val_port = QtGui.QLineEdit()
-		Param_Server_R.addRow("&port",self.Param_Server_val_port)
-		self.Param_Server_val_port.setText('4000')
-		self.Param_Server_B = QtGui.QPushButton('Connect to server')
-		self.Param_Server_B.setStyleSheet(" background-color : green; color : white; ") # bouton vert pour attirer le regard
-		self.Param_Server_B.clicked.connect(self.connect_server)
-		Param_Server_R.addWidget(self.Param_Server_B)
+                self.Param_Server_val_port = QtGui.QLineEdit()
+                Param_Server_R.addRow("&port",self.Param_Server_val_port)
+                self.Param_Server_val_port.setText('4000')
+                self.Param_Server_B = QtGui.QPushButton('Connect to server')
+                self.Param_Server_B.setStyleSheet(" background-color : green; color : white; ") # bouton vert pour attirer le regard
+                self.Param_Server_B.clicked.connect(self.connect_server)
+                Param_Server_R.addWidget(self.Param_Server_B)
 
 ##################################################
 #onglet de gestion du PRC a ajouter
-		NET1 = QtGui.QTextEdit()
+                NET1 = QtGui.QTextEdit()
 
 
 
 ##################################################
 #l'historique des actions
-		self.History =  QtGui.QTextEdit()
+                self.History =  QtGui.QTextEdit()
 
 ##################################################
-		T4 =  QtGui.QLabel()
-#		viewImage = QtGui.QPixmap("viewer.png")
-#		T4.setPixmap(viewImage)
+                T4 =  QtGui.QLabel()
+#               viewImage = QtGui.QPixmap("viewer.png")
+#               T4.setPixmap(viewImage)
 
 
 
 #evaluer directement les variables du serveur
-		server_vars = QtGui.QWidget()
-		server_vars_Vbox =  QtGui.QVBoxLayout() 
-		server_vars.setLayout(server_vars_Vbox)
-		server_vars_Vbox.setContentsMargins(0,0,0,0) 
-		server_vars_Vbox.setSpacing(0) 
+                server_vars = QtGui.QWidget()
+                server_vars_Vbox =  QtGui.QVBoxLayout() 
+                server_vars.setLayout(server_vars_Vbox)
+                server_vars_Vbox.setContentsMargins(0,0,0,0) 
+                server_vars_Vbox.setSpacing(0) 
 
-		server_vars_Hbox = QtGui.QHBoxLayout()
-		server_vars_champL = QtGui.QFormLayout()
-		self.server_vars_champ = QtGui.QLineEdit()
-		self.server_vars_champ.returnPressed.connect(self.server_vars_Evalue)
-		server_vars_champL.addRow("&var",self.server_vars_champ)
-		server_vars_Hbox.addLayout(server_vars_champL)
-		server_vars_button_eval = QtGui.QPushButton('Eval')
-		server_vars_Hbox.addWidget(server_vars_button_eval)
-		server_vars_button_eval.clicked.connect(self.server_vars_Evalue)
-		server_vars_button_getsem = QtGui.QPushButton('Get sem')
-		server_vars_Hbox.addWidget(server_vars_button_getsem)
-		server_vars_button_getsem.clicked.connect(self.server_getsem_Evalue)
-		server_vars_button_clear = QtGui.QPushButton('Clear')
-		server_vars_Hbox.addWidget(server_vars_button_clear)
-		server_vars_button_clear.clicked.connect(self.server_vars_Clear)
-		server_vars_Vbox.addLayout(server_vars_Hbox)
+                server_vars_Hbox = QtGui.QHBoxLayout()
+                server_vars_champL = QtGui.QFormLayout()
+                self.server_vars_champ = QtGui.QLineEdit()
+                self.server_vars_champ.returnPressed.connect(self.server_vars_Evalue)
+                server_vars_champL.addRow("&var",self.server_vars_champ)
+                server_vars_Hbox.addLayout(server_vars_champL)
+                server_vars_button_eval = QtGui.QPushButton('Eval')
+                server_vars_Hbox.addWidget(server_vars_button_eval)
+                server_vars_button_eval.clicked.connect(self.server_vars_Evalue)
+                server_vars_button_getsem = QtGui.QPushButton('Get sem')
+                server_vars_Hbox.addWidget(server_vars_button_getsem)
+                server_vars_button_getsem.clicked.connect(self.server_getsem_Evalue)
+                server_vars_button_clear = QtGui.QPushButton('Clear')
+                server_vars_Hbox.addWidget(server_vars_button_clear)
+                server_vars_button_clear.clicked.connect(self.server_vars_Clear)
+                server_vars_Vbox.addLayout(server_vars_Hbox)
 
-		self.server_vars_result = QtGui.QTextEdit(readOnly = True) 
-		server_vars_Vbox.addWidget(self.server_vars_result)
+                self.server_vars_result = QtGui.QTextEdit(readOnly = True) 
+                server_vars_Vbox.addWidget(self.server_vars_result)
 
+
+
+##################################################
+#le "generateur" Marlowe
+                gen_mrlw = QtGui.QWidget()
+                gen_mrlw_Hbox =  QtGui.QHBoxLayout() 
+                gen_mrlw.setLayout(gen_mrlw_Hbox)
+                gen_mrlw_Hbox.setContentsMargins(0,0,0,0) 
+                gen_mrlw_Hbox.setSpacing(0) 
+
+                gen_mrlw_Vbox_left = QtGui.QVBoxLayout()
+                gen_mrlw_Hbox.addLayout(gen_mrlw_Vbox_left)
+                self.gen_mrlw_phrase = QtGui.QTextEdit() 
+                self.gen_mrlw_phrase.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+                self.gen_mrlw_phrase.setFixedHeight(70) 
+                gen_mrlw_Vbox_left.addWidget(self.gen_mrlw_phrase)
+                gen_mrlw_Button_varifie = QtGui.QPushButton(self.tr("Identify"))
+                width = gen_mrlw_Button_varifie.fontMetrics().boundingRect(gen_mrlw_Button_varifie.text()).width() + 30
+                gen_mrlw_Button_varifie.setMaximumWidth(width)
+                gen_mrlw_Button_varifie.clicked.connect(self.genere_identify)
+                gen_mrlw_Vbox_left.addWidget(gen_mrlw_Button_varifie)
+                gen_mrlw_Button_varifie_spacer = QtGui.QLabel()
+                
+                self.gen_mrlw_vars = QtGui.QTextEdit()
+                self.gen_mrlw_vars.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+                self.gen_mrlw_vars.setFixedHeight(70)
+                gen_mrlw_Vbox_left.addWidget(self.gen_mrlw_vars)
+                gen_mrlw_genere_Hbox =   QtGui.QHBoxLayout() 
+                gen_mrlw_Vbox_left.addLayout(gen_mrlw_genere_Hbox)
+                gen_mrlw_Button_genere = QtGui.QPushButton(self.tr("Generate"))
+                width = gen_mrlw_Button_genere.fontMetrics().boundingRect(gen_mrlw_Button_genere.text()).width() + 30
+                gen_mrlw_Button_genere.setMaximumWidth(width)
+                gen_mrlw_genere_Hbox.addWidget(gen_mrlw_Button_genere)
+                gen_mrlw_Button_genere.clicked.connect(self.genere_generate)
+                gen_mrlw_genere_spacer = QtGui.QLabel()
+                gen_mrlw_genere_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+                gen_mrlw_genere_Hbox.addWidget(gen_mrlw_genere_spacer)
+
+                self.gen_genere_spinbox = QtGui.QSpinBox()
+                gen_mrlw_genere_Hbox.addWidget(self.gen_genere_spinbox)
+                self.gen_genere_spinbox.setValue(1)
+                self.gen_mrlw_result = QtGui.QTextEdit() 
+                self.gen_mrlw_result.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+                self.gen_mrlw_result.setFixedHeight(100)
+                gen_mrlw_Vbox_left.addWidget(self.gen_mrlw_result)
+
+                gen_mrlw_Vbox_right = QtGui.QVBoxLayout()
+                gen_mrlw_Hbox.addLayout(gen_mrlw_Vbox_right)
+                self.gen_mrlw_test = QtGui.QLineEdit()
+                self.gen_mrlw_test.returnPressed.connect(self.genere_test)
+                self.gen_mrlw_test.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+                self.gen_mrlw_test.setFixedWidth(256)
+                gen_mrlw_Vbox_right.addWidget(self.gen_mrlw_test)
+                self.gen_mrlw_test_result = QtGui.QListWidget()
+                self.gen_mrlw_test_result.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
+                gen_mrlw_Vbox_right.addWidget(self.gen_mrlw_test_result)
+                self.gen_mrlw_test_result.doubleClicked.connect(self.genere_test_result_dc)
+                self.gen_mrlw_files = QtGui.QListWidget()
+                self.gen_mrlw_files.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+                self.gen_mrlw_files.setFixedHeight(50)
+                gen_mrlw_Vbox_right.addWidget(self.gen_mrlw_files)
+
+                self.genere_mrlw = generator_mrlw.mrlw_variables()
+                for F in self.genere_mrlw.files:
+                        self.gen_mrlw_files.addItem(F)
+
+##################################################
 #mise en place des onglets
-		self.SubWdwNE = QtGui.QTabWidget()
-#		self.SubWdwNE.setTabsClosable(True)
-#		self.SubWdwNE.tabCloseRequested.connect(self.SubWdwNE.removeTab)
+                self.SubWdwNE = QtGui.QTabWidget()
+#               self.SubWdwNE.setTabsClosable(True)
+#               self.SubWdwNE.tabCloseRequested.connect(self.SubWdwNE.removeTab)
 
-#		SubWdwNE.addTab(T4,"Viewer")
-#		SubWdwNE.addTab(NET1,"Marlowe")
-		self.History_index = self.SubWdwNE.addTab(self.History,"History")
-		self.SubWdwNE.addTab(server_vars,"Vars")
-		#self.SubWdwNE.addTab(Param_Server,"Server")
+#               SubWdwNE.addTab(T4,"Viewer")
+#               SubWdwNE.addTab(NET1,"Marlowe")
+                self.History_index = self.SubWdwNE.addTab(self.History,"History")
+                self.SubWdwNE.addTab(server_vars,"Vars")
+                #self.SubWdwNE.addTab(Param_Server,"Server")
+                self.SubWdwNE.addTab(gen_mrlw,self.tr("Variant generation"))
 
-# on donne le focus à la connection au serveur
-		self.SubWdwNE.setCurrentIndex(2)
+                self.SubWdwNE.setCurrentIndex(0)
+                #self.SubWdwNE.setCurrentIndex(2)
 
 
 
 
 
 ##################################################
-	#quart NO
+        #quart NO
 ##################################################
 
-		self.SubWdwNO =  QtGui.QTabWidget()
-		
+                self.SubWdwNO =  QtGui.QTabWidget()
+                
 
 ##### L'onglet des listes des briques syntaxiques (Lexicon)
 
 
-		NOT1 = QtGui.QWidget()
+                NOT1 = QtGui.QWidget()
 
-	#une box verticale
-		NOT1V = QtGui.QVBoxLayout()
-		NOT1.setLayout(NOT1V)
-		# on prend toute la place
-		NOT1V.setContentsMargins(0,0,0,0) 
-		NOT1V.setSpacing(0) 
-
-
-	#une ligne horizontale qui contient les commandes au dessus-de la liste 
-		NOT1VHC = QtGui.QHBoxLayout()
-		NOT1V.addLayout(NOT1VHC)
-
-	#une liste deroulante pour choisir le contenu de la liste
-		self.NOT1select = QtGui.QComboBox()
-		self.NOT1select.addItem(u"entities") 
-		self.NOT1select.addItem(u"qualities") 
-		#self.NOT1select.addItem(u"markers") 
-		#self.NOT1select.addItem(u"events") 
-		#self.NOT1select.addItem(u"numbers") 
-		#self.NOT1select.addItem(u"function words") 
-		#self.NOT1select.addItem(u"undefineds") 
-		#self.NOT1select.addItem(u"persons") 
-		NOT1VHC.addWidget(self.NOT1select)
-		self.connect(self.NOT1select,QtCore.SIGNAL("currentIndexChanged(const QString)"), self.select_liste)
-		self.NOT1select.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
+        #une box verticale
+                NOT1V = QtGui.QVBoxLayout()
+                NOT1.setLayout(NOT1V)
+                # on prend toute la place
+                NOT1V.setContentsMargins(0,0,0,0) 
+                NOT1V.setSpacing(0) 
 
 
-	# un spacer pour mettre les commandes sur la droite
-		spacer3 = QtGui.QLabel()
-		spacer3.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-		NOT1VHC.addWidget(spacer3)
+        #une ligne horizontale qui contient les commandes au dessus-de la liste 
+                NOT1VHC = QtGui.QHBoxLayout()
+                NOT1V.addLayout(NOT1VHC)
 
-	#le champ de recherche
-		self.list_research = QtGui.QLineEdit()
-		self.list_research.returnPressed.connect(self.list_lexicon_search)
-		NOT1VHC.addWidget(self.list_research)
-		
+        #une liste deroulante pour choisir le contenu de la liste
+                self.NOT1select = QtGui.QComboBox()
+                self.NOT1select.addItem(u"entities") 
+                self.NOT1select.addItem(u"qualities") 
+                #self.NOT1select.addItem(u"markers") 
+                #self.NOT1select.addItem(u"events") 
+                #self.NOT1select.addItem(u"numbers") 
+                #self.NOT1select.addItem(u"function words") 
+                #self.NOT1select.addItem(u"undefineds") 
+                #self.NOT1select.addItem(u"persons") 
+                NOT1VHC.addWidget(self.NOT1select)
+                self.connect(self.NOT1select,QtCore.SIGNAL("currentIndexChanged(const QString)"), self.select_liste)
+                self.NOT1select.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
 
-	# les commandes
-		self.NOT1Commands1 = QtGui.QPushButton()
-		self.NOT1Commands1.setText(u"\u2195")
-		self.NOT1Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
-		self.NOT1Commands1Menu = QtGui.QMenu(self)
-		#NOT1Commands1Menu.addAction('&search')
-		#submenu_sort = QtGui.QMenu('&sort')
-		#NOT1Commands1Menu.addMenu(submenu_sort)
-		self.NOT1Commands1Menu.addAction('occurences',self.affiche_liste_scores_oc)
-		self.NOT1C1_dep = self.NOT1Commands1Menu.addAction('deployement',self.affiche_liste_scores_dep)
-		self.NOT1Commands1Menu.addAction('alphabetically',self.affiche_liste_scores_alpha)
-		self.NOT1Commands1Menu.addAction('number of texts',self.affiche_liste_scores_texts)
-		self.NOT1Commands1Menu.addAction('first apparition',self.affiche_liste_scores_fapp)
-		self.NOT1Commands1Menu.addAction('last apparition',self.affiche_liste_scores_lapp)
+
+        # un spacer pour mettre les commandes sur la droite
+                spacer3 = QtGui.QLabel()
+                spacer3.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+                NOT1VHC.addWidget(spacer3)
+
+        #le champ de recherche
+                self.list_research = QtGui.QLineEdit()
+                self.list_research.returnPressed.connect(self.list_lexicon_search)
+                NOT1VHC.addWidget(self.list_research)
+                
+
+        # les commandes
+                self.NOT1Commands1 = QtGui.QPushButton()
+                self.NOT1Commands1.setText(u"\u2195")
+                self.NOT1Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
+                self.NOT1Commands1Menu = QtGui.QMenu(self)
+                #NOT1Commands1Menu.addAction('&search')
+                #submenu_sort = QtGui.QMenu('&sort')
+                #NOT1Commands1Menu.addMenu(submenu_sort)
+                self.NOT1Commands1Menu.addAction('occurences',self.affiche_liste_scores_oc)
+                self.NOT1C1_dep = self.NOT1Commands1Menu.addAction('deployement',self.affiche_liste_scores_dep)
+                self.NOT1Commands1Menu.addAction('alphabetically',self.affiche_liste_scores_alpha)
+                self.NOT1Commands1Menu.addAction('number of texts',self.affiche_liste_scores_texts)
+                self.NOT1Commands1Menu.addAction('first apparition',self.affiche_liste_scores_fapp)
+                self.NOT1Commands1Menu.addAction('last apparition',self.affiche_liste_scores_lapp)
 #TODO ajouter pondere, nb textes, nb auteurs, nb jours presents, relatif nb jours, nb representants, nb elements reseau
-		#NOT1Commands1Menu.addAction('&sort')
-		#NOT1Commands1Menu.addAction('&filter')
-		self.NOT1Commands1.setMenu(self.NOT1Commands1Menu)
-		NOT1VHC.addWidget(self.NOT1Commands1)
+                #NOT1Commands1Menu.addAction('&sort')
+                #NOT1Commands1Menu.addAction('&filter')
+                self.NOT1Commands1.setMenu(self.NOT1Commands1Menu)
+                NOT1VHC.addWidget(self.NOT1Commands1)
 
 
 		self.NOT1Commands2 = QtGui.QPushButton()
@@ -657,158 +724,157 @@ class Principal(QtGui.QMainWindow):
 		self.NOT1Commands2.setMenu(NOT1Commands2Menu)
 		NOT1VHC.addWidget(self.NOT1Commands2)
 
-
 #TODO ajouter un déselect
-	#une box horizontale pour liste, score et deploiement
-		NOT1VH = QtGui.QHBoxLayout()
-		NOT1V.addLayout(NOT1VH) 
-	#la liste
-		self.NOT12 = QtGui.QListWidget()
-		self.NOT12.setAlternatingRowColors(True)
-		self.NOT12.currentItemChanged.connect(self.liste_item_changed) #changement d'un item
-		NOT1VH.addWidget(self.NOT12)
-	#le deploiement
-		self.NOT12_D = QtGui.QListWidget()
-		NOT1VH.addWidget(self.NOT12_D)
-		self.NOT12_D.currentItemChanged.connect(self.liste_D_item_changed) #changement d'un item
-	#le deploiement II
-		self.NOT12_E = QtGui.QListWidget()
-		NOT1VH.addWidget(self.NOT12_E)
-		self.NOT12_E.currentItemChanged.connect(self.liste_E_item_changed) #changement d'un item
-		self.NOT12_E.doubleClicked.connect(self.teste_wording)
+        #une box horizontale pour liste, score et deploiement
+                NOT1VH = QtGui.QHBoxLayout()
+                NOT1V.addLayout(NOT1VH) 
+        #la liste
+                self.NOT12 = QtGui.QListWidget()
+                self.NOT12.setAlternatingRowColors(True)
+                self.NOT12.currentItemChanged.connect(self.liste_item_changed) #changement d'un item
+                NOT1VH.addWidget(self.NOT12)
+        #le deploiement
+                self.NOT12_D = QtGui.QListWidget()
+                NOT1VH.addWidget(self.NOT12_D)
+                self.NOT12_D.currentItemChanged.connect(self.liste_D_item_changed) #changement d'un item
+        #le deploiement II
+                self.NOT12_E = QtGui.QListWidget()
+                NOT1VH.addWidget(self.NOT12_E)
+                self.NOT12_E.currentItemChanged.connect(self.liste_E_item_changed) #changement d'un item
+                self.NOT12_E.doubleClicked.connect(self.teste_wording)
 
 
 ##### L'onglet des listes de concepts
-		NOT2 = QtGui.QWidget()
-		NOT2V = QtGui.QVBoxLayout()
-		NOT2.setLayout(NOT2V)
-		NOT2V.setContentsMargins(0,0,0,0) 
-		NOT2V.setSpacing(0) 
-		NOT2VHC = QtGui.QHBoxLayout()
-		NOT2V.addLayout(NOT2VHC)
-		self.NOT2select = QtGui.QComboBox()
-		self.NOT2select.addItem(u"collections")
-		self.NOT2select.addItem(u"fictions")
-		self.NOT2select.addItem(u"entitie's categories")
-		NOT2VHC.addWidget(self.NOT2select)
-		self.connect(self.NOT2select,QtCore.SIGNAL("currentIndexChanged(const QString)"), self.select_concept)
-		self.NOT2select.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
-		NOT2_spacer = QtGui.QLabel()
-		NOT2_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-		NOT2VHC.addWidget(NOT2_spacer)
-		self.concept_research = QtGui.QLineEdit()
-		self.concept_research.returnPressed.connect(self.list_concept_search)
-		NOT2VHC.addWidget(self.concept_research)
-		self.NOT2Commands1 = QtGui.QPushButton()
-		self.NOT2Commands1.setText(u"\u2195")
-		self.NOT2Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
-		self.NOT2Commands1Menu = QtGui.QMenu(self)
-		self.NOT2Commands1Menu.addAction('occurences',self.affiche_concepts_scores_oc)
-		self.NOT2Commands1Menu.addAction('deployement',self.affiche_concepts_scores_dep) 
-		self.NOT2Commands1Menu.addAction('alphabetically',self.affiche_concepts_scores_alpha)
-		self.NOT2Commands1Menu.addAction('number of texts',self.affiche_concepts_scores_texts)
-		self.NOT2Commands1Menu.addAction('first apparition',self.affiche_concepts_scores_fapp)
-		self.NOT2Commands1Menu.addAction('last apparition',self.affiche_concepts_scores_lapp)
-		self.NOT2Commands1.setMenu(self.NOT2Commands1Menu)
-		NOT2VHC.addWidget(self.NOT2Commands1)
-		self.NOT2Commands2 = QtGui.QPushButton()
-		self.NOT2Commands2.setIcon(QtGui.QIcon("gear.png"))
-		self.NOT2Commands2.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
-		NOT2Commands2Menu = QtGui.QMenu(self)
-		NOT2Commands2Menu.addAction('network' , self.show_network)
-		NOT2Commands2Menu.addAction('texts' , self.show_texts)
-		self.NOT2Commands2.setMenu(NOT2Commands2Menu)
-		NOT2VHC.addWidget(self.NOT2Commands2)
-	#une box horizontale pour liste, score et deploiement
-		NOT2VH = QtGui.QHBoxLayout()
-		NOT2V.addLayout(NOT2VH) 
-	#la liste
-		self.NOT22 = QtGui.QListWidget()
-		self.NOT22.setAlternatingRowColors(True)
-		self.NOT22.currentItemChanged.connect(self.liste_concept_changed) #changement d'un item
-		NOT2VH.addWidget(self.NOT22)
-	#le deploiement
-		self.NOT22_D = QtGui.QListWidget()
-		NOT2VH.addWidget(self.NOT22_D)
-		self.NOT22_D.currentItemChanged.connect(self.liste_D_concept_changed) #changement d'un item
-	#le deploiement II
-		self.NOT22_E = QtGui.QListWidget()
-		NOT2VH.addWidget(self.NOT22_E)
-		self.NOT22_E.currentItemChanged.connect(self.liste_E_concept_changed) #changement d'un item
-		self.NOT22_E.doubleClicked.connect(self.teste_wording)
+                NOT2 = QtGui.QWidget()
+                NOT2V = QtGui.QVBoxLayout()
+                NOT2.setLayout(NOT2V)
+                NOT2V.setContentsMargins(0,0,0,0) 
+                NOT2V.setSpacing(0) 
+                NOT2VHC = QtGui.QHBoxLayout()
+                NOT2V.addLayout(NOT2VHC)
+                self.NOT2select = QtGui.QComboBox()
+                self.NOT2select.addItem(u"collections")
+                self.NOT2select.addItem(u"fictions")
+                self.NOT2select.addItem(u"entitie's categories")
+                NOT2VHC.addWidget(self.NOT2select)
+                self.connect(self.NOT2select,QtCore.SIGNAL("currentIndexChanged(const QString)"), self.select_concept)
+                self.NOT2select.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
+                NOT2_spacer = QtGui.QLabel()
+                NOT2_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+                NOT2VHC.addWidget(NOT2_spacer)
+                self.concept_research = QtGui.QLineEdit()
+                self.concept_research.returnPressed.connect(self.list_concept_search)
+                NOT2VHC.addWidget(self.concept_research)
+                self.NOT2Commands1 = QtGui.QPushButton()
+                self.NOT2Commands1.setText(u"\u2195")
+                self.NOT2Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas d'item 
+                self.NOT2Commands1Menu = QtGui.QMenu(self)
+                self.NOT2Commands1Menu.addAction('occurences',self.affiche_concepts_scores_oc)
+                self.NOT2Commands1Menu.addAction('deployement',self.affiche_concepts_scores_dep) 
+                self.NOT2Commands1Menu.addAction('alphabetically',self.affiche_concepts_scores_alpha)
+                self.NOT2Commands1Menu.addAction('number of texts',self.affiche_concepts_scores_texts)
+                self.NOT2Commands1Menu.addAction('first apparition',self.affiche_concepts_scores_fapp)
+                self.NOT2Commands1Menu.addAction('last apparition',self.affiche_concepts_scores_lapp)
+                self.NOT2Commands1.setMenu(self.NOT2Commands1Menu)
+                NOT2VHC.addWidget(self.NOT2Commands1)
+                self.NOT2Commands2 = QtGui.QPushButton()
+                self.NOT2Commands2.setIcon(QtGui.QIcon("gear.png"))
+                self.NOT2Commands2.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
+                NOT2Commands2Menu = QtGui.QMenu(self)
+                NOT2Commands2Menu.addAction('network' , self.show_network)
+                NOT2Commands2Menu.addAction('texts' , self.show_texts)
+                self.NOT2Commands2.setMenu(NOT2Commands2Menu)
+                NOT2VHC.addWidget(self.NOT2Commands2)
+        #une box horizontale pour liste, score et deploiement
+                NOT2VH = QtGui.QHBoxLayout()
+                NOT2V.addLayout(NOT2VH) 
+        #la liste
+                self.NOT22 = QtGui.QListWidget()
+                self.NOT22.setAlternatingRowColors(True)
+                self.NOT22.currentItemChanged.connect(self.liste_concept_changed) #changement d'un item
+                NOT2VH.addWidget(self.NOT22)
+        #le deploiement
+                self.NOT22_D = QtGui.QListWidget()
+                NOT2VH.addWidget(self.NOT22_D)
+                self.NOT22_D.currentItemChanged.connect(self.liste_D_concept_changed) #changement d'un item
+        #le deploiement II
+                self.NOT22_E = QtGui.QListWidget()
+                NOT2VH.addWidget(self.NOT22_E)
+                self.NOT22_E.currentItemChanged.connect(self.liste_E_concept_changed) #changement d'un item
+                self.NOT22_E.doubleClicked.connect(self.teste_wording)
 
 
 
 ################################################
 #Explorer
-		NOT3 =  QtGui.QWidget()
-		NOT3V = QtGui.QVBoxLayout()
-		NOT3.setLayout(NOT3V)
-		# on prend toute la place
-		NOT3V.setContentsMargins(0,0,0,0) 
-		NOT3V.setSpacing(0) 
+                NOT3 =  QtGui.QWidget()
+                NOT3V = QtGui.QVBoxLayout()
+                NOT3.setLayout(NOT3V)
+                # on prend toute la place
+                NOT3V.setContentsMargins(0,0,0,0) 
+                NOT3V.setSpacing(0) 
 
-		self.Explo_saisie = QtGui.QLineEdit()
-		NOT3V.addWidget(self.Explo_saisie)
-		self.Explo_saisie.returnPressed.connect(self.Explorer)
+                self.Explo_saisie = QtGui.QLineEdit()
+                NOT3V.addWidget(self.Explo_saisie)
+                self.Explo_saisie.returnPressed.connect(self.Explorer)
 
-		NOT3VH = QtGui.QHBoxLayout()
-		NOT3V.addLayout(NOT3VH)
-
-
-		Explo_check_prefix = QtGui.QRadioButton("prefix")	
-		Explo_check_prefix.setChecked(True)
-		Explo_check_suffix = QtGui.QRadioButton("suffix")	
-		Explo_check_infix = QtGui.QRadioButton("infix")	
-
-		NOT3VH.addWidget(Explo_check_prefix)
-		NOT3VH.addWidget(Explo_check_suffix)
-		NOT3VH.addWidget(Explo_check_infix)
-
-		self.Explo_radioGroup = QtGui.QButtonGroup()
-		self.Explo_radioGroup.addButton(Explo_check_prefix,0)
-		self.Explo_radioGroup.addButton(Explo_check_suffix,1)
-		self.Explo_radioGroup.addButton(Explo_check_infix,2)
+                NOT3VH = QtGui.QHBoxLayout()
+                NOT3V.addLayout(NOT3VH)
 
 
+                Explo_check_prefix = QtGui.QRadioButton("prefix")       
+                Explo_check_prefix.setChecked(True)
+                Explo_check_suffix = QtGui.QRadioButton("suffix")       
+                Explo_check_infix = QtGui.QRadioButton("infix") 
 
-		#self.Explo_action = QtGui.QPushButton("search")
-		#self.Explo_action.setEnabled(False) #desactivé au lancement
-		#self.Explo_action.clicked.connect(self.Explorer)
-		#NOT3VH.addWidget(self.Explo_action)
+                NOT3VH.addWidget(Explo_check_prefix)
+                NOT3VH.addWidget(Explo_check_suffix)
+                NOT3VH.addWidget(Explo_check_infix)
 
-		Explo_spacer1 = QtGui.QLabel()
-		Explo_spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-		NOT3VH.addWidget(Explo_spacer1)
-
-
-		self.Explo_commands = QtGui.QPushButton()
-		self.Explo_commands.setIcon(QtGui.QIcon("gear.png"))
-		self.Explo_commands.setEnabled(False) 
-		NOT3VH.addWidget(self.Explo_commands)
-		Explo_commands_texts= QtGui.QMenu(self)
-		Explo_commands_texts.addAction('texts' , self.explo_show_text)
-		self.Explo_commands.setMenu(Explo_commands_texts)
+                self.Explo_radioGroup = QtGui.QButtonGroup()
+                self.Explo_radioGroup.addButton(Explo_check_prefix,0)
+                self.Explo_radioGroup.addButton(Explo_check_suffix,1)
+                self.Explo_radioGroup.addButton(Explo_check_infix,2)
 
 
-		NOT3VH2 = QtGui.QHBoxLayout()
-		NOT3V.addLayout(NOT3VH2)
-		self.Explo_liste = QtGui.QListWidget()
-		self.Explo_liste.currentItemChanged.connect(self.explo_item_selected)
-		NOT3VH2.addWidget(self.Explo_liste)
-		self.Explo_concepts = QtGui.QLabel()
-		tempImage = QtGui.QPixmap("Prospero-II.png")
-		self.Explo_concepts.setPixmap(tempImage)
-		NOT3VH2.addWidget(self.Explo_concepts)
 
-		# on prend toute la place
-		#NOT3VH2.setContentsMargins(0,0,0,0) 
-		#NOT3VH2.setSpacing(0) 
-		
+                #self.Explo_action = QtGui.QPushButton("search")
+                #self.Explo_action.setEnabled(False) #desactivé au lancement
+                #self.Explo_action.clicked.connect(self.Explorer)
+                #NOT3VH.addWidget(self.Explo_action)
+
+                Explo_spacer1 = QtGui.QLabel()
+                Explo_spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+                NOT3VH.addWidget(Explo_spacer1)
+
+
+                self.Explo_commands = QtGui.QPushButton()
+                self.Explo_commands.setIcon(QtGui.QIcon("gear.png"))
+                self.Explo_commands.setEnabled(False) 
+                NOT3VH.addWidget(self.Explo_commands)
+                Explo_commands_texts= QtGui.QMenu(self)
+                Explo_commands_texts.addAction('texts' , self.explo_show_text)
+                self.Explo_commands.setMenu(Explo_commands_texts)
+
+
+                NOT3VH2 = QtGui.QHBoxLayout()
+                NOT3V.addLayout(NOT3VH2)
+                self.Explo_liste = QtGui.QListWidget()
+                self.Explo_liste.currentItemChanged.connect(self.explo_item_selected)
+                NOT3VH2.addWidget(self.Explo_liste)
+                self.Explo_concepts = QtGui.QLabel()
+                tempImage = QtGui.QPixmap("Prospero-II.png")
+                self.Explo_concepts.setPixmap(tempImage)
+                NOT3VH2.addWidget(self.Explo_concepts)
+
+                # on prend toute la place
+                #NOT3VH2.setContentsMargins(0,0,0,0) 
+                #NOT3VH2.setSpacing(0) 
+                
 
 ################################################
 #Acces par CTX
-		NOT5 = QtGui.QWidget()
+                NOT5 = QtGui.QWidget()
 
 	#une box verticale
 		NOT5V = QtGui.QVBoxLayout()
@@ -817,104 +883,104 @@ class Principal(QtGui.QMainWindow):
 		NOT5V.setContentsMargins(0,0,0,0) 
 		NOT5V.setSpacing(0) 
 
-	#une ligne horizontale qui contient les commandes au dessus-de la liste 
-		NOT5VHC = QtGui.QHBoxLayout()
-		NOT5V.addLayout(NOT5VHC)
+        #une ligne horizontale qui contient les commandes au dessus-de la liste 
+                NOT5VHC = QtGui.QHBoxLayout()
+                NOT5V.addLayout(NOT5VHC)
 
-		spacer_CTX_1 = QtGui.QLabel()
-		spacer_CTX_1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum )
-		NOT5VHC.addWidget(spacer_CTX_1)
-	
-		self.NOT5Commands1 = QtGui.QPushButton()
-		self.NOT5Commands1.setIcon(QtGui.QIcon("gear.png"))
-		self.NOT5Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
-		NOT5VHC.addWidget(self.NOT5Commands1)
+                spacer_CTX_1 = QtGui.QLabel()
+                spacer_CTX_1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum )
+                NOT5VHC.addWidget(spacer_CTX_1)
+        
+                self.NOT5Commands1 = QtGui.QPushButton()
+                self.NOT5Commands1.setIcon(QtGui.QIcon("gear.png"))
+                self.NOT5Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
+                NOT5VHC.addWidget(self.NOT5Commands1)
 
-	#une box horizontale pour liste et deploiement
-		NOT5VH = QtGui.QHBoxLayout()
-		NOT5V.addLayout(NOT5VH) 
-		self.NOT5_list = QtGui.QListWidget()
-		self.NOT5_list.setAlternatingRowColors(True)
-		self.NOT5_list.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Preferred)
-		self.NOT5_list.currentItemChanged.connect(self.contexts_contents) 
-		NOT5VH.addWidget(self.NOT5_list)
-		self.NOT5_cont = QtGui.QListWidget()
-		self.NOT5_cont.setAlternatingRowColors(True)
-		NOT5VH.addWidget(self.NOT5_cont)
-		self.NOT5_cont.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Preferred)
-#		self.NOT5_cont.currentItemChanged.connect() 
-
-
+        #une box horizontale pour liste et deploiement
+                NOT5VH = QtGui.QHBoxLayout()
+                NOT5V.addLayout(NOT5VH) 
+                self.NOT5_list = QtGui.QListWidget()
+                self.NOT5_list.setAlternatingRowColors(True)
+                self.NOT5_list.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Preferred)
+                self.NOT5_list.currentItemChanged.connect(self.contexts_contents) 
+                NOT5VH.addWidget(self.NOT5_list)
+                self.NOT5_cont = QtGui.QListWidget()
+                self.NOT5_cont.setAlternatingRowColors(True)
+                NOT5VH.addWidget(self.NOT5_cont)
+                self.NOT5_cont.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Preferred)
+#               self.NOT5_cont.currentItemChanged.connect() 
 
 
 
-		self.SubWdwNO.addTab(NOT1,self.tr("Lexicon"))
-		self.SubWdwNO.addTab(NOT2,"Concepts")
-		self.SubWdwNO.addTab(NOT3,"Search")
-		self.SubWdwNO.addTab(NOT5,"Metadatas")
 
-		self.SubWdwNO.currentChanged.connect(self.change_NOTab)
-		#SubWdwNO.setCurrentIndex(0) #Focus sur l'onglet listes concepts
+
+                self.SubWdwNO.addTab(NOT1,self.tr("Lexicon"))
+                self.SubWdwNO.addTab(NOT2,"Concepts")
+                self.SubWdwNO.addTab(NOT3,"Search")
+                self.SubWdwNO.addTab(NOT5,"Metadatas")
+
+                self.SubWdwNO.currentChanged.connect(self.change_NOTab)
+                #SubWdwNO.setCurrentIndex(0) #Focus sur l'onglet listes concepts
 
 ################################################
 ################################################
-		### layout qui supprime le bug de rotation des cadrans mais qui genere des problemes de taille d'affichage sur chaque cadran
-		# 1 layout vertical dans lequel sont insérés 2 layout horizontals
-#		main = QtGui.QWidget()
-#		h1_layout = QtGui.QVBoxLayout()
-#		vl1_layout = QtGui.QHBoxLayout()
-#		vl2_layout =QtGui.QHBoxLayout()
-#		
-#		h1_layout.addLayout(vl1_layout)
-#		h1_layout.addLayout(vl2_layout)
-#		
-#		vl1_layout.addWidget(SubWdwNO)
-#		vl1_layout.addWidget(self.SubWdwNE)
-#		
-#		vl2_layout.addWidget(self.SubWdwSO)
-#		vl2_layout.addWidget(SubWdwSE)
-#		
-#		main.setLayout(h1_layout)
-#		self.setCentralWidget(main)
+                ### layout qui supprime le bug de rotation des cadrans mais qui genere des problemes de taille d'affichage sur chaque cadran
+                # 1 layout vertical dans lequel sont insérés 2 layout horizontals
+#               main = QtGui.QWidget()
+#               h1_layout = QtGui.QVBoxLayout()
+#               vl1_layout = QtGui.QHBoxLayout()
+#               vl2_layout =QtGui.QHBoxLayout()
+#               
+#               h1_layout.addLayout(vl1_layout)
+#               h1_layout.addLayout(vl2_layout)
+#               
+#               vl1_layout.addWidget(SubWdwNO)
+#               vl1_layout.addWidget(self.SubWdwNE)
+#               
+#               vl2_layout.addWidget(self.SubWdwSO)
+#               vl2_layout.addWidget(SubWdwSE)
+#               
+#               main.setLayout(h1_layout)
+#               self.setCentralWidget(main)
 ################################################
 ################################################
 #               voir avec des splitters sinon
 ################################################
 ################################################
-		###tentative avec une mdiarea, mais les tiles jouent au taquin a chaque resize/deplacement de la fenetre principale
-		#la MdiArea 
-#		Area = QtGui.QMdiArea()
-#		Area.tileSubWindows()
-#		#Area.AreaOption(QMdiArea.DontMaximizeSubWindowOnActivation)
-#		self.setCentralWidget(Area)
-#		
-#		sw1 = Area.addSubWindow(SubWdwSE, flags = QtCore.Qt.FramelessWindowHint)
-#		sw2 = Area.addSubWindow(self.SubWdwSO, flags = QtCore.Qt.FramelessWindowHint)
-#		sw3 = Area.addSubWindow(self.SubWdwNE , flags = QtCore.Qt.FramelessWindowHint)
-#		sw4 = Area.addSubWindow(SubWdwNO , flags = QtCore.Qt.FramelessWindowHint)
+                ###tentative avec une mdiarea, mais les tiles jouent au taquin a chaque resize/deplacement de la fenetre principale
+                #la MdiArea 
+#               Area = QtGui.QMdiArea()
+#               Area.tileSubWindows()
+#               #Area.AreaOption(QMdiArea.DontMaximizeSubWindowOnActivation)
+#               self.setCentralWidget(Area)
+#               
+#               sw1 = Area.addSubWindow(SubWdwSE, flags = QtCore.Qt.FramelessWindowHint)
+#               sw2 = Area.addSubWindow(self.SubWdwSO, flags = QtCore.Qt.FramelessWindowHint)
+#               sw3 = Area.addSubWindow(self.SubWdwNE , flags = QtCore.Qt.FramelessWindowHint)
+#               sw4 = Area.addSubWindow(SubWdwNO , flags = QtCore.Qt.FramelessWindowHint)
 #
-#		
-#		self.show() 
-#		self.showMaximized() #à appeler après show pour que ça marche sous windows!
-#		Area.setFixedSize( Area.size()) #preserver l'ordre des subwindows en cas de resize -> les subwindows ne sont pas max sous linux
-		
+#               
+#               self.show() 
+#               self.showMaximized() #à appeler après show pour que ça marche sous windows!
+#               Area.setFixedSize( Area.size()) #preserver l'ordre des subwindows en cas de resize -> les subwindows ne sont pas max sous linux
+                
 ################################################
 ################################################
 #TODO corriger resize des grids sur petits ecrans
-		###Layout en grid
-		main = QtGui.QWidget()
-		grid = QtGui.QGridLayout()
-		grid.addWidget(self.SubWdwNO,0,0)
-		grid.addWidget(self.SubWdwNE,0,1)
-		grid.addWidget(self.SubWdwSO,1,0)
-		#grid.addWidget(SubWdwSE,1,1)
-		grid.addWidget(self.SubWdwSETabs,1,1)
-		main.setLayout(grid)
-		self.setCentralWidget(main)
+                ###Layout en grid
+                main = QtGui.QWidget()
+                grid = QtGui.QGridLayout()
+                grid.addWidget(self.SubWdwNO,0,0)
+                grid.addWidget(self.SubWdwNE,0,1)
+                grid.addWidget(self.SubWdwSO,1,0)
+                #grid.addWidget(SubWdwSE,1,1)
+                grid.addWidget(self.SubWdwSETabs,1,1)
+                main.setLayout(grid)
+                self.setCentralWidget(main)
 
-		self.setWindowTitle(u'Prospéro interface')
-		self.show() 
-		
+                self.setWindowTitle(u'Prospéro interface')
+                self.show() 
+                
 
 
 ################################################
@@ -1436,21 +1502,20 @@ class Principal(QtGui.QMainWindow):
 					else :
 						liste_D_sorted = sorted(self.liste_D_unsorted,key = lambda x : int(re.split(" ",x)[0]),reverse =  1)
 					self.NOT12_D.addItems(liste_D_sorted)
+                                        # afficher directement E du premier element de D 
+                                        self.NOT12_D.setCurrentItem(self.NOT12_D.item(0))
+                                        self.liste_D_item_changed()
+                        else :
+                                self.semantique_liste_item =  sem 
 
-					# afficher directement E du premier element de D 
-					self.NOT12_D.setCurrentItem(self.NOT12_D.item(0))
-					self.liste_D_item_changed()
-			else :
-				self.semantique_liste_item =  sem 
 
-
-			#activation des boutons de commande
-			self.NOT1Commands2.setEnabled(True) 
-
+                        #activation des boutons de commande
+                        self.NOT1Commands2.setEnabled(True) 
 
 
 
-	def liste_D_item_changed(self):
+
+        def liste_D_item_changed(self):
                 """quand un item de D est sélectionné, afficher représentants dans E"""
 		itemT = self.NOT12_D.currentItem()
 		if (itemT):
@@ -1610,9 +1675,6 @@ class Principal(QtGui.QMainWindow):
 						self.PrgBar.setValue(  r * 100 /len(result) )
 						QtGui.QApplication.processEvents()
 				self.PrgBar.reset()
-
-
-
 
 	def liste_E_concept_changed(self):
 		itemT = self.NOT22_E.currentItem()
@@ -1866,10 +1928,11 @@ class Principal(QtGui.QMainWindow):
 	def deploie_Col(self):
 		item = self.saillantesCol.currentItem().text()
 		item = re.sub("^\s*\d* ","",item)
+
                 self.saillantesCol.clear()
-		
-		for r in self.list_col:
-			self.saillantesCol.addItem(u"%d %s" % (self.list_col_valued[r],r))
+                
+                for r in self.list_col:
+                        self.saillantesCol.addItem(u"%d %s" % (self.list_col_valued[r],r))
 
                         if ( (r == item) and (item in self.saillantesCol_deployees) ):
                                 self.saillantesCol_deployees.remove(item)
@@ -1879,7 +1942,6 @@ class Principal(QtGui.QMainWindow):
                         if (r in self.saillantesCol_deployees):                     
                                 ask = "%s.col%d.rep_present[0:]"%(self.semantique_txt_item,self.list_col.index(r))
                                 result = self.client.eval_var(ask)
-                                
 				if (result != u''):
                                         result = re.split(", ",result)
                                         for sub_n in range(len(result)) :
@@ -1895,13 +1957,13 @@ class Principal(QtGui.QMainWindow):
                                                 i.setBackground(QtGui.QColor( 237,243,254)) # cyan
                                                 self.saillantesCol.addItem(i)
                                 
-	def deploie_Cat(self):
-		item = self.saillantesCat.currentItem().text()
-		item = re.sub("^\s*\d* ","",item)
+        def deploie_Cat(self):
+                item = self.saillantesCat.currentItem().text()
+                item = re.sub("^\s*\d* ","",item)
                 self.saillantesCat.clear()
                 for cat in self.list_cat_valued_ord:
-			resume = u"%d %s" % (self.list_cat_valued[cat], cat)
-			self.saillantesCat.addItem(resume)
+                        resume = u"%d %s" % (self.list_cat_valued[cat], cat)
+                        self.saillantesCat.addItem(resume)
 
                         if ( (cat == item) and (item in self.saillantesCat_deployes) ):
                                 self.saillantesCat_deployes.remove(item)
@@ -1909,7 +1971,7 @@ class Principal(QtGui.QMainWindow):
                                 self.saillantesCat_deployes.append(item)
       
                         if (cat in self.saillantesCat_deployes):                     
-				sem = self.list_cat_txt[cat]
+                                sem = self.list_cat_txt[cat]
                                 ask = "%s.%s%d.rep_present[0:]"%(self.semantique_txt_item,sem[0],sem[1])
                                 result = self.client.eval_var(ask)
                                 
@@ -1919,19 +1981,18 @@ class Principal(QtGui.QMainWindow):
                                                 if ( result[sub_n] not in self.list_cat_valued.keys() ):
 							ask = "%s.%s%d.rep_present%d.val"%(self.semantique_txt_item,sem[0],sem[1],sub_n)
                                                         res = self.client.eval_var(ask)
-                                                        
                                                         self.list_cat_valued[result[sub_n]] = res
                                                 i = QtGui.QListWidgetItem()
                                                 i.setText(u"  %s %s"%(self.list_cat_valued[result[sub_n]][0],result[sub_n]))
                                                 #i.setBackground(QtGui.QColor( 245,245,245))
                                                 i.setBackground(QtGui.QColor( 237,243,254)) # cyan
                                                 self.saillantesCat.addItem(i)
-                                        	
+                                                
                           
 
-	def deploie_Actant(self):
-		item = self.saillantesAct.currentItem().text()
-		item = re.sub("^\s*\d* ","",item)
+        def deploie_Actant(self):
+                item = self.saillantesAct.currentItem().text()
+                item = re.sub("^\s*\d* ","",item)
                 self.saillantesAct.clear()
                 for r in self.list_act:
                         self.saillantesAct.addItem(u"%d %s" % (self.liste_act_valued[r][0], r))
@@ -1944,7 +2005,6 @@ class Principal(QtGui.QMainWindow):
                         if (r in self.saillantesAct_deployes):                     
                                 ask = "%s.act%d.rep_present[0:]"%(self.semantique_txt_item,self.list_act.index(r))
                                 result = self.client.eval_var(ask)
-				
                                 if (result != u''):
                                         result = re.split(", ",result)
                                         for sub_n in range(len(result)) :
@@ -1960,49 +2020,49 @@ class Principal(QtGui.QMainWindow):
                                                 self.saillantesAct.addItem(i)
                                         
                                 
-	def recup_element_lexicon(self):
-		if ( self.sem_liste_concept in ['$ent']):
-			if  self.NOT12_E.currentItem() :
-				element = self.NOT12_E.currentItem().text() 
-				element = re.sub("^\d* ","",element)
-				return  (self.semantique_liste_item_E,element)
-			elif self.NOT12_D.currentItem():
-				element1 = self.NOT12.currentItem().text() 
-				element1 = re.sub("^\d* ","",element1)
-				element2 = self.NOT12_D.currentItem().text() 
-				element2 = re.sub("^\d* ","",element2)
-				element = u"%s:%s" % (element1,element2 )
-				return (self.semantique_liste_item_D  ,element)
-			else :
-				element = self.NOT12.currentItem().text() 
-				element = re.sub("^\d* ","",element)
-				return  (self.semantique_liste_item  ,element)
-		else :
-			element = self.NOT12.currentItem().text() 
-			element = re.sub("^\d* ","",element)
-			return ("%s%d" % ( self.semantique_liste_item, self.lexicon_list_semantique.index(element)  ), element)
-		
-	 
-	def recup_element_concepts(self):
-		if  self.NOT22_E.currentItem() :
-			element = self.NOT22_E.currentItem().text() 
-			element = re.sub("^\d* ","",element)
-			return  (self.semantique_concept_item_E,element)
-		elif self.NOT22_D.currentItem():
-			element1 = self.NOT22.currentItem().text() 
-			element1 = re.sub("^\d* ","",element1)
-			element2 = self.NOT22_D.currentItem().text() 
-			element2 = re.sub("^\d* ","",element2)
-			element = u"%s:%s" % (element1,element2 )
-			return (self.semantique_concept_item_D  ,element)
-		else :
-			element = self.NOT22.currentItem().text() 
-			element = re.sub("^\d* ","",element)
-			return  (self.semantique_concept_item  ,element)
-			
+        def recup_element_lexicon(self):
+                if ( self.sem_liste_concept in ['$ent']):
+                        if  self.NOT12_E.currentItem() :
+                                element = self.NOT12_E.currentItem().text() 
+                                element = re.sub("^\d* ","",element)
+                                return  (self.semantique_liste_item_E,element)
+                        elif self.NOT12_D.currentItem():
+                                element1 = self.NOT12.currentItem().text() 
+                                element1 = re.sub("^\d* ","",element1)
+                                element2 = self.NOT12_D.currentItem().text() 
+                                element2 = re.sub("^\d* ","",element2)
+                                element = u"%s:%s" % (element1,element2 )
+                                return (self.semantique_liste_item_D  ,element)
+                        else :
+                                element = self.NOT12.currentItem().text() 
+                                element = re.sub("^\d* ","",element)
+                                return  (self.semantique_liste_item  ,element)
+                else :
+                        element = self.NOT12.currentItem().text() 
+                        element = re.sub("^\d* ","",element)
+                        return ("%s%d" % ( self.semantique_liste_item, self.lexicon_list_semantique.index(element)  ), element)
+                
+         
+        def recup_element_concepts(self):
+                if  self.NOT22_E.currentItem() :
+                        element = self.NOT22_E.currentItem().text() 
+                        element = re.sub("^\d* ","",element)
+                        return  (self.semantique_concept_item_E,element)
+                elif self.NOT22_D.currentItem():
+                        element1 = self.NOT22.currentItem().text() 
+                        element1 = re.sub("^\d* ","",element1)
+                        element2 = self.NOT22_D.currentItem().text() 
+                        element2 = re.sub("^\d* ","",element2)
+                        element = u"%s:%s" % (element1,element2 )
+                        return (self.semantique_concept_item_D  ,element)
+                else :
+                        element = self.NOT22.currentItem().text() 
+                        element = re.sub("^\d* ","",element)
+                        return  (self.semantique_concept_item  ,element)
+                        
 
 
-	def show_network(self):
+        def show_network(self):
 #TODO scorer
 		"""Show the network of a selected item"""
 
@@ -2277,6 +2337,46 @@ class Principal(QtGui.QMainWindow):
 		txts = self.client.eval_var("$txt[0:]")
 		return re.split(", ",txts)
 
+	
+        def genere_identify(self):
+                phrase = self.gen_mrlw_phrase.toPlainText()
+                if  (phrase != u''):
+                        self.gen_mrlw_vars.clear()
+                        phrase = re.sub('[\r\n]',' ',phrase)
+                        self.gen_mrlw_vars.append(self.genere_mrlw.get_vars_sentence(phrase))
+
+        def genere_test(self):
+                mot = self.gen_mrlw_test.text()
+                self.gen_mrlw_test_result.clear()       
+                recup = []
+                if (mot != u""):
+                        if re.search("^\s*/Var\S{1,}", mot):
+                                mot = re.sub("^\s*","",mot)
+                                mot = re.sub("\s{1,}$","",mot)
+                                if mot[1:] in self.genere_mrlw.mrlw_vars.keys():
+                                        recup = self.genere_mrlw.mrlw_vars[mot[1:]]
+                                        self.gen_mrlw_test_result.addItems(recup)
+                        else :
+                                mot = re.sub("^\s*","",mot)
+                                mot = re.sub("\s{1,}$","",mot)
+                                recup = self.genere_mrlw.repere_vars2(mot)
+                                for i in recup:
+                                        self.gen_mrlw_test_result.addItem("/%s"%i[1])
+                                
+
+        def genere_generate(self):
+                phrase = self.gen_mrlw_vars.toPlainText()
+                if  (phrase != u''):
+                        for i in range( self.gen_genere_spinbox.value()):
+                                self.gen_mrlw_result.append(self.genere_mrlw.genere_phrase(phrase))
+                
+        
+        def genere_test_result_dc(self):
+                self.gen_mrlw_test.clear()
+                self.gen_mrlw_test.setText(  self.gen_mrlw_test_result.currentItem().text() )
+                self.genere_test()
+                
+                                
 
 				
 class Texte(object):
@@ -2324,19 +2424,18 @@ class Liste_texte(object):
 		self.show_texts_anticorpus.setAlternatingRowColors(True)
 		HBox_texts.addWidget(self.show_texts_anticorpus)
 
-		
-
+	
 def main():
-	app = QtGui.QApplication(sys.argv)
+        app = QtGui.QApplication(sys.argv)
 
-	translator = QtCore.QTranslator()
-	#self.translator.load('translations/en_GB') 
-	#translator.load('translations/fr_FR') 
-	translator.load('translations/'+ QtCore.QLocale.system().name())
-	app.installTranslator(translator)
+        translator = QtCore.QTranslator()
+        #self.translator.load('translations/en_GB') 
+        #translator.load('translations/fr_FR') 
+        translator.load('translations/'+ QtCore.QLocale.system().name())
+        app.installTranslator(translator)
 
-	ex  = Principal()
-	sys.exit(app.exec_())
+        ex  = Principal()
+        sys.exit(app.exec_())
 
 if __name__ == '__main__':
-	main()
+        main()
