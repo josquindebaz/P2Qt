@@ -1027,14 +1027,14 @@ class Principal(QtGui.QMainWindow):
 		self.CorpusTexts.clear()
 
 		i = 0
-		self.dic_widget_list_txt = { 0 : []}
+		if not hasattr(self, "dic_widget_list_txt"):
+			self.dic_widget_list_txt = { 0 : []}
+		else : 
+			self.dic_widget_list_txt[0] =  []
 		for sem,tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
 			txt =  self.listeObjetsTextes[sem]
-
-
 			txt.createWidgetitem()
 			self.dic_widget_list_txt[0].append(txt)
-
 			self.CorpusTexts.addItem(txt.Widgetitem)
 			self.CorpusTexts.setItemWidget(txt.Widgetitem,txt.WidgetitemLabel)
 
@@ -1065,9 +1065,7 @@ class Principal(QtGui.QMainWindow):
 		self.activity(u"%s (%s) selected " % (txt.path,self.semantique_txt_item)) 
 
 		if (self.SOT1.currentIndex() != 0): #selectionne le texte dans l'onglet corpus s'il n'est pas actif
-			self.CorpusTexts.itemSelectionChanged.disconnect(self.onSelectText)
-			self.CorpusTexts.setCurrentRow( self.dic_widget_list_txt[0].index(txt))
-			self.CorpusTexts.itemSelectionChanged.connect(self.onSelectText)
+			self.selectTxtCorpus(txt)
 		if (self.SOT1.count() > 1): #si plus d'une tab
 			for t in range (1,self.SOT1.count()): #parcourt les tabs
 				l =  self.SOT1.widget(t).findChildren(QtGui.QListWidget) #les listwidget de la tab
@@ -1095,7 +1093,10 @@ class Principal(QtGui.QMainWindow):
 		elif ( self.SubWdwSETabs.currentIndex () == 2 ):
 			self.show_textContent( self.semantique_txt_item)
 
-
+	def selectTxtCorpus(self,txt):
+		self.CorpusTexts.itemSelectionChanged.disconnect(self.onSelectText)
+		self.CorpusTexts.setCurrentRow( self.dic_widget_list_txt[0].index(txt))
+		self.CorpusTexts.itemSelectionChanged.connect(self.onSelectText)
 
 
 	def deselectText(self):
@@ -1150,6 +1151,9 @@ class Principal(QtGui.QMainWindow):
 
 	def saveCTX(self):
 		sem_txt = self.semantique_txt_item
+		txt =  self.listeObjetsTextes[sem_txt]
+		txtResume = txt.getResume()
+		modif = []
 		for r in range( self.textCTX.rowCount()):
 			field = self.textCTX.item(r,0).text()
 			val =  self.textCTX.item(r,1).text()
@@ -1159,15 +1163,34 @@ class Principal(QtGui.QMainWindow):
 			if (result != val):
 				#print [field, result, val]
 				self.client.eval_set_ctx( sem_txt,field,val)
+				#PB NE MARCHE PAS A TOUS LES COUPS !!
 				self.client.add_cache_var(sem_txt +".ctx."+field,val)
 				self.listeObjetsTextes[sem_txt].setCTX(field,val)
+				modif.append(field)
 				
-		#PB a la creation d'un nouveau champ
+		#PB a la creation d'un nouveau champ ?
 		#self.client.eval_set_ctx( sem_txt,"testfield",val)
+
+
+		# mettre à jour listes si auteur, date, titre
+		if len(set(modif) & set(  ["author","date","title"])):
+			if "date" in modif:
+				self.display_liste_textes_corpus()
+				self.selectTxtCorpus(txt)
+				#TODO faire de même pour les autres onglets
+				for tab in range(1,self.SOT1.count())	:
+					self.SOT1.removeTab(tab)
+			else :
+				newResume = txt.getResume()
+				for listWidget in self.SOT1.findChildren(QtGui.QListWidget):
+					for label in  listWidget.findChildren(QtGui.QLabel):
+						if label.text() == txtResume:
+							label.setText(newResume)
+			
 
 		#PB de cache quand remet a jour la liste des ctx
 		self.maj_metadatas()
-		
+
 		self.textCTX_valid.setEnabled(False)
 		self.textCTX_reset.setEnabled(False)
 		self.resetCTX()
@@ -1746,8 +1769,6 @@ class Principal(QtGui.QMainWindow):
 
 			# affiche textes au demarrage
 			self.display_liste_textes_corpus()
-
-
 
 			#self.Param_Server_B.clicked.connect(self.disconnect_server)
 			#self.Param_Server_B.setText("Disconnect")
@@ -2375,13 +2396,12 @@ class Texte(object):
 			return False 
 
 	def getResume(self):
-		return (re.split(" ",self.CTX["date"])[0],self.CTX["author"],self.CTX["title"])
+		return u"%s <span style=\"font: bold\">%s</span> %s" % (re.split(" ",self.CTX["date"])[0],self.CTX["author"],self.CTX["title"])
 
 	def createWidgetitem(self):
 		self.Widgetitem = QtGui.QListWidgetItem()
-		txt_resume = u"%s <span style=\"font: bold\">%s</span> %s" % self.getResume()
+		txt_resume = self.getResume()
 		self.WidgetitemLabel = QtGui.QLabel(txt_resume)
-		self.WidgetitemLabel.setStyleSheet("selection-background-color: qlineargradient(x1: 0, y1: 0, x2: 0.5, y2: 0.5, stop: 0 #FF92BB, stop: 1 white);")
 		#TODO texte en blanc quand selectionné
 
 
