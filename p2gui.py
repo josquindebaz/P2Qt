@@ -104,21 +104,8 @@ class Principal(QtGui.QMainWindow):
 			self.listeObjetsTextes[sem_texte] =  Texte(sem_texte,self.listeTextes[t])
 			self.dicTxtSem[self.listeTextes[t]] = sem_texte
 
-		
-		"""
-		nbre_txt = len (self.listeTextes)
-		# mise en cache  valeur - semtxt
-		for text in self.listeTextes :
-			sem = u"$txt%s"%indice
-			txt_name = self.listeTextes[indice]
-			cle = txt_name + u"$txt"
-			self.client.add_cache_fonct(cle, sem )
-			indice +=1
-		"""
-			
 		# récupération des champs ctx
 		string_ctx =	self.client.eval_var("$ctx")
-		
 		
 		# les virgules contenues dans les titres ont été remplacées par \,
 		# la manip suivante permet de remplacer dans un premier temps les \,par un TAG
@@ -137,6 +124,7 @@ class Principal(QtGui.QMainWindow):
 
 		for champ in liste_champs_ctx :
 			 #title[0\]  date[0:]  etc on ne met pas le $ctx  ici...
+
 			string_ctx =self.client.eval_var("$ctx.%s%s"%(champ,"[0:]")) 
 			string_ctx = string_ctx.replace ('\,', TAG )
 			#liste_data_ctx = string_ctx.split(',')	
@@ -167,7 +155,6 @@ class Principal(QtGui.QMainWindow):
 				
 				#ne pas traduire pour les calculs, uniquement pour la visualisation
 			#champ = translate(champ)
-			
 
 			liste_champs_ajuste.append (champ)
 
@@ -179,12 +166,12 @@ class Principal(QtGui.QMainWindow):
 				self.client.add_cache_var( txt.sem + ".ctx.%s"%champ, data)
 				txt.setCTX(champ,data)
 
-				self.PrgBar.setValue(  indice   * 50 / len(self.listeTextes))
-				QtGui.QApplication.processEvents()
+				#self.PrgBar.setValue(  indice   * 50 / len(self.listeTextes))
+				#QtGui.QApplication.processEvents()
 
 
-		self.liste_champs_ctx = liste_champs_ajuste
-
+		self.NOT5_list.clear()
+		self.NOT5_list.addItems(liste_champs_ajuste)
 
 		prgbar_val = 50
 
@@ -383,12 +370,6 @@ class Principal(QtGui.QMainWindow):
                 textCTX_commandsButton.setEnabled(False)
                 Vbox_textCTX.addLayout(self.Hbox_textCTX_commands)
 
-
-                """
-                self.textCTX.setRowCount(1)
-                itTest = QtGui.QTableWidgetItem("t1")
-                self.textCTX.setItem(0,0,itTest)
-                """
 
         # onglet contenu du texte
                 self.textContent = QtGui.QTextEdit() 
@@ -911,9 +892,6 @@ class Principal(QtGui.QMainWindow):
 #               self.NOT5_cont.currentItemChanged.connect() 
 
 
-
-
-
                 self.SubWdwNO.addTab(NOT1,self.tr("Lexicon"))
                 self.SubWdwNO.addTab(NOT2,"Concepts")
                 self.SubWdwNO.addTab(NOT3,"Search")
@@ -1171,30 +1149,28 @@ class Principal(QtGui.QMainWindow):
 
 
 	def saveCTX(self):
+		sem_txt = self.semantique_txt_item
 		for r in range( self.textCTX.rowCount()):
 			field = self.textCTX.item(r,0).text()
 			val =  self.textCTX.item(r,1).text()
-
-			#ask = u"%s.%s" % ( self.m_current_selected_semtext,field)
-			ask = u"%s.ctx.%s" % ( self.m_current_selected_semtext,field)
-			self.client.eval_var(ask)
-			result = re.sub(u"^\s*","",self.client.eval_var_result)
-#TODO ne met pas à jour le CTX, a un pb avec result
+			ask = u"%s.ctx.%s" % ( sem_txt,field)
+			result = self.client.eval_var(ask)
+			result = re.sub(u"^\s*","",result)
 			if (result != val):
-				print [field, result, val]
-				self.client.eval_set_ctx( self.m_current_selected_semtext,field,val)
-				self.client.add_cache_var(self.m_current_selected_semtext +".ctx."+field,val)
-		
-		#self.client.creer_msg_set_ctx ( (sem_txt, field, val) )
-		#self.client.eval_set_ctx(sem_txt, field, val)
-		#print (sem_txt, field, val)
+				#print [field, result, val]
+				self.client.eval_set_ctx( sem_txt,field,val)
+				self.client.add_cache_var(sem_txt +".ctx."+field,val)
+				self.listeObjetsTextes[sem_txt].setCTX(field,val)
+				
+		#PB a la creation d'un nouveau champ
+		#self.client.eval_set_ctx( sem_txt,"testfield",val)
+
+		#PB de cache quand remet a jour la liste des ctx
+		self.maj_metadatas()
 		
 		self.textCTX_valid.setEnabled(False)
 		self.textCTX_reset.setEnabled(False)
-#TODO ne met pas à jour le CTX, a marché un moment et plus rien
-#TODO verifier que le cache soit mis à jour
 		self.resetCTX()
-
 
 		
 
@@ -1693,11 +1669,11 @@ class Principal(QtGui.QMainWindow):
 	def server_vars_Evalue(self):
 		var = self.server_vars_champ.text()
 		self.server_vars_champ.clear()
-		self.client.eval_var(var)
+		result = self.client.eval_var(var)
 		self.server_vars_result.setColor("red")
 		self.server_vars_result.append("%s" % var)
 		self.server_vars_result.setColor("black")
-		self.server_vars_result.append(self.client.eval_var_result)
+		self.server_vars_result.append(result)
 
 
 	def server_getsem_Evalue(self):
@@ -1772,8 +1748,6 @@ class Principal(QtGui.QMainWindow):
 			self.display_liste_textes_corpus()
 
 
-			#Contexts
-			self.NOT5_list.addItems(self.liste_champs_ctx)
 
 			#self.Param_Server_B.clicked.connect(self.disconnect_server)
 			#self.Param_Server_B.setText("Disconnect")
@@ -2309,27 +2283,23 @@ class Principal(QtGui.QMainWindow):
 				result = re.split(", ", self.activity("searching for {%s} : 0 result" % motif))
 				
 
-
-	def recup_ctx(self):
-		self.NOT5_list.clear()
-		self.activity("evaluating metadatas list")
-		result = re.split(", ",self.client.eval_var(u"$ctx")) #pb si , dans champ voir precalcul
-		self.NOT5_list.addItems(result)
-		
+	
 	def contexts_contents(self):
 		self.NOT5_cont.clear()
-		champ = self.NOT5_list.currentItem().text()
-		result = self.client.eval_var(u"$ctx.%s[0:]" % champ)
-		
-		result = re.split("(?<!\\\), ",result )#negative lookbehind assertion
-		dic_CTX = {}
-		for r in result:
-			if r in dic_CTX.keys():
-				dic_CTX[r] = dic_CTX[r] + 1
-			else:
-				dic_CTX[r] = 1
-		for el in sorted(dic_CTX.items(), key= lambda (k,v) : (-v,k)):
-			self.NOT5_cont.addItem(u"%d %s"%(el[1],re.sub("\\\,",",",el[0])))
+		if (self.NOT5_list.currentItem()):
+			champ = self.NOT5_list.currentItem().text()
+			#print [champ]
+			result = self.client.eval_var(u"$ctx.%s[0:]" % champ)
+			result = re.split("(?<!\\\), ",result )#negative lookbehind assertion
+			#print [result]
+			dic_CTX = {}
+			for r in result:
+				if r in dic_CTX.keys():
+					dic_CTX[r] = dic_CTX[r] + 1
+				else:
+					dic_CTX[r] = 1
+			for el in sorted(dic_CTX.items(), key= lambda (k,v) : (-v,k)):
+				self.NOT5_cont.addItem(u"%d %s"%(el[1],re.sub("\\\,",",",el[0])))
 
 
 	def recup_texts(self):
@@ -2376,6 +2346,14 @@ class Principal(QtGui.QMainWindow):
                 self.genere_test()
                 
                                 
+	def maj_metadatas(self):
+		string_ctx =	self.client.eval_var("$ctx")
+		#self.client.add_cache_var(sem_txt +".ctx."+field,val)
+		current  =  self.NOT5_list.currentItem() 
+		self.NOT5_cont.clear()
+		if (current):
+			self.NOT5_list.setCurrentItem(current)
+			self.contexts_contents()
 
 				
 class Texte(object):
@@ -2403,6 +2381,7 @@ class Texte(object):
 		self.Widgetitem = QtGui.QListWidgetItem()
 		txt_resume = u"%s <span style=\"font: bold\">%s</span> %s" % self.getResume()
 		self.WidgetitemLabel = QtGui.QLabel(txt_resume)
+		self.WidgetitemLabel.setStyleSheet("selection-background-color: qlineargradient(x1: 0, y1: 0, x2: 0.5, y2: 0.5, stop: 0 #FF92BB, stop: 1 white);")
 		#TODO texte en blanc quand selectionné
 
 

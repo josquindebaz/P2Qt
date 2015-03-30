@@ -258,7 +258,8 @@ class ConnecteurPII (threading.Thread):
 				return ""
 		lexpr = self.creer_msg_set_ctx( (text,props,value) )
 		for exp in lexpr :
-			print exp
+			if (verbose) :
+				print "exp:%s" % exp
 			self.send_expression(exp)
 		#value = self.get_value()
 		# est-ce nécessaire ????
