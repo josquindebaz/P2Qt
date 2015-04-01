@@ -714,6 +714,13 @@ class Principal(QtGui.QMainWindow):
                 self.NOT12.setAlternatingRowColors(True)
                 self.NOT12.currentItemChanged.connect(self.liste_item_changed) #changement d'un item
                 NOT1VH.addWidget(self.NOT12)
+
+		#menu contextuel
+		self.NOT12.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+		copy_to_clipboard = QtGui.QAction('copy list to clipboard',self)
+		self.NOT12.addAction(copy_to_clipboard)
+		QtCore.QObject.connect(copy_to_clipboard, QtCore.SIGNAL("triggered()"), self.copy_to_cb)
+
         #le deploiement
                 self.NOT12_D = QtGui.QListWidget()
                 NOT1VH.addWidget(self.NOT12_D)
@@ -2375,6 +2382,18 @@ class Principal(QtGui.QMainWindow):
 		if (current):
 			self.NOT5_list.setCurrentItem(current)
 			self.contexts_contents()
+	
+	def copy_to_cb(self):
+		debut  =  self.NOT12.currentRow()
+		fin  = self.NOT12.count()
+		liste = []
+		if (fin):
+			for row in range( 0, fin):
+				element = re.sub("^(\d{1,}) (.*)$", "\\2\t\\1", self.NOT12.item(row).text() , 1) #on inverse pour excel
+				liste.append(element )
+			clipboard = QtGui.QApplication.clipboard()
+			clipboard.setText("\n".join(liste))
+			self.activity(u"%d elements copied to clipboard" % (len(liste) ) )
 
 				
 class Texte(object):
