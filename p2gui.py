@@ -10,12 +10,14 @@ from PySide import QtGui
 
 import interface_prospero
 import generator_mrlw
+import codex
 
 from fonctions import translate
 import re
 import datetime
 import subprocess, threading
 from PySide.QtGui import QMdiArea
+import os
 
 
 
@@ -80,7 +82,7 @@ class client(object):
 class Principal(QtGui.QMainWindow):
 	def __init__(self):
 		super(Principal, self).__init__()
-		self.UI = self.initUI()
+		self.initUI()
 		
 		
 	def pre_calcule(self):
@@ -217,6 +219,11 @@ class Principal(QtGui.QMainWindow):
                 Menu_local.setStatusTip('Launch a local server')
                 Menu_local.triggered.connect(self.connect_server_localhost)
                 Menu_Corpus.addAction(Menu_local)
+		Menu_codex = QtGui.QAction("&codex",self)
+		Menu_codex.setStatusTip("Use and edit source repositories")
+                Menu_codex.triggered.connect(self.codex_window)
+		Menu_Corpus.addAction(Menu_codex)
+		
 
                 Menu_Texts = Menubar.addMenu('&Texts')
                 Menu_AddTex = QtGui.QAction('&Add a new text', self)        
@@ -909,48 +916,6 @@ class Principal(QtGui.QMainWindow):
 
 ################################################
 ################################################
-                ### layout qui supprime le bug de rotation des cadrans mais qui genere des problemes de taille d'affichage sur chaque cadran
-                # 1 layout vertical dans lequel sont insérés 2 layout horizontals
-#               main = QtGui.QWidget()
-#               h1_layout = QtGui.QVBoxLayout()
-#               vl1_layout = QtGui.QHBoxLayout()
-#               vl2_layout =QtGui.QHBoxLayout()
-#               
-#               h1_layout.addLayout(vl1_layout)
-#               h1_layout.addLayout(vl2_layout)
-#               
-#               vl1_layout.addWidget(SubWdwNO)
-#               vl1_layout.addWidget(self.SubWdwNE)
-#               
-#               vl2_layout.addWidget(self.SubWdwSO)
-#               vl2_layout.addWidget(SubWdwSE)
-#               
-#               main.setLayout(h1_layout)
-#               self.setCentralWidget(main)
-################################################
-################################################
-#               voir avec des splitters sinon
-################################################
-################################################
-                ###tentative avec une mdiarea, mais les tiles jouent au taquin a chaque resize/deplacement de la fenetre principale
-                #la MdiArea 
-#               Area = QtGui.QMdiArea()
-#               Area.tileSubWindows()
-#               #Area.AreaOption(QMdiArea.DontMaximizeSubWindowOnActivation)
-#               self.setCentralWidget(Area)
-#               
-#               sw1 = Area.addSubWindow(SubWdwSE, flags = QtCore.Qt.FramelessWindowHint)
-#               sw2 = Area.addSubWindow(self.SubWdwSO, flags = QtCore.Qt.FramelessWindowHint)
-#               sw3 = Area.addSubWindow(self.SubWdwNE , flags = QtCore.Qt.FramelessWindowHint)
-#               sw4 = Area.addSubWindow(SubWdwNO , flags = QtCore.Qt.FramelessWindowHint)
-#
-#               
-#               self.show() 
-#               self.showMaximized() #à appeler après show pour que ça marche sous windows!
-#               Area.setFixedSize( Area.size()) #preserver l'ordre des subwindows en cas de resize -> les subwindows ne sont pas max sous linux
-                
-################################################
-################################################
 #TODO corriger resize des grids sur petits ecrans
                 ###Layout en grid
                 main = QtGui.QWidget()
@@ -965,7 +930,7 @@ class Principal(QtGui.QMainWindow):
 
                 self.setWindowTitle(u'Prospéro interface')
                 self.show() 
-                
+               	self.codex_window() 
 
 
 ################################################
@@ -1792,6 +1757,9 @@ class Principal(QtGui.QMainWindow):
 		self.Param_Server_B.setText('Connect to server')
 		self.Param_Server_B.clicked.connect(self.connect_server)
 
+	def codex_window(self):
+		self.codex_w = codex_window()
+		self.codex_w.show()
 
 	def show_textContent(self ,  sem_txt):
 		"""Insert text content in the dedicated window"""
@@ -2440,6 +2408,155 @@ class Liste_texte(object):
 		self.show_texts_anticorpus = QtGui.QListWidget()
 		self.show_texts_anticorpus.setAlternatingRowColors(True)
 		HBox_texts.addWidget(self.show_texts_anticorpus)
+
+class codex_window(QtGui.QWidget):
+	def __init__(self, parent=None):
+		super(codex_window, self).__init__(parent)
+
+		self.codex_dic = codex.edit_codex()
+		if self.codex_dic.cherche_codex():
+			self.codex_dic.parse_codex_cfg("codex.cfg")
+
+		L = QtGui.QVBoxLayout()
+		self.setLayout(L)
+		H1 = QtGui.QHBoxLayout()
+
+		L.addLayout(H1)
+		h11 = QtGui.QVBoxLayout()
+		H1.addLayout(h11)
+		
+		select_champ = QtGui.QComboBox()
+		h11.addWidget(select_champ)
+                select_champ.addItem(u"")
+
+		if len(self.codex_dic.dico):
+			select_champ.addItems( self.codex_dic.champs() )
+
+		search_line = QtGui.QLineEdit()
+		h11.addWidget(search_line)
+		search_result = QtGui.QListWidget()
+		h11.addWidget(search_result)
+
+		h12 = QtGui.QVBoxLayout()
+		H1.addLayout(h12)
+		self.listRad = QtGui.QListWidget()
+		h12.addWidget(self.listRad)
+		self.listRad.currentItemChanged.connect(self.changeRad)
+		
+		if len(self.codex_dic.dico):
+			self.listRad.addItems(self.codex_dic.dico.keys())
+			self.listRad.sortItems()
+			
+		h12Buttons = edit_buttons()
+		h12.addLayout(h12Buttons.Buttons)
+
+		h13 = QtGui.QVBoxLayout()
+		H1.addLayout(h13)
+		self.h13List = QtGui.QTableWidget()
+		self.h13List.setColumnCount(2)
+		self.h13List.setHorizontalHeaderLabels([u'field',u'value'])
+		self.h13List.horizontalHeader().setStretchLastSection(True)	
+		self.h13List.verticalHeader().setVisible(False)
+		h13.addWidget(self.h13List)
+		h13Buttons = edit_buttons()
+		h13.addLayout(h13Buttons.Buttons)
+
+
+		H2 = QtGui.QHBoxLayout()
+		L.addLayout(H2)
+		h12 = QtGui.QVBoxLayout()
+		H2.addLayout(h12)
+		self.h12liste = ListViewDrop(self)
+		self.h12liste.fileDropped.connect(self.pictureDropped)
+		h12.addWidget(self.h12liste)
+		h12Buttons = QtGui.QHBoxLayout()
+		h12.addLayout(h12Buttons)
+		h12B1 = QtGui.QPushButton("operate")
+		h12Buttons.addWidget(h12B1)
+		h13 = QtGui.QVBoxLayout()
+		h13liste = QtGui.QTableWidget()
+		h13.addWidget(h13liste)
+		h13Buttons = QtGui.QHBoxLayout()
+		h13.addLayout(h13Buttons)
+		h13B1 = QtGui.QPushButton("save")
+		h13Buttons.addWidget(h13B1)
+		
+		H2.addLayout(h13)
+	
+
+	def changeRad(self):
+		self.h13List.clear()	
+		self.h13List.setHorizontalHeaderLabels([u'field',u'value'])
+		RAD = self.listRad.currentItem().text()	
+		fields = self.codex_dic.dico[RAD].keys()
+		self.h13List.setRowCount(len(fields))
+		r = 0
+		for field in fields:
+			i_field = QtGui.QTableWidgetItem(field)
+			self.h13List.setItem(r,0,i_field)
+			v_field = QtGui.QTableWidgetItem(self.codex_dic.dico[RAD][field])
+			self.h13List.setItem(r,1,v_field)
+			r += 1
+
+	def pictureDropped(self, l):
+		#TODO eviter les doublons, ne prendre que les txt et TXT
+                for url in l:
+                        if os.path.exists(url):
+                                icon = QtGui.QIcon(url)
+                                pixmap = icon.pixmap(72, 72)
+                                icon = QtGui.QIcon(pixmap)
+                                item = QtGui.QListWidgetItem(url, self.h12liste)
+                                item.setIcon(icon)
+                                item.setStatusTip(url)
+			self.h12liste.sortItems()
+
+
+class ListViewDrop(QtGui.QListWidget):
+
+	fileDropped = QtCore.Signal(list)
+
+	def __init__(self,type,parent=None):
+		super(ListViewDrop, self).__init__(parent)
+		self.setAcceptDrops(True)
+		self.setIconSize(QtCore.QSize(72, 72))
+
+	def dragEnterEvent(self, event):
+		if event.mimeData().hasUrls:
+			event.accept()
+		else:
+			event.ignore()
+
+	def dragMoveEvent(self, event):
+		if event.mimeData().hasUrls:
+			event.setDropAction(QtCore.Qt.CopyAction)
+			event.accept()
+		else:
+			event.ignore()
+
+	def dropEvent(self, event):
+		if event.mimeData().hasUrls:
+			event.setDropAction(QtCore.Qt.CopyAction)
+			event.accept()
+			links = []
+			for url in event.mimeData().urls():
+				#links.append(str(url.toLocalFile())) #pb encodage
+				links.append(url.toLocalFile())
+			self.fileDropped.emit(links)
+		else:
+		    event.ignore()
+
+
+class edit_buttons(QtGui.QWidget):
+	def __init__(self, parent=None):
+		super(edit_buttons, self).__init__(parent)
+		self.Buttons = QtGui.QHBoxLayout()
+		Badd = QtGui.QPushButton("+")
+		Bdel = QtGui.QPushButton("-")
+		self.Buttons.addWidget(Badd)
+		self.Buttons.addWidget(Bdel)
+		spacer = QtGui.QLabel()
+		spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+		#self.Buttons.addWidget(spacer) #affichage etrange sur le bouton prédédent
 
 	
 def main():
