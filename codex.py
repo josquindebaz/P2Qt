@@ -17,7 +17,7 @@ class edit_codex(object):
 
 	def parse_codex_cfg(self,codex_path):
 		B = open(codex_path,"rU").read()
-		items = re.split("#{2,}",B)
+		items = re.split("#{2,}",B.decode('latin-1'))
 		dico = {}
 		for item in items:
 			if not re.search("^\s*$",item):
@@ -28,7 +28,7 @@ class edit_codex(object):
 						k,v = re.split(":",i)
 						v = re.sub("^\s*(.*)\s*$","\\1",v)
 						if (v != ""):
-							dic[k]=v
+							dic[u"%s"%k]=u"%s"%v
 				if 'ABREV' in dic.keys():
 					dico[dic['ABREV']] = {key : value for key  , value in dic.items() if key != 'ABREV'}
 				else:
@@ -58,7 +58,26 @@ class edit_codex(object):
 			print pb, dic1[pb], dic2[pb]
 		dic2.update(dic1)
 		return dic2
-		
+
+	def chercheValue(self,field,pattern):
+		liste = []
+		for m,l in self.dico.iteritems():
+			for k,v in  l.iteritems():
+				if  field =="":
+					if re.search(pattern,v,re.IGNORECASE):
+						liste.append( [m,k,v] )
+				elif k == field: 
+					if re.search(pattern,v,re.IGNORECASE):
+						liste.append( [m,v] )
+		return liste
+	
+	def eval_file(self,path):
+		p,n = os.path.split(path)
+		for a in self.dico.keys():
+			if re.match("%s\d{2,}"%a,n):
+				if re.match("%s\d{2}[0-9A-Ca-c]\d{2}.*\."%a,n):
+					print a, re.search("%s(\d{2})([0-9A-Ca-c])(\d{2})(.*)\."%a,n).groups()
+				#TODO FORME AAAAMMDD
 	
 def main():
 	test = edit_codex()

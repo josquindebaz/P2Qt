@@ -436,7 +436,7 @@ class Principal(QtGui.QMainWindow):
 		self.tabNetworks.setTabsClosable(True)
 		self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
 
-#TODO les expressions englobantes
+#TODO les exgenerate englobantes
 
                 #mise en place des onglets
 
@@ -2425,17 +2425,19 @@ class codex_window(QtGui.QWidget):
 		h11 = QtGui.QVBoxLayout()
 		H1.addLayout(h11)
 		
-		select_champ = QtGui.QComboBox()
-		h11.addWidget(select_champ)
-                select_champ.addItem(u"")
+		self.select_champ = QtGui.QComboBox()
+		h11.addWidget(self.select_champ)
+                self.select_champ.addItem(u"")
 
 		if len(self.codex_dic.dico):
-			select_champ.addItems( self.codex_dic.champs() )
+			self.select_champ.addItems( self.codex_dic.champs() )
 
-		search_line = QtGui.QLineEdit()
-		h11.addWidget(search_line)
-		search_result = QtGui.QListWidget()
-		h11.addWidget(search_result)
+		self.search_line = QtGui.QLineEdit()
+		h11.addWidget(self.search_line)
+		self.search_line.returnPressed.connect(self.eval_search_line)
+		self.search_result = QtGui.QListWidget()
+		h11.addWidget(self.search_result)
+		self.search_result.clicked.connect(self.eval_search_C)
 
 		h12 = QtGui.QVBoxLayout()
 		H1.addLayout(h12)
@@ -2467,11 +2469,14 @@ class codex_window(QtGui.QWidget):
 		h12 = QtGui.QVBoxLayout()
 		H2.addLayout(h12)
 		self.h12liste = ListViewDrop(self)
-		self.h12liste.fileDropped.connect(self.pictureDropped)
+		self.h12liste.fileDropped.connect(self.FilesDropped)
 		h12.addWidget(self.h12liste)
 		h12Buttons = QtGui.QHBoxLayout()
 		h12.addLayout(h12Buttons)
-		h12B1 = QtGui.QPushButton("operate")
+		h12Label = QtGui.QLabel("Text file list: drag and drop")
+		h12Buttons.addWidget(h12Label)
+		h12B1 = QtGui.QPushButton("generate")
+		h12B1.clicked.connect(self.generate)
 		h12Buttons.addWidget(h12B1)
 		h13 = QtGui.QVBoxLayout()
 		h13liste = QtGui.QTableWidget()
@@ -2498,17 +2503,37 @@ class codex_window(QtGui.QWidget):
 			self.h13List.setItem(r,1,v_field)
 			r += 1
 
-	def pictureDropped(self, l):
-		#TODO eviter les doublons, ne prendre que les txt et TXT
-                for url in l:
+	def FilesDropped(self, l):
+		existing = [] 
+		for r in range( self.h12liste.count()):
+			existing.append( self.h12liste.item(r).text())
+                for url in list(set(l) - set(existing)):
                         if os.path.exists(url):
-                                icon = QtGui.QIcon(url)
-                                pixmap = icon.pixmap(72, 72)
-                                icon = QtGui.QIcon(pixmap)
-                                item = QtGui.QListWidgetItem(url, self.h12liste)
-                                item.setIcon(icon)
-                                item.setStatusTip(url)
+				if os.path.splitext(url)[1] in ['.txt','.TXT']:
+					item = QtGui.QListWidgetItem(url, self.h12liste)
+					item.setStatusTip(url)
 			self.h12liste.sortItems()
+
+	def eval_search_line(self):
+		self.search_result.clear()
+		pattern = self.search_line.text()
+		field = self.select_champ.currentText()
+		result = self.codex_dic.chercheValue(field,pattern)
+		for r in result:
+			self.search_result.addItem( " : ".join(r))
+		self.search_result.sortItems()
+		
+	def eval_search_C(self):
+		i = self.search_result.currentItem().text()
+		i = re.split(" : ",i,1)[0]
+		item = self.listRad.findItems(i,QtCore.Qt.MatchFlags(QtCore.Qt.MatchExactly))
+		self.listRad.setCurrentItem(item[0])
+
+
+	def generate(self):
+		for r in range(self.h12liste.count()):
+			self.codex_dic.eval_file( self.h12liste.item(r).text() )
+	
 
 
 class ListViewDrop(QtGui.QListWidget):
@@ -2518,7 +2543,6 @@ class ListViewDrop(QtGui.QListWidget):
 	def __init__(self,type,parent=None):
 		super(ListViewDrop, self).__init__(parent)
 		self.setAcceptDrops(True)
-		self.setIconSize(QtCore.QSize(72, 72))
 
 	def dragEnterEvent(self, event):
 		if event.mimeData().hasUrls:
@@ -2556,7 +2580,7 @@ class edit_buttons(QtGui.QWidget):
 		self.Buttons.addWidget(Bdel)
 		spacer = QtGui.QLabel()
 		spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-		#self.Buttons.addWidget(spacer) #affichage etrange sur le bouton prédédent
+		self.Buttons.addWidget(spacer) #affichage etrange sur le bouton prédédent
 
 	
 def main():
