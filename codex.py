@@ -16,22 +16,23 @@ class edit_codex(object):
 		return os.path.isfile("codex.cfg") 
 
 	def parse_codex_cfg(self,codex_path):
-		B = open(codex_path,"r").read()
+		B = open(codex_path,"rU").read()
 		items = re.split("#{2,}",B)
 		dico = {}
 		for item in items:
 			if not re.search("^\s*$",item):
 				dic = {}
-				for i in  re.split('\r\n',item):
+				#for i in  re.split('\r\n',item):
+				for i in  re.split('\n',item):
 					if i != '':
 						k,v = re.split(":",i)
 						v = re.sub("^\s*(.*)\s*$","\\1",v)
 						if (v != ""):
 							dic[k]=v
 				if 'ABREV' in dic.keys():
-					dico[dic['ABREV']] = {key : value for key  , value in dic.items() if key != 'ABREV'} 
+					dico[dic['ABREV']] = {key : value for key  , value in dic.items() if key != 'ABREV'}
 				else:
-					print "pb with", dic
+					print "pb parse codex with", dic
 		self.dico = dico
 		return dico
 
@@ -39,8 +40,9 @@ class edit_codex(object):
 		return os.path.isfile("support.publi") 
 
 	def parse_supports_publi(self,supports_path):
-		B = open(supports_path,"r").read()
-		items = re.split("\r\n",B)
+		B = open(supports_path,"rU").read()
+##		items = re.split("\r\n",B)
+		items = re.split("\n",B)
 		dico = {}
 		for item in items:
 			if not re.search("^\s*$",item):
@@ -48,7 +50,7 @@ class edit_codex(object):
 				if len(A) == 4:
 					dico[A[3]] = {'SUPPORT': A[1] , 'AUTEUR': A[1] , 'TYPE-SUPPORT': A[2] }
 				else :
-					print "pb with", item
+					print "pb parse supports with", item
 		return dico
 
 	def fusionne(self,dic1,dic2):
