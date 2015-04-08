@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 
-
 import sys
 import PySide
 from PySide import QtCore 
@@ -2427,11 +2426,7 @@ class codex_window(QtGui.QWidget):
 		
 		self.select_champ = QtGui.QComboBox()
 		h11.addWidget(self.select_champ)
-                self.select_champ.addItem(u"")
-
-		if len(self.codex_dic.dico):
-			self.select_champ.addItems( self.codex_dic.champs() )
-
+		
 		self.search_line = QtGui.QLineEdit()
 		h11.addWidget(self.search_line)
 		self.search_line.returnPressed.connect(self.eval_search_line)
@@ -2439,6 +2434,7 @@ class codex_window(QtGui.QWidget):
 		h11.addWidget(self.search_result)
 		self.search_result.currentItemChanged.connect(self.eval_search_C)
 
+		self.reset_select_champ()
 		self.search_line.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Preferred)
 		self.search_result.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
 
@@ -2478,6 +2474,10 @@ class codex_window(QtGui.QWidget):
 		efface_listRadValueItem = QtGui.QAction('delete line',self)
 		self.h13List.addAction(efface_listRadValueItem)
 		QtCore.QObject.connect(efface_listRadValueItem, QtCore.SIGNAL("triggered()"), self.efface_listRadValueItem)
+		add_listRadValueItem = QtGui.QAction('add line',self)
+		self.h13List.addAction(add_listRadValueItem)
+		QtCore.QObject.connect(add_listRadValueItem, QtCore.SIGNAL("triggered()"), self.add_listRadValueItem)
+		self.h13List.cellChanged.connect(self.onChangeh13List)
 
 
 		H2 = QtGui.QHBoxLayout()
@@ -2524,7 +2524,14 @@ class codex_window(QtGui.QWidget):
 		
 		H2.addLayout(h23)
 	
-
+	def reset_select_champ(self):
+		self.select_champ.clear()
+                self.select_champ.addItem(u"")
+		if len(self.codex_dic.dico):
+			self.select_champ.addItems( self.codex_dic.champs() )
+		self.search_line.clear()
+		self.search_result.clear()
+		
 
 	def efface_listRadItem(self):
 		self.listRad.takeItem(self.listRad.currentRow())
@@ -2534,7 +2541,6 @@ class codex_window(QtGui.QWidget):
 		self.listRad.insertItem(self.listRad.count(),item)
 		self.listRad.setCurrentItem(item)
 		self.mod_listRadItem()
-
 
 	def mod_listRadItem(self):
 		item = self.listRad.currentItem()
@@ -2564,7 +2570,11 @@ class codex_window(QtGui.QWidget):
 
 
 	def efface_listRadValueItem(self):
-		self.h13List.removeRow(self.h13List.currentRow())
+		if self.h13List.selectedItems() :
+			self.h13List.removeRow(self.h13List.currentRow())
+
+	def add_listRadValueItem(self):
+		self.h13List.insertRow(0)
 
 	def efface_h22liste(self):
 		self.h22liste.clear()
@@ -2573,7 +2583,6 @@ class codex_window(QtGui.QWidget):
 	def efface_h22listeItem(self):
 		self.h22liste.takeItem(self.h22liste.currentRow())
 		self.generate()
-		
 
 	def changeRad(self):
 		self.h13List.clear()	
@@ -2592,6 +2601,40 @@ class codex_window(QtGui.QWidget):
 			self.h13List.setItem(r,1,v_field)
 			r += 1
 		self.h13List.resizeColumnToContents (0)
+
+	def onChangeh13List(self):
+		r = self.h13List.currentRow()
+		c = self.h13List.currentColumn()
+		if ( (r != -1) and (c != -1 )):
+			k = self.listRad.currentItem().text()
+			f = self.h13List.item(r,0).text()
+			if (not re.match("^\s*$",f)) :
+				if (c):
+					v = self.h13List.currentItem().text()
+					self.codex_dic.dico[k][f] = v
+				else:
+					oldfields = self.codex_dic.champs()
+					oldfield =   self.oldfield(k)
+					if (oldfield in self.codex_dic.dico[k].keys()):
+						self.codex_dic.dico[k][f] = self.codex_dic.dico[k][oldfield] 
+						del (self.codex_dic.dico[k][oldfield])
+					else :
+						self.codex_dic.dico[k][f] = ""
+				self.reset_select_champ()
+			else:
+				oldfield =   self.oldfield(k)
+				if (oldfield):
+					self.h13List.item(r,0).setText (oldfield)
+				
+	def oldfield(self,k):			
+		listefield = []
+		for row in range(self.h13List.rowCount()):
+			listefield.append(self.h13List.item(row,0).text())
+		L = list(set(self.codex_dic.dico[k].keys()) - set(listefield))
+		if len(L):
+			return L[0]
+		else :
+			return False
 		
 
 	def FilesDropped(self, l):
@@ -2616,11 +2659,12 @@ class codex_window(QtGui.QWidget):
 		self.search_result.sortItems()
 		
 	def eval_search_C(self):
-		i = self.search_result.currentItem().text()
-		i = re.split(" : ",i,1)[0]
-		item = self.listRad.findItems(i,QtCore.Qt.MatchFlags(QtCore.Qt.MatchExactly))
-		self.listRad.setCurrentItem(item[0])
-
+		item = self.search_result.currentItem()
+		if (item):
+			i = item.text()
+			i = re.split(" : ",i,1)[0]
+			item = self.listRad.findItems(i,QtCore.Qt.MatchFlags(QtCore.Qt.MatchExactly))
+			self.listRad.setCurrentItem(item[0])
 
 	def generate(self):
 		self.h23liste.clear()
