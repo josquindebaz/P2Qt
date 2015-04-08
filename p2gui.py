@@ -436,7 +436,7 @@ class Principal(QtGui.QMainWindow):
 		self.tabNetworks.setTabsClosable(True)
 		self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
 
-#TODO les exgenerate englobantes
+#TODO les expression englobantes
 
                 #mise en place des onglets
 
@@ -2437,20 +2437,34 @@ class codex_window(QtGui.QWidget):
 		self.search_line.returnPressed.connect(self.eval_search_line)
 		self.search_result = QtGui.QListWidget()
 		h11.addWidget(self.search_result)
-		self.search_result.clicked.connect(self.eval_search_C)
+		self.search_result.currentItemChanged.connect(self.eval_search_C)
+
+		self.search_line.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Preferred)
+		self.search_result.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
 
 		h12 = QtGui.QVBoxLayout()
 		H1.addLayout(h12)
 		self.listRad = QtGui.QListWidget()
 		h12.addWidget(self.listRad)
+		self.listRad.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
 		self.listRad.currentItemChanged.connect(self.changeRad)
+		self.listRad.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+		mod_listRadItem = QtGui.QAction('modify item',self)
+		self.listRad.addAction(mod_listRadItem)
+		QtCore.QObject.connect(mod_listRadItem, QtCore.SIGNAL("triggered()"), self.mod_listRadItem)
+		efface_listRadItem = QtGui.QAction('delete item',self)
+		self.listRad.addAction(efface_listRadItem)
+		QtCore.QObject.connect(efface_listRadItem, QtCore.SIGNAL("triggered()"), self.efface_listRadItem)
+		add_listRadItem = QtGui.QAction('add item',self)
+		self.listRad.addAction(add_listRadItem)
+		QtCore.QObject.connect(add_listRadItem, QtCore.SIGNAL("triggered()"), self.add_listRadItem)
+
+
 		
 		if len(self.codex_dic.dico):
 			self.listRad.addItems(self.codex_dic.dico.keys())
 			self.listRad.sortItems()
 			
-		h12Buttons = edit_buttons()
-		h12.addLayout(h12Buttons.Buttons)
 
 		h13 = QtGui.QVBoxLayout()
 		H1.addLayout(h13)
@@ -2460,40 +2474,91 @@ class codex_window(QtGui.QWidget):
 		self.h13List.horizontalHeader().setStretchLastSection(True)	
 		self.h13List.verticalHeader().setVisible(False)
 		h13.addWidget(self.h13List)
-		h13Buttons = edit_buttons()
-		h13.addLayout(h13Buttons.Buttons)
 
 
 		H2 = QtGui.QHBoxLayout()
 		L.addLayout(H2)
-		h12 = QtGui.QVBoxLayout()
-		H2.addLayout(h12)
-		self.h12liste = ListViewDrop(self)
-		self.h12liste.fileDropped.connect(self.FilesDropped)
-		h12.addWidget(self.h12liste)
-		h12Buttons = QtGui.QHBoxLayout()
-		h12.addLayout(h12Buttons)
-		h12Label = QtGui.QLabel("Text file list: drag and drop")
-		h12Buttons.addWidget(h12Label)
-		h12B1 = QtGui.QPushButton("generate")
-		h12B1.clicked.connect(self.generate)
-		h12Buttons.addWidget(h12B1)
-		h13 = QtGui.QVBoxLayout()
-		h13liste = QtGui.QTableWidget()
-		h13.addWidget(h13liste)
-		h13Buttons = QtGui.QHBoxLayout()
-		h13.addLayout(h13Buttons)
-		h13B1 = QtGui.QPushButton("save")
-		h13Buttons.addWidget(h13B1)
+		h22 = QtGui.QVBoxLayout()
+		H2.addLayout(h22)
+
+
+		self.h22liste = ListViewDrop(self)
+		self.h22liste.fileDropped.connect(self.FilesDropped)
+		h22.addWidget(self.h22liste)
+		self.h22liste.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+		self.h22liste.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+		efface_h22liste = QtGui.QAction('clear list',self)
+		self.h22liste.addAction(efface_h22liste)
+		QtCore.QObject.connect(efface_h22liste, QtCore.SIGNAL("triggered()"), self.efface_h22liste)
+		efface_h22listeItem = QtGui.QAction('delete item',self)
+		self.h22liste.addAction(efface_h22listeItem)
+		QtCore.QObject.connect(efface_h22listeItem, QtCore.SIGNAL("triggered()"), self.efface_h22listeItem)
 		
-		H2.addLayout(h13)
+		h22Buttons = QtGui.QHBoxLayout()
+		h22.addLayout(h22Buttons)
+		h22Label = QtGui.QLabel("Text file list: drag and drop")
+		h22Buttons.addWidget(h22Label)
+
+
+		h23 = QtGui.QVBoxLayout()
+		self.h23liste = QtGui.QTableWidget()
+		self.h23liste.verticalHeader().setVisible(False)
+		#TODO rendre la liste non editable
+		h23.addWidget(self.h23liste)
+		h23Buttons = QtGui.QHBoxLayout()
+		h23.addLayout(h23Buttons)
+		#h23Label = QtGui.QLabel("Matching results")
+		#h23Buttons.addWidget(h23Label)
+		self.h23BT = QtGui.QCheckBox("get titles")
+		h23Buttons.addWidget(self.h23BT)
+		self.h23BT.setChecked(True)
+		self.h23BT.stateChanged.connect( self.generate )
+		h23BR = QtGui.QCheckBox("replace")
+		h23Buttons.addWidget(h23BR)
+		h23BS = QtGui.QPushButton("save CTX")
+		h23Buttons.addWidget(h23BS)
+		
+		H2.addLayout(h23)
 	
+
+
+	def efface_listRadItem(self):
+		self.listRad.takeItem(self.listRad.currentRow())
+
+	def add_listRadItem(self):
+		item = QtGui.QListWidgetItem("")
+		self.listRad.insertItem(self.listRad.count(),item)
+		self.listRad.setCurrentItem(item)
+		self.mod_listRadItem()
+
+
+	def mod_listRadItem(self):
+		self.listRad.currentItem().setFlags(QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
+		self.listRad.editItem(self.listRad.currentItem())
+		item = self.listRad.currentItem()
+		item.returnPressed.connect(self.mod_listRadItem_done)
+
+	def mod_listRadItem_done(self):
+		print "a"
+
+	def efface_h22liste(self):
+		self.h22liste.clear()
+		self.generate()
+
+	def efface_h22listeItem(self):
+		self.h22liste.takeItem(self.h22liste.currentRow())
+		self.generate()
+		
 
 	def changeRad(self):
 		self.h13List.clear()	
 		self.h13List.setHorizontalHeaderLabels([u'field',u'value'])
 		RAD = self.listRad.currentItem().text()	
-		fields = self.codex_dic.dico[RAD].keys()
+		if RAD in self.codex_dic.dico.keys():
+			fields = self.codex_dic.dico[RAD].keys()
+		else:
+			print "add to dic"
+			fields = {}
 		self.h13List.setRowCount(len(fields))
 		r = 0
 		for field in fields:
@@ -2502,17 +2567,20 @@ class codex_window(QtGui.QWidget):
 			v_field = QtGui.QTableWidgetItem(self.codex_dic.dico[RAD][field])
 			self.h13List.setItem(r,1,v_field)
 			r += 1
+		self.h13List.resizeColumnToContents (0)
+		
 
 	def FilesDropped(self, l):
 		existing = [] 
-		for r in range( self.h12liste.count()):
-			existing.append( self.h12liste.item(r).text())
+		for r in range( self.h22liste.count()):
+			existing.append( self.h22liste.item(r).text())
                 for url in list(set(l) - set(existing)):
                         if os.path.exists(url):
 				if os.path.splitext(url)[1] in ['.txt','.TXT']:
-					item = QtGui.QListWidgetItem(url, self.h12liste)
+					item = QtGui.QListWidgetItem(url, self.h22liste)
 					item.setStatusTip(url)
-			self.h12liste.sortItems()
+			#self.h12liste.sortItems()
+		self.generate()
 
 	def eval_search_line(self):
 		self.search_result.clear()
@@ -2531,10 +2599,61 @@ class codex_window(QtGui.QWidget):
 
 
 	def generate(self):
-		for r in range(self.h12liste.count()):
-			self.codex_dic.eval_file( self.h12liste.item(r).text() )
+		self.h23liste.clear()
+		self.h23liste.setRowCount(0)
+		self.h23liste.setColumnCount(2)
+		if self.h23BT.checkState():
+			self.h23liste.setHorizontalHeaderLabels([u'path',u'key,  date and title'])
+		else :
+			self.h23liste.setHorizontalHeaderLabels([u'path',u'key and date'])
+		self.h23liste.horizontalHeader().setStretchLastSection(True)	
+		for r in range(self.h22liste.count()):
+			path = self.h22liste.item(r).text()
+			test = self.codex_dic.eval_file( path  )
+			if (test):
+				self.match_add(path,test)
+			else :
+				self.failed_add(path)
+		self.h23liste.resizeColumnToContents (0)
 	
+	def match_add(self,path,result):
+		r = self.h23liste.rowCount()
+		self.h23liste.insertRow(r)
+		item_path = QtGui.QTableWidgetItem(path)		
+		self.h23liste.setItem(r,0,item_path)
+		if self.h23BT.checkState():
+			item_value_txt = u" ".join(result) + u" %s"% self.get_title(path)
+		else :
+			item_value_txt = u" ".join(result) 
+		item_value = QtGui.QTableWidgetItem(item_value_txt)
+		self.h23liste.setItem(r,1,item_value)
+		data = ""
+		for k,v in self.codex_dic.dico[result[0]].iteritems():
+			data += "%s:%s\n"%(k,v)
+		item_path.setToolTip(data[:-1])
+		item_value.setToolTip(data[:-1])
 
+	def get_title(self,path):
+		B = open(path,"rU").readlines()
+		title = B[0][:-1]
+		try :
+			return title.decode('latin-1')
+		except :
+			return title.decode('utf-8')
+			
+
+
+	def failed_add(self,path):
+		r = self.h23liste.rowCount()
+		self.h23liste.insertRow(r)
+		item_path = QtGui.QTableWidgetItem(path)		
+		item_path.setForeground(QtGui.QColor("red" ))
+		self.h23liste.setItem(r,0,item_path)
+		item_value = QtGui.QTableWidgetItem("no match")
+		item_value.setForeground(QtGui.QColor("red" ))
+		self.h23liste.setItem(r,1,item_value)
+		item_path.setToolTip("no match")
+		item_value.setToolTip("no match")
 
 class ListViewDrop(QtGui.QListWidget):
 
@@ -2569,18 +2688,6 @@ class ListViewDrop(QtGui.QListWidget):
 		else:
 		    event.ignore()
 
-
-class edit_buttons(QtGui.QWidget):
-	def __init__(self, parent=None):
-		super(edit_buttons, self).__init__(parent)
-		self.Buttons = QtGui.QHBoxLayout()
-		Badd = QtGui.QPushButton("+")
-		Bdel = QtGui.QPushButton("-")
-		self.Buttons.addWidget(Badd)
-		self.Buttons.addWidget(Bdel)
-		spacer = QtGui.QLabel()
-		spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-		self.Buttons.addWidget(spacer) #affichage etrange sur le bouton prédédent
 
 	
 def main():

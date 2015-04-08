@@ -73,12 +73,33 @@ class edit_codex(object):
 	
 	def eval_file(self,path):
 		p,n = os.path.split(path)
+		r = False
 		for a in self.dico.keys():
 			if re.match("%s\d{2,}"%a,n):
-				if re.match("%s\d{2}[0-9A-Ca-c]\d{2}.*\."%a,n):
-					print a, re.search("%s(\d{2})([0-9A-Ca-c])(\d{2})(.*)\."%a,n).groups()
-				#TODO FORME AAAAMMDD
-	
+				if re.match("%s\d{2}[0-9A-Ca-c]\d{2}[A-Za-z]*\."%a,n):
+					#FORME AAMMDD
+					y,m,d = re.search("%s(\d{2})([0-9A-Ca-c])(\d{2})\w*\."%a,n).groups()
+					if int(y) > 50:
+						y = "19%s" % y
+					else:
+						y = "20%s" % y
+
+					if m in ["a","A"]:
+						m = "10"
+					elif m in ["b","B"]:
+						m = "11"
+					elif m in ["c","C"]:
+						m = "11"
+					else :
+						m = "0%s" % m
+						
+					r = (a,  u"%s/%s/%s" % (d,m,y) )
+				if re.match("%s\d{8}\S*\."%a,n):
+					#FORME AAAAMMDD
+					y,m,d = re.search("%s(\d{4})(\d{2})(\d{2})\w*\."%a,n).groups()
+					r =  (a,  u"%s/%s/%s" % (d,m,y) )
+		return r	
+
 def main():
 	test = edit_codex()
 	if test.cherche_codex():
