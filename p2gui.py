@@ -2449,15 +2449,15 @@ class codex_window(QtGui.QWidget):
 		self.listRad.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
 		self.listRad.currentItemChanged.connect(self.changeRad)
 		self.listRad.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-		mod_listRadItem = QtGui.QAction('modify item',self)
-		self.listRad.addAction(mod_listRadItem)
-		QtCore.QObject.connect(mod_listRadItem, QtCore.SIGNAL("triggered()"), self.mod_listRadItem)
+		self.listRad.doubleClicked.connect(self.mod_listRadItem)
 		efface_listRadItem = QtGui.QAction('delete item',self)
 		self.listRad.addAction(efface_listRadItem)
 		QtCore.QObject.connect(efface_listRadItem, QtCore.SIGNAL("triggered()"), self.efface_listRadItem)
 		add_listRadItem = QtGui.QAction('add item',self)
 		self.listRad.addAction(add_listRadItem)
 		QtCore.QObject.connect(add_listRadItem, QtCore.SIGNAL("triggered()"), self.add_listRadItem)
+		self.listRad.setItemDelegate(MyDelegate(self))
+		self.listRad.itemDelegate().closedSignal.connect(self.mod_listRadItem_done)
 
 
 		
@@ -2474,6 +2474,10 @@ class codex_window(QtGui.QWidget):
 		self.h13List.horizontalHeader().setStretchLastSection(True)	
 		self.h13List.verticalHeader().setVisible(False)
 		h13.addWidget(self.h13List)
+		self.h13List.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+		efface_listRadValueItem = QtGui.QAction('delete line',self)
+		self.h13List.addAction(efface_listRadValueItem)
+		QtCore.QObject.connect(efface_listRadValueItem, QtCore.SIGNAL("triggered()"), self.efface_listRadValueItem)
 
 
 		H2 = QtGui.QHBoxLayout()
@@ -2533,13 +2537,34 @@ class codex_window(QtGui.QWidget):
 
 
 	def mod_listRadItem(self):
-		self.listRad.currentItem().setFlags(QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
-		self.listRad.editItem(self.listRad.currentItem())
 		item = self.listRad.currentItem()
-		item.returnPressed.connect(self.mod_listRadItem_done)
+			
+		item.setFlags(self.listRad.currentItem().flags() | QtCore.Qt.ItemIsEditable)
+		#item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled)
+		self.listRadItemText = item.text()
+		if (self.listRad.state() !=  self.listRad.EditingState ):
+			self.listRad.editItem(item)
 
 	def mod_listRadItem_done(self):
-		print "a"
+		item = self.listRad.currentItem()
+
+		old = self.listRadItemText
+		new = item.text()
+		if (old != new) :
+			if (new in self.codex_dic.dico.keys()):
+				item.setText(old)
+			else : 
+				if (old == ""):
+					self.codex_dic.dico[new] =  {} 
+				else :
+					self.codex_dic.dico[new] =  self.codex_dic.dico[old]
+					del( self.codex_dic.dico[old])
+				self.listRad.sortItems()
+				self.listRad.scrollToItem(item)
+
+
+	def efface_listRadValueItem(self):
+		self.h13List.removeRow(self.h13List.currentRow())
 
 	def efface_h22liste(self):
 		self.h22liste.clear()
@@ -2554,11 +2579,10 @@ class codex_window(QtGui.QWidget):
 		self.h13List.clear()	
 		self.h13List.setHorizontalHeaderLabels([u'field',u'value'])
 		RAD = self.listRad.currentItem().text()	
-		if RAD in self.codex_dic.dico.keys():
-			fields = self.codex_dic.dico[RAD].keys()
-		else:
-			print "add to dic"
+		if (RAD == ""):
 			fields = {}
+		elif RAD in self.codex_dic.dico.keys():
+			fields = self.codex_dic.dico[RAD].keys()
 		self.h13List.setRowCount(len(fields))
 		r = 0
 		for field in fields:
@@ -2579,7 +2603,7 @@ class codex_window(QtGui.QWidget):
 				if os.path.splitext(url)[1] in ['.txt','.TXT']:
 					item = QtGui.QListWidgetItem(url, self.h22liste)
 					item.setStatusTip(url)
-			#self.h12liste.sortItems()
+			self.h22liste.sortItems()
 		self.generate()
 
 	def eval_search_line(self):
@@ -2654,6 +2678,18 @@ class codex_window(QtGui.QWidget):
 		self.h23liste.setItem(r,1,item_value)
 		item_path.setToolTip("no match")
 		item_value.setToolTip("no match")
+
+
+class MyDelegate (QtGui.QStyledItemDelegate ):
+	
+	closedSignal = QtCore.Signal()
+
+	def __init__(self, parent=None): 
+		super(MyDelegate, self).__init__(parent)
+		self.closeEditor.connect(self.cSignal)
+
+	def cSignal(self):
+		self.closedSignal.emit()
 
 class ListViewDrop(QtGui.QListWidget):
 
