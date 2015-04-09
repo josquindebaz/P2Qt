@@ -10,6 +10,7 @@ from PySide import QtGui
 import interface_prospero
 import generator_mrlw
 import codex
+import parseCTX
 
 from fonctions import translate
 import re
@@ -79,8 +80,9 @@ class client(object):
 
 
 class Principal(QtGui.QMainWindow):
-	def __init__(self):
-		super(Principal, self).__init__()
+	def __init__(self,parent=None):
+		#super(Principal, self).__init__()
+		QtGui.QMainWindow.__init__(self, parent)
 		self.initUI()
 		
 		
@@ -928,8 +930,8 @@ class Principal(QtGui.QMainWindow):
                 self.setCentralWidget(main)
 
                 self.setWindowTitle(u'Prospéro interface')
-                self.show() 
-               	self.codex_window() 
+                #self.show() 
+               	#self.codex_window() 
 
 
 ################################################
@@ -2837,7 +2839,10 @@ class codex_window(QtGui.QWidget):
 		if hasattr(self,"CTX_to_be_saved"):
 			for path,v in self.CTX_to_be_saved.iteritems():
 				if  not (os.path.isfile(path) and not self.h23BR.checkState())   :
-					print "y", path
+					CTX = parseCTX.CTX()
+					CTX.path = path
+					CTX.dico = v	
+					CTX.savefile()
 
 
 
@@ -2897,6 +2902,7 @@ def main():
         app.installTranslator(translator)
 
         ex  = Principal()
+	ex.show()
         sys.exit(app.exec_())
 
 if __name__ == '__main__':
