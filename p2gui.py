@@ -2414,7 +2414,7 @@ class codex_window(QtGui.QWidget):
 
 		self.codex_dic = codex.edit_codex()
 		if self.codex_dic.cherche_codex():
-			self.codex_dic.parse_codex_cfg("codex.cfg")
+			self.codex_dic.parse_codex_xml("codex.xml")
 
 		L = QtGui.QVBoxLayout()
 		self.setLayout(L)
@@ -2434,18 +2434,30 @@ class codex_window(QtGui.QWidget):
 		h11.addWidget(self.search_result)
 		self.search_result.currentItemChanged.connect(self.eval_search_C)
 
-		self.reset_select_champ()
 		self.search_line.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Preferred)
 		self.search_result.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
 
 		h12 = QtGui.QVBoxLayout()
 		H1.addLayout(h12)
+
+
+		h12buttons = QtGui.QHBoxLayout()
+		h12.addLayout(h12buttons)
+		self.h12LabelNum = QtGui.QLabel()
+		h12buttons.addWidget(self.h12LabelNum)
+		h12buttonsSpacer = QtGui.QLabel()
+		h12buttons.addWidget(h12buttonsSpacer)
+                h12buttonsSpacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+		h12BS = QtGui.QPushButton("save codex")
+		h12BS.clicked.connect(self.codex_dic.save_codex)
+		h12buttons.addWidget(h12BS)
+
 		self.listRad = QtGui.QListWidget()
 		h12.addWidget(self.listRad)
 		self.listRad.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+		self.listRad.doubleClicked.connect(self.mod_listRadItem)
 		self.listRad.currentItemChanged.connect(self.changeRad)
 		self.listRad.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-		self.listRad.doubleClicked.connect(self.mod_listRadItem)
 		efface_listRadItem = QtGui.QAction('delete item',self)
 		self.listRad.addAction(efface_listRadItem)
 		QtCore.QObject.connect(efface_listRadItem, QtCore.SIGNAL("triggered()"), self.efface_listRadItem)
@@ -2456,11 +2468,8 @@ class codex_window(QtGui.QWidget):
 		self.listRad.itemDelegate().closedSignal.connect(self.mod_listRadItem_done)
 
 
-		
-		if len(self.codex_dic.dico):
-			self.listRad.addItems(self.codex_dic.dico.keys())
-			self.listRad.sortItems()
-			
+		self.initiate()
+
 
 		h13 = QtGui.QVBoxLayout()
 		H1.addLayout(h13)
@@ -2470,6 +2479,7 @@ class codex_window(QtGui.QWidget):
 		self.h13List.horizontalHeader().setStretchLastSection(True)	
 		self.h13List.verticalHeader().setVisible(False)
 		h13.addWidget(self.h13List)
+
 		self.h13List.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 		efface_listRadValueItem = QtGui.QAction('delete line',self)
 		self.h13List.addAction(efface_listRadValueItem)
@@ -2477,8 +2487,31 @@ class codex_window(QtGui.QWidget):
 		add_listRadValueItem = QtGui.QAction('add line',self)
 		self.h13List.addAction(add_listRadValueItem)
 		QtCore.QObject.connect(add_listRadValueItem, QtCore.SIGNAL("triggered()"), self.add_listRadValueItem)
+		copy_h13listLine = QtGui.QAction('copy line',self)
+		self.h13List.addAction(copy_h13listLine)
+		QtCore.QObject.connect(copy_h13listLine, QtCore.SIGNAL("triggered()"), self.copy_h13listLine)
+		paste_h13listLine = QtGui.QAction('paste line',self)
+		self.h13List.addAction(paste_h13listLine)
+		QtCore.QObject.connect(paste_h13listLine, QtCore.SIGNAL("triggered()"), self.paste_h13listLine)
+
 		self.h13List.cellChanged.connect(self.onChangeh13List)
 
+		h14 = QtGui.QVBoxLayout()
+		H1.addLayout(h14)
+		h14buttons = QtGui.QHBoxLayout()
+		h14.addLayout(h14buttons)
+		h14BM = QtGui.QPushButton("merge")
+		h14buttons.addWidget(h14BM)
+		h14BM.clicked.connect(self.merge_codex)
+		self.h14LabelNum = QtGui.QLabel()
+		h14buttons.addWidget(self.h14LabelNum)
+		h14buttonsSpacer = QtGui.QLabel()
+		h14buttons.addWidget(h14buttonsSpacer)
+                h14buttonsSpacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+
+		self.h14MergeList = QtGui.QListWidget()
+		h14.addWidget(self.h14MergeList)
+		
 
 		H2 = QtGui.QHBoxLayout()
 		L.addLayout(H2)
@@ -2490,13 +2523,17 @@ class codex_window(QtGui.QWidget):
 		self.h22liste.fileDropped.connect(self.FilesDropped)
 		h22.addWidget(self.h22liste)
 		self.h22liste.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+
 		self.h22liste.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-		efface_h22liste = QtGui.QAction('clear list',self)
-		self.h22liste.addAction(efface_h22liste)
-		QtCore.QObject.connect(efface_h22liste, QtCore.SIGNAL("triggered()"), self.efface_h22liste)
+		h22listeGen = QtGui.QAction('regenerate',self)
+		self.h22liste.addAction(h22listeGen)
+		QtCore.QObject.connect(h22listeGen, QtCore.SIGNAL("triggered()"), self.generate)
 		efface_h22listeItem = QtGui.QAction('delete item',self)
 		self.h22liste.addAction(efface_h22listeItem)
 		QtCore.QObject.connect(efface_h22listeItem, QtCore.SIGNAL("triggered()"), self.efface_h22listeItem)
+		efface_h22liste = QtGui.QAction('clear list',self)
+		self.h22liste.addAction(efface_h22liste)
+		QtCore.QObject.connect(efface_h22liste, QtCore.SIGNAL("triggered()"), self.efface_h22liste)
 		
 		h22Buttons = QtGui.QHBoxLayout()
 		h22.addLayout(h22Buttons)
@@ -2509,21 +2546,40 @@ class codex_window(QtGui.QWidget):
 		self.h23liste.verticalHeader().setVisible(False)
 		#TODO rendre la liste non editable
 		h23.addWidget(self.h23liste)
+
 		h23Buttons = QtGui.QHBoxLayout()
 		h23.addLayout(h23Buttons)
-		#h23Label = QtGui.QLabel("Matching results")
-		#h23Buttons.addWidget(h23Label)
+                h23spacer = QtGui.QLabel()
+                h23spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+                h23Buttons.addWidget(h23spacer)
+
 		self.h23BT = QtGui.QCheckBox("get titles")
 		h23Buttons.addWidget(self.h23BT)
-		self.h23BT.setChecked(True)
+		#self.h23BT.setChecked(True)
 		self.h23BT.stateChanged.connect( self.generate )
-		h23BR = QtGui.QCheckBox("replace")
-		h23Buttons.addWidget(h23BR)
+		self.h23BR = QtGui.QCheckBox("replace")
+		h23Buttons.addWidget(self.h23BR)
+		self.h23Label = QtGui.QLabel()
+		h23Buttons.addWidget(self.h23Label)
 		h23BS = QtGui.QPushButton("save CTX")
 		h23Buttons.addWidget(h23BS)
+		h23BS.clicked.connect(self.saveCTX)
+
 		
 		H2.addLayout(h23)
 	
+	def initiate(self):
+		self.listRad.currentItemChanged.disconnect(self.changeRad)
+		self.listRad.doubleClicked.disconnect(self.mod_listRadItem)
+		if len(self.codex_dic.dico):
+			self.listRad.clear()	
+			self.listRad.addItems(self.codex_dic.dico.keys())
+			self.listRad.sortItems()
+			self.h12LabelNum.setText("%d entries"%len(self.codex_dic.dico))
+		self.reset_select_champ()
+		self.listRad.doubleClicked.connect(self.mod_listRadItem)
+		self.listRad.currentItemChanged.connect(self.changeRad)
+
 	def reset_select_champ(self):
 		self.select_champ.clear()
                 self.select_champ.addItem(u"")
@@ -2576,13 +2632,40 @@ class codex_window(QtGui.QWidget):
 	def add_listRadValueItem(self):
 		self.h13List.insertRow(0)
 
+	
+	def copy_h13listLine(self):
+		r = self.h13List.currentRow()
+		if  self.h13List.currentItem():
+			self.copy_h13listLineContent = [self.h13List.item(r,0).text(),self.h13List.item(r,1).text()]
+
+	def paste_h13listLine(self):
+		if hasattr(self,"copy_h13listLineContent"):
+			self.h13List.cellChanged.disconnect(self.onChangeh13List)
+			field,value = self.copy_h13listLineContent
+			k = self.listRad.currentItem().text()
+			row = -1
+			for r in range(self.h13List.rowCount()):
+				if (self.h13List.item(r,0)):
+					if field == self.h13List.item(r,0).text() :
+						row = r
+			if (row > -1):
+				self.h13List.item(row,1).setText(value)
+			else :
+				self.h13List.insertRow(r+1)
+				self.h13List.setItem(r+1,0, QtGui.QTableWidgetItem(field))
+				self.h13List.setItem(r+1,1, QtGui.QTableWidgetItem(value))
+			self.codex_dic.dico[k][field] = value
+			self.h13List.cellChanged.connect(self.onChangeh13List)
+			
+
 	def efface_h22liste(self):
 		self.h22liste.clear()
 		self.generate()
 
 	def efface_h22listeItem(self):
-		self.h22liste.takeItem(self.h22liste.currentRow())
-		self.generate()
+		if self.h22liste.selectedItems():
+			self.h22liste.takeItem(self.h22liste.currentRow())
+			#self.generate()
 
 	def changeRad(self):
 		self.h13List.clear()	
@@ -2625,6 +2708,7 @@ class codex_window(QtGui.QWidget):
 				oldfield =   self.oldfield(k)
 				if (oldfield):
 					self.h13List.item(r,0).setText (oldfield)
+			self.h13List.resizeColumnToContents (0)
 				
 	def oldfield(self,k):			
 		listefield = []
@@ -2667,6 +2751,7 @@ class codex_window(QtGui.QWidget):
 			self.listRad.setCurrentItem(item[0])
 
 	def generate(self):
+		self.CTX_to_be_saved = {}
 		self.h23liste.clear()
 		self.h23liste.setRowCount(0)
 		self.h23liste.setColumnCount(2)
@@ -2675,22 +2760,34 @@ class codex_window(QtGui.QWidget):
 		else :
 			self.h23liste.setHorizontalHeaderLabels([u'path',u'key and date'])
 		self.h23liste.horizontalHeader().setStretchLastSection(True)	
+		m = 0
+		f = 0
 		for r in range(self.h22liste.count()):
 			path = self.h22liste.item(r).text()
 			test = self.codex_dic.eval_file( path  )
 			if (test):
 				self.match_add(path,test)
+				m += 1
 			else :
 				self.failed_add(path)
+				f += 1
 		self.h23liste.resizeColumnToContents (0)
+		self.h23Label.setText("%d matches, %d fails" % (m,f))
+		self.h23liste.sortItems(1)
 	
 	def match_add(self,path,result):
 		r = self.h23liste.rowCount()
 		self.h23liste.insertRow(r)
 		item_path = QtGui.QTableWidgetItem(path)		
 		self.h23liste.setItem(r,0,item_path)
+
+		CTXpath = path[:-3] + "ctx"
+		self.CTX_to_be_saved[CTXpath] = self.codex_dic.dico[result[0]]
+
 		if self.h23BT.checkState():
-			item_value_txt = u" ".join(result) + u" %s"% self.get_title(path)
+			title = self.get_title(path)
+			item_value_txt = u" ".join(result) + u" %s"% title
+			self.CTX_to_be_saved[CTXpath][u"title"] = title
 		else :
 			item_value_txt = u" ".join(result) 
 		item_value = QtGui.QTableWidgetItem(item_value_txt)
@@ -2708,8 +2805,6 @@ class codex_window(QtGui.QWidget):
 			return title.decode('latin-1')
 		except :
 			return title.decode('utf-8')
-			
-
 
 	def failed_add(self,path):
 		r = self.h23liste.rowCount()
@@ -2717,11 +2812,33 @@ class codex_window(QtGui.QWidget):
 		item_path = QtGui.QTableWidgetItem(path)		
 		item_path.setForeground(QtGui.QColor("red" ))
 		self.h23liste.setItem(r,0,item_path)
-		item_value = QtGui.QTableWidgetItem("no match")
+		item_value = QtGui.QTableWidgetItem(u"\u00A0 no match")
 		item_value.setForeground(QtGui.QColor("red" ))
 		self.h23liste.setItem(r,1,item_value)
 		item_path.setToolTip("no match")
 		item_value.setToolTip("no match")
+
+	def merge_codex(self):
+		fname, filt = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '.', '*.cfg;*.publi')
+		if ( fname) :
+			m_codex = codex.edit_codex()
+			if os.path.splitext(fname)[1]  == ".publi":
+				m_codex.parse_supports_publi(fname)
+			elif os.path.splitext(fname)[1]  == ".cfg": 
+				m_codex.parse_codex_cfg(fname)
+			self.codex_dic.dico, fails = m_codex.fusionne(self.codex_dic.dico,m_codex.dico)
+			self.initiate()	
+			self.h14MergeList.clear()
+			for k, v in fails.iteritems():
+				self.h14MergeList.addItem("%s : %s"%(k,str(v)))
+			self.h14LabelNum.setText("%d fails" % len(fails))
+
+	def saveCTX(self):
+		if hasattr(self,"CTX_to_be_saved"):
+			for path,v in self.CTX_to_be_saved.iteritems():
+				if  not (os.path.isfile(path) and not self.h23BR.checkState())   :
+					print "y", path
+
 
 
 class MyDelegate (QtGui.QStyledItemDelegate ):
