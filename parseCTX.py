@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from xml.dom import minidom
-import os, datetime
+import os, datetime,re
 
 class CTX(object):
     def __init__(self):
@@ -39,6 +39,8 @@ class CTX(object):
                 x.setAttribute(u"champ",k)
                 if (k == "date"):
                     x.setAttribute(u"type","DATETIME")
+		    if re.search("^\d{2}\/\d{2}\/\d{4}$",v):
+			v += " 00:00:00"
                 else:
                     x.setAttribute(u"type","CHAR")
                 x.setAttribute(u"value",v)

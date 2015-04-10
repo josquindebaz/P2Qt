@@ -166,8 +166,9 @@ class Principal(QtGui.QMainWindow):
 				txt = self.listeObjetsTextes[sem_texte]
 				data = liste_data_ok_ctx[indice]
 				# sématique avec les noms des champs anglais
-				self.client.add_cache_var( txt.sem + ".ctx.%s"%champ, data)
-				txt.setCTX(champ,data)
+				if data != "":
+					self.client.add_cache_var( txt.sem + ".ctx.%s"%champ, data)
+					txt.setCTX(champ,data)
 
 				#self.PrgBar.setValue(  indice   * 50 / len(self.listeTextes))
 				#QtGui.QApplication.processEvents()
@@ -311,7 +312,8 @@ class Principal(QtGui.QMainWindow):
 	#Vbox des actants du texte
 		saillantesVAct = QtGui.QVBoxLayout()
 		saillantesActTitle = QtGui.QLabel()
-		saillantesActTitle.setText("Actants")
+		#saillantesActTitle.setText("Actants")
+		saillantesActTitle.setText("Entities")
 		saillantesVAct.addWidget(saillantesActTitle)
 		self.saillantesAct = QtGui.QListWidget()
 		saillantesVAct.addWidget(self.saillantesAct)
@@ -2551,6 +2553,8 @@ class codex_window(QtGui.QWidget):
 
 		h23Buttons = QtGui.QHBoxLayout()
 		h23.addLayout(h23Buttons)
+		self.h23Label = QtGui.QLabel()
+		h23Buttons.addWidget(self.h23Label)
                 h23spacer = QtGui.QLabel()
                 h23spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
                 h23Buttons.addWidget(h23spacer)
@@ -2561,8 +2565,6 @@ class codex_window(QtGui.QWidget):
 		self.h23BT.stateChanged.connect( self.generate )
 		self.h23BR = QtGui.QCheckBox("replace")
 		h23Buttons.addWidget(self.h23BR)
-		self.h23Label = QtGui.QLabel()
-		h23Buttons.addWidget(self.h23Label)
 		h23BS = QtGui.QPushButton("save CTX")
 		h23Buttons.addWidget(h23BS)
 		h23BS.clicked.connect(self.saveCTX)
@@ -2785,6 +2787,7 @@ class codex_window(QtGui.QWidget):
 
 		CTXpath = path[:-3] + "ctx"
 		self.CTX_to_be_saved[CTXpath] = self.codex_dic.dico[result[0]]
+		self.CTX_to_be_saved[CTXpath]["date"] = result[1] + " 00:00:00"
 
 		if self.h23BT.checkState():
 			title = self.get_title(path)
