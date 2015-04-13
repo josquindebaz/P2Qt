@@ -40,10 +40,9 @@ class edit_codex(object):
                 for item in items:
                         if not re.search("^\s*$",item):
                                 dic = {}
-                                #for i in  re.split('\r\n',item):
                                 for i in  re.split('\n',item):
                                         if i != '':
-                                                k,v = re.split(":",i)
+                                                k,v = re.split(":",i,1)
                                                 v = re.sub("^\s*(.*)\s*$","\\1",v)
                                                 if (v != ""):
                                                         if k in tr.keys():

@@ -2603,7 +2603,10 @@ class codex_window(QtGui.QWidget):
 		
 
 	def efface_listRadItem(self):
-		self.listRad.takeItem(self.listRad.currentRow())
+		item = self.listRad.currentItem().text()
+		del(self.codex_dic.dico[item])
+		row = self.listRad.currentRow()
+		self.listRad.takeItem(row)
 
 	def add_listRadItem(self):
 		item = QtGui.QListWidgetItem("")
@@ -2630,7 +2633,8 @@ class codex_window(QtGui.QWidget):
 				item.setText(old)
 			else : 
 				if (old == ""):
-					self.codex_dic.dico[new] =  {} 
+					self.codex_dic.dico[new] =  { u"author" : "", u"medium"  : "", u"media-type" : "" , u"authorship" : "", u"localisation" : "", u"observations" : "" } 
+					self.changeRad()
 				else :
 					self.codex_dic.dico[new] =  self.codex_dic.dico[old]
 					del( self.codex_dic.dico[old])
@@ -2640,11 +2644,14 @@ class codex_window(QtGui.QWidget):
 
 	def efface_listRadValueItem(self):
 		if self.h13List.selectedItems() :
-			self.h13List.removeRow(self.h13List.currentRow())
+			row = self.h13List.currentRow()
+			k = self.listRad.currentItem().text()
+			f = self.h13List.item(row,0).text()
+			del(self.codex_dic.dico[k][f])
+			self.h13List.removeRow(row)
 
 	def add_listRadValueItem(self):
 		self.h13List.insertRow(0)
-
 	
 	def copy_h13listLine(self):
 		r = self.h13List.currentRow()
@@ -2795,7 +2802,7 @@ class codex_window(QtGui.QWidget):
 		self.h23liste.setItem(r,0,item_path)
 
 		CTXpath = path[:-3] + "ctx"
-		self.CTX_to_be_saved[CTXpath] = self.codex_dic.dico[result[0]]
+		self.CTX_to_be_saved[CTXpath] = self.codex_dic.dico[result[0]].copy()
 		self.CTX_to_be_saved[CTXpath]["date"] = result[1] + " 00:00:00"
 
 		if self.h23BT.checkState():
