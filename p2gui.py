@@ -2422,9 +2422,70 @@ class codex_window(QtGui.QWidget):
 
 		L = QtGui.QVBoxLayout()
 		self.setLayout(L)
+
+		H2 = QtGui.QHBoxLayout()
+		L.addLayout(H2)
+		h22 = QtGui.QVBoxLayout()
+		H2.addLayout(h22)
+
+		
+		h22Buttons = QtGui.QHBoxLayout()
+		h22.addLayout(h22Buttons)
+		h22Label = QtGui.QLabel("Text file list: drag and drop")
+		h22Buttons.addWidget(h22Label)
+
+		self.h22liste = ListViewDrop(self)
+		self.h22liste.fileDropped.connect(self.FilesDropped)
+		h22.addWidget(self.h22liste)
+		self.h22liste.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+
+		self.h22liste.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+		h22listeGen = QtGui.QAction('regenerate',self)
+		self.h22liste.addAction(h22listeGen)
+		QtCore.QObject.connect(h22listeGen, QtCore.SIGNAL("triggered()"), self.generate)
+		efface_h22listeItem = QtGui.QAction('delete item',self)
+		self.h22liste.addAction(efface_h22listeItem)
+		QtCore.QObject.connect(efface_h22listeItem, QtCore.SIGNAL("triggered()"), self.efface_h22listeItem)
+		efface_h22liste = QtGui.QAction('clear list',self)
+		self.h22liste.addAction(efface_h22liste)
+		QtCore.QObject.connect(efface_h22liste, QtCore.SIGNAL("triggered()"), self.efface_h22liste)
+
+
+		h23 = QtGui.QVBoxLayout()
+
+
+
+		h23Buttons = QtGui.QHBoxLayout()
+		h23.addLayout(h23Buttons)
+		self.h23Label = QtGui.QLabel()
+		h23Buttons.addWidget(self.h23Label)
+                h23spacer = QtGui.QLabel()
+                h23spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+                h23Buttons.addWidget(h23spacer)
+
+		self.h23BT = QtGui.QCheckBox("get titles")
+		h23Buttons.addWidget(self.h23BT)
+		#self.h23BT.setChecked(True)
+		self.h23BT.stateChanged.connect( self.generate )
+		self.h23BR = QtGui.QCheckBox("replace")
+		h23Buttons.addWidget(self.h23BR)
+		h23BS = QtGui.QPushButton("save CTX")
+		h23Buttons.addWidget(h23BS)
+		h23BS.clicked.connect(self.saveCTX)
+
+
+		self.h23liste = QtGui.QTableWidget()
+		self.h23liste.verticalHeader().setVisible(False)
+		#TODO rendre la liste non editable
+		h23.addWidget(self.h23liste)
+
+		
+		H2.addLayout(h23)
+
+
+
 		H1 = QtGui.QHBoxLayout()
 
-		L.addLayout(H1)
 		h11 = QtGui.QVBoxLayout()
 		H1.addLayout(h11)
 		
@@ -2517,60 +2578,8 @@ class codex_window(QtGui.QWidget):
 		h14.addWidget(self.h14MergeList)
 		
 
-		H2 = QtGui.QHBoxLayout()
-		L.addLayout(H2)
-		h22 = QtGui.QVBoxLayout()
-		H2.addLayout(h22)
+		L.addLayout(H1)
 
-
-		self.h22liste = ListViewDrop(self)
-		self.h22liste.fileDropped.connect(self.FilesDropped)
-		h22.addWidget(self.h22liste)
-		self.h22liste.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-
-		self.h22liste.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-		h22listeGen = QtGui.QAction('regenerate',self)
-		self.h22liste.addAction(h22listeGen)
-		QtCore.QObject.connect(h22listeGen, QtCore.SIGNAL("triggered()"), self.generate)
-		efface_h22listeItem = QtGui.QAction('delete item',self)
-		self.h22liste.addAction(efface_h22listeItem)
-		QtCore.QObject.connect(efface_h22listeItem, QtCore.SIGNAL("triggered()"), self.efface_h22listeItem)
-		efface_h22liste = QtGui.QAction('clear list',self)
-		self.h22liste.addAction(efface_h22liste)
-		QtCore.QObject.connect(efface_h22liste, QtCore.SIGNAL("triggered()"), self.efface_h22liste)
-		
-		h22Buttons = QtGui.QHBoxLayout()
-		h22.addLayout(h22Buttons)
-		h22Label = QtGui.QLabel("Text file list: drag and drop")
-		h22Buttons.addWidget(h22Label)
-
-
-		h23 = QtGui.QVBoxLayout()
-		self.h23liste = QtGui.QTableWidget()
-		self.h23liste.verticalHeader().setVisible(False)
-		#TODO rendre la liste non editable
-		h23.addWidget(self.h23liste)
-
-		h23Buttons = QtGui.QHBoxLayout()
-		h23.addLayout(h23Buttons)
-		self.h23Label = QtGui.QLabel()
-		h23Buttons.addWidget(self.h23Label)
-                h23spacer = QtGui.QLabel()
-                h23spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-                h23Buttons.addWidget(h23spacer)
-
-		self.h23BT = QtGui.QCheckBox("get titles")
-		h23Buttons.addWidget(self.h23BT)
-		#self.h23BT.setChecked(True)
-		self.h23BT.stateChanged.connect( self.generate )
-		self.h23BR = QtGui.QCheckBox("replace")
-		h23Buttons.addWidget(self.h23BR)
-		h23BS = QtGui.QPushButton("save CTX")
-		h23Buttons.addWidget(h23BS)
-		h23BS.clicked.connect(self.saveCTX)
-
-		
-		H2.addLayout(h23)
 	
 	def initiate(self):
 		self.listRad.currentItemChanged.disconnect(self.changeRad)
