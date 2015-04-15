@@ -11,6 +11,7 @@ import interface_prospero
 import generator_mrlw
 import codex
 import parseCTX
+import parseCorpus
 
 from fonctions import translate
 import re
@@ -222,7 +223,7 @@ class Principal(QtGui.QMainWindow):
                 Menu_local.triggered.connect(self.connect_server_localhost)
                 Menu_Corpus.addAction(Menu_local)
 		Menu_codex = QtGui.QAction("&codex",self)
-		Menu_codex.setStatusTip("Use and edit source repositories")
+		Menu_codex.setStatusTip("Use and edit source repositories for ctx generation")
                 Menu_codex.triggered.connect(self.codex_window)
 		Menu_Corpus.addAction(Menu_codex)
 		
@@ -933,6 +934,7 @@ class Principal(QtGui.QMainWindow):
 
                 self.setWindowTitle(u'Prospéro interface')
                 #self.show() 
+               	self.corpus_window() 
                	#self.codex_window() 
 
 
@@ -1760,6 +1762,10 @@ class Principal(QtGui.QMainWindow):
 		self.Param_Server_B.setText('Connect to server')
 		self.Param_Server_B.clicked.connect(self.connect_server)
 
+	def corpus_window(self):
+		self.corpus_w = corpus_window()
+		self.corpus_w.show()
+
 	def codex_window(self):
 		self.codex_w = codex_window()
 		self.codex_w.show()
@@ -2412,6 +2418,190 @@ class Liste_texte(object):
 		self.show_texts_anticorpus.setAlternatingRowColors(True)
 		HBox_texts.addWidget(self.show_texts_anticorpus)
 
+class corpus_window(QtGui.QWidget):
+	def __init__(self, parent=None):
+		super(corpus_window, self).__init__(parent)
+
+		L = QtGui.QVBoxLayout()
+		self.setLayout(L)
+
+		H1 = QtGui.QHBoxLayout()
+		L.addLayout(H1)
+		self.nameCorpus = QtGui.QLineEdit()
+		H1.addWidget(self.nameCorpus)
+		openPRC = QtGui.QPushButton("Open")
+		openPRC.setToolTip("Open a .prc file")
+		openPRC.clicked.connect(self.openPRC)
+		H1.addWidget(openPRC)
+		mergePRC_button= QtGui.QPushButton("Merge")
+		mergePRC_button.setToolTip("Merge text list with a .prc file")
+		H1.addWidget(mergePRC_button)
+		mergePRC_button.clicked.connect(self.mergePRC)
+		self.savePRC_button= QtGui.QPushButton("Save")
+		H1.addWidget(self.savePRC_button)
+		self.savePRC_button.setEnabled(False)
+		self.launchPRC_button= QtGui.QPushButton("Launch")
+		H1.addWidget(self.launchPRC_button)
+		self.launchPRC_button.setEnabled(False)
+
+		H2 = QtGui.QHBoxLayout()
+		L.addLayout(H2)
+		H2LV1 = QtGui.QVBoxLayout()
+		H2.addLayout(H2LV1)
+
+		self.numTexts = QtGui.QLabel()
+		H2LV1.addWidget(self.numTexts)
+		self.ViewListeTextes = ListViewDrop(self)
+		self.ViewListeTextes.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
+		self.ViewListeTextes.fileDropped.connect(self.TxtFilesDropped)
+		H2LV1.addWidget(self.ViewListeTextes)
+
+
+		self.ViewListeTextes.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+		efface_ViewListeTextesItem = QtGui.QAction('delete item',self)
+		self.ViewListeTextes.addAction(efface_ViewListeTextesItem)
+		QtCore.QObject.connect(efface_ViewListeTextesItem, QtCore.SIGNAL("triggered()"), self.efface_ViewListeTextesItem)
+		efface_ViewListeTextes = QtGui.QAction('clear list',self)
+		self.ViewListeTextes.addAction(efface_ViewListeTextes)
+		QtCore.QObject.connect(efface_ViewListeTextes, QtCore.SIGNAL("triggered()"), self.efface_ViewListeTextes)
+
+		H22Tab = QtGui.QTabWidget()
+		H2.addWidget(H22Tab)
+		H22TabDic = QtGui.QWidget()
+		H22Tab.addTab(H22TabDic,"Dictionaries")
+		H2L = QtGui.QVBoxLayout()
+		H22TabDic.setLayout(H2L)
+
+		self.ViewListeConcepts = ListViewDrop(self)
+		H2L.addWidget(self.ViewListeConcepts)
+		self.ViewListeConcepts.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
+		self.ViewListeConcepts.fileDropped.connect(self.ccfFilesDropped)
+		self.ViewListeConcepts.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+		efface_ViewListeConceptsItem = QtGui.QAction('delete item',self)
+		self.ViewListeConcepts.addAction(efface_ViewListeConceptsItem)
+		QtCore.QObject.connect(efface_ViewListeConceptsItem, QtCore.SIGNAL("triggered()"), self.efface_ViewListeConceptsItem)
+		efface_ViewListeConcepts = QtGui.QAction('clear list',self)
+		self.ViewListeConcepts.addAction(efface_ViewListeConcepts)
+		QtCore.QObject.connect(efface_ViewListeConcepts, QtCore.SIGNAL("triggered()"), self.efface_ViewListeConcepts)
+
+		self.ViewListeLexicons = ListViewDrop(self)
+		H2L.addWidget(self.ViewListeLexicons)
+		self.ViewListeLexicons.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
+		self.ViewListeLexicons.fileDropped.connect(self.dicFilesDropped)
+		self.ViewListeLexicons.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+		efface_ViewListeLexiconsItem = QtGui.QAction('delete item',self)
+		self.ViewListeLexicons.addAction(efface_ViewListeLexiconsItem)
+		QtCore.QObject.connect(efface_ViewListeLexiconsItem, QtCore.SIGNAL("triggered()"), self.efface_ViewListeLexiconsItem)
+		efface_ViewListeLexicons = QtGui.QAction('clear list',self)
+		self.ViewListeLexicons.addAction(efface_ViewListeLexicons)
+		QtCore.QObject.connect(efface_ViewListeLexicons, QtCore.SIGNAL("triggered()"), self.efface_ViewListeLexicons)
+
+		H22TabPar = QtGui.QWidget()
+		H22Tab.addTab(H22TabPar,"Parameters")
+
+
+
+
+	def TxtFilesDropped(self, l):
+		existing = [] 
+		for r in range( self.ViewListeTextes.count()):
+			existing.append( self.ViewListeTextes.item(r).text())
+                for url in list(set(l) - set(existing)):
+                        if os.path.exists(url):
+				if os.path.splitext(url)[1] in ['.txt','.TXT']:
+					item = QtGui.QListWidgetItem(url, self.ViewListeTextes)
+					item.setStatusTip(url)
+		self.numTexts.setText(u"%d texts"%self.ViewListeTextes.count())
+
+	def efface_ViewListeTextes(self):
+		self.ViewListeTextes.clear()
+		self.numTexts.setText(u"%d texts"%self.ViewListeTextes.count())
+
+	def efface_ViewListeTextesItem(self):
+		Items = self.ViewListeTextes.selectedItems()
+		if (Items):
+			for item in Items:
+				self.ViewListeTextes.takeItem(self.ViewListeTextes.row(item))
+	
+	def efface_ViewListeConcepts(self):
+		self.ViewListeConcepts.clear()
+
+	def efface_ViewListeConceptsItem(self):
+		Items = self.ViewListeConcepts.selectedItems()
+		if (Items):
+			for item in Items:
+				self.ViewListeConcepts.takeItem(self.ViewListeConcepts.row(item))
+				
+
+	def ccfFilesDropped(self, l):
+		existing = [] 
+		for r in range( self.ViewListeConcepts.count()):
+			existing.append( self.ViewListeConcepts.item(r).text())
+                for url in list(set(l) - set(existing)):
+                        if os.path.exists(url):
+				if os.path.splitext(url)[1] in ['.cat','.fic','.col']:
+					item = QtGui.QListWidgetItem(url, self.ViewListeConcepts)
+					item.setStatusTip(url)
+		self.ViewListeConcepts.sortItems()
+	
+	def efface_ViewListeLexicons(self):
+		self.ViewListeLexicons.clear()
+
+	def efface_ViewListeLexiconsItem(self):
+		Items = self.ViewListeLexicons.selectedItems()
+		if (Items):
+			for item in Items:
+				self.ViewListeLexicons.takeItem(self.ViewListeLexicons.row(item))
+
+
+
+	def dicFilesDropped(self, l):
+		existing = [] 
+		for r in range( self.ViewListeLexicons.count()):
+			existing.append( self.ViewListeLexicons.item(r).text())
+                for url in list(set(l) - set(existing)):
+                        if os.path.exists(url):
+				if os.path.splitext(url)[1] in ['.dic']:
+					item = QtGui.QListWidgetItem(url, self.ViewListeLexicons)
+					item.setStatusTip(url)
+		self.ViewListeLexicons.sortItems()
+
+		
+	def getFile(self):
+		fname, filt = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '.', '*.prc;*.PRC')
+		return fname
+	
+	def openPRC(self):
+		fname = self.getFile()
+		if ( fname) :
+			corpus = parseCorpus.parse()
+			corpus.open(fname)
+
+			self.nameCorpus.clear()
+			self.nameCorpus.setText( fname )
+
+			self.ViewListeTextes.clear()
+			self.ViewListeTextes.addItems(corpus.textFileList())
+			self.numTexts.setText(u"%d texts"%self.ViewListeTextes.count())
+			self.ViewListeTextes.sortItems()
+
+			self.ViewListeConcepts.clear()
+			self.ViewListeConcepts.addItems(corpus.conceptFileList())
+			self.ViewListeConcepts.sortItems()
+
+			self.ViewListeLexicons.clear()
+			self.ViewListeLexicons.addItems(corpus.dicFileList())
+			self.ViewListeLexicons.sortItems()
+
+	def mergePRC(self):
+		fname = self.getFile()
+		if ( fname) :
+			corpus = parseCorpus.parse()
+			corpus.open(fname)
+			self.ViewListeTextes.addItems(corpus.textFileList())
+			self.ViewListeTextes.sortItems()
+
+
 class codex_window(QtGui.QWidget):
 	def __init__(self, parent=None):
 		super(codex_window, self).__init__(parent)
@@ -2428,7 +2618,6 @@ class codex_window(QtGui.QWidget):
 		h22 = QtGui.QVBoxLayout()
 		H2.addLayout(h22)
 
-		
 		h22Buttons = QtGui.QHBoxLayout()
 		h22.addLayout(h22Buttons)
 		h22Label = QtGui.QLabel("Text file list: drag and drop")
@@ -2923,7 +3112,7 @@ def main():
         app.installTranslator(translator)
 
         ex  = Principal()
-	ex.show()
+	#ex.show()
         sys.exit(app.exec_())
 
 if __name__ == '__main__':

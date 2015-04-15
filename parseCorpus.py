@@ -18,6 +18,17 @@ class parse(object):
 			textFileNames.append( F.getAttribute("nom")  )
 		return textFileNames
 
+	def conceptFileList(self):
+		FileNames = []
+                for F in self.corpus.getElementsByTagName('objet-gestionnaire'):
+			FileNames.append( F.getAttribute("adresse")  )
+		return FileNames
+
+	def dicFileList(self):
+		FileNames = []
+                for F in self.corpus.getElementsByTagName('ressource'):
+			FileNames.append( F.getAttribute("adresse")  )
+		return FileNames
 
 
 if __name__ == '__main__':
