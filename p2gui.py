@@ -2840,13 +2840,15 @@ class codex_window(QtGui.QWidget):
 		item_value.setToolTip("no match")
 
 	def merge_codex(self):
-		fname, filt = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '.', '*.cfg;*.publi')
+		fname, filt = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '.', '*.cfg;*.publi;*.xml')
 		if ( fname) :
 			m_codex = codex.edit_codex()
 			if os.path.splitext(fname)[1]  == ".publi":
 				m_codex.parse_supports_publi(fname)
 			elif os.path.splitext(fname)[1]  == ".cfg": 
 				m_codex.parse_codex_cfg(fname)
+			elif os.path.splitext(fname)[1]  == ".xml": 
+				m_codex.parse_codex_xml(fname)
 			self.codex_dic.dico, fails = m_codex.fusionne(self.codex_dic.dico,m_codex.dico)
 			self.initiate()	
 			self.h14MergeList.clear()
