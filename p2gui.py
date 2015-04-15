@@ -213,11 +213,11 @@ class Principal(QtGui.QMainWindow):
 
                 Menu_Corpus = Menubar.addMenu('&Corpus')
                 #Menu_Corpus.setShortcut('Ctrl+C')
-                Menu_distant = QtGui.QAction(QtGui.QIcon('distant.png'), '&prosperologie.org', self)        
+                Menu_distant = QtGui.QAction(QtGui.QIcon('images/distant.png'), '&prosperologie.org', self)        
                 Menu_distant.setStatusTip('Connect to prosperologie.org server')
                 Menu_distant.triggered.connect(self.connect_server)
                 Menu_Corpus.addAction(Menu_distant)
-                Menu_local = QtGui.QAction(QtGui.QIcon('home.png'), '&local', self)        
+                Menu_local = QtGui.QAction(QtGui.QIcon('images/home.png'), '&local', self)        
                 Menu_local.setStatusTip('Launch a local server')
                 Menu_local.triggered.connect(self.connect_server_localhost)
                 Menu_Corpus.addAction(Menu_local)
@@ -266,7 +266,7 @@ class Principal(QtGui.QMainWindow):
 
                 
 
-                #Saction = QtGui.QAction(QtGui.QIcon('Prospero-II.png'), 'Server', self)
+                #Saction = QtGui.QAction(QtGui.QIcon('images/Prospero-II.png'), 'Server', self)
                 #toolbar.addAction(Saction)
 
                 list1 = QtGui.QComboBox()
@@ -487,7 +487,7 @@ class Principal(QtGui.QMainWindow):
 
 
                 #Param_Server_I = QtGui.QLabel()
-                #Param_Server_I.setPixmap(QtGui.QPixmap('Prospero-II.png'))
+                #Param_Server_I.setPixmap(QtGui.QPixmap('images/Prospero-II.png'))
                 #Param_Server_V.addWidget(Param_Server_I)
 
 #configurer les parametres de connexion au serveur distant
@@ -707,7 +707,7 @@ class Principal(QtGui.QMainWindow):
 
 
 		self.NOT1Commands2 = QtGui.QPushButton()
-		self.NOT1Commands2.setIcon(QtGui.QIcon("gear.png"))
+		self.NOT1Commands2.setIcon(QtGui.QIcon("images/gear.png"))
 		self.NOT1Commands2.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
 		NOT1Commands2Menu = QtGui.QMenu(self)
 		NOT1Commands2Menu.addAction('network' , self.show_network)
@@ -776,7 +776,7 @@ class Principal(QtGui.QMainWindow):
                 self.NOT2Commands1.setMenu(self.NOT2Commands1Menu)
                 NOT2VHC.addWidget(self.NOT2Commands1)
                 self.NOT2Commands2 = QtGui.QPushButton()
-                self.NOT2Commands2.setIcon(QtGui.QIcon("gear.png"))
+                self.NOT2Commands2.setIcon(QtGui.QIcon("images/gear.png"))
                 self.NOT2Commands2.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
                 NOT2Commands2Menu = QtGui.QMenu(self)
                 NOT2Commands2Menu.addAction('network' , self.show_network)
@@ -847,7 +847,7 @@ class Principal(QtGui.QMainWindow):
 
 
                 self.Explo_commands = QtGui.QPushButton()
-                self.Explo_commands.setIcon(QtGui.QIcon("gear.png"))
+                self.Explo_commands.setIcon(QtGui.QIcon("images/gear.png"))
                 self.Explo_commands.setEnabled(False) 
                 NOT3VH.addWidget(self.Explo_commands)
                 Explo_commands_texts= QtGui.QMenu(self)
@@ -861,7 +861,7 @@ class Principal(QtGui.QMainWindow):
                 self.Explo_liste.currentItemChanged.connect(self.explo_item_selected)
                 NOT3VH2.addWidget(self.Explo_liste)
                 self.Explo_concepts = QtGui.QLabel()
-                tempImage = QtGui.QPixmap("Prospero-II.png")
+                tempImage = QtGui.QPixmap("images/Prospero-II.png")
                 self.Explo_concepts.setPixmap(tempImage)
                 NOT3VH2.addWidget(self.Explo_concepts)
 
@@ -890,7 +890,7 @@ class Principal(QtGui.QMainWindow):
                 NOT5VHC.addWidget(spacer_CTX_1)
         
                 self.NOT5Commands1 = QtGui.QPushButton()
-                self.NOT5Commands1.setIcon(QtGui.QIcon("gear.png"))
+                self.NOT5Commands1.setIcon(QtGui.QIcon("images/gear.png"))
                 self.NOT5Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
                 NOT5VHC.addWidget(self.NOT5Commands1)
 
@@ -1217,7 +1217,7 @@ class Principal(QtGui.QMainWindow):
 		"""tick and disable the choosen order selected, untick and enable others"""
 		for act in self.NOT1Commands1Menu.actions():
 			if (act.text() == self.which):
-				act.setIcon(QtGui.QIcon("Tick.gif"))
+				act.setIcon(QtGui.QIcon("images/Tick.gif"))
 				act.setEnabled(False)
 			else:
 				act.setEnabled(True)
@@ -1230,7 +1230,7 @@ class Principal(QtGui.QMainWindow):
 		"""tick and disable the choosen order selected, untick and enable others"""
 		for act in self.NOT2Commands1Menu.actions():
 			if (act.text() == self.which_concepts):
-				act.setIcon(QtGui.QIcon("Tick.gif"))
+				act.setIcon(QtGui.QIcon("images/Tick.gif"))
 				act.setEnabled(False)
 			else :
 				act.setEnabled(True)
