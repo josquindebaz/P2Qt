@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 
-
 import sys
 import PySide
 from PySide import QtCore 
@@ -10,12 +9,15 @@ from PySide import QtGui
 
 import interface_prospero
 import generator_mrlw
+import codex
+import parseCTX
 
 from fonctions import translate
 import re
 import datetime
 import subprocess, threading
 from PySide.QtGui import QMdiArea
+import os
 
 
 
@@ -78,9 +80,10 @@ class client(object):
 
 
 class Principal(QtGui.QMainWindow):
-	def __init__(self):
-		super(Principal, self).__init__()
-		self.UI = self.initUI()
+	def __init__(self,parent=None):
+		#super(Principal, self).__init__()
+		QtGui.QMainWindow.__init__(self, parent)
+		self.initUI()
 		
 		
 	def pre_calcule(self):
@@ -163,8 +166,9 @@ class Principal(QtGui.QMainWindow):
 				txt = self.listeObjetsTextes[sem_texte]
 				data = liste_data_ok_ctx[indice]
 				# sématique avec les noms des champs anglais
-				self.client.add_cache_var( txt.sem + ".ctx.%s"%champ, data)
-				txt.setCTX(champ,data)
+				if data != "":
+					self.client.add_cache_var( txt.sem + ".ctx.%s"%champ, data)
+					txt.setCTX(champ,data)
 
 				#self.PrgBar.setValue(  indice   * 50 / len(self.listeTextes))
 				#QtGui.QApplication.processEvents()
@@ -209,14 +213,19 @@ class Principal(QtGui.QMainWindow):
 
                 Menu_Corpus = Menubar.addMenu('&Corpus')
                 #Menu_Corpus.setShortcut('Ctrl+C')
-                Menu_distant = QtGui.QAction(QtGui.QIcon('distant.png'), '&prosperologie.org', self)        
+                Menu_distant = QtGui.QAction(QtGui.QIcon('images/distant.png'), '&prosperologie.org', self)        
                 Menu_distant.setStatusTip('Connect to prosperologie.org server')
                 Menu_distant.triggered.connect(self.connect_server)
                 Menu_Corpus.addAction(Menu_distant)
-                Menu_local = QtGui.QAction(QtGui.QIcon('home.png'), '&local', self)        
+                Menu_local = QtGui.QAction(QtGui.QIcon('images/home.png'), '&local', self)        
                 Menu_local.setStatusTip('Launch a local server')
                 Menu_local.triggered.connect(self.connect_server_localhost)
                 Menu_Corpus.addAction(Menu_local)
+		Menu_codex = QtGui.QAction("&codex",self)
+		Menu_codex.setStatusTip("Use and edit source repositories")
+                Menu_codex.triggered.connect(self.codex_window)
+		Menu_Corpus.addAction(Menu_codex)
+		
 
                 Menu_Texts = Menubar.addMenu('&Texts')
                 Menu_AddTex = QtGui.QAction('&Add a new text', self)        
@@ -257,7 +266,7 @@ class Principal(QtGui.QMainWindow):
 
                 
 
-                #Saction = QtGui.QAction(QtGui.QIcon('Prospero-II.png'), 'Server', self)
+                #Saction = QtGui.QAction(QtGui.QIcon('images/Prospero-II.png'), 'Server', self)
                 #toolbar.addAction(Saction)
 
                 list1 = QtGui.QComboBox()
@@ -303,7 +312,8 @@ class Principal(QtGui.QMainWindow):
 	#Vbox des actants du texte
 		saillantesVAct = QtGui.QVBoxLayout()
 		saillantesActTitle = QtGui.QLabel()
-		saillantesActTitle.setText("Actants")
+		#saillantesActTitle.setText("Actants")
+		saillantesActTitle.setText("Entities")
 		saillantesVAct.addWidget(saillantesActTitle)
 		self.saillantesAct = QtGui.QListWidget()
 		saillantesVAct.addWidget(self.saillantesAct)
@@ -429,7 +439,7 @@ class Principal(QtGui.QMainWindow):
 		self.tabNetworks.setTabsClosable(True)
 		self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
 
-#TODO les expressions englobantes
+#TODO les expression englobantes
 
                 #mise en place des onglets
 
@@ -477,7 +487,7 @@ class Principal(QtGui.QMainWindow):
 
 
                 #Param_Server_I = QtGui.QLabel()
-                #Param_Server_I.setPixmap(QtGui.QPixmap('Prospero-II.png'))
+                #Param_Server_I.setPixmap(QtGui.QPixmap('images/Prospero-II.png'))
                 #Param_Server_V.addWidget(Param_Server_I)
 
 #configurer les parametres de connexion au serveur distant
@@ -697,7 +707,7 @@ class Principal(QtGui.QMainWindow):
 
 
 		self.NOT1Commands2 = QtGui.QPushButton()
-		self.NOT1Commands2.setIcon(QtGui.QIcon("gear.png"))
+		self.NOT1Commands2.setIcon(QtGui.QIcon("images/gear.png"))
 		self.NOT1Commands2.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
 		NOT1Commands2Menu = QtGui.QMenu(self)
 		NOT1Commands2Menu.addAction('network' , self.show_network)
@@ -766,7 +776,7 @@ class Principal(QtGui.QMainWindow):
                 self.NOT2Commands1.setMenu(self.NOT2Commands1Menu)
                 NOT2VHC.addWidget(self.NOT2Commands1)
                 self.NOT2Commands2 = QtGui.QPushButton()
-                self.NOT2Commands2.setIcon(QtGui.QIcon("gear.png"))
+                self.NOT2Commands2.setIcon(QtGui.QIcon("images/gear.png"))
                 self.NOT2Commands2.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
                 NOT2Commands2Menu = QtGui.QMenu(self)
                 NOT2Commands2Menu.addAction('network' , self.show_network)
@@ -837,7 +847,7 @@ class Principal(QtGui.QMainWindow):
 
 
                 self.Explo_commands = QtGui.QPushButton()
-                self.Explo_commands.setIcon(QtGui.QIcon("gear.png"))
+                self.Explo_commands.setIcon(QtGui.QIcon("images/gear.png"))
                 self.Explo_commands.setEnabled(False) 
                 NOT3VH.addWidget(self.Explo_commands)
                 Explo_commands_texts= QtGui.QMenu(self)
@@ -851,7 +861,7 @@ class Principal(QtGui.QMainWindow):
                 self.Explo_liste.currentItemChanged.connect(self.explo_item_selected)
                 NOT3VH2.addWidget(self.Explo_liste)
                 self.Explo_concepts = QtGui.QLabel()
-                tempImage = QtGui.QPixmap("Prospero-II.png")
+                tempImage = QtGui.QPixmap("images/Prospero-II.png")
                 self.Explo_concepts.setPixmap(tempImage)
                 NOT3VH2.addWidget(self.Explo_concepts)
 
@@ -880,7 +890,7 @@ class Principal(QtGui.QMainWindow):
                 NOT5VHC.addWidget(spacer_CTX_1)
         
                 self.NOT5Commands1 = QtGui.QPushButton()
-                self.NOT5Commands1.setIcon(QtGui.QIcon("gear.png"))
+                self.NOT5Commands1.setIcon(QtGui.QIcon("images/gear.png"))
                 self.NOT5Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
                 NOT5VHC.addWidget(self.NOT5Commands1)
 
@@ -909,48 +919,6 @@ class Principal(QtGui.QMainWindow):
 
 ################################################
 ################################################
-                ### layout qui supprime le bug de rotation des cadrans mais qui genere des problemes de taille d'affichage sur chaque cadran
-                # 1 layout vertical dans lequel sont insérés 2 layout horizontals
-#               main = QtGui.QWidget()
-#               h1_layout = QtGui.QVBoxLayout()
-#               vl1_layout = QtGui.QHBoxLayout()
-#               vl2_layout =QtGui.QHBoxLayout()
-#               
-#               h1_layout.addLayout(vl1_layout)
-#               h1_layout.addLayout(vl2_layout)
-#               
-#               vl1_layout.addWidget(SubWdwNO)
-#               vl1_layout.addWidget(self.SubWdwNE)
-#               
-#               vl2_layout.addWidget(self.SubWdwSO)
-#               vl2_layout.addWidget(SubWdwSE)
-#               
-#               main.setLayout(h1_layout)
-#               self.setCentralWidget(main)
-################################################
-################################################
-#               voir avec des splitters sinon
-################################################
-################################################
-                ###tentative avec une mdiarea, mais les tiles jouent au taquin a chaque resize/deplacement de la fenetre principale
-                #la MdiArea 
-#               Area = QtGui.QMdiArea()
-#               Area.tileSubWindows()
-#               #Area.AreaOption(QMdiArea.DontMaximizeSubWindowOnActivation)
-#               self.setCentralWidget(Area)
-#               
-#               sw1 = Area.addSubWindow(SubWdwSE, flags = QtCore.Qt.FramelessWindowHint)
-#               sw2 = Area.addSubWindow(self.SubWdwSO, flags = QtCore.Qt.FramelessWindowHint)
-#               sw3 = Area.addSubWindow(self.SubWdwNE , flags = QtCore.Qt.FramelessWindowHint)
-#               sw4 = Area.addSubWindow(SubWdwNO , flags = QtCore.Qt.FramelessWindowHint)
-#
-#               
-#               self.show() 
-#               self.showMaximized() #à appeler après show pour que ça marche sous windows!
-#               Area.setFixedSize( Area.size()) #preserver l'ordre des subwindows en cas de resize -> les subwindows ne sont pas max sous linux
-                
-################################################
-################################################
 #TODO corriger resize des grids sur petits ecrans
                 ###Layout en grid
                 main = QtGui.QWidget()
@@ -964,8 +932,8 @@ class Principal(QtGui.QMainWindow):
                 self.setCentralWidget(main)
 
                 self.setWindowTitle(u'Prospéro interface')
-                self.show() 
-                
+                #self.show() 
+               	#self.codex_window() 
 
 
 ################################################
@@ -1249,7 +1217,7 @@ class Principal(QtGui.QMainWindow):
 		"""tick and disable the choosen order selected, untick and enable others"""
 		for act in self.NOT1Commands1Menu.actions():
 			if (act.text() == self.which):
-				act.setIcon(QtGui.QIcon("Tick.gif"))
+				act.setIcon(QtGui.QIcon("images/Tick.gif"))
 				act.setEnabled(False)
 			else:
 				act.setEnabled(True)
@@ -1262,7 +1230,7 @@ class Principal(QtGui.QMainWindow):
 		"""tick and disable the choosen order selected, untick and enable others"""
 		for act in self.NOT2Commands1Menu.actions():
 			if (act.text() == self.which_concepts):
-				act.setIcon(QtGui.QIcon("Tick.gif"))
+				act.setIcon(QtGui.QIcon("images/Tick.gif"))
 				act.setEnabled(False)
 			else :
 				act.setEnabled(True)
@@ -1792,6 +1760,9 @@ class Principal(QtGui.QMainWindow):
 		self.Param_Server_B.setText('Connect to server')
 		self.Param_Server_B.clicked.connect(self.connect_server)
 
+	def codex_window(self):
+		self.codex_w = codex_window()
+		self.codex_w.show()
 
 	def show_textContent(self ,  sem_txt):
 		"""Insert text content in the dedicated window"""
@@ -2441,6 +2412,504 @@ class Liste_texte(object):
 		self.show_texts_anticorpus.setAlternatingRowColors(True)
 		HBox_texts.addWidget(self.show_texts_anticorpus)
 
+class codex_window(QtGui.QWidget):
+	def __init__(self, parent=None):
+		super(codex_window, self).__init__(parent)
+
+		self.codex_dic = codex.edit_codex()
+		if self.codex_dic.cherche_codex():
+			self.codex_dic.parse_codex_xml("codex.xml")
+
+		L = QtGui.QVBoxLayout()
+		self.setLayout(L)
+
+		H2 = QtGui.QHBoxLayout()
+		L.addLayout(H2)
+		h22 = QtGui.QVBoxLayout()
+		H2.addLayout(h22)
+
+		
+		h22Buttons = QtGui.QHBoxLayout()
+		h22.addLayout(h22Buttons)
+		h22Label = QtGui.QLabel("Text file list: drag and drop")
+		h22Buttons.addWidget(h22Label)
+
+		self.h22liste = ListViewDrop(self)
+		self.h22liste.fileDropped.connect(self.FilesDropped)
+		h22.addWidget(self.h22liste)
+		self.h22liste.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+
+		self.h22liste.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+		h22listeGen = QtGui.QAction('regenerate',self)
+		self.h22liste.addAction(h22listeGen)
+		QtCore.QObject.connect(h22listeGen, QtCore.SIGNAL("triggered()"), self.generate)
+		efface_h22listeItem = QtGui.QAction('delete item',self)
+		self.h22liste.addAction(efface_h22listeItem)
+		QtCore.QObject.connect(efface_h22listeItem, QtCore.SIGNAL("triggered()"), self.efface_h22listeItem)
+		efface_h22liste = QtGui.QAction('clear list',self)
+		self.h22liste.addAction(efface_h22liste)
+		QtCore.QObject.connect(efface_h22liste, QtCore.SIGNAL("triggered()"), self.efface_h22liste)
+
+
+		h23 = QtGui.QVBoxLayout()
+
+
+
+		h23Buttons = QtGui.QHBoxLayout()
+		h23.addLayout(h23Buttons)
+		self.h23Label = QtGui.QLabel()
+		h23Buttons.addWidget(self.h23Label)
+                h23spacer = QtGui.QLabel()
+                h23spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+                h23Buttons.addWidget(h23spacer)
+
+		self.h23BT = QtGui.QCheckBox("get titles")
+		h23Buttons.addWidget(self.h23BT)
+		#self.h23BT.setChecked(True)
+		self.h23BT.stateChanged.connect( self.generate )
+		self.h23BR = QtGui.QCheckBox("replace")
+		h23Buttons.addWidget(self.h23BR)
+		h23BS = QtGui.QPushButton("save CTX")
+		h23Buttons.addWidget(h23BS)
+		h23BS.clicked.connect(self.saveCTX)
+
+
+		self.h23liste = QtGui.QTableWidget()
+		self.h23liste.verticalHeader().setVisible(False)
+		#TODO rendre la liste non editable
+		h23.addWidget(self.h23liste)
+
+		
+		H2.addLayout(h23)
+
+
+
+		H1 = QtGui.QHBoxLayout()
+
+		h11 = QtGui.QVBoxLayout()
+		H1.addLayout(h11)
+		
+		self.select_champ = QtGui.QComboBox()
+		h11.addWidget(self.select_champ)
+		
+		self.search_line = QtGui.QLineEdit()
+		h11.addWidget(self.search_line)
+		self.search_line.returnPressed.connect(self.eval_search_line)
+		self.search_result = QtGui.QListWidget()
+		h11.addWidget(self.search_result)
+		self.search_result.currentItemChanged.connect(self.eval_search_C)
+
+		self.search_line.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Preferred)
+		self.search_result.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+
+		h12 = QtGui.QVBoxLayout()
+		H1.addLayout(h12)
+
+
+		h12buttons = QtGui.QHBoxLayout()
+		h12.addLayout(h12buttons)
+		self.h12LabelNum = QtGui.QLabel()
+		h12buttons.addWidget(self.h12LabelNum)
+		h12buttonsSpacer = QtGui.QLabel()
+		h12buttons.addWidget(h12buttonsSpacer)
+                h12buttonsSpacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+		h12BS = QtGui.QPushButton("save codex")
+		h12BS.clicked.connect(self.codex_dic.save_codex)
+		h12buttons.addWidget(h12BS)
+
+		self.listRad = QtGui.QListWidget()
+		h12.addWidget(self.listRad)
+		self.listRad.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+		self.listRad.doubleClicked.connect(self.mod_listRadItem)
+		self.listRad.currentItemChanged.connect(self.changeRad)
+		self.listRad.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+		efface_listRadItem = QtGui.QAction('delete item',self)
+		self.listRad.addAction(efface_listRadItem)
+		QtCore.QObject.connect(efface_listRadItem, QtCore.SIGNAL("triggered()"), self.efface_listRadItem)
+		add_listRadItem = QtGui.QAction('add item',self)
+		self.listRad.addAction(add_listRadItem)
+		QtCore.QObject.connect(add_listRadItem, QtCore.SIGNAL("triggered()"), self.add_listRadItem)
+		self.listRad.setItemDelegate(MyDelegate(self))
+		self.listRad.itemDelegate().closedSignal.connect(self.mod_listRadItem_done)
+
+
+		self.initiate()
+
+
+		h13 = QtGui.QVBoxLayout()
+		H1.addLayout(h13)
+		self.h13List = QtGui.QTableWidget()
+		self.h13List.setColumnCount(2)
+		self.h13List.setHorizontalHeaderLabels([u'field',u'value'])
+		self.h13List.horizontalHeader().setStretchLastSection(True)	
+		self.h13List.verticalHeader().setVisible(False)
+		h13.addWidget(self.h13List)
+
+		self.h13List.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+		efface_listRadValueItem = QtGui.QAction('delete line',self)
+		self.h13List.addAction(efface_listRadValueItem)
+		QtCore.QObject.connect(efface_listRadValueItem, QtCore.SIGNAL("triggered()"), self.efface_listRadValueItem)
+		add_listRadValueItem = QtGui.QAction('add line',self)
+		self.h13List.addAction(add_listRadValueItem)
+		QtCore.QObject.connect(add_listRadValueItem, QtCore.SIGNAL("triggered()"), self.add_listRadValueItem)
+		copy_h13listLine = QtGui.QAction('copy line',self)
+		self.h13List.addAction(copy_h13listLine)
+		QtCore.QObject.connect(copy_h13listLine, QtCore.SIGNAL("triggered()"), self.copy_h13listLine)
+		paste_h13listLine = QtGui.QAction('paste line',self)
+		self.h13List.addAction(paste_h13listLine)
+		QtCore.QObject.connect(paste_h13listLine, QtCore.SIGNAL("triggered()"), self.paste_h13listLine)
+
+		self.h13List.cellChanged.connect(self.onChangeh13List)
+
+		h14 = QtGui.QVBoxLayout()
+		H1.addLayout(h14)
+		h14buttons = QtGui.QHBoxLayout()
+		h14.addLayout(h14buttons)
+		h14BM = QtGui.QPushButton("merge")
+		h14buttons.addWidget(h14BM)
+		h14BM.clicked.connect(self.merge_codex)
+		self.h14LabelNum = QtGui.QLabel()
+		h14buttons.addWidget(self.h14LabelNum)
+		h14buttonsSpacer = QtGui.QLabel()
+		h14buttons.addWidget(h14buttonsSpacer)
+                h14buttonsSpacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+
+		self.h14MergeList = QtGui.QListWidget()
+		h14.addWidget(self.h14MergeList)
+		
+
+		L.addLayout(H1)
+
+	
+	def initiate(self):
+		self.listRad.currentItemChanged.disconnect(self.changeRad)
+		self.listRad.doubleClicked.disconnect(self.mod_listRadItem)
+		if len(self.codex_dic.dico):
+			self.listRad.clear()	
+			self.listRad.addItems(self.codex_dic.dico.keys())
+			self.listRad.sortItems()
+			self.h12LabelNum.setText("%d entries"%len(self.codex_dic.dico))
+		self.reset_select_champ()
+		self.listRad.doubleClicked.connect(self.mod_listRadItem)
+		self.listRad.currentItemChanged.connect(self.changeRad)
+
+	def reset_select_champ(self):
+		self.select_champ.clear()
+                self.select_champ.addItem(u"")
+		if len(self.codex_dic.dico):
+			self.select_champ.addItems( self.codex_dic.champs() )
+		self.search_line.clear()
+		self.search_result.clear()
+		
+
+	def efface_listRadItem(self):
+		item = self.listRad.currentItem().text()
+		del(self.codex_dic.dico[item])
+		row = self.listRad.currentRow()
+		self.listRad.takeItem(row)
+
+	def add_listRadItem(self):
+		item = QtGui.QListWidgetItem("")
+		self.listRad.insertItem(self.listRad.count(),item)
+		self.listRad.setCurrentItem(item)
+		self.mod_listRadItem()
+
+	def mod_listRadItem(self):
+		item = self.listRad.currentItem()
+			
+		item.setFlags(self.listRad.currentItem().flags() | QtCore.Qt.ItemIsEditable)
+		#item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled)
+		self.listRadItemText = item.text()
+		if (self.listRad.state() !=  self.listRad.EditingState ):
+			self.listRad.editItem(item)
+
+	def mod_listRadItem_done(self):
+		item = self.listRad.currentItem()
+
+		old = self.listRadItemText
+		new = item.text()
+		if (old != new) :
+			if (new in self.codex_dic.dico.keys()):
+				item.setText(old)
+			else : 
+				if (old == ""):
+					self.codex_dic.dico[new] =  { u"author" : "", u"medium"  : "", u"media-type" : "" , u"authorship" : "", u"localisation" : "", u"observations" : "" } 
+					self.changeRad()
+				else :
+					self.codex_dic.dico[new] =  self.codex_dic.dico[old]
+					del( self.codex_dic.dico[old])
+				self.listRad.sortItems()
+				self.listRad.scrollToItem(item)
+
+
+	def efface_listRadValueItem(self):
+		if self.h13List.selectedItems() :
+			row = self.h13List.currentRow()
+			k = self.listRad.currentItem().text()
+			f = self.h13List.item(row,0).text()
+			del(self.codex_dic.dico[k][f])
+			self.h13List.removeRow(row)
+
+	def add_listRadValueItem(self):
+		self.h13List.insertRow(0)
+	
+	def copy_h13listLine(self):
+		r = self.h13List.currentRow()
+		if  self.h13List.currentItem():
+			self.copy_h13listLineContent = [self.h13List.item(r,0).text(),self.h13List.item(r,1).text()]
+
+	def paste_h13listLine(self):
+		if hasattr(self,"copy_h13listLineContent"):
+			self.h13List.cellChanged.disconnect(self.onChangeh13List)
+			field,value = self.copy_h13listLineContent
+			k = self.listRad.currentItem().text()
+			row = -1
+			for r in range(self.h13List.rowCount()):
+				if (self.h13List.item(r,0)):
+					if field == self.h13List.item(r,0).text() :
+						row = r
+			if (row > -1):
+				self.h13List.item(row,1).setText(value)
+			else :
+				self.h13List.insertRow(r+1)
+				self.h13List.setItem(r+1,0, QtGui.QTableWidgetItem(field))
+				self.h13List.setItem(r+1,1, QtGui.QTableWidgetItem(value))
+			self.codex_dic.dico[k][field] = value
+			self.h13List.cellChanged.connect(self.onChangeh13List)
+			
+
+	def efface_h22liste(self):
+		self.h22liste.clear()
+		self.generate()
+
+	def efface_h22listeItem(self):
+		if self.h22liste.selectedItems():
+			self.h22liste.takeItem(self.h22liste.currentRow())
+			#self.generate()
+
+	def changeRad(self):
+		self.h13List.clear()	
+		self.h13List.setHorizontalHeaderLabels([u'field',u'value'])
+		RAD = self.listRad.currentItem().text()	
+		if (RAD == ""):
+			fields = {}
+		elif RAD in self.codex_dic.dico.keys():
+			fields = self.codex_dic.dico[RAD].keys()
+		self.h13List.setRowCount(len(fields))
+		r = 0
+		for field in fields:
+			i_field = QtGui.QTableWidgetItem(field)
+			self.h13List.setItem(r,0,i_field)
+			v_field = QtGui.QTableWidgetItem(self.codex_dic.dico[RAD][field])
+			self.h13List.setItem(r,1,v_field)
+			r += 1
+		self.h13List.resizeColumnToContents (0)
+
+	def onChangeh13List(self):
+		r = self.h13List.currentRow()
+		c = self.h13List.currentColumn()
+		if ( (r != -1) and (c != -1 )):
+			k = self.listRad.currentItem().text()
+			f = self.h13List.item(r,0).text()
+			if (not re.match("^\s*$",f)) :
+				if (c):
+					v = self.h13List.currentItem().text()
+					self.codex_dic.dico[k][f] = v
+				else:
+					oldfields = self.codex_dic.champs()
+					oldfield =   self.oldfield(k)
+					if (oldfield in self.codex_dic.dico[k].keys()):
+						self.codex_dic.dico[k][f] = self.codex_dic.dico[k][oldfield] 
+						del (self.codex_dic.dico[k][oldfield])
+					else :
+						self.codex_dic.dico[k][f] = ""
+				self.reset_select_champ()
+			else:
+				oldfield =   self.oldfield(k)
+				if (oldfield):
+					self.h13List.item(r,0).setText (oldfield)
+			self.h13List.resizeColumnToContents (0)
+				
+	def oldfield(self,k):			
+		listefield = []
+		for row in range(self.h13List.rowCount()):
+			listefield.append(self.h13List.item(row,0).text())
+		L = list(set(self.codex_dic.dico[k].keys()) - set(listefield))
+		if len(L):
+			return L[0]
+		else :
+			return False
+		
+
+	def FilesDropped(self, l):
+		existing = [] 
+		for r in range( self.h22liste.count()):
+			existing.append( self.h22liste.item(r).text())
+                for url in list(set(l) - set(existing)):
+                        if os.path.exists(url):
+				if os.path.splitext(url)[1] in ['.txt','.TXT']:
+					item = QtGui.QListWidgetItem(url, self.h22liste)
+					item.setStatusTip(url)
+			self.h22liste.sortItems()
+		self.generate()
+
+	def eval_search_line(self):
+		self.search_result.clear()
+		pattern = self.search_line.text()
+		field = self.select_champ.currentText()
+		result = self.codex_dic.chercheValue(field,pattern)
+		for r in result:
+			self.search_result.addItem( " : ".join(r))
+		self.search_result.sortItems()
+		
+	def eval_search_C(self):
+		item = self.search_result.currentItem()
+		if (item):
+			i = item.text()
+			i = re.split(" : ",i,1)[0]
+			item = self.listRad.findItems(i,QtCore.Qt.MatchFlags(QtCore.Qt.MatchExactly))
+			self.listRad.setCurrentItem(item[0])
+
+	def generate(self):
+		self.CTX_to_be_saved = {}
+		self.h23liste.clear()
+		self.h23liste.setRowCount(0)
+		self.h23liste.setColumnCount(2)
+		if self.h23BT.checkState():
+			self.h23liste.setHorizontalHeaderLabels([u'path',u'key,  date and title'])
+		else :
+			self.h23liste.setHorizontalHeaderLabels([u'path',u'key and date'])
+		self.h23liste.horizontalHeader().setStretchLastSection(True)	
+		m = 0
+		f = 0
+		for r in range(self.h22liste.count()):
+			path = self.h22liste.item(r).text()
+			test = self.codex_dic.eval_file( path  )
+			if (test):
+				self.match_add(path,test)
+				m += 1
+			else :
+				self.failed_add(path)
+				f += 1
+		self.h23liste.resizeColumnToContents (0)
+		self.h23Label.setText("%d matches, %d fails" % (m,f))
+		self.h23liste.sortItems(1)
+	
+	def match_add(self,path,result):
+		r = self.h23liste.rowCount()
+		self.h23liste.insertRow(r)
+		item_path = QtGui.QTableWidgetItem(path)		
+		self.h23liste.setItem(r,0,item_path)
+
+		CTXpath = path[:-3] + "ctx"
+		self.CTX_to_be_saved[CTXpath] = self.codex_dic.dico[result[0]].copy()
+		self.CTX_to_be_saved[CTXpath]["date"] = result[1] + " 00:00:00"
+
+		if self.h23BT.checkState():
+			title = self.get_title(path)
+			item_value_txt = u" ".join(result) + u" %s"% title
+			self.CTX_to_be_saved[CTXpath][u"title"] = title
+		else :
+			item_value_txt = u" ".join(result) 
+		item_value = QtGui.QTableWidgetItem(item_value_txt)
+		self.h23liste.setItem(r,1,item_value)
+		data = ""
+		for k,v in self.codex_dic.dico[result[0]].iteritems():
+			data += "%s:%s\n"%(k,v)
+		item_path.setToolTip(data[:-1])
+		item_value.setToolTip(data[:-1])
+
+	def get_title(self,path):
+		B = open(path,"rU").readlines()
+		title = B[0][:-1]
+		try :
+			return title.decode('latin-1')
+		except :
+			return title.decode('utf-8')
+
+	def failed_add(self,path):
+		r = self.h23liste.rowCount()
+		self.h23liste.insertRow(r)
+		item_path = QtGui.QTableWidgetItem(path)		
+		item_path.setForeground(QtGui.QColor("red" ))
+		self.h23liste.setItem(r,0,item_path)
+		item_value = QtGui.QTableWidgetItem(u"\u00A0 no match")
+		item_value.setForeground(QtGui.QColor("red" ))
+		self.h23liste.setItem(r,1,item_value)
+		item_path.setToolTip("no match")
+		item_value.setToolTip("no match")
+
+	def merge_codex(self):
+		fname, filt = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '.', '*.cfg;*.publi')
+		if ( fname) :
+			m_codex = codex.edit_codex()
+			if os.path.splitext(fname)[1]  == ".publi":
+				m_codex.parse_supports_publi(fname)
+			elif os.path.splitext(fname)[1]  == ".cfg": 
+				m_codex.parse_codex_cfg(fname)
+			self.codex_dic.dico, fails = m_codex.fusionne(self.codex_dic.dico,m_codex.dico)
+			self.initiate()	
+			self.h14MergeList.clear()
+			for k, v in fails.iteritems():
+				self.h14MergeList.addItem("%s : %s"%(k,str(v)))
+			self.h14LabelNum.setText("%d fails" % len(fails))
+
+	def saveCTX(self):
+		if hasattr(self,"CTX_to_be_saved"):
+			for path,v in self.CTX_to_be_saved.iteritems():
+				if  not (os.path.isfile(path) and not self.h23BR.checkState())   :
+					CTX = parseCTX.CTX()
+					CTX.path = path
+					CTX.dico = v	
+					CTX.savefile()
+
+
+
+class MyDelegate (QtGui.QStyledItemDelegate ):
+	
+	closedSignal = QtCore.Signal()
+
+	def __init__(self, parent=None): 
+		super(MyDelegate, self).__init__(parent)
+		self.closeEditor.connect(self.cSignal)
+
+	def cSignal(self):
+		self.closedSignal.emit()
+
+class ListViewDrop(QtGui.QListWidget):
+
+	fileDropped = QtCore.Signal(list)
+
+	def __init__(self,type,parent=None):
+		super(ListViewDrop, self).__init__(parent)
+		self.setAcceptDrops(True)
+
+	def dragEnterEvent(self, event):
+		if event.mimeData().hasUrls:
+			event.accept()
+		else:
+			event.ignore()
+
+	def dragMoveEvent(self, event):
+		if event.mimeData().hasUrls:
+			event.setDropAction(QtCore.Qt.CopyAction)
+			event.accept()
+		else:
+			event.ignore()
+
+	def dropEvent(self, event):
+		if event.mimeData().hasUrls:
+			event.setDropAction(QtCore.Qt.CopyAction)
+			event.accept()
+			links = []
+			for url in event.mimeData().urls():
+				#links.append(str(url.toLocalFile())) #pb encodage
+				links.append(url.toLocalFile())
+			self.fileDropped.emit(links)
+		else:
+		    event.ignore()
+
+
 	
 def main():
         app = QtGui.QApplication(sys.argv)
@@ -2452,6 +2921,7 @@ def main():
         app.installTranslator(translator)
 
         ex  = Principal()
+	ex.show()
         sys.exit(app.exec_())
 
 if __name__ == '__main__':
