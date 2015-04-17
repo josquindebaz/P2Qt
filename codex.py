@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import re, os, datetime
 from xml.dom import minidom
+import time
 
 class edit_codex(object):
         def __init__(self):
@@ -100,30 +101,33 @@ class edit_codex(object):
         def eval_file(self,path):
                 p,n = os.path.split(path)
                 r = False
-                for a in self.dico.keys():
-                        if re.match("%s\d{2,}"%a,n):
-                                if re.match("%s\d{2}[0-9A-Ca-c]\d{2}[A-Za-z]*\."%a,n):
-                                        #FORME AAMMDD
-                                        y,m,d = re.search("%s(\d{2})([0-9A-Ca-c])(\d{2})\w*\."%a,n).groups()
-                                        if int(y) > 50:
-                                                y = "19%s" % y
-                                        else:
-                                                y = "20%s" % y
+		test1 = re.compile("^(\S*)(\d{2})([0-9A-Ca-c])(\d{2})\S*\.[txTX]*")
+		test2 = re.compile("^(\S*)(\d{4})(\d{2})(\d{2})\S*\.[txTX]*")
+		if test1.match(n):
+			#FORME AAMMDD
+			a,y,m,d = test1.search(n).groups()
+			if a in self.dico.keys():
+				if int(y) > 50:
+					y = "19%s" % y
+				else:
+					y = "20%s" % y
 
-                                        if m in ["a","A"]:
-                                                m = "10"
-                                        elif m in ["b","B"]:
-                                                m = "11"
-                                        elif m in ["c","C"]:
-                                                m = "11"
-                                        else :
-                                                m = "0%s" % m
-                                                
-                                        r = (a,  u"%s/%s/%s" % (d,m,y) )
-                                if re.match("%s\d{8}\S*\."%a,n):
-                                        #FORME AAAAMMDD
-                                        y,m,d = re.search("%s(\d{4})(\d{2})(\d{2})\w*\."%a,n).groups()
-                                        r =  (a,  u"%s/%s/%s" % (d,m,y) )
+				if m in ["a","A"]:
+					m = "10"
+				elif m in ["b","B"]:
+					m = "11"
+				elif m in ["c","C"]:
+					m = "11"
+				else :
+					m = "0%s" % m
+					
+				r = (a,  u"%s/%s/%s" % (d,m,y) )
+
+		elif test2.match(n):
+			#FORME AAAAMMDD
+			a,y,m,d = re.search(n).groups()
+			if a in self.dico.keys():
+				r =  (a,  u"%s/%s/%s" % (d,m,y) )
                 return r        
 
         def save_codex(self,path="codex.dat"):

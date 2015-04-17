@@ -6,13 +6,14 @@ import sys
 import PySide
 from PySide import QtCore 
 from PySide import QtGui 
+from PySide.QtGui import QMdiArea
 
 from fonctions import translate
 import re
 import datetime
 import subprocess, threading
-from PySide.QtGui import QMdiArea
 import os
+import time
 
 import interface_prospero
 import generator_mrlw
@@ -107,7 +108,7 @@ class Principal(QtGui.QMainWindow):
                 self.dicTxtSem = {}
                 for t in range(len(self.listeTextes)):
                         sem_texte = "$txt%d"%(t)
-                        self.listeObjetsTextes[sem_texte] =  Texte(sem_texte,self.listeTextes[t])
+                        self.listeObjetsTextes[sem_texte] =  Viewer.Texte(sem_texte,self.listeTextes[t])
                         self.dicTxtSem[self.listeTextes[t]] = sem_texte
 
                 # récupération des champs ctx
@@ -2113,7 +2114,7 @@ class Principal(QtGui.QMainWindow):
 
                 liste_textes = map(lambda k : self.dicTxtSem[k],liste_textes)
 
-                texts_widget = Liste_texte(motif,liste_textes)
+                texts_widget = Viewer.Liste_texte(motif,liste_textes)
 
                 self.dic_widget_list_txt[ texts_widget.tab_title ] =  [ [],[] ]
                 for sem,tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
@@ -2164,7 +2165,7 @@ class Principal(QtGui.QMainWindow):
 
                         liste_textes = map(lambda k : self.dicTxtSem[k],liste_textes)
 
-                        texts_widget = Liste_texte(element,liste_textes)
+                        texts_widget = Viewer.Liste_texte(element,liste_textes)
                         self.dic_widget_list_txt[ texts_widget.tab_title ] =  [ [],[] ]
                         for sem,tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
                                 txt =  self.listeObjetsTextes[sem]
@@ -2380,52 +2381,7 @@ class Principal(QtGui.QMainWindow):
                         clipboard.setText("\n".join(liste))
                         self.activity(u"%d elements copied to clipboard" % (len(liste) ) )
 
-                                
-class Texte(object):
-        def __init__(self,sem,path):
-                self.sem = sem 
-                self.path = path
-                self.CTX = {}
-
-        def setCTX(self,field, value):
-                self.CTX[field] = value
-        
-        def getCTXall(self):
-                return self.CTX
-
-        def getCTX(self,field):
-                if (field in self.CTX.keys()): 
-                        return self.CTX[field]
-                else :
-                        return False 
-
-        def getResume(self):
-                return u"%s <span style=\"font: bold\">%s</span> %s" % (re.split(" ",self.CTX["date"])[0],self.CTX["author"],self.CTX["title"])
-
-        def createWidgetitem(self):
-                self.Widgetitem = QtGui.QListWidgetItem()
-                txt_resume = self.getResume()
-                self.WidgetitemLabel = QtGui.QLabel(txt_resume)
-                #TODO texte en blanc quand selectionné
-
-
-
-class Liste_texte(object):
-        def __init__(self,element,liste_textes):
-                self.tab_title = "%s (%d)" % (element,len(liste_textes))
-
-                self.show_texts_widget = QtGui.QWidget()
-                HBox_texts = QtGui.QHBoxLayout()
-                HBox_texts.setContentsMargins(0,0,0,0) 
-                HBox_texts.setSpacing(0) 
-                self.show_texts_widget.setLayout(HBox_texts)
-                self.show_texts_corpus = QtGui.QListWidget()
-                self.show_texts_corpus.setAlternatingRowColors(True)
-                HBox_texts.addWidget(self.show_texts_corpus)
-                self.show_texts_anticorpus = QtGui.QListWidget()
-                self.show_texts_anticorpus.setAlternatingRowColors(True)
-                HBox_texts.addWidget(self.show_texts_anticorpus)
-
+            
 class corpus_window(QtGui.QWidget):
         def __init__(self, parent=None):
                 super(corpus_window, self).__init__(parent)
@@ -2547,8 +2503,10 @@ class corpus_window(QtGui.QWidget):
 			l = []
                         for item in Items:
 				l.append(item.text())	
+			self.codex_w.appendItems(l)
+			"""
 			self.codex_w.FilesDropped(l)
-				
+			"""	
 
         def efface_ViewListeTextesItem(self):
                 Items = self.ViewListeTextes.selectedItems()
@@ -2691,8 +2649,16 @@ class codex_window(QtGui.QWidget):
 
                 h22Buttons = QtGui.QHBoxLayout()
                 h22.addLayout(h22Buttons)
-                h22Label = QtGui.QLabel("Text file list: drag and drop")
-                h22Buttons.addWidget(h22Label)
+                self.h22Label = QtGui.QLabel("Text file list: drag and drop")
+                h22Buttons.addWidget(self.h22Label)
+                h22_spacer = QtGui.QLabel()
+                h22_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+                h22Buttons.addWidget(h22_spacer)
+                h22gen = QtGui.QPushButton()
+              	h22gen.setIcon(QtGui.QIcon("images/gear.png"))
+		h22gen.setToolTip(u"test file names")
+                h22Buttons.addWidget(h22gen)
+                QtCore.QObject.connect(h22gen, QtCore.SIGNAL("clicked()"), self.generate)
 
                 self.h22liste = Viewer.ListViewDrop(self)
                 self.h22liste.fileDropped.connect(self.FilesDropped)
@@ -2700,9 +2666,9 @@ class codex_window(QtGui.QWidget):
                 self.h22liste.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
 
                 self.h22liste.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-                h22listeGen = QtGui.QAction('regenerate',self)
-                self.h22liste.addAction(h22listeGen)
-                QtCore.QObject.connect(h22listeGen, QtCore.SIGNAL("triggered()"), self.generate)
+                #h22listeGen = QtGui.QAction('regenerate',self)
+                #self.h22liste.addAction(h22listeGen)
+                #QtCore.QObject.connect(h22listeGen, QtCore.SIGNAL("triggered()"), self.generate)
                 efface_h22listeItem = QtGui.QAction('delete item',self)
                 self.h22liste.addAction(efface_h22listeItem)
                 QtCore.QObject.connect(efface_h22listeItem, QtCore.SIGNAL("triggered()"), self.efface_h22listeItem)
@@ -2940,12 +2906,14 @@ class codex_window(QtGui.QWidget):
 
         def efface_h22liste(self):
                 self.h22liste.clear()
+                self.h22Label.setText("Text file list: drag and drop")
                 self.generate()
 
         def efface_h22listeItem(self):
                 if self.h22liste.selectedItems():
                         self.h22liste.takeItem(self.h22liste.currentRow())
                         #self.generate()
+			self.h22Label.setText(u"%s texts"% self.h22liste.count())
 
         def changeRad(self):
                 self.h13List.clear()    
@@ -3006,13 +2974,30 @@ class codex_window(QtGui.QWidget):
                 for r in range( self.h22liste.count()):
                         existing.append( self.h22liste.item(r).text())
                 for url in list(set(l) - set(existing)):
+			if os.path.splitext(url)[1] in ['.txt','.TXT']:
+				item = QtGui.QListWidgetItem(url, self.h22liste)
+				item.setStatusTip(url)
+				self.h22Label.setText(u"%s texts"% self.h22liste.count())
+				QtGui.QApplication.processEvents()
+		self.h22liste.sortItems()
+		"""
                         if os.path.exists(url):
                                 if os.path.splitext(url)[1] in ['.txt','.TXT']:
                                         item = QtGui.QListWidgetItem(url, self.h22liste)
                                         item.setStatusTip(url)
+					self.h22Label.setText(u"%s texts"% self.h22liste.count())
+					QtGui.QApplication.processEvents()
                         self.h22liste.sortItems()
                 self.generate()
+		"""
 
+	def appendItems(self,liste):
+		self.h22liste.clear()
+		self.h22liste.addItems(liste)
+		self.h22Label.setText(u"%s texts"% self.h22liste.count())
+		self.h22liste.sortItems()
+		
+	
         def eval_search_line(self):
                 self.search_result.clear()
                 pattern = self.search_line.text()
@@ -3051,8 +3036,9 @@ class codex_window(QtGui.QWidget):
                         else :
                                 self.failed_add(path)
                                 f += 1
+			self.h23Label.setText("%d matches, %d fails" % (m,f))
+			QtGui.QApplication.processEvents()
                 self.h23liste.resizeColumnToContents (0)
-                self.h23Label.setText("%d matches, %d fails" % (m,f))
                 self.h23liste.sortItems(1)
         
         def match_add(self,path,result):
