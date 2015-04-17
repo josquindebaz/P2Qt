@@ -1765,16 +1765,14 @@ class Principal(QtGui.QMainWindow):
                 self.Param_Server_B.setText('Connect to server')
                 self.Param_Server_B.clicked.connect(self.connect_server)
 
-        def corpus_window(self):
-                corpus_w = corpus_window(self)
-                corpus_w.show()
 
         def codex_window(self):
                 codex_w = codex_window(self)
                 codex_w.show()
 
 	def edit_corpus(self):
-		self.corpus_window()
+		corpus_w = corpus_window(self)
+                corpus_w.show()
 
         def show_textContent(self ,  sem_txt):
                 """Insert text content in the dedicated window"""
@@ -2389,6 +2387,7 @@ class corpus_window(QtGui.QWidget):
                 H1 = QtGui.QHBoxLayout()
                 L.addLayout(H1)
                 self.nameCorpus = QtGui.QLineEdit()
+		self.nameCorpus.setAcceptDrops(True)
                 H1.addWidget(self.nameCorpus)
                 openPRC = QtGui.QPushButton("Open")
                 openPRC.setToolTip("Open a .prc file")
@@ -2555,7 +2554,11 @@ class corpus_window(QtGui.QWidget):
 
                 
         def getFile(self):
-                fname, filt = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '.', '*.prc;*.PRC')
+		if os.path.isdir("/Users/gspr/corpus"):
+			rep = "/Users/gspr/corpus"
+		else:
+			rep = "."
+                fname, filt = QtGui.QFileDialog.getOpenFileName(self, 'Open file', rep, '*.prc;*.PRC')
                 return fname
         
         def openPRC(self):
