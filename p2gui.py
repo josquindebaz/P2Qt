@@ -220,6 +220,7 @@ class Principal(QtGui.QMainWindow):
 		Menu_Corpus.addAction(Menu_project)
                 Menu_codex = QtGui.QAction("&codex",self)
                 Menu_codex.setStatusTip("Use and edit source repositories for ctx generation")
+                #Menu_codex.triggered.connect(self.codex_window)
                 Menu_codex.triggered.connect(self.codex_window)
                 Menu_Corpus.addAction(Menu_codex)
                 Menu_distant = QtGui.QAction(QtGui.QIcon('images/distant.png'), '&prosperologie.org', self)        
@@ -938,8 +939,6 @@ class Principal(QtGui.QMainWindow):
 
                 self.setWindowTitle(u'Prospéro interface')
                 self.show() 
-                #self.corpus_window() 
-                #self.codex_window() 
 
 
 ################################################
@@ -1767,12 +1766,12 @@ class Principal(QtGui.QMainWindow):
                 self.Param_Server_B.clicked.connect(self.connect_server)
 
         def corpus_window(self):
-                self.corpus_w = corpus_window()
-                self.corpus_w.show()
+                corpus_w = corpus_window(self)
+                corpus_w.show()
 
         def codex_window(self):
-                self.codex_w = codex_window()
-                self.codex_w.show()
+                codex_w = codex_window(self)
+                codex_w.show()
 
 	def edit_corpus(self):
 		self.corpus_window()
@@ -2382,7 +2381,7 @@ class Principal(QtGui.QMainWindow):
             
 class corpus_window(QtGui.QWidget):
         def __init__(self, parent=None):
-                super(corpus_window, self).__init__(parent)
+                super(corpus_window, self).__init__(parent,QtCore.Qt.Window)
 
                 L = QtGui.QVBoxLayout()
                 self.setLayout(L)
@@ -2496,15 +2495,12 @@ class corpus_window(QtGui.QWidget):
 	def send_codex_ViewListeTextes(self):
                 Items = self.ViewListeTextes.selectedItems()
                 if (Items):
-			self.codex_w = codex_window()
-			self.codex_w.show()
+			codex_w = codex_window(self)
+			codex_w.show()
 			l = []
                         for item in Items:
 				l.append(item.text())	
-			self.codex_w.appendItems(l)
-			"""
-			self.codex_w.FilesDropped(l)
-			"""	
+			codex_w.appendItems(l)
 
         def efface_ViewListeTextesItem(self):
                 Items = self.ViewListeTextes.selectedItems()
@@ -2631,7 +2627,7 @@ class corpus_window(QtGui.QWidget):
 
 class codex_window(QtGui.QWidget):
         def __init__(self, parent=None):
-                super(codex_window, self).__init__(parent)
+                super(codex_window, self).__init__(parent,QtCore.Qt.Window)
 
                 self.codex_dic = Model.edit_codex()
                 if self.codex_dic.cherche_codex():

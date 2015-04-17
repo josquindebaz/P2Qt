@@ -79,3 +79,7 @@ class ListViewDrop(QtGui.QListWidget):
 		    event.ignore()
 
 
+class testwindow(QtGui.QWidget):
+        def __init__(self, parent=None):
+                super(testwindow, self).__init__(parent,QtCore.Qt.Window)
+		
