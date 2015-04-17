@@ -1,5 +1,8 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 from PySide import QtCore 
 from PySide import QtGui 
+import re
 
 
                     
@@ -22,7 +25,19 @@ class Texte(object):
                         return False 
 
         def getResume(self):
-                return u"%s <span style=\"font: bold\">%s</span> %s" % (re.split(" ",self.CTX["date"])[0],self.CTX["author"],self.CTX["title"])
+		if hasattr(self.CTX,"date"):
+			date = re.split(" ",self.CTX["date"])[0]
+		else:
+			date = "00/00/0000"
+		if hasattr(self.CTX,"author"):
+			author = self.CTX["author"]
+		else :
+			author = "Anon."
+		if hasattr(self.CTX,"title"):
+			title = self.CTX["title"]
+		else:
+			title = "Untitled"
+                return u"%s <span style=\"font: bold\">%s</span> %s" % (date,author,title)
 
         def createWidgetitem(self):
                 self.Widgetitem = QtGui.QListWidgetItem()
