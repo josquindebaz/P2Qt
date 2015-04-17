@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Codex Creation-date="2015-04-17T09:44:50.458000" Entries="1165">
+<Codex Creation-date="2015-04-17T19:45:52.125171" Entries="1163">
 	<Entry ABREV="DAYTL">
 		<Field name="medium" value="The Daily Telegraph"/>
 		<Field name="media-type" value="Presse brittanique"/>
@@ -29,11 +29,6 @@
 		<Field name="media-type" value="Presse australienne"/>
 		<Field name="author" value="The Age"/>
 	</Entry>
-	<Entry ABREV="ELP">
-		<Field name="medium" value="El Pais"/>
-		<Field name="media-type" value="Presse hispanique"/>
-		<Field name="author" value="El Pais"/>
-	</Entry>
 	<Entry ABREV="GZCC">
 		<Field name="medium" value="La Gazette des Communes"/>
 		<Field name="media-type" value="Presse collectivités locales"/>
@@ -46,15 +41,13 @@
 		<Field name="media-type" value="Presse américaine"/>
 		<Field name="author" value="New York Times"/>
 	</Entry>
-	<Entry ABREV="MIAH">
-		<Field name="medium" value="The Miami Herald"/>
-		<Field name="media-type" value="Presse américaine"/>
-		<Field name="author" value="The Miami Herald"/>
+	<Entry ABREV="FSC">
+		<Field name="author" value="Fondation Sciences Citoyennes"/>
 	</Entry>
-	<Entry ABREV="EEEPH">
-		<Field name="medium" value="Environmental Policy Alert"/>
-		<Field name="media-type" value="Presse environnementale"/>
-		<Field name="author" value="Environmental Policy Alert"/>
+	<Entry ABREV="CPHH">
+		<Field name="medium" value="Chimie Pharma Hebdo"/>
+		<Field name="media-type" value="Presse professionnelle"/>
+		<Field name="author" value="Chimie Pharma Hebdo"/>
 	</Entry>
 	<Entry ABREV="TEXL">
 		<Field name="medium" value="Texas Law Review"/>
@@ -65,10 +58,6 @@
 		<Field name="medium" value="Economist Intelligence Unit - Country Commerce"/>
 		<Field name="media-type" value="Presse économique"/>
 		<Field name="author" value="Economist Intelligence Unit - Country Commerce"/>
-	</Entry>
-	<Entry ABREV="ACPP">
-		<Field name="authorship" value="Industriels"/>
-		<Field name="author" value="Association canadienne des producteurs pétroliers"/>
 	</Entry>
 	<Entry ABREV="Fig">
 		<Field name="authorship" value="Journaliste"/>
@@ -87,11 +76,6 @@
 		<Field name="medium" value="La Stampa"/>
 		<Field name="media-type" value="Presse italienne"/>
 		<Field name="author" value="La Stampa"/>
-	</Entry>
-	<Entry ABREV="JQB">
-		<Field name="medium" value="Le Journal du Québec"/>
-		<Field name="media-type" value="Presse canadienne"/>
-		<Field name="author" value="Le Journal du Québec"/>
 	</Entry>
 	<Entry ABREV="notre-planete">
 		<Field name="medium" value="notre-planete.info"/>
@@ -124,11 +108,6 @@
 		<Field name="medium" value="EUR-Lex"/>
 		<Field name="media-type" value="Base de données du droit européen"/>
 		<Field name="author" value="EUR-Lex"/>
-	</Entry>
-	<Entry ABREV="USHE">
-		<Field name="medium" value="U.S. Health &amp; Human Services Documents"/>
-		<Field name="media-type" value="Presse médicale"/>
-		<Field name="author" value="U.S. Health &amp; Human Services Documents"/>
 	</Entry>
 	<Entry ABREV="SPT">
 		<Field name="medium" value="St. Petersburg Times"/>
@@ -236,6 +215,11 @@
 		<Field name="media-type" value="Presse nationale"/>
 		<Field name="author" value="Le Figaro"/>
 	</Entry>
+	<Entry ABREV="SCDL">
+		<Field name="medium" value="Sunshine Coast Daily"/>
+		<Field name="media-type" value="Presse australienne"/>
+		<Field name="author" value="Sunshine Coast Daily"/>
+	</Entry>
 	<Entry ABREV="InsidePrevention">
 		<Field name="author" value="Inside Prevention"/>
 	</Entry>
@@ -255,10 +239,15 @@
 		<Field name="medium" value="France Info"/>
 		<Field name="media-type" value="Audiovisuel"/>
 	</Entry>
-	<Entry ABREV="FIN">
-		<Field name="medium" value="France Info"/>
+	<Entry ABREV="VAV">
+		<Field name="localisation" value="Belgique"/>
+		<Field name="medium" value="Vers l'Avenir"/>
+		<Field name="media-type" value="Presse quotidienne nationale"/>
+	</Entry>
+	<Entry ABREV="RMC">
+		<Field name="medium" value="RMC"/>
 		<Field name="media-type" value="Audiovisuel"/>
-		<Field name="author" value="France Info"/>
+		<Field name="author" value="RMC"/>
 	</Entry>
 	<Entry ABREV="Priartem">
 		<Field name="authorship" value="Association"/>
@@ -363,11 +352,6 @@
 		<Field name="medium" value="Maire Info"/>
 		<Field name="media-type" value="Presse collectivités locales"/>
 	</Entry>
-	<Entry ABREV="STTRV">
-		<Field name="medium" value="Santé et Travail"/>
-		<Field name="media-type" value="Presse professionnelle"/>
-		<Field name="author" value="Santé et Travail"/>
-	</Entry>
 	<Entry ABREV="LAV">
 		<Field name="medium" value="Presse belge"/>
 		<Field name="media-type" value="Presse belge"/>
@@ -382,6 +366,11 @@
 		<Field name="medium" value="The Vietnam Investment Review"/>
 		<Field name="media-type" value="Presse vietnamienne"/>
 		<Field name="author" value="The Vietnam Investment Review"/>
+	</Entry>
+	<Entry ABREV="SUZ">
+		<Field name="medium" value="Suddeutsche Zeitung"/>
+		<Field name="media-type" value="Presse allemande"/>
+		<Field name="author" value="Suddeutsche Zeitung"/>
 	</Entry>
 	<Entry ABREV="PACK">
 		<Field name="medium" value="Packaging Magazine"/>
@@ -447,11 +436,6 @@
 		<Field name="media-type" value="Presse tanzanienne"/>
 		<Field name="author" value="The Mercury"/>
 	</Entry>
-	<Entry ABREV="LEIT">
-		<Field name="medium" value="Leitrim Observer"/>
-		<Field name="media-type" value="Presse irlandaise"/>
-		<Field name="author" value="Leitrim Observer"/>
-	</Entry>
 	<Entry ABREV="ENTREP">
 		<Field name="medium" value="Entreprendre"/>
 		<Field name="media-type" value="Presse économique"/>
@@ -502,10 +486,6 @@
 		<Field name="medium" value="LSA"/>
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="LSA"/>
-	</Entry>
-	<Entry ABREV="LindaG">
-		<Field name="medium" value="NRDC"/>
-		<Field name="author" value="Greer"/>
 	</Entry>
 	<Entry ABREV="HUM">
 		<Field name="authorship" value="Journaliste"/>
@@ -589,21 +569,11 @@
 		<Field name="media-type" value="Presse professionnelle"/>
 		<Field name="author" value="Platts Commodity News"/>
 	</Entry>
-	<Entry ABREV="BUFF">
-		<Field name="medium" value="Buffalo News"/>
-		<Field name="media-type" value="Presse américaine"/>
-		<Field name="author" value="Buffalo News"/>
-	</Entry>
 	<Entry ABREV="ActUp">
 		<Field name="authorship" value="Association"/>
 		<Field name="medium" value="Act Up "/>
 		<Field name="media-type" value="Communiqué de presse"/>
 		<Field name="author" value="Act Up"/>
-	</Entry>
-	<Entry ABREV="CDS">
-		<Field name="localisation" value="Italie"/>
-		<Field name="medium" value="Corriere Della Serra"/>
-		<Field name="media-type" value="Presse internationale"/>
 	</Entry>
 	<Entry ABREV="BLO">
 		<Field name="medium" value="Bloomberg"/>
@@ -613,11 +583,6 @@
 		<Field name="medium" value="Maghreb Confidentiel"/>
 		<Field name="media-type" value="Presse électronique"/>
 		<Field name="author" value="Maghreb Confidentiel"/>
-	</Entry>
-	<Entry ABREV="ATS">
-		<Field name="medium" value="Agence Télégraphique Suisse"/>
-		<Field name="media-type" value="Agence de presse"/>
-		<Field name="author" value="Agence Télégraphique Suisse"/>
 	</Entry>
 	<Entry ABREV="MAINF">
 		<Field name="medium" value="maire-info"/>
@@ -629,11 +594,6 @@
 		<Field name="media-type" value="Presse environnementale"/>
 		<Field name="author" value="Ecology, Environment &amp; Conservation"/>
 	</Entry>
-	<Entry ABREV="CHRN">
-		<Field name="medium" value="Chronicle of Higher Education"/>
-		<Field name="media-type" value="Presse professionnelle"/>
-		<Field name="author" value="Chronicle of Higher Education"/>
-	</Entry>
 	<Entry ABREV="ESSOR">
 		<Field name="medium" value="L'Essor"/>
 		<Field name="author" value="L'Essor"/>
@@ -642,11 +602,10 @@
 		<Field name="localisation" value="Mali"/>
 		<Field name="authorship" value="Journaliste"/>
 	</Entry>
-	<Entry ABREV="GRM">
-		<Field name="authorship" value="Organisation écologiste"/>
-		<Field name="medium" value="Greenpeace Magazine"/>
-		<Field name="media-type" value="Presse sectorielle"/>
-		<Field name="author" value="Greenpeace"/>
+	<Entry ABREV="EEEN">
+		<Field name="medium" value="Electronic Engineering Times"/>
+		<Field name="media-type" value="Presse professionnelle"/>
+		<Field name="author" value="Electronic Engineering Times"/>
 	</Entry>
 	<Entry ABREV="OANF">
 		<Field name="authorship" value="Laboratoire indépendant"/>
@@ -669,9 +628,10 @@
 		<Field name="media-type" value="Presse Quotidienne Régionale"/>
 		<Field name="author" value="Corse Matin"/>
 	</Entry>
-	<Entry ABREV="ActuOGM">
-		<Field name="medium" value="ActuOGM"/>
-		<Field name="author" value="ActuOGM"/>
+	<Entry ABREV="ALIS">
+		<Field name="medium" value="Le courrier d'Alis"/>
+		<Field name="media-type" value="Presse associative"/>
+		<Field name="author" value="Joët, Françoise"/>
 	</Entry>
 	<Entry ABREV="GreenQ">
 		<Field name="localisation" value="Canada"/>
@@ -700,6 +660,13 @@
 		<Field name="medium" value="RFI"/>
 		<Field name="media-type" value="Audiovisuel"/>
 		<Field name="author" value="RFI"/>
+	</Entry>
+	<Entry ABREV="MDI">
+		<Field name="authorship" value="Journaliste"/>
+		<Field name="medium" value="Le Monde Diplomatique"/>
+		<Field name="open-field-1" value="Article de presse"/>
+		<Field name="media-type" value="News et magazines "/>
+		<Field name="author" value="Le Monde Diplomatique"/>
 	</Entry>
 	<Entry ABREV="PoPH">
 		<Field name="medium" value="Portland Press Herald"/>
@@ -747,10 +714,11 @@
 		<Field name="authorship" value="Organisation écologiste"/>
 		<Field name="author" value="Greenpeace Canada"/>
 	</Entry>
-	<Entry ABREV="BUSWI">
-		<Field name="medium" value="Business Wire"/>
-		<Field name="media-type" value="Communiqué de presse"/>
-		<Field name="author" value="Business Wire"/>
+	<Entry ABREV="20mn">
+		<Field name="authorship" value="Journaliste"/>
+		<Field name="medium" value="20 minutes"/>
+		<Field name="media-type" value="Presse gratuite"/>
+		<Field name="author" value="20 Minutes"/>
 	</Entry>
 	<Entry ABREV="DAIPO">
 		<Field name="medium" value="Daily Post (Liverpool)"/>
@@ -802,19 +770,10 @@
 		<Field name="media-type" value="Presse professionnelle"/>
 		<Field name="author" value="Recyclage Récupération"/>
 	</Entry>
-	<Entry ABREV="FR2">
-		<Field name="medium" value="France 2"/>
-		<Field name="media-type" value="Audiovisuel"/>
-	</Entry>
-	<Entry ABREV="MDN">
-		<Field name="medium" value="Mainichi Daily News"/>
-		<Field name="media-type" value="Presse japonaise"/>
-		<Field name="author" value="Mainichi Daily News"/>
-	</Entry>
-	<Entry ABREV="TTTT">
-		<Field name="medium" value="Technology Times"/>
-		<Field name="media-type" value="Presse professionnelle"/>
-		<Field name="author" value="Technology Times"/>
+	<Entry ABREV="JDF">
+		<Field name="medium" value="Le Journal des Finances"/>
+		<Field name="media-type" value="Presse économique"/>
+		<Field name="author" value="Le Journal des Finances"/>
 	</Entry>
 	<Entry ABREV="RES">
 		<Field name="media-type" value="Internet"/>
@@ -837,6 +796,11 @@
 		<Field name="media-type" value="Presse brittanique"/>
 		<Field name="author" value="Farmers Guardian"/>
 	</Entry>
+	<Entry ABREV="EVGA">
+		<Field name="medium" value="Evening Gazette"/>
+		<Field name="media-type" value="Presse brittanique"/>
+		<Field name="author" value="Evening Gazette"/>
+	</Entry>
 	<Entry ABREV="Braun">
 		<Field name="medium" value="Brave Patrie"/>
 		<Field name="author" value="Braun"/>
@@ -856,20 +820,15 @@
 		<Field name="media-type" value="Presse quotidienne régionale"/>
 		<Field name="author" value="Le Républicain Lorrain"/>
 	</Entry>
-	<Entry ABREV="BERL">
-		<Field name="medium" value="Berlingske Tidende"/>
-		<Field name="media-type" value="Presse allemande"/>
-		<Field name="author" value="Berlingske Tidende"/>
+	<Entry ABREV="ATCO">
+		<Field name="medium" value="atlantico"/>
+		<Field name="media-type" value="Presse électronique"/>
+		<Field name="author" value="atlantico"/>
 	</Entry>
 	<Entry ABREV="REC">
 		<Field name="medium" value="La Recherche"/>
 		<Field name="media-type" value="Presse scientifique"/>
 		<Field name="author" value="La Recherche"/>
-	</Entry>
-	<Entry ABREV="AWP">
-		<Field name="medium" value="AWP Swiss News"/>
-		<Field name="media-type" value="Agence de presse"/>
-		<Field name="author" value="AWP Swiss News"/>
 	</Entry>
 	<Entry ABREV="DOW">
 		<Field name="medium" value="Dow Jones International News"/>
@@ -897,13 +856,10 @@
 		<Field name="media-type" value="Audiovisuel"/>
 		<Field name="author" value="France Soir"/>
 	</Entry>
-	<Entry ABREV="Pécresse">
-		<Field name="author" value="Pécresse"/>
-	</Entry>
-	<Entry ABREV="RSSN">
-		<Field name="medium" value="Reason"/>
-		<Field name="media-type" value="News et magazines"/>
-		<Field name="author" value="Reason"/>
+	<Entry ABREV="MDN">
+		<Field name="medium" value="Mainichi Daily News"/>
+		<Field name="media-type" value="Presse japonaise"/>
+		<Field name="author" value="Mainichi Daily News"/>
 	</Entry>
 	<Entry ABREV="Dau">
 		<Field name="authorship" value="Journaliste"/>
@@ -961,11 +917,6 @@
 		<Field name="media-type" value="Revue électronique"/>
 		<Field name="author" value="Enviro2B.com"/>
 	</Entry>
-	<Entry ABREV="WASP">
-		<Field name="medium" value="Washington Post"/>
-		<Field name="media-type" value="Presse américaine"/>
-		<Field name="author" value="Washington Post"/>
-	</Entry>
 	<Entry ABREV="POWEUR">
 		<Field name="medium" value="Power in Europe"/>
 		<Field name="media-type" value="Presse professionnelle"/>
@@ -1005,26 +956,12 @@
 		<Field name="medium" value="Questions au gouvernement"/>
 		<Field name="media-type" value="Texte parlementaire"/>
 	</Entry>
-	<Entry ABREV="TRT">
-		<Field name="localisation" value="Belgique"/>
-		<Field name="medium" value="Trends Tendances"/>
-		<Field name="media-type" value="Presse économique"/>
-		<Field name="author" value="Trends Tendances"/>
-	</Entry>
 	<Entry ABREV="AUF">
 		<Field name="authorship" value="Journaliste"/>
 		<Field name="medium" value="Aujourd'hui en France"/>
 		<Field name="open-field-1" value="Article de presse"/>
 		<Field name="media-type" value="Presse quotidienne nationale"/>
 		<Field name="author" value="Aujourd'hui en France"/>
-	</Entry>
-	<Entry ABREV="AEUR">
-		<Field name="medium" value="Agence Europe"/>
-		<Field name="author" value="Agence Europe"/>
-		<Field name="open-field-1" value="Dépêche d'agence"/>
-		<Field name="media-type" value="Agence de presse"/>
-		<Field name="localisation" value="Bruxelles"/>
-		<Field name="authorship" value="Agence de presse"/>
 	</Entry>
 	<Entry ABREV="JHM">
 		<Field name="authorship" value="Journaliste"/>
@@ -1088,23 +1025,9 @@
 		<Field name="media-type" value="Presse Quotidienne Nationale"/>
 		<Field name="author" value="Le Monde"/>
 	</Entry>
-	<Entry ABREV="NAT">
-		<Field name="medium" value="NaturaVox"/>
-		<Field name="author" value="NaturaVox"/>
-		<Field name="open-field-1" value="Article de presse"/>
-		<Field name="media-type" value="Presse environnementale"/>
-		<Field name="localisation" value="http://www.naturavox.fr"/>
-		<Field name="authorship" value="Journaliste"/>
-	</Entry>
-	<Entry ABREV="EDF">
-		<Field name="authorship" value="Exploitants"/>
-		<Field name="medium" value="EDF"/>
-		<Field name="author" value="EDF"/>
-	</Entry>
-	<Entry ABREV="Can">
-		<Field name="medium" value="Canard Enchaîné"/>
-		<Field name="media-type" value="News et Magazines"/>
-		<Field name="author" value="Canard Enchaîné"/>
+	<Entry ABREV="ACPP">
+		<Field name="authorship" value="Industriels"/>
+		<Field name="author" value="Association canadienne des producteurs pétroliers"/>
 	</Entry>
 	<Entry ABREV="EDJ">
 		<Field name="authorship" value="Journaliste"/>
@@ -1133,21 +1056,16 @@
 		<Field name="media-type" value="Presse environnementale"/>
 		<Field name="author" value="Risk Policy Report"/>
 	</Entry>
-	<Entry ABREV="CANAD">
-		<Field name="medium" value="La Presse Canadienne"/>
-		<Field name="media-type" value="Agence de presse"/>
-		<Field name="author" value="La Presse Canadienne"/>
-	</Entry>
-	<Entry ABREV="AIA">
-		<Field name="medium" value="Arômes Ingrédients Additifs"/>
-		<Field name="media-type" value="Presse professionnelle"/>
-		<Field name="author" value="Arômes Ingrédients Additifs"/>
-	</Entry>
 	<Entry ABREV="SO">
 		<Field name="authorship" value="Journaliste"/>
 		<Field name="medium" value="Sud Ouest"/>
 		<Field name="media-type" value="Presse Quotidienne Régionale"/>
 		<Field name="author" value="Sud Ouest"/>
+	</Entry>
+	<Entry ABREV="CRIIRAD">
+		<Field name="authorship" value="Laboratoire indépendant"/>
+		<Field name="medium" value="CRII-RAD"/>
+		<Field name="author" value="CRII-RAD"/>
 	</Entry>
 	<Entry ABREV="ORI">
 		<Field name="medium" value="L'Orient-Le Jour"/>
@@ -1162,10 +1080,6 @@
 		<Field name="medium" value="Evening Times"/>
 		<Field name="media-type" value="Presse écossaise"/>
 		<Field name="author" value="Evening Times"/>
-	</Entry>
-	<Entry ABREV="ART">
-		<Field name="medium" value="Arte"/>
-		<Field name="media-type" value="Audiovisuel"/>
 	</Entry>
 	<Entry ABREV="EVES">
 		<Field name="medium" value="Evening Standard"/>
@@ -1191,14 +1105,9 @@
 		<Field name="media-type" value="Presse professionnelle"/>
 		<Field name="author" value="Inside F.E.R.C.'s Gas Market Report"/>
 	</Entry>
-	<Entry ABREV="FRM">
-		<Field name="medium" value="France 3 Midi-Pyrennées"/>
-		<Field name="media-type" value="Audiovisuel"/>
-	</Entry>
-	<Entry ABREV="UNSR">
-		<Field name="medium" value="Unione Sarda"/>
-		<Field name="media-type" value="Presse italienne"/>
-		<Field name="author" value="Unione Sarda"/>
+	<Entry ABREV="CAM">
+		<Field name="medium" value="Ca m'intéresse"/>
+		<Field name="media-type" value="News et Magazines"/>
 	</Entry>
 	<Entry ABREV="Lib">
 		<Field name="localisation" value="Paris"/>
@@ -1206,14 +1115,6 @@
 		<Field name="medium" value="Libération"/>
 		<Field name="media-type" value="Presse Quotidienne Nationale"/>
 		<Field name="author" value="Libération"/>
-	</Entry>
-	<Entry ABREV="CAS">
-		<Field name="medium" value=""/>
-		<Field name="author" value="test"/>
-		<Field name="media-type" value=""/>
-		<Field name="localisation" value=""/>
-		<Field name="observations" value=""/>
-		<Field name="authorship" value=""/>
 	</Entry>
 	<Entry ABREV="CAR">
 		<Field name="medium" value="Carré d'Europe"/>
@@ -1253,9 +1154,10 @@
 		<Field name="medium" value="Questions au gouvernement"/>
 		<Field name="media-type" value="Texte parlementaire"/>
 	</Entry>
-	<Entry ABREV="CAM">
-		<Field name="medium" value="Ca m'intéresse"/>
-		<Field name="media-type" value="News et Magazines"/>
+	<Entry ABREV="UNSR">
+		<Field name="medium" value="Unione Sarda"/>
+		<Field name="media-type" value="Presse italienne"/>
+		<Field name="author" value="Unione Sarda"/>
 	</Entry>
 	<Entry ABREV="CNCCEDR">
 		<Field name="authorship" value="Militant(s) antinucléaire(s)"/>
@@ -1295,6 +1197,9 @@
 		<Field name="media-type" value="Internet"/>
 		<Field name="author" value="Caducée.net"/>
 	</Entry>
+	<Entry ABREV="EnerPress">
+		<Field name="author" value="EnerPress"/>
+	</Entry>
 	<Entry ABREV="DAYN">
 		<Field name="medium" value="Daily News"/>
 		<Field name="media-type" value="Presse américaine"/>
@@ -1309,11 +1214,6 @@
 		<Field name="medium" value="Lejdc.fr"/>
 		<Field name="media-type" value="Presse nationale"/>
 		<Field name="author" value="Lejdc.fr"/>
-	</Entry>
-	<Entry ABREV="CRRSP">
-		<Field name="medium" value="La Correspondance de la Presse"/>
-		<Field name="media-type" value="Presse nationale"/>
-		<Field name="author" value="La Correspondance de la Presse"/>
 	</Entry>
 	<Entry ABREV="LNGI">
 		<Field name="medium" value="LNG Intelligence"/>
@@ -1345,6 +1245,11 @@
 		<Field name="media-type" value="Presse électronique"/>
 		<Field name="author" value="Bakchich"/>
 	</Entry>
+	<Entry ABREV="VTO">
+		<Field name="localisation" value="Québec"/>
+		<Field name="medium" value="VertigO"/>
+		<Field name="media-type" value="Presse environnementale"/>
+	</Entry>
 	<Entry ABREV="LS">
 		<Field name="localisation" value="Belgique"/>
 		<Field name="medium" value="Le Soir"/>
@@ -1361,6 +1266,11 @@
 		<Field name="media-type" value="Agence de presse"/>
 		<Field name="author" value="Mediacom"/>
 	</Entry>
+	<Entry ABREV="STHT">
+		<Field name="medium" value="The Southland Times"/>
+		<Field name="media-type" value="Presse néozélandaise"/>
+		<Field name="author" value="The Southland Times"/>
+	</Entry>
 	<Entry ABREV="GCSC">
 		<Field name="medium" value="Gold Coast Sun - Central"/>
 		<Field name="media-type" value="Presse australienne"/>
@@ -1373,10 +1283,6 @@
 		<Field name="medium" value="USA Today"/>
 		<Field name="media-type" value="Presse américaine"/>
 		<Field name="author" value="USA Today"/>
-	</Entry>
-	<Entry ABREV="FBN">
-		<Field name="medium" value="France 3 Basse Normandie"/>
-		<Field name="media-type" value="Audiovisuel"/>
 	</Entry>
 	<Entry ABREV="GMO-Journal">
 		<Field name="medium" value="GMO-Journal"/>
@@ -1391,6 +1297,11 @@
 		<Field name="medium" value="Vigie Energie-Globe"/>
 		<Field name="media-type" value="Presse électronique"/>
 		<Field name="author" value="Vigie Energie-Globe"/>
+	</Entry>
+	<Entry ABREV="CSM">
+		<Field name="medium" value="Christian Science Monitor"/>
+		<Field name="media-type" value="Presse américaine"/>
+		<Field name="author" value="Christian Science Monitor"/>
 	</Entry>
 	<Entry ABREV="TOBS">
 		<Field name="medium" value="The Observer"/>
@@ -1478,20 +1389,10 @@
 		<Field name="localisation" value="OMS"/>
 		<Field name="author" value="OMS"/>
 	</Entry>
-	<Entry ABREV="SRC">
-		<Field name="medium" value="SRC Télévision - Découverte"/>
-		<Field name="media-type" value="Audiovisuel"/>
-		<Field name="author" value="SRC Télévision - Découverte"/>
-	</Entry>
-	<Entry ABREV="QUPP">
-		<Field name="medium" value="Le Quotidien du Peuple"/>
-		<Field name="media-type" value="Presse chinoise"/>
-		<Field name="author" value="Le Quotidien du Peuple"/>
-	</Entry>
-	<Entry ABREV="INSD">
-		<Field name="medium" value="Inside Energy"/>
-		<Field name="media-type" value="Presse professionnelle"/>
-		<Field name="author" value="Inside Energy"/>
+	<Entry ABREV="HRMT">
+		<Field name="medium" value="24 heures Montréal"/>
+		<Field name="media-type" value="Presse canadienne"/>
+		<Field name="author" value="24 heures Montréal"/>
 	</Entry>
 	<Entry ABREV="DoD">
 		<Field name="medium" value="US Department of Defence"/>
@@ -1543,13 +1444,13 @@
 		<Field name="media-type" value="Agence de presse"/>
 		<Field name="author" value="Polish News Bulletin"/>
 	</Entry>
-	<Entry ABREV="CON">
-		<Field name="medium" value="La Correspondance nucléaire"/>
-		<Field name="media-type" value="Presse sectorielle"/>
-	</Entry>
 	<Entry ABREV="CFP">
 		<Field name="medium" value="Chaud Froid Plomberie"/>
 		<Field name="media-type" value="Presse sectorielle"/>
+	</Entry>
+	<Entry ABREV="ActuOGM">
+		<Field name="medium" value="ActuOGM"/>
+		<Field name="author" value="ActuOGM"/>
 	</Entry>
 	<Entry ABREV="JFI">
 		<Field name="medium" value="Le Journal des Finances"/>
@@ -1573,21 +1474,18 @@
 		<Field name="media-type" value="Presse nationale"/>
 		<Field name="author" value="Libération"/>
 	</Entry>
-	<Entry ABREV="MIN">
-		<Field name="medium" value="La Semaine du Minervois"/>
-		<Field name="media-type" value="Presse régionale"/>
+	<Entry ABREV="ADWE">
+		<Field name="medium" value="Adweek"/>
+		<Field name="media-type" value="Presse professionnelle"/>
+		<Field name="author" value="Adweek"/>
 	</Entry>
-	<Entry ABREV="CSres">
-		<Field name="authorship" value="Organisation des Nations Unies"/>
-		<Field name="medium" value="Résolutions de l'ONU"/>
-		<Field name="author" value="Conseil de sécurité de l'ONU"/>
+	<Entry ABREV="DII">
+		<Field name="medium" value="Direction Informatique"/>
+		<Field name="media-type" value="Presse canadienne"/>
+		<Field name="author" value="Direction Informatique"/>
 	</Entry>
-	<Entry ABREV="FIET">
-		<Field name="authorship" value="Journaliste"/>
-		<Field name="medium" value="Le Figaro Etudiant"/>
-		<Field name="open-field-1" value="Article de presse"/>
-		<Field name="media-type" value="News et magazines"/>
-		<Field name="author" value="Le Figaro Etudiant"/>
+	<Entry ABREV="SarkoHS">
+		<Field name="author" value="Sarkozy Elu des Hauts-de-Seine "/>
 	</Entry>
 	<Entry ABREV="KALM">
 		<Field name="medium" value="Kalgoorlie Miner"/>
@@ -1674,10 +1572,10 @@
 		<Field name="localisation" value="UK"/>
 		<Field name="author" value="PRC@"/>
 	</Entry>
-	<Entry ABREV="VAV">
-		<Field name="localisation" value="Belgique"/>
-		<Field name="medium" value="Vers l'Avenir"/>
-		<Field name="media-type" value="Presse quotidienne nationale"/>
+	<Entry ABREV="FIN">
+		<Field name="medium" value="France Info"/>
+		<Field name="media-type" value="Audiovisuel"/>
+		<Field name="author" value="France Info"/>
 	</Entry>
 	<Entry ABREV="PRO">
 		<Field name="authorship" value="Journaliste"/>
@@ -1745,18 +1643,17 @@
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="Question Pratique"/>
 	</Entry>
-	<Entry ABREV="Midi">
-		<Field name="authorship" value="Journaliste"/>
-		<Field name="medium" value="La Dépêche du Midi"/>
-		<Field name="media-type" value="Presse Quotidienne Régionale"/>
-		<Field name="author" value="La Dépêche du Midi"/>
-	</Entry>
 	<Entry ABREV="FIM">
 		<Field name="authorship" value="Journaliste"/>
 		<Field name="medium" value="Le Figaro Magazine"/>
 		<Field name="open-field-1" value="Article de presse"/>
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="Le Figaro Magazine"/>
+	</Entry>
+	<Entry ABREV="4SAJ">
+		<Field name="open-field-1" value="Article de presse"/>
+		<Field name="medium" value="Les Quatre Saisons du Jardinage"/>
+		<Field name="media-type" value="News et magazines"/>
 	</Entry>
 	<Entry ABREV="IIPH">
 		<Field name="medium" value="International Pharmaceutical Regulatory Monitor"/>
@@ -1781,6 +1678,11 @@
 		<Field name="medium" value="Moneytalk"/>
 		<Field name="media-type" value="Presse économique"/>
 		<Field name="author" value="Moneytalk"/>
+	</Entry>
+	<Entry ABREV="DAYMI">
+		<Field name="medium" value="Daily Mirror"/>
+		<Field name="media-type" value="Presse brittanique"/>
+		<Field name="author" value="Daily Mirror"/>
 	</Entry>
 	<Entry ABREV="Cap">
 		<Field name="medium" value="Capital"/>
@@ -1811,20 +1713,20 @@
 		<Field name="media-type" value="Presse professionnelle"/>
 		<Field name="author" value="Chemistry and Industry"/>
 	</Entry>
-	<Entry ABREV="CRSP">
-		<Field name="medium" value="La Correspondance de la Publicité"/>
-		<Field name="media-type" value="News et magazines"/>
-		<Field name="author" value="La Correspondance de la Publicité"/>
+	<Entry ABREV="STTRV">
+		<Field name="medium" value="Santé et Travail"/>
+		<Field name="media-type" value="Presse professionnelle"/>
+		<Field name="author" value="Santé et Travail"/>
 	</Entry>
 	<Entry ABREV="ASSN">
 		<Field name="medium" value="Indo-Asian News Service"/>
 		<Field name="media-type" value="Agence de presse"/>
 		<Field name="author" value="Indo-Asian News Service"/>
 	</Entry>
-	<Entry ABREV="JAK">
-		<Field name="medium" value="JAKARTA POST"/>
-		<Field name="media-type" value="Presse indonésienne"/>
-		<Field name="author" value="JAKARTA POST"/>
+	<Entry ABREV="Can">
+		<Field name="medium" value="Canard Enchaîné"/>
+		<Field name="media-type" value="News et Magazines"/>
+		<Field name="author" value="Canard Enchaîné"/>
 	</Entry>
 	<Entry ABREV="CONTR">
 		<Field name="medium" value="Contrôle"/>
@@ -1861,21 +1763,11 @@
 		<Field name="media-type" value="Site Internet "/>
 		<Field name="author" value="MDRGF@"/>
 	</Entry>
-	<Entry ABREV="VIGC">
-		<Field name="medium" value="Vigie Chimie"/>
-		<Field name="media-type" value="Presse électronique"/>
-		<Field name="author" value="Vigie Chimie"/>
-	</Entry>
 	<Entry ABREV="VIF">
 		<Field name="localisation" value="Belgique"/>
 		<Field name="medium" value="Le Vif / L'Express"/>
 		<Field name="media-type" value="Presse belge"/>
 		<Field name="author" value="Le Vif / L'Express"/>
-	</Entry>
-	<Entry ABREV="LDP">
-		<Field name="medium" value="Lindsay Daily Post"/>
-		<Field name="media-type" value="Presse canadienne"/>
-		<Field name="author" value="Lindsay Daily Post"/>
 	</Entry>
 	<Entry ABREV="RELAX">
 		<Field name="medium" value="Relaxnews"/>
@@ -1889,10 +1781,10 @@
 		<Field name="media-type" value="Agence de presse"/>
 		<Field name="open-field-1" value="Dépêche d'agence"/>
 	</Entry>
-	<Entry ABREV="TPCH">
-		<Field name="medium" value="Transport Echo"/>
-		<Field name="media-type" value="Presse belge"/>
-		<Field name="author" value="Transport Echo"/>
+	<Entry ABREV="BERL">
+		<Field name="medium" value="Berlingske Tidende"/>
+		<Field name="media-type" value="Presse allemande"/>
+		<Field name="author" value="Berlingske Tidende"/>
 	</Entry>
 	<Entry ABREV="PLTC">
 		<Field name="medium" value="Politics &amp; the Life Sciences"/>
@@ -1904,10 +1796,10 @@
 		<Field name="media-type" value="Internet"/>
 		<Field name="author" value="www.actu-environnement.com"/>
 	</Entry>
-	<Entry ABREV="AMRC">
-		<Field name="medium" value="America"/>
-		<Field name="media-type" value="News et magazines"/>
-		<Field name="author" value="America"/>
+	<Entry ABREV="KAL">
+		<Field name="medium" value="Kalgoorlie Miner"/>
+		<Field name="media-type" value="Presse australienne"/>
+		<Field name="author" value="Kalgoorlie Miner"/>
 	</Entry>
 	<Entry ABREV="SFN">
 		<Field name="medium" value="Société Française d'Energie Nucléaire"/>
@@ -1940,6 +1832,12 @@
 		<Field name="media-type" value="Agence de presse"/>
 		<Field name="author" value="APM"/>
 	</Entry>
+	<Entry ABREV="JDLE">
+		<Field name="authorship" value="Journaliste"/>
+		<Field name="medium" value="Journal de l'Environnement"/>
+		<Field name="media-type" value="Presse environnementale"/>
+		<Field name="author" value="Journal de l'Environnement"/>
+	</Entry>
 	<Entry ABREV="APA">
 		<Field name="medium" value="APANEWS"/>
 		<Field name="media-type" value="Presse sénégalaise"/>
@@ -1960,15 +1858,20 @@
 		<Field name="media-type" value="Presse américaine"/>
 		<Field name="author" value="Kiplinger"/>
 	</Entry>
-	<Entry ABREV="KORH">
-		<Field name="medium" value="Korea Herald"/>
-		<Field name="media-type" value="Presse coréenne"/>
-		<Field name="author" value="Korea Herald"/>
+	<Entry ABREV="STAR">
+		<Field name="medium" value="The Star"/>
+		<Field name="media-type" value="Presse sud-africaine"/>
+		<Field name="author" value="The Star"/>
 	</Entry>
-	<Entry ABREV="NGA">
-		<Field name="localisation" value="Belgique"/>
-		<Field name="medium" value="La Nouvelle Gazette"/>
-		<Field name="media-type" value="Presse quotidienne régionale"/>
+	<Entry ABREV="STAS">
+		<Field name="medium" value="Sunday Tasmanian"/>
+		<Field name="media-type" value="Presse australienne"/>
+		<Field name="author" value="Sunday Tasmanian"/>
+	</Entry>
+	<Entry ABREV="YON">
+		<Field name="medium" value="L'Yonne Républicaine"/>
+		<Field name="media-type" value="Presse régionale"/>
+		<Field name="author" value="L'Yonne Républicaine"/>
 	</Entry>
 	<Entry ABREV="Rue89">
 		<Field name="authorship" value="Journaliste"/>
@@ -2022,11 +1925,6 @@
 		<Field name="media-type" value="Presse belge"/>
 		<Field name="author" value="De Standaard"/>
 	</Entry>
-	<Entry ABREV="ENVSTRAT">
-		<Field name="medium" value="Environnement &amp; Stratégie"/>
-		<Field name="media-type" value="Presse professionnelle"/>
-		<Field name="author" value="Environnement &amp; Stratégie"/>
-	</Entry>
 	<Entry ABREV="HDJ">
 		<Field name="medium" value="L'Héraut du Jour"/>
 		<Field name="media-type" value="Presse régionale"/>
@@ -2078,11 +1976,6 @@
 		<Field name="medium" value="Association pétrolière et gazière du Québec"/>
 		<Field name="author" value="Association pétrolière et gazière du Québec"/>
 	</Entry>
-	<Entry ABREV="THC">
-		<Field name="medium" value="The Houston Chronicle"/>
-		<Field name="media-type" value="Presse américaine"/>
-		<Field name="author" value="The Houston Chronicle"/>
-	</Entry>
 	<Entry ABREV="BRIS">
 		<Field name="medium" value="Bristol Evening Post"/>
 		<Field name="media-type" value="Presse brittanique"/>
@@ -2103,10 +1996,9 @@
 		<Field name="media-type" value="Site internet"/>
 		<Field name="author" value="http://mieuxprevenir2.blogspot.fr"/>
 	</Entry>
-	<Entry ABREV="CSM">
-		<Field name="medium" value="Christian Science Monitor"/>
-		<Field name="media-type" value="Presse américaine"/>
-		<Field name="author" value="Christian Science Monitor"/>
+	<Entry ABREV="RFS">
+		<Field name="medium" value="Revue Française de Sociologie"/>
+		<Field name="media-type" value="Revue"/>
 	</Entry>
 	<Entry ABREV="RFR">
 		<Field name="medium" value="Radio France"/>
@@ -2192,6 +2084,13 @@
 		<Field name="media-type" value="Presse environnementale"/>
 		<Field name="author" value="RSEIN"/>
 	</Entry>
+	<Entry ABREV="FIET">
+		<Field name="authorship" value="Journaliste"/>
+		<Field name="medium" value="Le Figaro Etudiant"/>
+		<Field name="open-field-1" value="Article de presse"/>
+		<Field name="media-type" value="News et magazines"/>
+		<Field name="author" value="Le Figaro Etudiant"/>
+	</Entry>
 	<Entry ABREV="AFP">
 		<Field name="authorship" value="Journaliste"/>
 		<Field name="medium" value="AFP"/>
@@ -2209,10 +2108,12 @@
 		<Field name="media-type" value="Agence de presse"/>
 		<Field name="author" value="Africa News"/>
 	</Entry>
-	<Entry ABREV="LLAA">
-		<Field name="medium" value="La Lettre A"/>
+	<Entry ABREV="Pécresse">
+		<Field name="author" value="Pécresse"/>
+	</Entry>
+	<Entry ABREV="PTC">
+		<Field name="medium" value="Le Particulier Pratique"/>
 		<Field name="media-type" value="News et magazines"/>
-		<Field name="author" value="La Lettre A"/>
 	</Entry>
 	<Entry ABREV="tlmae">
 		<Field name="medium" value="tlmae"/>
@@ -2225,8 +2126,13 @@
 		<Field name="localisation" value="Genève"/>
 		<Field name="authorship" value="Journaliste"/>
 	</Entry>
-	<Entry ABREV="CERTA">
-		<Field name="author" value="CERTA"/>
+	<Entry ABREV="DEC">
+		<Field name="medium" value="Décision Environnement"/>
+		<Field name="media-type" value="Presse environnementale"/>
+	</Entry>
+	<Entry ABREV="Transversales">
+		<Field name="medium" value="Transversales"/>
+		<Field name="media-type" value="site Internet"/>
 	</Entry>
 	<Entry ABREV="CIPR">
 		<Field name="authorship" value="Organisme de contrôle officiel"/>
@@ -2236,11 +2142,6 @@
 		<Field name="medium" value="Le Point"/>
 		<Field name="media-type" value="News et Magazines"/>
 		<Field name="author" value="Le Point"/>
-	</Entry>
-	<Entry ABREV="THBL">
-		<Field name="medium" value="The Blade (MCT)"/>
-		<Field name="media-type" value="News et magazines"/>
-		<Field name="author" value="The Blade (MCT)"/>
 	</Entry>
 	<Entry ABREV="PROV">
 		<Field name="medium" value="La Provence"/>
@@ -2309,16 +2210,16 @@
 		<Field name="media-type" value="Presse indienne"/>
 		<Field name="author" value="Merinews"/>
 	</Entry>
+	<Entry ABREV="USNN">
+		<Field name="medium" value="L'Usine nouvelle"/>
+		<Field name="media-type" value="Presse professionnelle"/>
+		<Field name="author" value="L'Usine nouvelle"/>
+	</Entry>
 	<Entry ABREV="Prov">
 		<Field name="authorship" value="Journaliste"/>
 		<Field name="medium" value="La Provence"/>
 		<Field name="media-type" value="Presse Quotidienne Régionale"/>
 		<Field name="author" value="La Provence"/>
-	</Entry>
-	<Entry ABREV="DII">
-		<Field name="medium" value="Direction Informatique"/>
-		<Field name="media-type" value="Presse canadienne"/>
-		<Field name="author" value="Direction Informatique"/>
 	</Entry>
 	<Entry ABREV="CHAL">
 		<Field name="medium" value="Challenges"/>
@@ -2335,11 +2236,10 @@
 		<Field name="medium" value="IRSN"/>
 		<Field name="author" value="IRSN"/>
 	</Entry>
-	<Entry ABREV="Midlib">
-		<Field name="authorship" value="Journaliste"/>
-		<Field name="medium" value="Midi Libre"/>
-		<Field name="media-type" value="Presse Quotidienne Régionale"/>
-		<Field name="author" value="Midi Libre"/>
+	<Entry ABREV="ATS">
+		<Field name="medium" value="Agence Télégraphique Suisse"/>
+		<Field name="media-type" value="Agence de presse"/>
+		<Field name="author" value="Agence Télégraphique Suisse"/>
 	</Entry>
 	<Entry ABREV="Prog">
 		<Field name="authorship" value="Journaliste"/>
@@ -2382,9 +2282,6 @@
 		<Field name="media-type" value="Presse économique"/>
 		<Field name="author" value="The Economist"/>
 	</Entry>
-	<Entry ABREV="IRD">
-		<Field name="author" value="IRD"/>
-	</Entry>
 	<Entry ABREV="RadCan">
 		<Field name="localisation" value="Canada"/>
 		<Field name="authorship" value="Journaliste"/>
@@ -2405,10 +2302,10 @@
 		<Field name="media-type" value="Presse économique"/>
 		<Field name="author" value="Les Echos"/>
 	</Entry>
-	<Entry ABREV="RMC">
-		<Field name="medium" value="RMC"/>
-		<Field name="media-type" value="Audiovisuel"/>
-		<Field name="author" value="RMC"/>
+	<Entry ABREV="CANAD">
+		<Field name="medium" value="La Presse Canadienne"/>
+		<Field name="media-type" value="Agence de presse"/>
+		<Field name="author" value="La Presse Canadienne"/>
 	</Entry>
 	<Entry ABREV="LNO">
 		<Field name="medium" value="Le Nouvelliste"/>
@@ -2431,10 +2328,10 @@
 		<Field name="media-type" value="Internet"/>
 		<Field name="author" value="Association Santé Environnement "/>
 	</Entry>
-	<Entry ABREV="NNTW">
-		<Field name="medium" value="Nanotechnology Weekly"/>
-		<Field name="media-type" value="Presse scientifique"/>
-		<Field name="author" value="Nanotechnology Weekly"/>
+	<Entry ABREV="HOUC">
+		<Field name="medium" value="Houston Chronicle"/>
+		<Field name="media-type" value="Presse américaine"/>
+		<Field name="author" value="Houston Chronicle"/>
 	</Entry>
 	<Entry ABREV="BITW">
 		<Field name="medium" value="Biotech Week"/>
@@ -2505,19 +2402,14 @@
 		<Field name="media-type" value="Presse régionale"/>
 		<Field name="author" value="La Tribune de Genève"/>
 	</Entry>
-	<Entry ABREV="HOUC">
-		<Field name="medium" value="Houston Chronicle"/>
-		<Field name="media-type" value="Presse américaine"/>
-		<Field name="author" value="Houston Chronicle"/>
-	</Entry>
 	<Entry ABREV="BBC">
 		<Field name="medium" value="BBC Worldwide Monitoring"/>
 		<Field name="media-type" value="Agence de presse"/>
 		<Field name="author" value="BBC Worldwide Monitoring"/>
 	</Entry>
-	<Entry ABREV="IBAT">
-		<Field name="medium" value="INTERBAT, le Net du Bâtiment"/>
-		<Field name="media-type" value="Internet"/>
+	<Entry ABREV="FRM">
+		<Field name="medium" value="France 3 Midi-Pyrennées"/>
+		<Field name="media-type" value="Audiovisuel"/>
 	</Entry>
 	<Entry ABREV="FRL">
 		<Field name="medium" value="France 3 Limousin"/>
@@ -2531,10 +2423,9 @@
 	<Entry ABREV="Afrikcom">
 		<Field name="author" value="Afrik.com"/>
 	</Entry>
-	<Entry ABREV="EEFR">
-		<Field name="medium" value="Europe1.fr"/>
-		<Field name="media-type" value="Radio"/>
-		<Field name="author" value="Europe1.fr"/>
+	<Entry ABREV="FRP">
+		<Field name="medium" value="France 3 Poitou-Charentes"/>
+		<Field name="media-type" value="Audiovisuel"/>
 	</Entry>
 	<Entry ABREV="FRV">
 		<Field name="medium" value="France 3 PACA"/>
@@ -2555,12 +2446,8 @@
 		<Field name="medium" value="France 3 Lyon"/>
 		<Field name="media-type" value="Audiovisuel"/>
 	</Entry>
-	<Entry ABREV="Canoe">
-		<Field name="localisation" value="Canada"/>
-		<Field name="authorship" value="Journaliste"/>
-		<Field name="medium" value="Canoe.ca"/>
-		<Field name="media-type" value="Presse internationale"/>
-		<Field name="author" value="Canoe.ca"/>
+	<Entry ABREV="FAO-OIE">
+		<Field name="author" value="FAO-OIE"/>
 	</Entry>
 	<Entry ABREV="FARN">
 		<Field name="medium" value="Farming News"/>
@@ -2578,9 +2465,10 @@
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="Paris Match"/>
 	</Entry>
-	<Entry ABREV="EUR">
-		<Field name="medium" value="Eureka"/>
-		<Field name="media-type" value="News et magazines"/>
+	<Entry ABREV="USHE">
+		<Field name="medium" value="U.S. Health &amp; Human Services Documents"/>
+		<Field name="media-type" value="Presse médicale"/>
+		<Field name="author" value="U.S. Health &amp; Human Services Documents"/>
 	</Entry>
 	<Entry ABREV="VIVA">
 		<Field name="medium" value="Viva"/>
@@ -2631,11 +2519,6 @@
 		<Field name="media-type" value="Presse professionnelle"/>
 		<Field name="author" value="Religare Technova News Service"/>
 	</Entry>
-	<Entry ABREV="HRMT">
-		<Field name="medium" value="24 heures Montréal"/>
-		<Field name="media-type" value="Presse canadienne"/>
-		<Field name="author" value="24 heures Montréal"/>
-	</Entry>
 	<Entry ABREV="EURAC">
 		<Field name="medium" value="EurActiv"/>
 		<Field name="media-type" value="Agence de presse"/>
@@ -2666,10 +2549,8 @@
 		<Field name="media-type" value="Presse économique"/>
 		<Field name="author" value="Economist Intelligence Unit - Executive Briefing"/>
 	</Entry>
-	<Entry ABREV="MNPS">
-		<Field name="medium" value="Market News Publishing"/>
-		<Field name="media-type" value="Presse économique"/>
-		<Field name="author" value="Market News Publishing"/>
+	<Entry ABREV="AFMT">
+		<Field name="author" value="AFMT"/>
 	</Entry>
 	<Entry ABREV="DTWL">
 		<Field name="medium" value="Deutsche Welle"/>
@@ -2679,11 +2560,6 @@
 	<Entry ABREV="FRB">
 		<Field name="medium" value="France3 Bourgogne"/>
 		<Field name="media-type" value="Audiovisuel"/>
-	</Entry>
-	<Entry ABREV="PENT">
-		<Field name="medium" value="Inside the Pentagon"/>
-		<Field name="media-type" value="Presse américaine"/>
-		<Field name="author" value="Inside the Pentagon"/>
 	</Entry>
 	<Entry ABREV="TNTH">
 		<Field name="medium" value="The Nation - Thailand"/>
@@ -2698,6 +2574,11 @@
 	<Entry ABREV="FRA">
 		<Field name="medium" value="France 3 Champagne-Ardennes"/>
 		<Field name="media-type" value="Audiovisuel"/>
+	</Entry>
+	<Entry ABREV="TMO">
+		<Field name="localisation" value="Belgique"/>
+		<Field name="medium" value="Télémoustique"/>
+		<Field name="media-type" value="News et magazines"/>
 	</Entry>
 	<Entry ABREV="01INF">
 		<Field name="medium" value="01Informatique"/>
@@ -2766,11 +2647,6 @@
 		<Field name="media-type" value="Presse scientifique"/>
 		<Field name="author" value="Research Policy"/>
 	</Entry>
-	<Entry ABREV="LETOI">
-		<Field name="medium" value="La Lettre De L'ocean Indien"/>
-		<Field name="media-type" value="Presse électronique"/>
-		<Field name="author" value="La Lettre De L'ocean Indien"/>
-	</Entry>
 	<Entry ABREV="DRUG">
 		<Field name="medium" value="Drug Week"/>
 		<Field name="media-type" value="Presse professionnelle"/>
@@ -2796,10 +2672,6 @@
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="Politis"/>
 	</Entry>
-	<Entry ABREV="RAT">
-		<Field name="medium" value="Réponse à Tout"/>
-		<Field name="media-type" value="News et magazines"/>
-	</Entry>
 	<Entry ABREV="CHWN">
 		<Field name="medium" value="China Weekly News"/>
 		<Field name="media-type" value="Presse chinoise"/>
@@ -2811,6 +2683,13 @@
 		<Field name="open-field-1" value="Article de presse"/>
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="Le Point"/>
+	</Entry>
+	<Entry ABREV="ARD">
+		<Field name="authorship" value="Journaliste"/>
+		<Field name="medium" value="L'Ardennais"/>
+		<Field name="open-field-1" value="Article de presse"/>
+		<Field name="media-type" value="Presse quotidienne régionale"/>
+		<Field name="author" value="L'Ardennais"/>
 	</Entry>
 	<Entry ABREV="BIT">
 		<Field name="authorship" value="Instance internationale"/>
@@ -2834,10 +2713,15 @@
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="NPR: Talk of the Nation/Science Friday"/>
 	</Entry>
-	<Entry ABREV="VNCVS">
-		<Field name="medium" value="Vancouver Sun"/>
-		<Field name="media-type" value="Presse canadienne"/>
-		<Field name="author" value="Vancouver Sun"/>
+	<Entry ABREV="BUFF">
+		<Field name="medium" value="Buffalo News"/>
+		<Field name="media-type" value="Presse américaine"/>
+		<Field name="author" value="Buffalo News"/>
+	</Entry>
+	<Entry ABREV="MIAH">
+		<Field name="medium" value="The Miami Herald"/>
+		<Field name="media-type" value="Presse américaine"/>
+		<Field name="author" value="The Miami Herald"/>
 	</Entry>
 	<Entry ABREV="cnrs">
 		<Field name="authorship" value="Pro-Techno"/>
@@ -2877,10 +2761,9 @@
 		<Field name="medium" value="Site internet de campagne"/>
 		<Field name="author" value="Sarkozy"/>
 	</Entry>
-	<Entry ABREV="VTO">
-		<Field name="localisation" value="Québec"/>
-		<Field name="medium" value="VertigO"/>
-		<Field name="media-type" value="Presse environnementale"/>
+	<Entry ABREV="IBAT">
+		<Field name="medium" value="INTERBAT, le Net du Bâtiment"/>
+		<Field name="media-type" value="Internet"/>
 	</Entry>
 	<Entry ABREV="SUNM">
 		<Field name="medium" value="Sunday Mercury"/>
@@ -2969,10 +2852,6 @@
 		<Field name="media-type" value="Presse nationale"/>
 		<Field name="author" value="La Croix"/>
 	</Entry>
-	<Entry ABREV="FRP">
-		<Field name="medium" value="France 3 Poitou-Charentes"/>
-		<Field name="media-type" value="Audiovisuel"/>
-	</Entry>
 	<Entry ABREV="MCLP">
 		<Field name="medium" value="Manufacturing Close-Up"/>
 		<Field name="media-type" value="Presse professionnelle"/>
@@ -2983,10 +2862,15 @@
 		<Field name="media-type" value="Presse électronique"/>
 		<Field name="author" value="Vigie Informatique Appliquée"/>
 	</Entry>
-	<Entry ABREV="LSO">
-		<Field name="medium" value="Le Soir"/>
-		<Field name="media-type" value="Presse belge"/>
-		<Field name="author" value="Le Soir"/>
+	<Entry ABREV="ENVSTRAT">
+		<Field name="medium" value="Environnement &amp; Stratégie"/>
+		<Field name="media-type" value="Presse professionnelle"/>
+		<Field name="author" value="Environnement &amp; Stratégie"/>
+	</Entry>
+	<Entry ABREV="LJDC">
+		<Field name="medium" value="Lejdc.fr"/>
+		<Field name="media-type" value="Presse régionale"/>
+		<Field name="author" value="Lejdc.fr"/>
 	</Entry>
 	<Entry ABREV="IHSG">
 		<Field name="medium" value="IHS Global Insight Daily Analysis"/>
@@ -3088,10 +2972,10 @@
 		<Field name="media-type" value="Presse italienne"/>
 		<Field name="author" value="ASCA"/>
 	</Entry>
-	<Entry ABREV="VIGMP">
-		<Field name="medium" value="Vigie Médecine-Pharmacie"/>
-		<Field name="media-type" value="Presse électronique"/>
-		<Field name="author" value="Vigie Médecine-Pharmacie"/>
+	<Entry ABREV="ELP">
+		<Field name="medium" value="El Pais"/>
+		<Field name="media-type" value="Presse hispanique"/>
+		<Field name="author" value="El Pais"/>
 	</Entry>
 	<Entry ABREV="PAN">
 		<Field name="medium" value="Paris-Normandie"/>
@@ -3125,25 +3009,24 @@
 		<Field name="media-type" value="Presse brittanique"/>
 		<Field name="author" value="South Wales Echo"/>
 	</Entry>
-	<Entry ABREV="PZV">
-		<Field name="medium" value="Protégez-Vous"/>
-		<Field name="media-type" value="Presse canadienne"/>
-		<Field name="author" value="Protégez-Vous"/>
+	<Entry ABREV="MIN">
+		<Field name="medium" value="La Semaine du Minervois"/>
+		<Field name="media-type" value="Presse régionale"/>
 	</Entry>
 	<Entry ABREV="GZSS">
 		<Field name="medium" value="La Gazette Santé Social"/>
 		<Field name="media-type" value="Presse professionnelle"/>
 		<Field name="author" value="La Gazette Santé Social"/>
 	</Entry>
-	<Entry ABREV="BUST">
-		<Field name="medium" value="Business Today"/>
-		<Field name="media-type" value="Presse indienne"/>
-		<Field name="author" value="Business Today"/>
+	<Entry ABREV="LLAA">
+		<Field name="medium" value="La Lettre A"/>
+		<Field name="media-type" value="News et magazines"/>
+		<Field name="author" value="La Lettre A"/>
 	</Entry>
-	<Entry ABREV="EUP">
-		<Field name="medium" value="Europolitique"/>
-		<Field name="media-type" value="Presse électronique"/>
-		<Field name="author" value="Europolitique"/>
+	<Entry ABREV="AWP">
+		<Field name="medium" value="AWP Swiss News"/>
+		<Field name="media-type" value="Agence de presse"/>
+		<Field name="author" value="AWP Swiss News"/>
 	</Entry>
 	<Entry ABREV="BUSI">
 		<Field name="medium" value="Business Times Singapore"/>
@@ -3168,6 +3051,10 @@
 		<Field name="medium" value="Féminin Santé"/>
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="Féminin Santé"/>
+	</Entry>
+	<Entry ABREV="EUR">
+		<Field name="medium" value="Eureka"/>
+		<Field name="media-type" value="News et magazines"/>
 	</Entry>
 	<Entry ABREV="TGLO">
 		<Field name="medium" value="The Globe and Mail"/>
@@ -3210,22 +3097,16 @@
 		<Field name="media-type" value="Presse allemande"/>
 		<Field name="author" value="Handelsblatt"/>
 	</Entry>
-	<Entry ABREV="MOUD">
-		<Field name="localisation" value="Algérie"/>
+	<Entry ABREV="Midi">
 		<Field name="authorship" value="Journaliste"/>
-		<Field name="medium" value="elmoudjahid.com"/>
-		<Field name="media-type" value="Presse internationale"/>
-		<Field name="author" value="El Moudjahid"/>
+		<Field name="medium" value="La Dépêche du Midi"/>
+		<Field name="media-type" value="Presse Quotidienne Régionale"/>
+		<Field name="author" value="La Dépêche du Midi"/>
 	</Entry>
 	<Entry ABREV="BDAY">
 		<Field name="medium" value="Business Day"/>
 		<Field name="media-type" value="Presse sud-africaine"/>
 		<Field name="author" value="Business Day"/>
-	</Entry>
-	<Entry ABREV="BORS">
-		<Field name="medium" value="Borsen-Zeitung"/>
-		<Field name="media-type" value="Presse allemande"/>
-		<Field name="author" value="Borsen-Zeitung"/>
 	</Entry>
 	<Entry ABREV="EQU">
 		<Field name="medium" value="L'Equipe"/>
@@ -3241,22 +3122,14 @@
 		<Field name="medium" value="L'Usine Nouvelle"/>
 		<Field name="media-type" value="News et Magazines"/>
 	</Entry>
-	<Entry ABREV="RAS">
-		<Field name="medium" value="Ras l'front"/>
-	</Entry>
-	<Entry ABREV="Chomsky">
-		<Field name="authorship" value="Intellectual"/>
-		<Field name="author" value="Chomsky "/>
-	</Entry>
 	<Entry ABREV="Trib">
 		<Field name="medium" value="La Tribune"/>
 		<Field name="media-type" value="Presse économique périodique"/>
 	</Entry>
-	<Entry ABREV="GLA">
-		<Field name="localisation" value="http://www.eauxglacees.com/"/>
-		<Field name="open-field-1" value="Article sur la toile"/>
-		<Field name="medium" value="Les eaux glacées du calcul égoïste"/>
-		<Field name="media-type" value="Blog"/>
+	<Entry ABREV="THC">
+		<Field name="medium" value="The Houston Chronicle"/>
+		<Field name="media-type" value="Presse américaine"/>
+		<Field name="author" value="The Houston Chronicle"/>
 	</Entry>
 	<Entry ABREV="HAV">
 		<Field name="medium" value="Havre Presse"/>
@@ -3354,27 +3227,19 @@
 		<Field name="media-type" value="Presse australienne"/>
 		<Field name="author" value="Herald Sun"/>
 	</Entry>
-	<Entry ABREV="AFMT">
-		<Field name="author" value="AFMT"/>
-	</Entry>
-	<Entry ABREV="RAP">
-		<Field name="localisation" value="Belgique"/>
-		<Field name="medium" value="Le Rappel"/>
-		<Field name="media-type" value="Presse quotidienne régionale"/>
-	</Entry>
-	<Entry ABREV="MOST">
-		<Field name="medium" value="The Moscow Times"/>
-		<Field name="media-type" value="Presse russe"/>
-		<Field name="author" value="The Moscow Times"/>
+	<Entry ABREV="FInter">
+		<Field name="medium" value="France Inter"/>
+		<Field name="media-type" value="Audiovisuel"/>
 	</Entry>
 	<Entry ABREV="MEN">
 		<Field name="medium" value="Middle East Newsfile"/>
 		<Field name="media-type" value="Agence de presse"/>
 		<Field name="author" value="Middle East Newsfile"/>
 	</Entry>
-	<Entry ABREV="CONF">
-		<Field name="authorship" value="Syndicalistes"/>
-		<Field name="author" value="Confédération Paysanne"/>
+	<Entry ABREV="CSres">
+		<Field name="authorship" value="Organisation des Nations Unies"/>
+		<Field name="medium" value="Résolutions de l'ONU"/>
+		<Field name="author" value="Conseil de sécurité de l'ONU"/>
 	</Entry>
 	<Entry ABREV="AENV">
 		<Field name="medium" value="http://www.actu-environnement.com"/>
@@ -3417,11 +3282,6 @@
 	<Entry ABREV="AcadSc">
 		<Field name="author" value="Académie des Sciences"/>
 	</Entry>
-	<Entry ABREV="LIC">
-		<Field name="open-field-1" value="Article de presse"/>
-		<Field name="medium" value="Libération Champagne"/>
-		<Field name="media-type" value="Presse quotidienne régionale"/>
-	</Entry>
 	<Entry ABREV="Europe1">
 		<Field name="medium" value="Europe 1"/>
 		<Field name="media-type" value="Audiovisuel"/>
@@ -3429,10 +3289,6 @@
 	<Entry ABREV="AEN">
 		<Field name="medium" value="Agence pour l'Energie Nucléaire"/>
 		<Field name="media-type" value="Communiqué de presse"/>
-	</Entry>
-	<Entry ABREV="Spieg">
-		<Field name="medium" value="Der Spiegel"/>
-		<Field name="media-type" value="Presse étrangère"/>
 	</Entry>
 	<Entry ABREV="PQ">
 		<Field name="localisation" value="Canada"/>
@@ -3457,6 +3313,11 @@
 		<Field name="medium" value="Brave Patrie"/>
 		<Field name="author" value="Loose"/>
 	</Entry>
+	<Entry ABREV="TDZZ">
+		<Field name="medium" value="Today.az"/>
+		<Field name="media-type" value="Presse azerbaïdjanaise"/>
+		<Field name="author" value="Today.az"/>
+	</Entry>
 	<Entry ABREV="BORB">
 		<Field name="medium" value="Borneo Bulletin"/>
 		<Field name="media-type" value="Presse bornéaise"/>
@@ -3471,10 +3332,10 @@
 		<Field name="medium" value="Maison Française"/>
 		<Field name="media-type" value="News et magazines"/>
 	</Entry>
-	<Entry ABREV="SABI">
-		<Field name="medium" value="SABI"/>
-		<Field name="media-type" value="Agence de presse"/>
-		<Field name="author" value="SABI"/>
+	<Entry ABREV="LDP">
+		<Field name="medium" value="Lindsay Daily Post"/>
+		<Field name="media-type" value="Presse canadienne"/>
+		<Field name="author" value="Lindsay Daily Post"/>
 	</Entry>
 	<Entry ABREV="PRNEWS">
 		<Field name="medium" value="PR NewsWire"/>
@@ -3498,18 +3359,15 @@
 		<Field name="media-type" value="Presse américaine"/>
 		<Field name="author" value="Boston Herald"/>
 	</Entry>
-	<Entry ABREV="BBBD">
-		<Field name="medium" value="Baltic Business Daily"/>
-		<Field name="media-type" value="Presse économique"/>
-		<Field name="author" value="Baltic Business Daily"/>
+	<Entry ABREV="EPA">
+		<Field name="medium" value="Environmental Protection Agency Documents and Publications"/>
+		<Field name="media-type" value="Communiqué de presse"/>
+		<Field name="author" value="Environmental Protection Agency Documents and Publications"/>
 	</Entry>
-	<Entry ABREV="AEGE">
-		<Field name="medium" value=""/>
-		<Field name="author" value="AEGE"/>
-		<Field name="media-type" value=""/>
-		<Field name="localisation" value=""/>
-		<Field name="observations" value=""/>
-		<Field name="authorship" value=""/>
+	<Entry ABREV="RSSN">
+		<Field name="medium" value="Reason"/>
+		<Field name="media-type" value="News et magazines"/>
+		<Field name="author" value="Reason"/>
 	</Entry>
 	<Entry ABREV="WIR">
 		<Field name="localisation" value="Allemagne"/>
@@ -3530,10 +3388,9 @@
 		<Field name="media-type" value="Presse économique"/>
 		<Field name="author" value="Forbes"/>
 	</Entry>
-	<Entry ABREV="CBNN">
-		<Field name="medium" value="eSource Canada Business News Network"/>
-		<Field name="media-type" value="Presse économique"/>
-		<Field name="author" value="eSource Canada Business News Network"/>
+	<Entry ABREV="Chomsky">
+		<Field name="authorship" value="Intellectual"/>
+		<Field name="author" value="Chomsky "/>
 	</Entry>
 	<Entry ABREV="ECHH">
 		<Field name="medium" value="L'Echo Républicain"/>
@@ -3551,6 +3408,11 @@
 		<Field name="media-type" value="PQR"/>
 		<Field name="author" value="Nouvelle République du Centre-Ouest "/>
 	</Entry>
+	<Entry ABREV="BUST">
+		<Field name="medium" value="Business Today"/>
+		<Field name="media-type" value="Presse indienne"/>
+		<Field name="author" value="Business Today"/>
+	</Entry>
 	<Entry ABREV="CSGS">
 		<Field name="localisation" value="Canada"/>
 		<Field name="author" value="Collectif scientifique sur la question du gaz de schiste au Québec"/>
@@ -3559,9 +3421,10 @@
 		<Field name="medium" value="Le Quotidien du Pharmacien"/>
 		<Field name="media-type" value="Presse sectorielle"/>
 	</Entry>
-	<Entry ABREV="DDU">
-		<Field name="medium" value="http://www.developpementdurable.com"/>
-		<Field name="media-type" value="Internet"/>
+	<Entry ABREV="EEEPH">
+		<Field name="medium" value="Environmental Policy Alert"/>
+		<Field name="media-type" value="Presse environnementale"/>
+		<Field name="author" value="Environmental Policy Alert"/>
 	</Entry>
 	<Entry ABREV="LJD">
 		<Field name="medium" value="Le Jeudi"/>
@@ -3578,8 +3441,9 @@
 		<Field name="media-type" value="Presse sud-africaine"/>
 		<Field name="author" value="Weekend Post"/>
 	</Entry>
-	<Entry ABREV="ZDNet">
-		<Field name="author" value="ZDNet"/>
+	<Entry ABREV="DDU">
+		<Field name="medium" value="http://www.developpementdurable.com"/>
+		<Field name="media-type" value="Internet"/>
 	</Entry>
 	<Entry ABREV="Exp">
 		<Field name="authorship" value="Journaliste"/>
@@ -3595,6 +3459,11 @@
 	<Entry ABREV="Forlib">
 		<Field name="medium" value="Forum Libération"/>
 		<Field name="media-type" value="Forum sur Internet"/>
+	</Entry>
+	<Entry ABREV="TNP">
+		<Field name="medium" value="The News"/>
+		<Field name="media-type" value="Presse pakistanaise"/>
+		<Field name="author" value="The News"/>
 	</Entry>
 	<Entry ABREV="Obs">
 		<Field name="authorship" value="Journaliste"/>
@@ -3635,10 +3504,10 @@
 		<Field name="media-type" value="Presse professionnelle"/>
 		<Field name="author" value="L'Ordinateur Individuel"/>
 	</Entry>
-	<Entry ABREV="MOS">
-		<Field name="medium" value="Mail on Sunday"/>
-		<Field name="media-type" value="Presse brittanique"/>
-		<Field name="author" value="Mail on Sunday"/>
+	<Entry ABREV="VIGMP">
+		<Field name="medium" value="Vigie Médecine-Pharmacie"/>
+		<Field name="media-type" value="Presse électronique"/>
+		<Field name="author" value="Vigie Médecine-Pharmacie"/>
 	</Entry>
 	<Entry ABREV="PSC">
 		<Field name="localisation" value="Belgique"/>
@@ -3647,22 +3516,20 @@
 		<Field name="media-type" value="Communiqué de presse"/>
 		<Field name="author" value="PSC"/>
 	</Entry>
-	<Entry ABREV="CGC">
-		<Field name="medium" value="Les Cahiers de Global Chance"/>
-		<Field name="media-type" value="Périodique critique"/>
-	</Entry>
 	<Entry ABREV="KBSF">
 		<Field name="medium" value="KBS World News"/>
 		<Field name="media-type" value="Agence de presse"/>
 		<Field name="author" value="KBS World News"/>
 	</Entry>
-	<Entry ABREV="REPUB">
-		<Field name="medium" value="La Repubblica"/>
-		<Field name="media-type" value="Presse italienne"/>
-		<Field name="author" value="La Repubblica"/>
+	<Entry ABREV="THBL">
+		<Field name="medium" value="The Blade (MCT)"/>
+		<Field name="media-type" value="News et magazines"/>
+		<Field name="author" value="The Blade (MCT)"/>
 	</Entry>
-	<Entry ABREV="Baquiast">
-		<Field name="author" value="Baquiast"/>
+	<Entry ABREV="LEIT">
+		<Field name="medium" value="Leitrim Observer"/>
+		<Field name="media-type" value="Presse irlandaise"/>
+		<Field name="author" value="Leitrim Observer"/>
 	</Entry>
 	<Entry ABREV="MOT">
 		<Field name="authorship" value="Journaliste"/>
@@ -3685,17 +3552,18 @@
 		<Field name="medium" value="Le Moniteur"/>
 		<Field name="media-type" value="Presse sectorielle"/>
 	</Entry>
+	<Entry ABREV="Baquiast">
+		<Field name="author" value="Baquiast"/>
+	</Entry>
 	<Entry ABREV="uZine">
 		<Field name="localisation" value="http://www.uzine.net/article796.html"/>
 		<Field name="medium" value="uZine"/>
 		<Field name="media-type" value="Internet"/>
 	</Entry>
-	<Entry ABREV="MON">
-		<Field name="authorship" value="Journaliste"/>
-		<Field name="medium" value="Le Monde"/>
-		<Field name="open-field-1" value="Article de presse"/>
-		<Field name="media-type" value="Presse nationale"/>
-		<Field name="author" value="Le Monde"/>
+	<Entry ABREV="VIGC">
+		<Field name="medium" value="Vigie Chimie"/>
+		<Field name="media-type" value="Presse électronique"/>
+		<Field name="author" value="Vigie Chimie"/>
 	</Entry>
 	<Entry ABREV="SAB">
 		<Field name="localisation" value="http://www.liegeairport.com/airport/html/frset.htm "/>
@@ -3732,8 +3600,12 @@
 		<Field name="media-type" value="Mensuel sectoriel"/>
 		<Field name="author" value="Environnement et Technique"/>
 	</Entry>
-	<Entry ABREV="FSC">
-		<Field name="author" value="Fondation Sciences Citoyennes"/>
+	<Entry ABREV="COR">
+		<Field name="authorship" value="Journaliste"/>
+		<Field name="medium" value="La Correspondance Economique"/>
+		<Field name="open-field-1" value="Article de presse"/>
+		<Field name="media-type" value="Presse économique"/>
+		<Field name="author" value="La Correspondance Economique"/>
 	</Entry>
 	<Entry ABREV="COU">
 		<Field name="medium" value="Courrier International"/>
@@ -3759,6 +3631,11 @@
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="Top Santé"/>
 	</Entry>
+	<Entry ABREV="JAK">
+		<Field name="medium" value="JAKARTA POST"/>
+		<Field name="media-type" value="Presse indonésienne"/>
+		<Field name="author" value="JAKARTA POST"/>
+	</Entry>
 	<Entry ABREV="SarkoTem">
 		<Field name="authorship" value="Président de l'UMP"/>
 		<Field name="medium" value="Témoignage"/>
@@ -3782,35 +3659,36 @@
 		<Field name="medium" value="Le Courrier de l'environnement"/>
 		<Field name="media-type" value="Presse environnementale"/>
 	</Entry>
-	<Entry ABREV="RIVS">
-		<Field name="medium" value="www.michele.rivasi.eu"/>
-		<Field name="media-type" value="Blog"/>
-		<Field name="author" value="Michele Rivasi"/>
+	<Entry ABREV="EEFR">
+		<Field name="medium" value="Europe1.fr"/>
+		<Field name="media-type" value="Radio"/>
+		<Field name="author" value="Europe1.fr"/>
 	</Entry>
 	<Entry ABREV="GRO">
 		<Field name="medium" value="The Grocer"/>
 		<Field name="media-type" value="Presse professionnelle"/>
 		<Field name="author" value="The Grocer"/>
 	</Entry>
-	<Entry ABREV="EPA">
-		<Field name="medium" value="Environmental Protection Agency Documents and Publications"/>
-		<Field name="media-type" value="Communiqué de presse"/>
-		<Field name="author" value="Environmental Protection Agency Documents and Publications"/>
-	</Entry>
 	<Entry ABREV="TRNS">
 		<Field name="medium" value="The Toronto Star"/>
 		<Field name="media-type" value="Presse canadienne"/>
 		<Field name="author" value="The Toronto Star"/>
+	</Entry>
+	<Entry ABREV="DAU">
+		<Field name="authorship" value="Journaliste"/>
+		<Field name="medium" value="Le Dauphiné"/>
+		<Field name="open-field-1" value="Article de presse"/>
+		<Field name="media-type" value="Presse régionale"/>
+		<Field name="author" value="Le Dauphiné"/>
 	</Entry>
 	<Entry ABREV="BULE">
 		<Field name="medium" value="www.bulletins-electroniques.com"/>
 		<Field name="media-type" value="Internet"/>
 		<Field name="author" value="www.bulletins-electroniques.com"/>
 	</Entry>
-	<Entry ABREV="TMO">
-		<Field name="localisation" value="Belgique"/>
-		<Field name="medium" value="Télémoustique"/>
-		<Field name="media-type" value="News et magazines"/>
+	<Entry ABREV="CON">
+		<Field name="medium" value="La Correspondance nucléaire"/>
+		<Field name="media-type" value="Presse sectorielle"/>
 	</Entry>
 	<Entry ABREV="THNS">
 		<Field name="medium" value="Thai News Service"/>
@@ -3821,23 +3699,45 @@
 		<Field name="medium" value="SFEN"/>
 		<Field name="media-type" value="News et Magazines"/>
 	</Entry>
-	<Entry ABREV="EEEN">
-		<Field name="medium" value="Electronic Engineering Times"/>
-		<Field name="media-type" value="Presse professionnelle"/>
-		<Field name="author" value="Electronic Engineering Times"/>
+	<Entry ABREV="GRM">
+		<Field name="authorship" value="Organisation écologiste"/>
+		<Field name="medium" value="Greenpeace Magazine"/>
+		<Field name="media-type" value="Presse sectorielle"/>
+		<Field name="author" value="Greenpeace"/>
+	</Entry>
+	<Entry ABREV="SABI">
+		<Field name="medium" value="SABI"/>
+		<Field name="media-type" value="Agence de presse"/>
+		<Field name="author" value="SABI"/>
 	</Entry>
 	<Entry ABREV="WTA">
 		<Field name="author" value="World Transhumanist Association"/>
 	</Entry>
-	<Entry ABREV="ADWE">
-		<Field name="medium" value="Adweek"/>
-		<Field name="media-type" value="Presse professionnelle"/>
-		<Field name="author" value="Adweek"/>
+	<Entry ABREV="LIC">
+		<Field name="open-field-1" value="Article de presse"/>
+		<Field name="medium" value="Libération Champagne"/>
+		<Field name="media-type" value="Presse quotidienne régionale"/>
 	</Entry>
 	<Entry ABREV="RISKASS">
 		<Field name="medium" value="RiskAssur-hebdo"/>
 		<Field name="media-type" value="Presse professionnelle"/>
 		<Field name="author" value="RiskAssur-hebdo"/>
+	</Entry>
+	<Entry ABREV="RAT">
+		<Field name="medium" value="Réponse à Tout"/>
+		<Field name="media-type" value="News et magazines"/>
+	</Entry>
+	<Entry ABREV="MYWK">
+		<Field name="medium" value="MoneyWeek"/>
+		<Field name="media-type" value="Presse économique"/>
+		<Field name="author" value="MoneyWeek"/>
+	</Entry>
+	<Entry ABREV="ARACH">
+		<Field name="localisation" value="Belgique"/>
+		<Field name="authorship" value="Association"/>
+		<Field name="medium" value="Site ARACH"/>
+		<Field name="media-type" value="Internet"/>
+		<Field name="author" value="ARACH"/>
 	</Entry>
 	<Entry ABREV="IMPAR">
 		<Field name="medium" value="L'Express-L'Impartial"/>
@@ -3847,27 +3747,10 @@
 		<Field name="localisation" value="Neuchâtel"/>
 		<Field name="authorship" value="Journaliste"/>
 	</Entry>
-	<Entry ABREV="EEWW">
-		<Field name="medium" value="Economics Week"/>
-		<Field name="media-type" value="Presse économique"/>
-		<Field name="author" value="Economics Week"/>
-	</Entry>
-	<Entry ABREV="ARACH">
-		<Field name="localisation" value="Belgique"/>
-		<Field name="authorship" value="Association"/>
-		<Field name="medium" value="Site ARACH"/>
-		<Field name="media-type" value="Internet"/>
-		<Field name="author" value="ARACH"/>
-	</Entry>
 	<Entry ABREV="TORS">
 		<Field name="medium" value="Toronto Star"/>
 		<Field name="media-type" value="Presse canadienne"/>
 		<Field name="author" value="Toronto Star"/>
-	</Entry>
-	<Entry ABREV="ALIS">
-		<Field name="medium" value="Le courrier d'Alis"/>
-		<Field name="media-type" value="Presse associative"/>
-		<Field name="author" value="Joët, Françoise"/>
 	</Entry>
 	<Entry ABREV="DDMAG">
 		<Field name="medium" value="ddmagazine.com"/>
@@ -3888,34 +3771,35 @@
 		<Field name="medium" value="RTBF télé"/>
 		<Field name="media-type" value="Audiovisuel"/>
 	</Entry>
-	<Entry ABREV="TVB">
-		<Field name="localisation" value="Belgique"/>
-		<Field name="medium" value="RTL-TVI"/>
-		<Field name="media-type" value="Audiovisuel"/>
+	<Entry ABREV="RAS">
+		<Field name="medium" value="Ras l'front"/>
 	</Entry>
 	<Entry ABREV="FAIT">
 		<Field name="localisation" value="Belgique"/>
 		<Field name="medium" value="Faits Divers"/>
 		<Field name="media-type" value="Audiovisuel"/>
 	</Entry>
-	<Entry ABREV="SAIG">
-		<Field name="medium" value="The Saigon Times Daily"/>
-		<Field name="media-type" value="Presse vietnamienne"/>
-		<Field name="author" value="The Saigon Times Daily"/>
+	<Entry ABREV="SRC">
+		<Field name="medium" value="SRC Télévision - Découverte"/>
+		<Field name="media-type" value="Audiovisuel"/>
+		<Field name="author" value="SRC Télévision - Découverte"/>
 	</Entry>
-	<Entry ABREV="CI">
-		<Field name="medium" value="Courrier International"/>
-		<Field name="media-type" value="News et Magazines"/>
+	<Entry ABREV="Canoe">
+		<Field name="localisation" value="Canada"/>
+		<Field name="authorship" value="Journaliste"/>
+		<Field name="medium" value="Canoe.ca"/>
+		<Field name="media-type" value="Presse internationale"/>
+		<Field name="author" value="Canoe.ca"/>
 	</Entry>
-	<Entry ABREV="SCDL">
-		<Field name="medium" value="Sunshine Coast Daily"/>
-		<Field name="media-type" value="Presse australienne"/>
-		<Field name="author" value="Sunshine Coast Daily"/>
+	<Entry ABREV="RAP">
+		<Field name="localisation" value="Belgique"/>
+		<Field name="medium" value="Le Rappel"/>
+		<Field name="media-type" value="Presse quotidienne régionale"/>
 	</Entry>
-	<Entry ABREV="HER">
-		<Field name="medium" value="Hermes Database"/>
+	<Entry ABREV="WESTD">
+		<Field name="medium" value="Western Daily Press"/>
 		<Field name="media-type" value="Presse brittanique"/>
-		<Field name="author" value="Hermes Database"/>
+		<Field name="author" value="Western Daily Press"/>
 	</Entry>
 	<Entry ABREV="BIEN">
 		<Field name="medium" value="Bio &amp; Nature"/>
@@ -3948,10 +3832,10 @@
 		<Field name="media-type" value="Circulaire"/>
 		<Field name="author" value="Mission interministérielle de lutte contre la drogue et la toxicomanie"/>
 	</Entry>
-	<Entry ABREV="USNN">
-		<Field name="medium" value="L'Usine nouvelle"/>
+	<Entry ABREV="TTTT">
+		<Field name="medium" value="Technology Times"/>
 		<Field name="media-type" value="Presse professionnelle"/>
-		<Field name="author" value="L'Usine nouvelle"/>
+		<Field name="author" value="Technology Times"/>
 	</Entry>
 	<Entry ABREV="DMAIL">
 		<Field name="medium" value="Daily Mail"/>
@@ -4009,10 +3893,10 @@
 		<Field name="media-type" value="Audiovisuel"/>
 		<Field name="author" value="Euronews"/>
 	</Entry>
-	<Entry ABREV="EXPAN">
-		<Field name="medium" value="L'Expansion"/>
-		<Field name="media-type" value="Presse économique"/>
-		<Field name="author" value="L'Expansion"/>
+	<Entry ABREV="MOS">
+		<Field name="medium" value="Mail on Sunday"/>
+		<Field name="media-type" value="Presse brittanique"/>
+		<Field name="author" value="Mail on Sunday"/>
 	</Entry>
 	<Entry ABREV="PLOG">
 		<Field name="medium" value="Platts Oilgram News"/>
@@ -4039,20 +3923,18 @@
 		<Field name="media-type" value="Presse brittanique"/>
 		<Field name="author" value="Telegraph"/>
 	</Entry>
-	<Entry ABREV="DAYMI">
-		<Field name="medium" value="Daily Mirror"/>
-		<Field name="media-type" value="Presse brittanique"/>
-		<Field name="author" value="Daily Mirror"/>
+	<Entry ABREV="CDS">
+		<Field name="localisation" value="Italie"/>
+		<Field name="medium" value="Corriere Della Serra"/>
+		<Field name="media-type" value="Presse internationale"/>
 	</Entry>
 	<Entry ABREV="RadioCanada">
 		<Field name="author" value="Radio Canada"/>
 	</Entry>
-	<Entry ABREV="BPU">
-		<Field name="authorship" value="Journaliste"/>
-		<Field name="medium" value="Le Bien Public"/>
-		<Field name="author" value="Le Bien Public"/>
-		<Field name="media-type" value="Presse Quotidienne Régionale"/>
-		<Field name="open-field-1" value="Article de presse"/>
+	<Entry ABREV="CHRN">
+		<Field name="medium" value="Chronicle of Higher Education"/>
+		<Field name="media-type" value="Presse professionnelle"/>
+		<Field name="author" value="Chronicle of Higher Education"/>
 	</Entry>
 	<Entry ABREV="electroallergique">
 		<Field name="medium" value="http://electroallergique.wordpress.com"/>
@@ -4069,10 +3951,10 @@
 		<Field name="media-type" value="Presse professionnelle"/>
 		<Field name="author" value="Precise Media Planner"/>
 	</Entry>
-	<Entry ABREV="PLI">
-		<Field name="medium" value="Notre-planete.info"/>
-		<Field name="media-type" value="Internet"/>
-		<Field name="author" value="Notre-planete.info"/>
+	<Entry ABREV="CBNN">
+		<Field name="medium" value="eSource Canada Business News Network"/>
+		<Field name="media-type" value="Presse économique"/>
+		<Field name="author" value="eSource Canada Business News Network"/>
 	</Entry>
 	<Entry ABREV="INSA">
 		<Field name="medium" value="L'Information du Nord - Ste-Agathe"/>
@@ -4084,10 +3966,10 @@
 		<Field name="media-type" value="Communiqué de presse"/>
 		<Field name="author" value="PRLine"/>
 	</Entry>
-	<Entry ABREV="HYD">
-		<Field name="medium" value="Hydroplus"/>
+	<Entry ABREV="INSD">
+		<Field name="medium" value="Inside Energy"/>
 		<Field name="media-type" value="Presse professionnelle"/>
-		<Field name="author" value="Hydroplus"/>
+		<Field name="author" value="Inside Energy"/>
 	</Entry>
 	<Entry ABREV="AKBO">
 		<Field name="medium" value="Akron Beacon Journal (MCT)"/>
@@ -4105,12 +3987,10 @@
 		<Field name="media-type" value="Blog"/>
 		<Field name="author" value="secret Défense"/>
 	</Entry>
-	<Entry ABREV="MATRI">
-		<Field name="localisation" value="Madagascar"/>
-		<Field name="authorship" value="Journaliste"/>
-		<Field name="medium" value="Madagascar Tribune"/>
-		<Field name="media-type" value="Presse quotidienne nationale"/>
-		<Field name="author" value="Madagascar Tribune"/>
+	<Entry ABREV="WASP">
+		<Field name="medium" value="Washington Post"/>
+		<Field name="media-type" value="Presse américaine"/>
+		<Field name="author" value="Washington Post"/>
 	</Entry>
 	<Entry ABREV="WSJ">
 		<Field name="medium" value="Wall street Journal"/>
@@ -4126,6 +4006,11 @@
 		<Field name="medium" value="The Washington Times"/>
 		<Field name="media-type" value="Presse américaine"/>
 		<Field name="author" value="The Washington Times"/>
+	</Entry>
+	<Entry ABREV="REPUB">
+		<Field name="medium" value="La Repubblica"/>
+		<Field name="media-type" value="Presse italienne"/>
+		<Field name="author" value="La Repubblica"/>
 	</Entry>
 	<Entry ABREV="VIGAGRO">
 		<Field name="medium" value="Vigie Agronomie et Industrie Alimentaire"/>
@@ -4152,10 +4037,9 @@
 		<Field name="media-type" value="Agence de presse"/>
 		<Field name="author" value="Arirline Industry Information"/>
 	</Entry>
-	<Entry ABREV="DIY">
-		<Field name="medium" value="DIY Week"/>
-		<Field name="media-type" value="Presse brittanique"/>
-		<Field name="author" value="DIY Week"/>
+	<Entry ABREV="LindaG">
+		<Field name="medium" value="NRDC"/>
+		<Field name="author" value="Greer"/>
 	</Entry>
 	<Entry ABREV="WASN">
 		<Field name="medium" value="Waste News"/>
@@ -4175,10 +4059,10 @@
 		<Field name="authorship" value="Militant(s) antinucléaire(s)"/>
 		<Field name="author" value="CRILAN"/>
 	</Entry>
-	<Entry ABREV="PTCN">
-		<Field name="medium" value="Pesticide &amp; Toxic Chemical News"/>
-		<Field name="media-type" value="Presse scientifique"/>
-		<Field name="author" value="Pesticide &amp; Toxic Chemical News"/>
+	<Entry ABREV="AIA">
+		<Field name="medium" value="Arômes Ingrédients Additifs"/>
+		<Field name="media-type" value="Presse professionnelle"/>
+		<Field name="author" value="Arômes Ingrédients Additifs"/>
 	</Entry>
 	<Entry ABREV="RCA">
 		<Field name="medium" value="RCA"/>
@@ -4222,13 +4106,15 @@
 		<Field name="medium" value="Science ADvisory Board"/>
 		<Field name="author" value="Science ADvisory Board"/>
 	</Entry>
-	<Entry ABREV="SarkoHS">
-		<Field name="author" value="Sarkozy Elu des Hauts-de-Seine "/>
+	<Entry ABREV="JQB">
+		<Field name="medium" value="Le Journal du Québec"/>
+		<Field name="media-type" value="Presse canadienne"/>
+		<Field name="author" value="Le Journal du Québec"/>
 	</Entry>
-	<Entry ABREV="LJDC">
-		<Field name="medium" value="Lejdc.fr"/>
-		<Field name="media-type" value="Presse régionale"/>
-		<Field name="author" value="Lejdc.fr"/>
+	<Entry ABREV="QUPP">
+		<Field name="medium" value="Le Quotidien du Peuple"/>
+		<Field name="media-type" value="Presse chinoise"/>
+		<Field name="author" value="Le Quotidien du Peuple"/>
 	</Entry>
 	<Entry ABREV="GAM">
 		<Field name="medium" value="The Globe and Mail"/>
@@ -4242,6 +4128,11 @@
 		<Field name="localisation" value="Allemagne"/>
 		<Field name="medium" value="Frankfurter Allgemeine Zeitung"/>
 		<Field name="media-type" value="Presse internationale"/>
+	</Entry>
+	<Entry ABREV="HYD">
+		<Field name="medium" value="Hydroplus"/>
+		<Field name="media-type" value="Presse professionnelle"/>
+		<Field name="author" value="Hydroplus"/>
 	</Entry>
 	<Entry ABREV="FNSEA">
 		<Field name="authorship" value="Syndicat"/>
@@ -4268,10 +4159,10 @@
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="Cosmétique Mag"/>
 	</Entry>
-	<Entry ABREV="YON">
-		<Field name="medium" value="L'Yonne Républicaine"/>
-		<Field name="media-type" value="Presse régionale"/>
-		<Field name="author" value="L'Yonne Républicaine"/>
+	<Entry ABREV="ENV2B">
+		<Field name="medium" value="Enviro2B"/>
+		<Field name="media-type" value="Presse électronique"/>
+		<Field name="author" value="Enviro2B"/>
 	</Entry>
 	<Entry ABREV="Expan">
 		<Field name="medium" value="L'Expansion"/>
@@ -4291,11 +4182,10 @@
 		<Field name="media-type" value="Presse Quotidienne Régionale"/>
 		<Field name="author" value="Progrès de Lyon"/>
 	</Entry>
-	<Entry ABREV="20mn">
-		<Field name="authorship" value="Journaliste"/>
-		<Field name="medium" value="20 minutes"/>
-		<Field name="media-type" value="Presse gratuite"/>
-		<Field name="author" value="20 Minutes"/>
+	<Entry ABREV="BUSWI">
+		<Field name="medium" value="Business Wire"/>
+		<Field name="media-type" value="Communiqué de presse"/>
+		<Field name="author" value="Business Wire"/>
 	</Entry>
 	<Entry ABREV="Verts">
 		<Field name="authorship" value="Organe ou Porte-Parole politique"/>
@@ -4328,11 +4218,6 @@
 		<Field name="media-type" value="Presse professionnelle"/>
 		<Field name="author" value="Utility Week"/>
 	</Entry>
-	<Entry ABREV="HKS">
-		<Field name="medium" value="Hong Kong Standard"/>
-		<Field name="media-type" value="Presse chinoise"/>
-		<Field name="author" value="Hong Kong Standard"/>
-	</Entry>
 	<Entry ABREV="GRDN">
 		<Field name="medium" value="Guardian.co.uk"/>
 		<Field name="media-type" value="Presse brittanique"/>
@@ -4347,9 +4232,8 @@
 		<Field name="media-type" value="Presse brittanique"/>
 		<Field name="author" value="Wales on Sunday"/>
 	</Entry>
-	<Entry ABREV="RFS">
-		<Field name="medium" value="Revue Française de Sociologie"/>
-		<Field name="media-type" value="Revue"/>
+	<Entry ABREV="IRD">
+		<Field name="author" value="IRD"/>
 	</Entry>
 	<Entry ABREV="MTPB">
 		<Field name="medium" value="Le Moniteur des Travaux Publics et du Bâtiment"/>
@@ -4366,15 +4250,14 @@
 		<Field name="media-type" value="Communiqué de presse"/>
 		<Field name="author" value="Priaterm@_et_APE@"/>
 	</Entry>
-	<Entry ABREV="LGRN">
-		<Field name="medium" value="Il Giorno"/>
-		<Field name="media-type" value="Presse italienne"/>
-		<Field name="author" value="Il Giorno"/>
+	<Entry ABREV="NNTW">
+		<Field name="medium" value="Nanotechnology Weekly"/>
+		<Field name="media-type" value="Presse scientifique"/>
+		<Field name="author" value="Nanotechnology Weekly"/>
 	</Entry>
-	<Entry ABREV="IAEA">
-		<Field name="authorship" value="International Agency"/>
-		<Field name="medium" value="IAEA"/>
-		<Field name="author" value="IAEA"/>
+	<Entry ABREV="ART">
+		<Field name="medium" value="Arte"/>
+		<Field name="media-type" value="Audiovisuel"/>
 	</Entry>
 	<Entry ABREV="EQUIL">
 		<Field name="medium" value="Equilibre"/>
@@ -4401,10 +4284,10 @@
 		<Field name="media-type" value="Presse professionnelle"/>
 		<Field name="author" value="The Engineer"/>
 	</Entry>
-	<Entry ABREV="CRIIRAD">
-		<Field name="authorship" value="Laboratoire indépendant"/>
-		<Field name="medium" value="CRII-RAD"/>
-		<Field name="author" value="CRII-RAD"/>
+	<Entry ABREV="CRSP">
+		<Field name="medium" value="La Correspondance de la Publicité"/>
+		<Field name="media-type" value="News et magazines"/>
+		<Field name="author" value="La Correspondance de la Publicité"/>
 	</Entry>
 	<Entry ABREV="LOUV">
 		<Field name="localisation" value="France"/>
@@ -4418,25 +4301,25 @@
 		<Field name="media-type" value="Presse brittanique"/>
 		<Field name="author" value="Sunday Express"/>
 	</Entry>
-	<Entry ABREV="FDAW">
-		<Field name="medium" value="FDA Week"/>
-		<Field name="media-type" value="Presse médicale"/>
-		<Field name="author" value="FDA Week"/>
+	<Entry ABREV="LETOI">
+		<Field name="medium" value="La Lettre De L'ocean Indien"/>
+		<Field name="media-type" value="Presse électronique"/>
+		<Field name="author" value="La Lettre De L'ocean Indien"/>
 	</Entry>
 	<Entry ABREV="QBC">
 		<Field name="medium" value="Le Journal de Québec"/>
 		<Field name="media-type" value="Presse canadienne"/>
 		<Field name="author" value="Le Journal de Québec"/>
 	</Entry>
-	<Entry ABREV="ARD">
-		<Field name="authorship" value="Journaliste"/>
-		<Field name="medium" value="L'Ardennais"/>
-		<Field name="open-field-1" value="Article de presse"/>
-		<Field name="media-type" value="Presse quotidienne régionale"/>
-		<Field name="author" value="L'Ardennais"/>
+	<Entry ABREV="MNPS">
+		<Field name="medium" value="Market News Publishing"/>
+		<Field name="media-type" value="Presse économique"/>
+		<Field name="author" value="Market News Publishing"/>
 	</Entry>
-	<Entry ABREV="MCH">
-		<Field name="medium" value="Le Marché"/>
+	<Entry ABREV="LGRN">
+		<Field name="medium" value="Il Giorno"/>
+		<Field name="media-type" value="Presse italienne"/>
+		<Field name="author" value="Il Giorno"/>
 	</Entry>
 	<Entry ABREV="SDM">
 		<Field name="medium" value="Sunday Mail"/>
@@ -4478,6 +4361,11 @@
 		<Field name="media-type" value="Agence de Presse"/>
 		<Field name="author" value="La Presse Canadienne"/>
 	</Entry>
+	<Entry ABREV="HRG">
+		<Field name="medium" value="The Herald - Glasgow"/>
+		<Field name="media-type" value="Presse écossaise"/>
+		<Field name="author" value="The Herald - Glasgow"/>
+	</Entry>
 	<Entry ABREV="EHST">
 		<Field name="medium" value="EHS Today"/>
 		<Field name="media-type" value="Presse américaine"/>
@@ -4487,6 +4375,11 @@
 		<Field name="medium" value="Il Resto del Carlino"/>
 		<Field name="media-type" value="Presse italienne"/>
 		<Field name="author" value="Il Resto del Carlino"/>
+	</Entry>
+	<Entry ABREV="PLI">
+		<Field name="medium" value="Notre-planete.info"/>
+		<Field name="media-type" value="Internet"/>
+		<Field name="author" value="Notre-planete.info"/>
 	</Entry>
 	<Entry ABREV="PARM">
 		<Field name="authorship" value="Journaliste"/>
@@ -4500,8 +4393,10 @@
 		<Field name="media-type" value="Page institutionnelle"/>
 		<Field name="author" value="Parlement Européen"/>
 	</Entry>
-	<Entry ABREV="FAO-OIE">
-		<Field name="author" value="FAO-OIE"/>
+	<Entry ABREV="BORS">
+		<Field name="medium" value="Borsen-Zeitung"/>
+		<Field name="media-type" value="Presse allemande"/>
+		<Field name="author" value="Borsen-Zeitung"/>
 	</Entry>
 	<Entry ABREV="COS">
 		<Field name="medium" value="Cosmopolitan"/>
@@ -4527,15 +4422,24 @@
 		<Field name="media-type" value="Presse australienne"/>
 		<Field name="author" value="Canberra Times"/>
 	</Entry>
-	<Entry ABREV="COR">
-		<Field name="authorship" value="Journaliste"/>
-		<Field name="medium" value="La Correspondance Economique"/>
-		<Field name="open-field-1" value="Article de presse"/>
-		<Field name="media-type" value="Presse économique"/>
-		<Field name="author" value="La Correspondance Economique"/>
+	<Entry ABREV="AEUR">
+		<Field name="medium" value="Agence Europe"/>
+		<Field name="author" value="Agence Europe"/>
+		<Field name="open-field-1" value="Dépêche d'agence"/>
+		<Field name="media-type" value="Agence de presse"/>
+		<Field name="localisation" value="Bruxelles"/>
+		<Field name="authorship" value="Agence de presse"/>
 	</Entry>
-	<Entry ABREV="Novethic">
-		<Field name="author" value="Novethic"/>
+	<Entry ABREV="MATRI">
+		<Field name="localisation" value="Madagascar"/>
+		<Field name="authorship" value="Journaliste"/>
+		<Field name="medium" value="Madagascar Tribune"/>
+		<Field name="media-type" value="Presse quotidienne nationale"/>
+		<Field name="author" value="Madagascar Tribune"/>
+	</Entry>
+	<Entry ABREV="CONF">
+		<Field name="authorship" value="Syndicalistes"/>
+		<Field name="author" value="Confédération Paysanne"/>
 	</Entry>
 	<Entry ABREV="MTBB">
 		<Field name="medium" value="Le Moniteur des Travaux Publics et du Bâtiment"/>
@@ -4551,10 +4455,12 @@
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="Humanist"/>
 	</Entry>
-	<Entry ABREV="HRG">
-		<Field name="medium" value="The Herald - Glasgow"/>
-		<Field name="media-type" value="Presse écossaise"/>
-		<Field name="author" value="The Herald - Glasgow"/>
+	<Entry ABREV="MCH">
+		<Field name="medium" value="Le Marché"/>
+	</Entry>
+	<Entry ABREV="FR2">
+		<Field name="medium" value="France 2"/>
+		<Field name="media-type" value="Audiovisuel"/>
 	</Entry>
 	<Entry ABREV="CCB">
 		<Field name="medium" value="Crain's Chicago Business"/>
@@ -4564,28 +4470,29 @@
 	<Entry ABREV="AVIF">
 		<Field name="author" value="AVIF"/>
 	</Entry>
-	<Entry ABREV="FEM">
-		<Field name="medium" value="Femme Actuelle"/>
-		<Field name="media-type" value="News et magazines"/>
-	</Entry>
 	<Entry ABREV="GreenWire">
 		<Field name="medium" value="GreenWire"/>
 		<Field name="author" value="GreenWire"/>
-	</Entry>
-	<Entry ABREV="TAUSM">
-		<Field name="medium" value="The Australian Magazine"/>
-		<Field name="media-type" value="Presse australienne"/>
-		<Field name="author" value="The Australian Magazine"/>
 	</Entry>
 	<Entry ABREV="CAWL">
 		<Field name="medium" value="Cancer Weekly"/>
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="Cancer Weekly"/>
 	</Entry>
-	<Entry ABREV="LPC">
-		<Field name="medium" value="Le Populaire du Centre"/>
-		<Field name="media-type" value="Presse régionale"/>
-		<Field name="author" value="Le Populaire du Centre"/>
+	<Entry ABREV="FDAW">
+		<Field name="medium" value="FDA Week"/>
+		<Field name="media-type" value="Presse médicale"/>
+		<Field name="author" value="FDA Week"/>
+	</Entry>
+	<Entry ABREV="DNT">
+		<Field name="medium" value="Le Dentiste"/>
+		<Field name="media-type" value="Presse médicale"/>
+		<Field name="author" value="Le Dentiste"/>
+	</Entry>
+	<Entry ABREV="HKS">
+		<Field name="medium" value="Hong Kong Standard"/>
+		<Field name="media-type" value="Presse chinoise"/>
+		<Field name="author" value="Hong Kong Standard"/>
 	</Entry>
 	<Entry ABREV="CELEX">
 		<Field name="medium" value="Celex"/>
@@ -4678,8 +4585,14 @@
 		<Field name="media-type" value="Presse marocaine"/>
 		<Field name="author" value="Al Bayane"/>
 	</Entry>
-	<Entry ABREV="EnerPress">
-		<Field name="author" value="EnerPress"/>
+	<Entry ABREV="CERTA">
+		<Field name="author" value="CERTA"/>
+	</Entry>
+	<Entry ABREV="Midlib">
+		<Field name="authorship" value="Journaliste"/>
+		<Field name="medium" value="Midi Libre"/>
+		<Field name="media-type" value="Presse Quotidienne Régionale"/>
+		<Field name="author" value="Midi Libre"/>
 	</Entry>
 	<Entry ABREV="LESPR">
 		<Field name="medium" value="L´Espresso"/>
@@ -4691,10 +4604,12 @@
 		<Field name="media-type" value="Presse électronique"/>
 		<Field name="author" value="Vigie Génie Civil"/>
 	</Entry>
-	<Entry ABREV="CLFE">
-		<Field name="medium" value="California Energy &amp; Climate Report"/>
-		<Field name="media-type" value="Presse électronique"/>
-		<Field name="author" value="California Energy &amp; Climate Report"/>
+	<Entry ABREV="MON">
+		<Field name="authorship" value="Journaliste"/>
+		<Field name="medium" value="Le Monde"/>
+		<Field name="open-field-1" value="Article de presse"/>
+		<Field name="media-type" value="Presse nationale"/>
+		<Field name="author" value="Le Monde"/>
 	</Entry>
 	<Entry ABREV="REU">
 		<Field name="authorship" value="Agence de presse"/>
@@ -4725,18 +4640,19 @@
 		<Field name="media-type" value="News et Magazines "/>
 		<Field name="open-field-1" value="Article de presse"/>
 	</Entry>
-	<Entry ABREV="PTC">
-		<Field name="medium" value="Le Particulier Pratique"/>
-		<Field name="media-type" value="News et magazines"/>
+	<Entry ABREV="INVS">
+		<Field name="authorship" value="Organisme de contrôle officiel"/>
+		<Field name="medium" value="INVS"/>
+		<Field name="author" value="INVS"/>
 	</Entry>
 	<Entry ABREV="planet-info">
 		<Field name="medium" value="notre-planete.info"/>
 		<Field name="author" value="notre-planete.info"/>
 	</Entry>
-	<Entry ABREV="LEN">
-		<Field name="medium" value="La Lettre de l'Environnement"/>
-		<Field name="media-type" value="Presse environnementale"/>
-		<Field name="author" value="La Lettre de l'Environnement"/>
+	<Entry ABREV="LSO">
+		<Field name="medium" value="Le Soir"/>
+		<Field name="media-type" value="Presse belge"/>
+		<Field name="author" value="Le Soir"/>
 	</Entry>
 	<Entry ABREV="MABE">
 		<Field name="medium" value="Marné Beukes"/>
@@ -4749,15 +4665,14 @@
 		<Field name="media-type" value="Presse Quotidienne Régionale"/>
 		<Field name="author" value="Ouest France"/>
 	</Entry>
-	<Entry ABREV="INVS">
-		<Field name="authorship" value="Organisme de contrôle officiel"/>
-		<Field name="medium" value="INVS"/>
-		<Field name="author" value="INVS"/>
-	</Entry>
 	<Entry ABREV="PHLD">
 		<Field name="medium" value="The Philadelphia Daily News"/>
 		<Field name="media-type" value="Presse américaine"/>
 		<Field name="author" value="The Philadelphia Daily News"/>
+	</Entry>
+	<Entry ABREV="AP">
+		<Field name="medium" value="Associated Press"/>
+		<Field name="author" value="Associated Press"/>
 	</Entry>
 	<Entry ABREV="TRDS">
 		<Field name="medium" value="Trends/Tendances"/>
@@ -4769,24 +4684,27 @@
 		<Field name="media-type" value="Presse brittanique"/>
 		<Field name="author" value="Liverpool Daily Echo"/>
 	</Entry>
-	<Entry ABREV="EuropEcologie">
-		<Field name="medium" value="Europe Ecologie"/>
-		<Field name="author" value="Europe Ecologie"/>
+	<Entry ABREV="BOURS">
+		<Field name="medium" value="Boursier.com"/>
+		<Field name="media-type" value="Presse économique"/>
+		<Field name="author" value="Boursier.com"/>
 	</Entry>
 	<Entry ABREV="ActPub">
 		<Field name="medium" value="Acteurs Publics"/>
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="Acteurs Publics"/>
 	</Entry>
-	<Entry ABREV="TDZZ">
-		<Field name="medium" value="Today.az"/>
-		<Field name="media-type" value="Presse azerbaïdjanaise"/>
-		<Field name="author" value="Today.az"/>
+	<Entry ABREV="MOUD">
+		<Field name="localisation" value="Algérie"/>
+		<Field name="authorship" value="Journaliste"/>
+		<Field name="medium" value="elmoudjahid.com"/>
+		<Field name="media-type" value="Presse internationale"/>
+		<Field name="author" value="El Moudjahid"/>
 	</Entry>
-	<Entry ABREV="MAIN">
-		<Field name="medium" value="Le Maine Libre"/>
-		<Field name="media-type" value="Presse régionale"/>
-		<Field name="author" value="Le Maine Libre"/>
+	<Entry ABREV="VNCVS">
+		<Field name="medium" value="Vancouver Sun"/>
+		<Field name="media-type" value="Presse canadienne"/>
+		<Field name="author" value="Vancouver Sun"/>
 	</Entry>
 	<Entry ABREV="MDST">
 		<Field name="medium" value="Medical Devices &amp; Surgical Technology Week"/>
@@ -4814,10 +4732,10 @@
 	<Entry ABREV="BanAsbestos">
 		<Field name="author" value="Ban Asbestos"/>
 	</Entry>
-	<Entry ABREV="CPHH">
-		<Field name="medium" value="Chimie Pharma Hebdo"/>
-		<Field name="media-type" value="Presse professionnelle"/>
-		<Field name="author" value="Chimie Pharma Hebdo"/>
+	<Entry ABREV="RIVS">
+		<Field name="medium" value="www.michele.rivasi.eu"/>
+		<Field name="media-type" value="Blog"/>
+		<Field name="author" value="Michele Rivasi"/>
 	</Entry>
 	<Entry ABREV="QUOT">
 		<Field name="medium" value="Le Quotidien"/>
@@ -4838,10 +4756,10 @@
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="Le Journal du Dimanche"/>
 	</Entry>
-	<Entry ABREV="JDF">
-		<Field name="medium" value="Le Journal des Finances"/>
-		<Field name="media-type" value="Presse économique"/>
-		<Field name="author" value="Le Journal des Finances"/>
+	<Entry ABREV="TAUSM">
+		<Field name="medium" value="The Australian Magazine"/>
+		<Field name="media-type" value="Presse australienne"/>
+		<Field name="author" value="The Australian Magazine"/>
 	</Entry>
 	<Entry ABREV="FSA">
 		<Field name="medium" value="FSA"/>
@@ -4852,10 +4770,10 @@
 		<Field name="media-type" value="Presse américaine"/>
 		<Field name="author" value="The Philadelphia Inquirer"/>
 	</Entry>
-	<Entry ABREV="DEV">
-		<Field name="medium" value="Le Devoir"/>
-		<Field name="media-type" value="Presse canadienne"/>
-		<Field name="author" value="Le Devoir"/>
+	<Entry ABREV="JDC">
+		<Field name="medium" value="Journal des Communes"/>
+		<Field name="media-type" value="Presse collectivités locales"/>
+		<Field name="author" value="Journal des Communes"/>
 	</Entry>
 	<Entry ABREV="BATH">
 		<Field name="medium" value="Bath Chronicle"/>
@@ -4866,10 +4784,6 @@
 		<Field name="medium" value="Greenwire"/>
 		<Field name="media-type" value="Presse professionnelle"/>
 		<Field name="author" value="Greenwire"/>
-	</Entry>
-	<Entry ABREV="FInter">
-		<Field name="medium" value="France Inter"/>
-		<Field name="media-type" value="Audiovisuel"/>
 	</Entry>
 	<Entry ABREV="DHL">
 		<Field name="author" value="Hervieu-Léger"/>
@@ -4893,14 +4807,15 @@
 		<Field name="media-type" value="Presse quotidienne régionale"/>
 		<Field name="author" value="Var Matin"/>
 	</Entry>
-	<Entry ABREV="TTTCT">
-		<Field name="medium" value="The Capital Times &amp; Wisconsin State Journal"/>
-		<Field name="media-type" value="Presse américaine"/>
-		<Field name="author" value="The Capital Times &amp; Wisconsin State Journal"/>
+	<Entry ABREV="HOB">
+		<Field name="medium" value="Hobart Mercury"/>
+		<Field name="media-type" value="Presse australienne"/>
+		<Field name="author" value="Hobart Mercury"/>
 	</Entry>
-	<Entry ABREV="DEC">
-		<Field name="medium" value="Décision Environnement"/>
-		<Field name="media-type" value="Presse environnementale"/>
+	<Entry ABREV="AMRC">
+		<Field name="medium" value="America"/>
+		<Field name="media-type" value="News et magazines"/>
+		<Field name="author" value="America"/>
 	</Entry>
 	<Entry ABREV="COUM">
 		<Field name="medium" value="Courier Mail"/>
@@ -4912,25 +4827,31 @@
 		<Field name="medium" value="CFDT"/>
 		<Field name="author" value="CFDT"/>
 	</Entry>
-	<Entry ABREV="COUN">
-		<Field name="medium" value="Countryman"/>
-		<Field name="media-type" value="Presse australienne"/>
-		<Field name="author" value="Countryman"/>
+	<Entry ABREV="VDN">
+		<Field name="authorship" value="Journaliste"/>
+		<Field name="medium" value="La Voix du Nord"/>
+		<Field name="media-type" value="Presse régionale"/>
+		<Field name="author" value="La Voix du Nord"/>
 	</Entry>
 	<Entry ABREV="SCM">
 		<Field name="medium" value="Scotsman"/>
 		<Field name="media-type" value="Presse écossaise"/>
 		<Field name="author" value="Scotsman"/>
 	</Entry>
-	<Entry ABREV="NWP">
-		<Field name="medium" value="NEWS Press"/>
-		<Field name="media-type" value="Communiqué de presse"/>
-		<Field name="author" value="NEWS Press"/>
+	<Entry ABREV="SCI">
+		<Field name="medium" value="Science Magazine"/>
+		<Field name="media-type" value="Presse scientifique"/>
+		<Field name="author" value="Science Magazine"/>
 	</Entry>
 	<Entry ABREV="UKT">
 		<Field name="medium" value="The Ukrainian Times"/>
 		<Field name="media-type" value="Presse ukrainienne"/>
 		<Field name="author" value="The Ukrainian Times"/>
+	</Entry>
+	<Entry ABREV="LPC">
+		<Field name="medium" value="Le Populaire du Centre"/>
+		<Field name="media-type" value="Presse régionale"/>
+		<Field name="author" value="Le Populaire du Centre"/>
 	</Entry>
 	<Entry ABREV="DAGN">
 		<Field name="medium" value="Dagens Nyheter"/>
@@ -4999,6 +4920,13 @@
 		<Field name="medium" value="La Libre Belgique"/>
 		<Field name="media-type" value="Presse quotidienne nationale"/>
 	</Entry>
+	<Entry ABREV="BPU">
+		<Field name="authorship" value="Journaliste"/>
+		<Field name="medium" value="Le Bien Public"/>
+		<Field name="author" value="Le Bien Public"/>
+		<Field name="media-type" value="Presse Quotidienne Régionale"/>
+		<Field name="open-field-1" value="Article de presse"/>
+	</Entry>
 	<Entry ABREV="SCV">
 		<Field name="medium" value="Science &amp; Vie"/>
 		<Field name="media-type" value="News et magazines"/>
@@ -5054,17 +4982,20 @@
 	<Entry ABREV="Times">
 		<Field name="author" value="Times"/>
 	</Entry>
+	<Entry ABREV="EXPAN">
+		<Field name="medium" value="L'Expansion"/>
+		<Field name="media-type" value="Presse économique"/>
+		<Field name="author" value="L'Expansion"/>
+	</Entry>
 	<Entry ABREV="NEPA">
 		<Field name="medium" value="The Nepali Times"/>
 		<Field name="media-type" value="Presse népalaise"/>
 		<Field name="author" value="The Nepali Times"/>
 	</Entry>
-	<Entry ABREV="MDI">
-		<Field name="authorship" value="Journaliste"/>
-		<Field name="medium" value="Le Monde Diplomatique"/>
-		<Field name="open-field-1" value="Article de presse"/>
-		<Field name="media-type" value="News et magazines "/>
-		<Field name="author" value="Le Monde Diplomatique"/>
+	<Entry ABREV="PENT">
+		<Field name="medium" value="Inside the Pentagon"/>
+		<Field name="media-type" value="Presse américaine"/>
+		<Field name="author" value="Inside the Pentagon"/>
 	</Entry>
 	<Entry ABREV="GNNN">
 		<Field name="medium" value="Genetics"/>
@@ -5076,10 +5007,10 @@
 		<Field name="media-type" value="Presse nationale"/>
 		<Field name="author" value="Rue89"/>
 	</Entry>
-	<Entry ABREV="ATCO">
-		<Field name="medium" value="atlantico"/>
-		<Field name="media-type" value="Presse électronique"/>
-		<Field name="author" value="atlantico"/>
+	<Entry ABREV="TPCH">
+		<Field name="medium" value="Transport Echo"/>
+		<Field name="media-type" value="Presse belge"/>
+		<Field name="author" value="Transport Echo"/>
 	</Entry>
 	<Entry ABREV="WTN">
 		<Field name="medium" value="El Watan"/>
@@ -5091,29 +5022,31 @@
 		<Field name="media-type" value="Agence de presse"/>
 		<Field name="author" value="Bernama"/>
 	</Entry>
-	<Entry ABREV="LXPR">
-		<Field name="medium" value="L'Express-L'Impartial"/>
-		<Field name="media-type" value="News et magazines"/>
-		<Field name="author" value="L'Express-L'Impartial"/>
+	<Entry ABREV="TRT">
+		<Field name="localisation" value="Belgique"/>
+		<Field name="medium" value="Trends Tendances"/>
+		<Field name="media-type" value="Presse économique"/>
+		<Field name="author" value="Trends Tendances"/>
 	</Entry>
-	<Entry ABREV="Transversales">
-		<Field name="medium" value="Transversales"/>
-		<Field name="media-type" value="site Internet"/>
+	<Entry ABREV="MAIN">
+		<Field name="medium" value="Le Maine Libre"/>
+		<Field name="media-type" value="Presse régionale"/>
+		<Field name="author" value="Le Maine Libre"/>
 	</Entry>
 	<Entry ABREV="RSKM">
 		<Field name="medium" value="Risk Management"/>
 		<Field name="media-type" value="Presse environnementale"/>
 		<Field name="author" value="Risk Management"/>
 	</Entry>
-	<Entry ABREV="SUZ">
-		<Field name="medium" value="Suddeutsche Zeitung"/>
-		<Field name="media-type" value="Presse allemande"/>
-		<Field name="author" value="Suddeutsche Zeitung"/>
+	<Entry ABREV="EDF">
+		<Field name="authorship" value="Exploitants"/>
+		<Field name="medium" value="EDF"/>
+		<Field name="author" value="EDF"/>
 	</Entry>
-	<Entry ABREV="CNG">
-		<Field name="medium" value="CompanynewsGroupe"/>
-		<Field name="media-type" value="Communiqué de presse"/>
-		<Field name="author" value="CompanynewsGroupe"/>
+	<Entry ABREV="MOST">
+		<Field name="medium" value="The Moscow Times"/>
+		<Field name="media-type" value="Presse russe"/>
+		<Field name="author" value="The Moscow Times"/>
 	</Entry>
 	<Entry ABREV="BREF">
 		<Field name="medium" value="Bref Rhône-Alpes"/>
@@ -5126,6 +5059,18 @@
 		<Field name="medium" value="ledevoir.com"/>
 		<Field name="media-type" value="Presse internationale"/>
 		<Field name="author" value="Le Devoir"/>
+	</Entry>
+	<Entry ABREV="IAEA">
+		<Field name="authorship" value="International Agency"/>
+		<Field name="medium" value="IAEA"/>
+		<Field name="author" value="IAEA"/>
+	</Entry>
+	<Entry ABREV="EuropEcologie">
+		<Field name="medium" value="Europe Ecologie"/>
+		<Field name="author" value="Europe Ecologie"/>
+	</Entry>
+	<Entry ABREV="ZDNet">
+		<Field name="author" value="ZDNet"/>
 	</Entry>
 	<Entry ABREV="LRP">
 		<Field name="medium" value="La Revue Parlementaire"/>
@@ -5145,11 +5090,13 @@
 		<Field name="media-type" value="Presse scientifique"/>
 		<Field name="author" value="Science Letter"/>
 	</Entry>
-	<Entry ABREV="JDLE">
-		<Field name="authorship" value="Journaliste"/>
-		<Field name="medium" value="Journal de l'Environnement"/>
-		<Field name="media-type" value="Presse environnementale"/>
-		<Field name="author" value="Journal de l'Environnement"/>
+	<Entry ABREV="BBBD">
+		<Field name="medium" value="Baltic Business Daily"/>
+		<Field name="media-type" value="Presse économique"/>
+		<Field name="author" value="Baltic Business Daily"/>
+	</Entry>
+	<Entry ABREV="Novethic">
+		<Field name="author" value="Novethic"/>
 	</Entry>
 	<Entry ABREV="JJIN">
 		<Field name="medium" value="Journal of India"/>
@@ -5176,10 +5123,6 @@
 		<Field name="media-type" value="Presse Quotidienne Régionale"/>
 		<Field name="author" value="Dernières Nouvelles d'Alsace"/>
 	</Entry>
-	<Entry ABREV="OPECST">
-		<Field name="authorship" value="Rapporteurs officiels "/>
-		<Field name="author" value="Office Parlementaire d'Evaluation des Choix Scientifiques et Tech"/>
-	</Entry>
 	<Entry ABREV="FIEMP">
 		<Field name="authorship" value="Journaliste"/>
 		<Field name="medium" value="Le Figaro Entreprises et Emploi"/>
@@ -5197,10 +5140,13 @@
 		<Field name="media-type" value="Presse brittanique"/>
 		<Field name="author" value="The Sun"/>
 	</Entry>
-	<Entry ABREV="4SAJ">
+	<Entry ABREV="NAT">
+		<Field name="medium" value="NaturaVox"/>
+		<Field name="author" value="NaturaVox"/>
 		<Field name="open-field-1" value="Article de presse"/>
-		<Field name="medium" value="Les Quatre Saisons du Jardinage"/>
-		<Field name="media-type" value="News et magazines"/>
+		<Field name="media-type" value="Presse environnementale"/>
+		<Field name="localisation" value="http://www.naturavox.fr"/>
+		<Field name="authorship" value="Journaliste"/>
 	</Entry>
 	<Entry ABREV="NEC">
 		<Field name="medium" value="Le Nouvel Économiste"/>
@@ -5243,10 +5189,10 @@
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="Lyon Capitale"/>
 	</Entry>
-	<Entry ABREV="STAR">
-		<Field name="medium" value="The Star"/>
-		<Field name="media-type" value="Presse sud-africaine"/>
-		<Field name="author" value="The Star"/>
+	<Entry ABREV="KORH">
+		<Field name="medium" value="Korea Herald"/>
+		<Field name="media-type" value="Presse coréenne"/>
+		<Field name="author" value="Korea Herald"/>
 	</Entry>
 	<Entry ABREV="DEEE">
 		<Field name="medium" value="Defense Environment Alert"/>
@@ -5263,10 +5209,10 @@
 		<Field name="media-type" value="Presse néerlandaise"/>
 		<Field name="author" value="Het Financieele Dagblad"/>
 	</Entry>
-	<Entry ABREV="STAS">
-		<Field name="medium" value="Sunday Tasmanian"/>
-		<Field name="media-type" value="Presse australienne"/>
-		<Field name="author" value="Sunday Tasmanian"/>
+	<Entry ABREV="NGA">
+		<Field name="localisation" value="Belgique"/>
+		<Field name="medium" value="La Nouvelle Gazette"/>
+		<Field name="media-type" value="Presse quotidienne régionale"/>
 	</Entry>
 	<Entry ABREV="Libé">
 		<Field name="localisation" value="Paris"/>
@@ -5314,10 +5260,9 @@
 		<Field name="media-type" value="Agence de presse"/>
 		<Field name="author" value="Nordic Business Report"/>
 	</Entry>
-	<Entry ABREV="KAL">
-		<Field name="medium" value="Kalgoorlie Miner"/>
-		<Field name="media-type" value="Presse australienne"/>
-		<Field name="author" value="Kalgoorlie Miner"/>
+	<Entry ABREV="CGC">
+		<Field name="medium" value="Les Cahiers de Global Chance"/>
+		<Field name="media-type" value="Périodique critique"/>
 	</Entry>
 	<Entry ABREV="MSWN">
 		<Field name="medium" value="Moscow News"/>
@@ -5421,10 +5366,9 @@
 		<Field name="media-type" value="Presse Quotidienne Régionale"/>
 		<Field name="author" value="L'Alsace"/>
 	</Entry>
-	<Entry ABREV="EVGA">
-		<Field name="medium" value="Evening Gazette"/>
-		<Field name="media-type" value="Presse brittanique"/>
-		<Field name="author" value="Evening Gazette"/>
+	<Entry ABREV="FEM">
+		<Field name="medium" value="Femme Actuelle"/>
+		<Field name="media-type" value="News et magazines"/>
 	</Entry>
 	<Entry ABREV="Doctissimo">
 		<Field name="medium" value="Doctissimo"/>
@@ -5434,10 +5378,10 @@
 		<Field name="media-type" value="Entretien"/>
 		<Field name="author" value="Georges Méar"/>
 	</Entry>
-	<Entry ABREV="DNT">
-		<Field name="medium" value="Le Dentiste"/>
-		<Field name="media-type" value="Presse médicale"/>
-		<Field name="author" value="Le Dentiste"/>
+	<Entry ABREV="AFSSA">
+		<Field name="authorship" value="Organisme de contrôle officiel"/>
+		<Field name="medium" value="AFSSA"/>
+		<Field name="author" value="AFSSA"/>
 	</Entry>
 	<Entry ABREV="COMAC">
 		<Field name="localisation" value="http://comac.free.fr/racines_35.htm "/>
@@ -5451,10 +5395,10 @@
 		<Field name="media-type" value="Presse professionnelle"/>
 		<Field name="author" value="Company Reports"/>
 	</Entry>
-	<Entry ABREV="JDC">
-		<Field name="medium" value="Journal des Communes"/>
-		<Field name="media-type" value="Presse collectivités locales"/>
-		<Field name="author" value="Journal des Communes"/>
+	<Entry ABREV="DEV">
+		<Field name="medium" value="Le Devoir"/>
+		<Field name="media-type" value="Presse canadienne"/>
+		<Field name="author" value="Le Devoir"/>
 	</Entry>
 	<Entry ABREV="20MIN">
 		<Field name="medium" value="20 Minutes"/>
@@ -5495,6 +5439,11 @@
 		<Field name="media-type" value="Presse électronique"/>
 		<Field name="author" value="Mediapart"/>
 	</Entry>
+	<Entry ABREV="DIY">
+		<Field name="medium" value="DIY Week"/>
+		<Field name="media-type" value="Presse brittanique"/>
+		<Field name="author" value="DIY Week"/>
+	</Entry>
 	<Entry ABREV="QEET">
 		<Field name="medium" value="The Queensland Times"/>
 		<Field name="media-type" value="Presse australienne"/>
@@ -5523,9 +5472,10 @@
 		<Field name="media-type" value="Presse italienne"/>
 		<Field name="author" value="APCOM"/>
 	</Entry>
-	<Entry ABREV="CUN">
-		<Field name="medium" value="Courrier de l'Unesco"/>
-		<Field name="media-type" value="Presse étrangère"/>
+	<Entry ABREV="LEN">
+		<Field name="medium" value="La Lettre de l'Environnement"/>
+		<Field name="media-type" value="Presse environnementale"/>
+		<Field name="author" value="La Lettre de l'Environnement"/>
 	</Entry>
 	<Entry ABREV="MEU">
 		<Field name="localisation" value="Belgique"/>
@@ -5544,6 +5494,12 @@
 		<Field name="media-type" value="Presse sud-africaine"/>
 		<Field name="author" value="Daily Dispatch"/>
 	</Entry>
+	<Entry ABREV="GLA">
+		<Field name="localisation" value="http://www.eauxglacees.com/"/>
+		<Field name="open-field-1" value="Article sur la toile"/>
+		<Field name="medium" value="Les eaux glacées du calcul égoïste"/>
+		<Field name="media-type" value="Blog"/>
+	</Entry>
 	<Entry ABREV="EXP">
 		<Field name="authorship" value="Journaliste"/>
 		<Field name="medium" value="L'Express"/>
@@ -5551,10 +5507,14 @@
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="L'Express"/>
 	</Entry>
-	<Entry ABREV="STHT">
-		<Field name="medium" value="The Southland Times"/>
-		<Field name="media-type" value="Presse néozélandaise"/>
-		<Field name="author" value="The Southland Times"/>
+	<Entry ABREV="TVB">
+		<Field name="localisation" value="Belgique"/>
+		<Field name="medium" value="RTL-TVI"/>
+		<Field name="media-type" value="Audiovisuel"/>
+	</Entry>
+	<Entry ABREV="FBN">
+		<Field name="medium" value="France 3 Basse Normandie"/>
+		<Field name="media-type" value="Audiovisuel"/>
 	</Entry>
 	<Entry ABREV="NSSS">
 		<Field name="medium" value="New Scientist"/>
@@ -5566,19 +5526,28 @@
 		<Field name="media-type" value="Presse Quotidienne Régionale"/>
 		<Field name="author" value="L'Est Républicain"/>
 	</Entry>
+	<Entry ABREV="LXPR">
+		<Field name="medium" value="L'Express-L'Impartial"/>
+		<Field name="media-type" value="News et magazines"/>
+		<Field name="author" value="L'Express-L'Impartial"/>
+	</Entry>
 	<Entry ABREV="JVCR">
 		<Field name="medium" value="Je vais Construire et Rénover"/>
 		<Field name="media-type" value="News et magazines"/>
 		<Field name="author" value="Je vais Construire et Rénover"/>
 	</Entry>
-	<Entry ABREV="MYWK">
-		<Field name="medium" value="MoneyWeek"/>
+	<Entry ABREV="EEWW">
+		<Field name="medium" value="Economics Week"/>
 		<Field name="media-type" value="Presse économique"/>
-		<Field name="author" value="MoneyWeek"/>
+		<Field name="author" value="Economics Week"/>
 	</Entry>
 	<Entry ABREV="INFOGM">
 		<Field name="medium" value="Inf'OGM"/>
 		<Field name="author" value="Inf'OGM"/>
+	</Entry>
+	<Entry ABREV="CI">
+		<Field name="medium" value="Courrier International"/>
+		<Field name="media-type" value="News et Magazines"/>
 	</Entry>
 	<Entry ABREV="USI">
 		<Field name="authorship" value="Journaliste"/>
@@ -5627,15 +5596,15 @@
 		<Field name="media-type" value="Agence de presse"/>
 		<Field name="author" value="ActusNewsWire"/>
 	</Entry>
-	<Entry ABREV="ENV2B">
-		<Field name="medium" value="Enviro2B"/>
-		<Field name="media-type" value="Presse électronique"/>
-		<Field name="author" value="Enviro2B"/>
+	<Entry ABREV="CRRSP">
+		<Field name="medium" value="La Correspondance de la Presse"/>
+		<Field name="media-type" value="Presse nationale"/>
+		<Field name="author" value="La Correspondance de la Presse"/>
 	</Entry>
-	<Entry ABREV="WESTD">
-		<Field name="medium" value="Western Daily Press"/>
+	<Entry ABREV="HER">
+		<Field name="medium" value="Hermes Database"/>
 		<Field name="media-type" value="Presse brittanique"/>
-		<Field name="author" value="Western Daily Press"/>
+		<Field name="author" value="Hermes Database"/>
 	</Entry>
 	<Entry ABREV="PHRL">
 		<Field name="medium" value="Pharma Marketletter"/>
@@ -5650,12 +5619,10 @@
 		<Field name="medium" value="France Inter"/>
 		<Field name="media-type" value="Audiovisuel"/>
 	</Entry>
-	<Entry ABREV="DAU">
-		<Field name="authorship" value="Journaliste"/>
-		<Field name="medium" value="Le Dauphiné"/>
-		<Field name="open-field-1" value="Article de presse"/>
-		<Field name="media-type" value="Presse régionale"/>
-		<Field name="author" value="Le Dauphiné"/>
+	<Entry ABREV="PZV">
+		<Field name="medium" value="Protégez-Vous"/>
+		<Field name="media-type" value="Presse canadienne"/>
+		<Field name="author" value="Protégez-Vous"/>
 	</Entry>
 	<Entry ABREV="SSBB">
 		<Field name="medium" value="Science Business"/>
@@ -5672,26 +5639,29 @@
 		<Field name="media-type" value="Presse professionnelle"/>
 		<Field name="author" value="La Semaine Juridique"/>
 	</Entry>
+	<Entry ABREV="EUP">
+		<Field name="medium" value="Europolitique"/>
+		<Field name="media-type" value="Presse électronique"/>
+		<Field name="author" value="Europolitique"/>
+	</Entry>
 	<Entry ABREV="LLOY">
 		<Field name="medium" value="Lloyd's List"/>
 		<Field name="media-type" value="Presse professionnelle"/>
 		<Field name="author" value="Lloyd's List"/>
 	</Entry>
-	<Entry ABREV="VDN">
-		<Field name="authorship" value="Journaliste"/>
-		<Field name="medium" value="La Voix du Nord"/>
-		<Field name="media-type" value="Presse régionale"/>
-		<Field name="author" value="La Voix du Nord"/>
+	<Entry ABREV="COUN">
+		<Field name="medium" value="Countryman"/>
+		<Field name="media-type" value="Presse australienne"/>
+		<Field name="author" value="Countryman"/>
 	</Entry>
 	<Entry ABREV="VUNET">
 		<Field name="medium" value="VNUnet.fr"/>
 		<Field name="media-type" value="Presse électronique"/>
 		<Field name="author" value="VNUnet.fr"/>
 	</Entry>
-	<Entry ABREV="AFSSA">
-		<Field name="authorship" value="Organisme de contrôle officiel"/>
-		<Field name="medium" value="AFSSA"/>
-		<Field name="author" value="AFSSA"/>
+	<Entry ABREV="CUN">
+		<Field name="medium" value="Courrier de l'Unesco"/>
+		<Field name="media-type" value="Presse étrangère"/>
 	</Entry>
 	<Entry ABREV="TTNS">
 		<Field name="medium" value="Targeted News Service"/>
@@ -5722,15 +5692,14 @@
 		<Field name="media-type" value="Presse régionale"/>
 		<Field name="author" value="L'Est Républicain"/>
 	</Entry>
-	<Entry ABREV="HOB">
-		<Field name="medium" value="Hobart Mercury"/>
-		<Field name="media-type" value="Presse australienne"/>
-		<Field name="author" value="Hobart Mercury"/>
+	<Entry ABREV="TTTCT">
+		<Field name="medium" value="The Capital Times &amp; Wisconsin State Journal"/>
+		<Field name="media-type" value="Presse américaine"/>
+		<Field name="author" value="The Capital Times &amp; Wisconsin State Journal"/>
 	</Entry>
-	<Entry ABREV="TNP">
-		<Field name="medium" value="The News"/>
-		<Field name="media-type" value="Presse pakistanaise"/>
-		<Field name="author" value="The News"/>
+	<Entry ABREV="Spieg">
+		<Field name="medium" value="Der Spiegel"/>
+		<Field name="media-type" value="Presse étrangère"/>
 	</Entry>
 	<Entry ABREV="CORRS">
 		<Field name="medium" value="Corriere della Sera"/>
@@ -5747,6 +5716,11 @@
 		<Field name="media-type" value="Agence de presse"/>
 		<Field name="author" value="Europe Information"/>
 	</Entry>
+	<Entry ABREV="SAIG">
+		<Field name="medium" value="The Saigon Times Daily"/>
+		<Field name="media-type" value="Presse vietnamienne"/>
+		<Field name="author" value="The Saigon Times Daily"/>
+	</Entry>
 	<Entry ABREV="IET">
 		<Field name="medium" value="Industrie et Technologies"/>
 		<Field name="media-type" value="Presse professionnelle"/>
@@ -5757,9 +5731,10 @@
 		<Field name="medium" value="Le Nouvel Observateur"/>
 		<Field name="media-type" value="News et Magazines"/>
 	</Entry>
-	<Entry ABREV="AP">
-		<Field name="medium" value="Associated Press"/>
-		<Field name="author" value="Associated Press"/>
+	<Entry ABREV="CNG">
+		<Field name="medium" value="CompanynewsGroupe"/>
+		<Field name="media-type" value="Communiqué de presse"/>
+		<Field name="author" value="CompanynewsGroupe"/>
 	</Entry>
 	<Entry ABREV="AR">
 		<Field name="localisation" value="Belgique"/>
@@ -5777,15 +5752,14 @@
 		<Field name="media-type" value="site Web"/>
 		<Field name="author" value="Hoaxbuster"/>
 	</Entry>
-	<Entry ABREV="BOURS">
-		<Field name="medium" value="Boursier.com"/>
-		<Field name="media-type" value="Presse économique"/>
-		<Field name="author" value="Boursier.com"/>
+	<Entry ABREV="OPECST">
+		<Field name="authorship" value="Rapporteurs officiels "/>
+		<Field name="author" value="Office Parlementaire d'Evaluation des Choix Scientifiques et Tech"/>
 	</Entry>
-	<Entry ABREV="SCI">
-		<Field name="medium" value="Science Magazine"/>
-		<Field name="media-type" value="Presse scientifique"/>
-		<Field name="author" value="Science Magazine"/>
+	<Entry ABREV="NWP">
+		<Field name="medium" value="NEWS Press"/>
+		<Field name="media-type" value="Communiqué de presse"/>
+		<Field name="author" value="NEWS Press"/>
 	</Entry>
 	<Entry ABREV="FCCN">
 		<Field name="medium" value="Food Chemical News"/>
@@ -5808,6 +5782,11 @@
 		<Field name="medium" value="The Australian Financial Review"/>
 		<Field name="media-type" value="Presse australienne"/>
 		<Field name="author" value="The Australian Financial Review"/>
+	</Entry>
+	<Entry ABREV="CLFE">
+		<Field name="medium" value="California Energy &amp; Climate Report"/>
+		<Field name="media-type" value="Presse électronique"/>
+		<Field name="author" value="California Energy &amp; Climate Report"/>
 	</Entry>
 	<Entry ABREV="INDW">
 		<Field name="medium" value="Industry Week"/>
@@ -5836,6 +5815,11 @@
 		<Field name="medium" value="Cape Times"/>
 		<Field name="media-type" value="Presse sud-africaine"/>
 		<Field name="author" value="Cape Times"/>
+	</Entry>
+	<Entry ABREV="PTCN">
+		<Field name="medium" value="Pesticide &amp; Toxic Chemical News"/>
+		<Field name="media-type" value="Presse scientifique"/>
+		<Field name="author" value="Pesticide &amp; Toxic Chemical News"/>
 	</Entry>
 	<Entry ABREV="STRT">
 		<Field name="medium" value="Straits Times"/>
