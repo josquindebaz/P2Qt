@@ -108,7 +108,7 @@ class Principal(QtGui.QMainWindow):
                 self.dicTxtSem = {}
                 for t in range(len(self.listeTextes)):
                         sem_texte = "$txt%d"%(t)
-                        self.listeObjetsTextes[sem_texte] =  Viewer.Texte(sem_texte,self.listeTextes[t])
+                        self.listeObjetsTextes[sem_texte] =  Texte(sem_texte,self.listeTextes[t])
                         self.dicTxtSem[self.listeTextes[t]] = sem_texte
 
                 # récupération des champs ctx
@@ -2114,7 +2114,7 @@ class Principal(QtGui.QMainWindow):
 
                 liste_textes = map(lambda k : self.dicTxtSem[k],liste_textes)
 
-                texts_widget = Viewer.Liste_texte(motif,liste_textes)
+                texts_widget = Liste_texte(motif,liste_textes)
 
                 self.dic_widget_list_txt[ texts_widget.tab_title ] =  [ [],[] ]
                 for sem,tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
@@ -2165,7 +2165,7 @@ class Principal(QtGui.QMainWindow):
 
                         liste_textes = map(lambda k : self.dicTxtSem[k],liste_textes)
 
-                        texts_widget = Viewer.Liste_texte(element,liste_textes)
+                        texts_widget = Liste_texte(element,liste_textes)
                         self.dic_widget_list_txt[ texts_widget.tab_title ] =  [ [],[] ]
                         for sem,tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
                                 txt =  self.listeObjetsTextes[sem]
@@ -3110,6 +3110,65 @@ class codex_window(QtGui.QWidget):
                                         CTX.path = path
                                         CTX.dico = v    
                                         CTX.savefile()
+
+
+                    
+class Texte(object):
+        def __init__(self,sem,path):
+                self.sem = sem 
+                self.path = path
+                self.CTX = {}
+
+        def setCTX(self,field, value):
+                self.CTX[field] = value
+        
+        def getCTXall(self):
+                return self.CTX
+
+        def getCTX(self,field):
+                if (field in self.CTX.keys()): 
+                        return self.CTX[field]
+                else :
+                        return False 
+
+        def getResume(self):
+		if "date" in self.CTX.keys():
+			date = re.split(" ",self.CTX["date"])[0]
+		else:
+			date = "00/00/0000"
+		if "author" in self.CTX.keys():
+			author = self.CTX["author"]
+		else :
+			author = "Anon."
+		if "title" in self.CTX.keys():
+			title = self.CTX["title"]
+		else:
+			title = "Untitled"
+                return u"%s <span style=\"font: bold\">%s</span> %s" % (date,author,title)
+
+        def createWidgetitem(self):
+                self.Widgetitem = QtGui.QListWidgetItem()
+                txt_resume = self.getResume()
+                self.WidgetitemLabel = QtGui.QLabel(txt_resume)
+                #TODO texte en blanc quand selectionné
+
+
+
+class Liste_texte(object):
+        def __init__(self,element,liste_textes):
+                self.tab_title = "%s (%d)" % (element,len(liste_textes))
+
+                self.show_texts_widget = QtGui.QWidget()
+                HBox_texts = QtGui.QHBoxLayout()
+                HBox_texts.setContentsMargins(0,0,0,0) 
+                HBox_texts.setSpacing(0) 
+                self.show_texts_widget.setLayout(HBox_texts)
+                self.show_texts_corpus = QtGui.QListWidget()
+                self.show_texts_corpus.setAlternatingRowColors(True)
+                HBox_texts.addWidget(self.show_texts_corpus)
+                self.show_texts_anticorpus = QtGui.QListWidget()
+                self.show_texts_anticorpus.setAlternatingRowColors(True)
+                HBox_texts.addWidget(self.show_texts_anticorpus)
 
 
 
