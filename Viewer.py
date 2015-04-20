@@ -12,6 +12,7 @@ class TexteWidgetItem(object):
                 self.WidgetLabel = QtGui.QLabel(txt_resume)
                 #TODO texte en blanc quand selectionné
 
+
 class Liste_texte(object):
         def __init__(self,element,liste_textes):
                 self.tab_title = "%s (%d)" % (element,len(liste_textes))
@@ -40,9 +41,6 @@ class MyDelegate (QtGui.QStyledItemDelegate ):
 
 	def cSignal(self):
 		self.closedSignal.emit()
-
-
-
 
 
 class ListViewDrop(QtGui.QListWidget):
@@ -79,7 +77,4 @@ class ListViewDrop(QtGui.QListWidget):
 		    event.ignore()
 
 
-class testwindow(QtGui.QWidget):
-        def __init__(self, parent=None):
-                super(testwindow, self).__init__(parent,QtCore.Qt.Window)
 		

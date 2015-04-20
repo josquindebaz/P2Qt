@@ -38,6 +38,7 @@ class client(object):
                         self.Etat = True
                 else :
                         self.Etat = False
+			print "niet"
 
         def disconnect(self):
                 self.c.disconnect()
@@ -215,12 +216,11 @@ class Principal(QtGui.QMainWindow):
 
                 Menu_Corpus = Menubar.addMenu('&Corpus')
                 #Menu_Corpus.setShortcut('Ctrl+C')
-		Menu_project = QtGui.QAction('&edit corpus',self)
+		Menu_project = QtGui.QAction('&corpus',self)
 		Menu_project.triggered.connect(self.edit_corpus)
 		Menu_Corpus.addAction(Menu_project)
                 Menu_codex = QtGui.QAction("&codex",self)
                 Menu_codex.setStatusTip("Use and edit source repositories for ctx generation")
-                #Menu_codex.triggered.connect(self.codex_window)
                 Menu_codex.triggered.connect(self.codex_window)
                 Menu_Corpus.addAction(Menu_codex)
                 Menu_distant = QtGui.QAction(QtGui.QIcon('images/distant.png'), '&prosperologie.org', self)        
@@ -232,7 +232,6 @@ class Principal(QtGui.QMainWindow):
                 Menu_local.triggered.connect(self.connect_server_localhost)
                 Menu_Corpus.addAction(Menu_local)
                 
-
                 Menu_Texts = Menubar.addMenu('&Texts')
                 Menu_AddTex = QtGui.QAction('&Add a new text', self)        
                 Menu_Texts.addAction(Menu_AddTex)
@@ -241,7 +240,6 @@ class Principal(QtGui.QMainWindow):
                 Menu_Texts.addAction(Menu_ModTex)
                 Menu_ModTex.setEnabled(False)
         
-
 
 
 
@@ -716,10 +714,10 @@ class Principal(QtGui.QMainWindow):
                 self.NOT1Commands2.setIcon(QtGui.QIcon("images/gear.png"))
                 self.NOT1Commands2.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
                 NOT1Commands2Menu = QtGui.QMenu(self)
-                NOT1Commands2Menu.addAction('network' , self.show_network)
-                NOT1Commands2Menu.addAction('texts' , self.show_texts)
+                #NOT1Commands2Menu.addAction('network' , self.show_network)
+                #NOT1Commands2Menu.addAction('texts' , self.show_texts)
                 self.NOT1Commands2.setMenu(NOT1Commands2Menu)
-                NOT1VHC.addWidget(self.NOT1Commands2)
+                #NOT1VHC.addWidget(self.NOT1Commands2)
 
 #TODO ajouter un déselect
         #une box horizontale pour liste, score et deploiement
@@ -734,18 +732,32 @@ class Principal(QtGui.QMainWindow):
                 #menu contextuel
                 self.NOT12.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
                 copy_to_clipboard = QtGui.QAction('copy list to clipboard',self)
-                self.NOT12.addAction(copy_to_clipboard)
+                show_network = QtGui.QAction('network' , self)
+                show_texts =QtGui.QAction('texts' , self)
+                QtCore.QObject.connect(show_texts, QtCore.SIGNAL("triggered()"), self.show_texts)
+                QtCore.QObject.connect(show_network, QtCore.SIGNAL("triggered()"), self.show_network)
                 QtCore.QObject.connect(copy_to_clipboard, QtCore.SIGNAL("triggered()"), self.copy_to_cb)
+                self.NOT12.addAction(show_texts)
+                self.NOT12.addAction(show_network)
+                self.NOT12.addAction(copy_to_clipboard)
 
         #le deploiement
                 self.NOT12_D = QtGui.QListWidget()
                 NOT1VH.addWidget(self.NOT12_D)
                 self.NOT12_D.currentItemChanged.connect(self.liste_D_item_changed) #changement d'un item
+                self.NOT12_D.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+                self.NOT12_D.addAction(show_texts)
+                self.NOT12_D.addAction(show_network)
+                self.NOT12_D.addAction(copy_to_clipboard)
         #le deploiement II
                 self.NOT12_E = QtGui.QListWidget()
                 NOT1VH.addWidget(self.NOT12_E)
                 self.NOT12_E.currentItemChanged.connect(self.liste_E_item_changed) #changement d'un item
                 self.NOT12_E.doubleClicked.connect(self.teste_wording)
+                self.NOT12_E.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+                self.NOT12_E.addAction(show_texts)
+                self.NOT12_E.addAction(show_network)
+                self.NOT12_E.addAction(copy_to_clipboard)
 
 
 ##### L'onglet des listes de concepts
@@ -939,6 +951,8 @@ class Principal(QtGui.QMainWindow):
 
                 self.setWindowTitle(u'Prospéro interface')
                 self.show() 
+                #codex_w = codex_window(self)
+                #codex_w.show()
 
 
 ################################################
@@ -1042,7 +1056,7 @@ class Principal(QtGui.QMainWindow):
                                         self.semantique_txt_item = txt.sem
                                 i = i+1
 
-                self.activity(u"%s (%s) selected " % (txt.path,self.semantique_txt_item)) 
+                #self.activity(u"%s (%s) selected " % (txt.path,self.semantique_txt_item)) 
 
                 if (self.SOT1.currentIndex() != 0): #selectionne le texte dans l'onglet corpus s'il n'est pas actif
                         self.selectTxtCorpus(txt)
@@ -1208,7 +1222,11 @@ class Principal(QtGui.QMainWindow):
                 self.NOT12.clear()
                 self.NOT12_D.clear()
                 self.NOT12_E.clear()
-                self.NOT12.addItems(content)
+		for r in range(len(content)):
+			i = QtGui.QListWidgetItem(content[r])
+			self.NOT12.addItem(i)
+			i.setToolTip('rank:%d'%(r+1))
+			
 
 
         def change_liste_concepts(self,content):
@@ -1308,7 +1326,6 @@ class Principal(QtGui.QMainWindow):
                 self.which_concepts = "deployement"
                 self.choose_score_concepts_tick()
                 self.affiche_concepts_scores()
-
 
 
         def affiche_concepts_scores(self):
@@ -1807,7 +1824,7 @@ class Principal(QtGui.QMainWindow):
                 """Show text sailent properties"""
                 #les actants
                 #les actants en tête sont calculés par le serveur
-                #self.saillantesAct.clear()
+                self.saillantesAct.clear()
                 self.saillantesAct_deployes = []
                 list_act_sem = "%s.act[0:]" % sem_txt
                 result = self.client.eval_var(list_act_sem)
@@ -1841,7 +1858,7 @@ class Principal(QtGui.QMainWindow):
 
                 self.list_cat_valued = {}
                 self.list_cat_txt = {} 
-                #self.saillantesCat.clear()
+                self.saillantesCat.clear()
                 self.saillantesCat_deployes = []
                 #for typ in [u"cat_qua",u"cat_mar",u"cat_epr",u"cat_ent"]:
                 for typ in [u"cat_ent"]: #uniquement les cat_ent
@@ -1888,7 +1905,7 @@ class Principal(QtGui.QMainWindow):
                 # les collections
                 # on met toutes les collections parce que leur émergence est donnée par leur déploiement
 #TODO ordonner
-                #self.saillantesCol.clear()
+                self.saillantesCol.clear()
                 self.saillantesCol_deployees = []
                 list_col_sem = "%s.col[0:]" % sem_txt
                 result = self.client.eval_var(list_col_sem)
@@ -2400,9 +2417,10 @@ class corpus_window(QtGui.QWidget):
                 savePRC_button= QtGui.QPushButton("Save")
                 H1.addWidget(savePRC_button)
                 savePRC_button.clicked.connect(self.savePRC)
-                self.launchPRC_button= QtGui.QPushButton("Save and Launch")
+                self.launchPRC_button= QtGui.QPushButton("Read")
                 H1.addWidget(self.launchPRC_button)
                 self.launchPRC_button.setEnabled(False)
+                self.launchPRC_button.clicked.connect(self.launchPRC)
 
                 H2 = QtGui.QHBoxLayout()
                 L.addLayout(H2)
@@ -2589,6 +2607,9 @@ class corpus_window(QtGui.QWidget):
                         self.ViewListeLexicons.addItems(corpus.dicFileList())
                         self.ViewListeLexicons.sortItems()
 
+			self.launchPRC_button.setEnabled(True)
+		
+
         def checkFileExistence(self):
                 for row in range(self.ViewListeTextes.count()):
                         F = self.ViewListeTextes.item(row).text()
@@ -2628,10 +2649,21 @@ class corpus_window(QtGui.QWidget):
 			ressources.append(self.ViewListeLexicons.item(r).text())
                 corpusS.savefile(fileName,langue=u"français",ressource_list=ressources,concept_list=concepts,text_dic=self.TextFilesDates)
 
+	def launchPRC(self):
+		PRC = self.nameCorpus.text()
+		server_path = "server/prospero"
+		port = 60000
+                commande = "%s -e -p %s -f %s" % (server_path,port,PRC)
+                self.local_server = subprocess.Popen(commande, shell=True)
+		self.hide()
+		#TODO lancer le connecteur, retour sur corpus affiche le corpus chargé, relier la fin de Principal à celle du serveur
+
+
+
+
 class codex_window(QtGui.QWidget):
         def __init__(self, parent=None):
                 super(codex_window, self).__init__(parent,QtCore.Qt.Window)
-
                 self.codex_dic = Model.edit_codex()
                 if self.codex_dic.cherche_codex():
                         self.codex_dic.parse_codex_xml("codex.xml")
@@ -2663,9 +2695,6 @@ class codex_window(QtGui.QWidget):
                 self.h22liste.setSizePolicy( QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
 
                 self.h22liste.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-                #h22listeGen = QtGui.QAction('regenerate',self)
-                #self.h22liste.addAction(h22listeGen)
-                #QtCore.QObject.connect(h22listeGen, QtCore.SIGNAL("triggered()"), self.generate)
                 efface_h22listeItem = QtGui.QAction('delete item',self)
                 self.h22liste.addAction(efface_h22listeItem)
                 QtCore.QObject.connect(efface_h22listeItem, QtCore.SIGNAL("triggered()"), self.efface_h22listeItem)
@@ -2675,8 +2704,6 @@ class codex_window(QtGui.QWidget):
 
 
                 h23 = QtGui.QVBoxLayout()
-
-
 
                 h23Buttons = QtGui.QHBoxLayout()
                 h23.addLayout(h23Buttons)
