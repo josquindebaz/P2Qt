@@ -216,9 +216,9 @@ class Principal(QtGui.QMainWindow):
 
                 Menu_Corpus = Menubar.addMenu('&Corpus')
                 #Menu_Corpus.setShortcut('Ctrl+C')
-		Menu_project = QtGui.QAction('&corpus',self)
-		Menu_project.triggered.connect(self.edit_corpus)
-		Menu_Corpus.addAction(Menu_project)
+		#Menu_project = QtGui.QAction('&corpus',self)
+		#Menu_project.triggered.connect(self.edit_corpus)
+		#Menu_Corpus.addAction(Menu_project)
                 Menu_codex = QtGui.QAction("&codex",self)
                 Menu_codex.setStatusTip("Use and edit source repositories for ctx generation")
                 Menu_codex.triggered.connect(self.codex_window)
@@ -455,6 +455,13 @@ class Principal(QtGui.QMainWindow):
                 #quart NE
 ##################################################
 
+##################################################
+#Corpus
+#
+
+		self.param_corpus = Viewer.Corpus_tab(self)
+                QtCore.QObject.connect(self.param_corpus.send_codex_ViewListeTextes, QtCore.SIGNAL("triggered()"), self.send_codex_ViewListeTextes)
+                self.param_corpus.launchPRC_button.clicked.connect(self.launchPRC)
 
 ##################################################
 #TODO logs
@@ -627,6 +634,7 @@ class Principal(QtGui.QMainWindow):
 
 #               SubWdwNE.addTab(T4,"Viewer")
 #               SubWdwNE.addTab(NET1,"Marlowe")
+                self.SubWdwNE.addTab(self.param_corpus,"Corpus")
                 self.History_index = self.SubWdwNE.addTab(self.History,"History")
                 self.SubWdwNE.addTab(server_vars,"Vars")
                 #self.SubWdwNE.addTab(Param_Server,"Server")
@@ -1741,6 +1749,7 @@ class Principal(QtGui.QMainWindow):
                 #self.connect_server(h='192.168.1.99',p='60000')
 
         def connect_server(self,h = 'prosperologie.org',p = '60000'):
+		print h
                 self.activity("Connecting to server")
                 #self.client=client(self.Param_Server_val_host.text(),self.Param_Server_val_port.text())
 
@@ -1786,10 +1795,6 @@ class Principal(QtGui.QMainWindow):
         def codex_window(self):
                 codex_w = codex_window(self)
                 codex_w.show()
-
-	def edit_corpus(self):
-		corpus_w = corpus_window(self)
-                corpus_w.show()
 
         def show_textContent(self ,  sem_txt):
                 """Insert text content in the dedicated window"""
@@ -2393,124 +2398,10 @@ class Principal(QtGui.QMainWindow):
                         clipboard.setText("\n".join(liste))
                         self.activity(u"%d elements copied to clipboard" % (len(liste) ) )
 
-            
-class corpus_window(QtGui.QWidget):
-        def __init__(self, parent=None):
-                super(corpus_window, self).__init__(parent,QtCore.Qt.Window)
 
-                L = QtGui.QVBoxLayout()
-                self.setLayout(L)
-
-                H1 = QtGui.QHBoxLayout()
-                L.addLayout(H1)
-                self.nameCorpus = QtGui.QLineEdit()
-		self.nameCorpus.setAcceptDrops(True)
-                H1.addWidget(self.nameCorpus)
-                openPRC = QtGui.QPushButton("Open")
-                openPRC.setToolTip("Open a .prc file")
-                openPRC.clicked.connect(self.openPRC)
-                H1.addWidget(openPRC)
-                mergePRC_button= QtGui.QPushButton("Merge")
-                mergePRC_button.setToolTip("Merge text list with a .prc file")
-                H1.addWidget(mergePRC_button)
-                mergePRC_button.clicked.connect(self.mergePRC)
-                savePRC_button= QtGui.QPushButton("Save")
-                H1.addWidget(savePRC_button)
-                savePRC_button.clicked.connect(self.savePRC)
-                self.launchPRC_button= QtGui.QPushButton("Read")
-                H1.addWidget(self.launchPRC_button)
-                self.launchPRC_button.setEnabled(False)
-                self.launchPRC_button.clicked.connect(self.launchPRC)
-
-                H2 = QtGui.QHBoxLayout()
-                L.addLayout(H2)
-                H2LV1 = QtGui.QVBoxLayout()
-                H2.addLayout(H2LV1)
-                H2LV1B = QtGui.QHBoxLayout()
-                H2LV1.addLayout(H2LV1B)
-                self.numTexts = QtGui.QLabel()
-                H2LV1B.addWidget(self.numTexts)
-                spacer_1 = QtGui.QLabel()
-                spacer_1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum )
-                H2LV1B.addWidget(spacer_1)
-                self.checkTexts = QtGui.QCheckBox("file existence")
-                H2LV1B.addWidget(self.checkTexts)
-                self.checkTexts.stateChanged.connect( self.checkFileExistence )
-        
-                self.TextFilesDates = {}
-
-                self.ViewListeTextes = Viewer.ListViewDrop(self)
-                self.ViewListeTextes.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
-                self.ViewListeTextes.fileDropped.connect(self.TxtFilesDropped)
-                H2LV1.addWidget(self.ViewListeTextes)
-
-
-                self.ViewListeTextes.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-                efface_ViewListeTextesItem = QtGui.QAction('delete item',self)
-                self.ViewListeTextes.addAction(efface_ViewListeTextesItem)
-                QtCore.QObject.connect(efface_ViewListeTextesItem, QtCore.SIGNAL("triggered()"), self.efface_ViewListeTextesItem)
-                efface_ViewListeTextes = QtGui.QAction('clear list',self)
-                self.ViewListeTextes.addAction(efface_ViewListeTextes)
-                QtCore.QObject.connect(efface_ViewListeTextes, QtCore.SIGNAL("triggered()"), self.efface_ViewListeTextes)
-                send_codex_ViewListeTextes = QtGui.QAction('send to codex',self)
-                self.ViewListeTextes.addAction(send_codex_ViewListeTextes)
-                QtCore.QObject.connect(send_codex_ViewListeTextes, QtCore.SIGNAL("triggered()"), self.send_codex_ViewListeTextes)
-
-                H22Tab = QtGui.QTabWidget()
-                H2.addWidget(H22Tab)
-                H22TabDic = QtGui.QWidget()
-                H22Tab.addTab(H22TabDic,"Dictionaries")
-                H2L = QtGui.QVBoxLayout()
-                H22TabDic.setLayout(H2L)
-
-                self.ViewListeConcepts = Viewer.ListViewDrop(self)
-                H2L.addWidget(self.ViewListeConcepts)
-                self.ViewListeConcepts.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
-                self.ViewListeConcepts.fileDropped.connect(self.ccfFilesDropped)
-                self.ViewListeConcepts.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-                efface_ViewListeConceptsItem = QtGui.QAction('delete item',self)
-                self.ViewListeConcepts.addAction(efface_ViewListeConceptsItem)
-                QtCore.QObject.connect(efface_ViewListeConceptsItem, QtCore.SIGNAL("triggered()"), self.efface_ViewListeConceptsItem)
-                efface_ViewListeConcepts = QtGui.QAction('clear list',self)
-                self.ViewListeConcepts.addAction(efface_ViewListeConcepts)
-                QtCore.QObject.connect(efface_ViewListeConcepts, QtCore.SIGNAL("triggered()"), self.efface_ViewListeConcepts)
-
-                self.ViewListeLexicons = Viewer.ListViewDrop(self)
-                H2L.addWidget(self.ViewListeLexicons)
-                self.ViewListeLexicons.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
-                self.ViewListeLexicons.fileDropped.connect(self.dicFilesDropped)
-                self.ViewListeLexicons.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-                efface_ViewListeLexiconsItem = QtGui.QAction('delete item',self)
-                self.ViewListeLexicons.addAction(efface_ViewListeLexiconsItem)
-                QtCore.QObject.connect(efface_ViewListeLexiconsItem, QtCore.SIGNAL("triggered()"), self.efface_ViewListeLexiconsItem)
-                efface_ViewListeLexicons = QtGui.QAction('clear list',self)
-                self.ViewListeLexicons.addAction(efface_ViewListeLexicons)
-                QtCore.QObject.connect(efface_ViewListeLexicons, QtCore.SIGNAL("triggered()"), self.efface_ViewListeLexicons)
-
-                H22TabPar = QtGui.QWidget()
-                H22Tab.addTab(H22TabPar,"Parameters")
-
-
-        def TxtFilesDropped(self, l):
-                existing = [] 
-                for r in range( self.ViewListeTextes.count()):
-                        existing.append( self.ViewListeTextes.item(r).text())
-                for url in list(set(l) - set(existing)):
-                        if os.path.exists(url):
-                                if os.path.splitext(url)[1] in ['.txt','.TXT']:
-                                        item = QtGui.QListWidgetItem(url, self.ViewListeTextes)
-                                        item.setStatusTip(url)
-                                        self.TextFilesDates[url] = u"%s"%datetime.datetime.now().strftime("%Y-%m-%d")
-                                        item.setToolTip("insertion date %s" % self.TextFilesDates[url])
-                self.numTexts.setText(u"%d texts"%self.ViewListeTextes.count())
-
-        def efface_ViewListeTextes(self):
-                self.ViewListeTextes.clear()
-                self.numTexts.setText(u"%d texts"%self.ViewListeTextes.count())
-                self.TextFilesDates = {}
 
 	def send_codex_ViewListeTextes(self):
-                Items = self.ViewListeTextes.selectedItems()
+                Items = self.param_corpus.ViewListeTextes.selectedItems()
                 if (Items):
 			codex_w = codex_window(self)
 			codex_w.show()
@@ -2519,147 +2410,14 @@ class corpus_window(QtGui.QWidget):
 				l.append(item.text())	
 			codex_w.appendItems(l)
 
-        def efface_ViewListeTextesItem(self):
-                Items = self.ViewListeTextes.selectedItems()
-                if (Items):
-                        for item in Items:
-                                del(self.TextFilesDates[item.text()])
-                                self.ViewListeTextes.takeItem(self.ViewListeTextes.row(item))
-                self.numTexts.setText(u"%d texts"%self.ViewListeTextes.count())
-        
-        def efface_ViewListeConcepts(self):
-                self.ViewListeConcepts.clear()
-
-        def efface_ViewListeConceptsItem(self):
-                Items = self.ViewListeConcepts.selectedItems()
-                if (Items):
-                        for item in Items:
-                                self.ViewListeConcepts.takeItem(self.ViewListeConcepts.row(item))
-                                
-
-        def ccfFilesDropped(self, l):
-                existing = [] 
-                for r in range( self.ViewListeConcepts.count()):
-                        existing.append( self.ViewListeConcepts.item(r).text())
-                for url in list(set(l) - set(existing)):
-                        if os.path.exists(url):
-                                if os.path.splitext(url)[1] in ['.cat','.fic','.col']:
-                                        item = QtGui.QListWidgetItem(url, self.ViewListeConcepts)
-                                        item.setStatusTip(url)
-                self.ViewListeConcepts.sortItems()
-        
-        def efface_ViewListeLexicons(self):
-                self.ViewListeLexicons.clear()
-
-        def efface_ViewListeLexiconsItem(self):
-                Items = self.ViewListeLexicons.selectedItems()
-                if (Items):
-                        for item in Items:
-                                self.ViewListeLexicons.takeItem(self.ViewListeLexicons.row(item))
-
-
-
-        def dicFilesDropped(self, l):
-                existing = [] 
-                for r in range( self.ViewListeLexicons.count()):
-                        existing.append( self.ViewListeLexicons.item(r).text())
-                for url in list(set(l) - set(existing)):
-                        if os.path.exists(url):
-                                if os.path.splitext(url)[1] in ['.dic']:
-                                        item = QtGui.QListWidgetItem(url, self.ViewListeLexicons)
-                                        item.setStatusTip(url)
-                self.ViewListeLexicons.sortItems()
-
-                
-        def getFile(self):
-		if os.path.isdir("/Users/gspr/corpus"):
-			rep = "/Users/gspr/corpus"
-		else:
-			rep = "."
-                fname, filt = QtGui.QFileDialog.getOpenFileName(self, 'Open file', rep, '*.prc;*.PRC')
-                return fname
-        
-        def openPRC(self):
-                fname = self.getFile()
-                if ( fname) :
-                        corpus = Model.parseCorpus()
-                        corpus.open(fname)
-
-                        self.nameCorpus.clear()
-                        self.nameCorpus.setText( fname )
-
-                        self.ViewListeTextes.clear()
-                        for f in corpus.textFileList(): 
-                                item = QtGui.QListWidgetItem(f[0])
-                                item.setToolTip("insertion date %s" % f[1])
-                                self.ViewListeTextes.addItem(item)
-                                self.TextFilesDates[f[0]] = f[1]
-                        self.numTexts.setText(u"%d texts"%self.ViewListeTextes.count())
-                        self.ViewListeTextes.sortItems()
-                        if self.checkTexts.checkState() :
-                                self.checkFileExistence()
-
-                        self.ViewListeConcepts.clear()
-                        self.ViewListeConcepts.addItems(corpus.conceptFileList())
-                        self.ViewListeConcepts.sortItems()
-
-                        self.ViewListeLexicons.clear()
-                        self.ViewListeLexicons.addItems(corpus.dicFileList())
-                        self.ViewListeLexicons.sortItems()
-
-			self.launchPRC_button.setEnabled(True)
-		
-
-        def checkFileExistence(self):
-                for row in range(self.ViewListeTextes.count()):
-                        F = self.ViewListeTextes.item(row).text()
-                        if self.checkTexts.checkState() :
-                                if os.path.isfile(F):
-                                        self.ViewListeTextes.item(row).setForeground(QtGui.QColor("green" ))
-                                else:
-                                        self.ViewListeTextes.item(row).setForeground(QtGui.QColor("red" ))
-                        else:
-                                self.ViewListeTextes.item(row).setForeground(QtGui.QColor("black" ))
-
-                
-        def mergePRC(self):
-                fname = self.getFile()
-                if ( fname) :
-                        corpusM = Model.parseCorpus()
-                        corpusM.open(fname)
-                        for f in corpusM.textFileList(): 
-                                if f[0] not in self.TextFilesDates.keys():
-                                        self.TextFilesDates[f[0]] = f[1]
-                                        item = QtGui.QListWidgetItem(f[0])
-                                        item.setToolTip("insertion date %s" % f[1])
-                                        self.ViewListeTextes.addItem(item)
-                        self.ViewListeTextes.sortItems()
-                        self.numTexts.setText(u"%d texts"%self.ViewListeTextes.count())
-                        if self.checkTexts.checkState() :
-                                self.checkFileExistence()
-
-        def savePRC(self):
-                fileName,ext = QtGui.QFileDialog.getSaveFileName(self,"Save prc file", '', '*.prc') 
-                corpusS = Model.parseCorpus()    
-		concepts = []
-		for r in range(self.ViewListeConcepts.count()):
-			concepts.append(self.ViewListeConcepts.item(r).text())
-		ressources = []
-		for r in  range(self.ViewListeLexicons.count()):
-			ressources.append(self.ViewListeLexicons.item(r).text())
-                corpusS.savefile(fileName,langue=u"français",ressource_list=ressources,concept_list=concepts,text_dic=self.TextFilesDates)
 
 	def launchPRC(self):
-		PRC = self.nameCorpus.text()
+		PRC = self.param_corpus.nameCorpus.text()
 		server_path = "server/prospero"
 		port = 60000
                 commande = "%s -e -p %s -f %s" % (server_path,port,PRC)
                 self.local_server = subprocess.Popen(commande, shell=True)
-		self.hide()
-		#TODO lancer le connecteur, retour sur corpus affiche le corpus chargé, relier la fin de Principal à celle du serveur
-
-
-
+		self.connect_server_localhost()
 
 class codex_window(QtGui.QWidget):
         def __init__(self, parent=None):
