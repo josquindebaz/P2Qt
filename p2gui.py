@@ -2421,6 +2421,7 @@ class Principal(QtGui.QMainWindow):
 		server_path = "./prospero-server"
 		port = 60000
                 commande = "%s -e -p %s -f %s" % (server_path,port,PRC)
+		print commande
                 local_server = subprocess.Popen(commande, shell=True)
 		time.sleep(5)
 		self.connect_server("localhost",port)

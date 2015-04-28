@@ -4,6 +4,7 @@ from PySide import QtCore
 from PySide import QtGui 
 import re,os
 import Model
+import datetime
 
 
 class TexteWidgetItem(object):
@@ -104,6 +105,9 @@ class Corpus_tab(QtGui.QListWidget):
                 savePRC_button= QtGui.QPushButton("Save")
                 H1.addWidget(savePRC_button)
                 savePRC_button.clicked.connect(self.savePRC)
+                self.launchPRC_button= QtGui.QPushButton("Read")
+                H1.addWidget(self.launchPRC_button)
+                self.launchPRC_button.setEnabled(False)
 
                 H2 = QtGui.QHBoxLayout()
                 L.addLayout(H2)
@@ -116,9 +120,6 @@ class Corpus_tab(QtGui.QListWidget):
                 spacer_1 = QtGui.QLabel()
                 spacer_1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum )
                 H2LV1B.addWidget(spacer_1)
-                self.launchPRC_button= QtGui.QPushButton("Read")
-                H2LV1B.addWidget(self.launchPRC_button)
-                self.launchPRC_button.setEnabled(False)
                 self.checkTexts = QtGui.QCheckBox("file existence")
                 H2LV1B.addWidget(self.checkTexts)
                 self.checkTexts.stateChanged.connect( self.checkFileExistence )
@@ -328,5 +329,7 @@ class Corpus_tab(QtGui.QListWidget):
 		for r in  range(self.ViewListeLexicons.count()):
 			ressources.append(self.ViewListeLexicons.item(r).text())
                 corpusS.savefile(fileName,langue=u"français",ressource_list=ressources,concept_list=concepts,text_dic=self.TextFilesDates)
+		self.launchPRC_button.setEnabled(True)
+		self.nameCorpus.setText( fileName )
 
 
