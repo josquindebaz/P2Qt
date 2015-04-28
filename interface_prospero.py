@@ -92,9 +92,11 @@ class ConnecteurPII (threading.Thread):
 		self.m_cache_var ={}
 		self.m_threadlock = threading.RLock() # verrou reentrant
 		self.data_to_eval=None
+
 	def set(self, ip, port):
 		self.host = ip
 		self.port = port 
+
 	def run (self):
 		if verbose : print "thread running"
 		if not self.connexion : 
@@ -117,14 +119,32 @@ class ConnecteurPII (threading.Thread):
 		self.connexion.setblocking(1)
 		while 1 :
 			try:			
-				#print "connexion au serveur ", self.host, " port : ", self.port
+				if (verbose): print "connexion au serveur ", self.host, " port : ", self.port
 				self.connexion.connect((self.host, int(self.port)))
 				time.sleep(0.5)
 				return True
 			except socket.error:			
-				print "Connexion : échec"
+				print "Connecton failed"
 				time.sleep(1)
+				return False
 				
+	def connect_x(self,x):
+		"""try to connect x times with 10 intervals then return True or False"""
+		i = 1
+		r = False
+		while ((i <= x) and (not r)):
+			if (verbose): print " attempt to connect %d on %d" % (i,x)
+			try:			
+				if (verbose): print "connexion au serveur ", self.host, " port : ", self.port
+				self.connexion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+				self.connexion.setblocking(1)
+				self.connexion.connect((self.host, int(self.port)))
+				r = True
+			except socket.error:			
+				print "Connection failed"
+				time.sleep(10)
+			i += 1
+		return r
 
 	def disconnect(self):
 		self.send_expression("CLOSE")

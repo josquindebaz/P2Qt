@@ -3,7 +3,6 @@
 
 
 import sys
-#import PySide
 from PySide import QtCore 
 from PySide import QtGui 
 
@@ -11,7 +10,7 @@ from fonctions import translate
 
 import re
 import datetime
-import subprocess, threading
+import subprocess, threading, socket, atexit
 import os
 import time
 
@@ -30,7 +29,13 @@ class client(object):
                 self.c = interface_prospero.ConnecteurPII() 
                 #self.c.start()
                 self.c.set(h,p)
-                self.teste_connect()
+		self.Etat = self.c.connect_x(5)
+                #self.teste_connect()
+		if not (self.Etat):
+			msgBox = QtGui.QMessageBox()
+			msgBox.setText("connection failed")
+			msgBox.setIcon(QtGui.QMessageBox.Critical)
+			msgBox.exec_()
 
         def teste_connect(self):
                 teste = self.c.connect()
@@ -1749,7 +1754,6 @@ class Principal(QtGui.QMainWindow):
                 #self.connect_server(h='192.168.1.99',p='60000')
 
         def connect_server(self,h = 'prosperologie.org',p = '60000'):
-		print h
                 self.activity("Connecting to server")
                 #self.client=client(self.Param_Server_val_host.text(),self.Param_Server_val_port.text())
 
@@ -1760,8 +1764,9 @@ class Principal(QtGui.QMainWindow):
                 #self.client=client("prosperologie.org","60000")
                 #self.client=client("localhost","60000")
 
-                self.client.teste_connect()
-                if (self.client.Etat):
+                #self.client.teste_connect()
+		
+		if (self.client.Etat):
                         # calcule en avance
                         self.pre_calcule()
 
@@ -2413,11 +2418,14 @@ class Principal(QtGui.QMainWindow):
 
 	def launchPRC(self):
 		PRC = self.param_corpus.nameCorpus.text()
-		server_path = "server/prospero"
+		server_path = "./prospero-server"
 		port = 60000
                 commande = "%s -e -p %s -f %s" % (server_path,port,PRC)
-                self.local_server = subprocess.Popen(commande, shell=True)
-		self.connect_server_localhost()
+                local_server = subprocess.Popen(commande, shell=True)
+		time.sleep(5)
+		self.connect_server("localhost",port)
+		atexit.register(local_server.terminate) #kill the server when the gui is closed
+			
 
 class codex_window(QtGui.QWidget):
         def __init__(self, parent=None):
