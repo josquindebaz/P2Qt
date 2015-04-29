@@ -119,10 +119,6 @@ class parseCorpus(object):
                 file_handle.write(content.toprettyxml( encoding="utf-8"))
                 file_handle.close()
 
-                
-
-
-
 class parseCTX(object):
     def __init__(self):
         self.path = u""
@@ -318,3 +314,69 @@ class edit_codex(object):
                 file_handle.close()
                         
 
+class preCalcul(object):
+	"""cache values"""
+	def __init__(self,parent):
+		self.parent=parent
+		
+		#texts
+		self.recup_texts()
+		#ctx
+		self.recup_ctx()
+
+		self.type_var =  [ "$ent" , "$ef" , "$col", "$qualite"] 
+		self.type_calcul = ["freq","dep", "nbaut", "nbtxt","lapp","fapp"]
+	
+                
+        def recup_texts(self):
+		"""cache text list"""
+                txts = self.parent.client.eval_var("$txt[0:]")
+		self.listeTextes  = re.split(", ",txts)
+		self.listeObjetsTextes = {}
+                self.dicTxtSem = {}
+                for t in range(len(self.listeTextes)):
+                        sem_texte = u"$txt%d"%(t)
+                        self.listeObjetsTextes[sem_texte] =  Texte(sem_texte,self.listeTextes[t])
+                        self.dicTxtSem[self.listeTextes[t]] = sem_texte
+
+	def recup_ctx(self):
+		"""cache ctx content"""
+		#get ctx field titles, comma+space separated, comma protected by antislash
+                string_ctx =    self.parent.client.eval_var("$ctx")
+		liste_champs_ctx = re.split("(?<!\\\), ",string_ctx )#negative lookbehind assertion
+		self.liste_champs_ctx =  map(self.delAntiSlash,liste_champs_ctx )
+
+                for champ in self.liste_champs_ctx :
+                        string_ctx =self.parent.client.eval_var("$ctx.%s%s"%(champ,"[0:]")) 
+                        liste_data_ok_ctx =  re.split("(?<!\\\), ",string_ctx )
+			liste_data_ok_ctx = map(self.delAntiSlash,liste_data_ok_ctx)
+
+                        if len (liste_data_ok_ctx) != len (self.listeTextes):
+                                print "problemo qq part les listes doivent avoir le même nbre d'éléments"
+				print liste_data_ok_ctx 
+			#else : print liste_data_ok_ctx
+
+                        for indice in range (len(self.listeTextes)):
+                                sem_texte = "$txt%d"%(indice)
+                                txt = self.listeObjetsTextes[sem_texte]
+                                data = liste_data_ok_ctx[indice]
+                                if data != "":
+                                        self.parent.client.add_cache_var( txt.sem + ".ctx.%s"%champ, data)
+                                        txt.setCTX(champ,data)
+
+	def delAntiSlash(self,elt):
+		return re.sub('\\\\,',',',elt)
+	
+	def cacheAssocValue(self,type_var,type_calcul):	
+		ask = self.parent.client.eval_vector(type_var, type_calcul)
+
+		if (type_calcul == "freq"):
+			type_calcul = "val"
+
+		indice = 0
+		for val in ask.split(', ') :
+			m = "%s%s.%s"%(type_var,str(indice),type_calcul)
+			self.parent.client.add_cache_var (m,val)
+			indice += 1
+			
+                

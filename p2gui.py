@@ -95,115 +95,22 @@ class Principal(QtGui.QMainWindow):
                 
                 
         def pre_calcule(self):
-                '''
-                        généralisation de l'accès aux props des ctx
-                        
-                        avec eval_var("$ctx") on récupère la liste des noms des champs ctx
-                        qq ajustements sont à faire pour mettre en cache 
-                                $txtX.titre_txt   à partir de title
-                                $txtX.date_txt   à partir de date
-                                
-                '''
-                
-
                 self.activity("pre-computing : texts")
-                self.listeTextes = self.recup_texts()
-                self.listeObjetsTextes = {}
-                self.dicTxtSem = {}
-                for t in range(len(self.listeTextes)):
-                        sem_texte = "$txt%d"%(t)
-                        self.listeObjetsTextes[sem_texte] =  Model.Texte(sem_texte,self.listeTextes[t])
-                        self.dicTxtSem[self.listeTextes[t]] = sem_texte
-
-                # récupération des champs ctx
-                string_ctx =    self.client.eval_var("$ctx")
-                
-                # les virgules contenues dans les titres ont été remplacées par \,
-                # la manip suivante permet de remplacer dans un premier temps les \,par un TAG
-                # ensuite de créer la liste, puis de remettre les virgules à la place des \,
-                TAG="AZETYT"    # on peut mettre presque n'importe quoi ...
-                string_ctx = string_ctx.replace ('\,', TAG )
-                liste_ctx = string_ctx.split(',')
-                liste_champs_ctx = []
-                for champ_ctx in liste_ctx:
-                        champ_ctx = champ_ctx.strip()
-                        if champ_ctx.find (TAG) != -1 :
-                                champ_ctx = champ_ctx.replace(TAG,',')
-                        liste_champs_ctx.append ( champ_ctx)            
-                
-                liste_champs_ajuste = []
-
-                for champ in liste_champs_ctx :
-                         #title[0\]  date[0:]  etc on ne met pas le $ctx  ici...
-
-                        string_ctx =self.client.eval_var("$ctx.%s%s"%(champ,"[0:]")) 
-                        string_ctx = string_ctx.replace ('\,', TAG )
-                        #liste_data_ctx = string_ctx.split(',') 
-                        liste_data_ctx = string_ctx.split(', ') 
-                        liste_data_ok_ctx =[]   
-
-                        for data in liste_data_ctx :
-                                if data.find(TAG) != -1:
-                                        data = data.replace(TAG,',')
-                                liste_data_ok_ctx.append ( data)
-
-                        if len (liste_data_ok_ctx) != len (self.listeTextes):
-                                print "problemo qq part les listes doivent avoir le même nbre d'éléments"
-                                
-                        # pb non résolu
-                        # entre l'attribut de $txt -> titre_txt date_txt auteur_txt
-                        # proatique pour accéder à ces propriétés
-                        # et d'autres part les noms des champs ...
-                        
-                        '''     
-                        if champ == "title" :
-                                champ = u"titre_txt"
-                        if champ == "date" :
-                                champ = u"date_txt"
-                        if champ == "author" :
-                                champ = u"auteur_txt"
-                        '''
-                                
-                                #ne pas traduire pour les calculs, uniquement pour la visualisation
-                        #champ = translate(champ)
-
-                        liste_champs_ajuste.append (champ)
-
-                        for indice in range (len(self.listeTextes)):
-                                sem_texte = "$txt%d"%(indice)
-                                txt = self.listeObjetsTextes[sem_texte]
-                                data = liste_data_ok_ctx[indice]
-                                # sématique avec les noms des champs anglais
-                                if data != "":
-                                        self.client.add_cache_var( txt.sem + ".ctx.%s"%champ, data)
-                                        txt.setCTX(champ,data)
-
+		self.preCalcul = Model.preCalcul(self)
+		self.listeObjetsTextes = self.preCalcul.listeObjetsTextes
 
                 self.NOT5_list.clear()
-                self.NOT5_list.addItems(liste_champs_ajuste)
+                self.NOT5_list.addItems(self.preCalcul.liste_champs_ctx)
 
 		self.PrgBar.setv(  50 )
-                
-                # précalcule de valeurs associées 
-                for type_var in [ "$ent" , "$ef" , "$col", "$qualite"] :
-                        self.activity("pre-computing : %s " % (type_var))
 
-#freq et nbaut ne marche pas ?
-                        for type_calcul in ["freq","dep", "nbaut", "nbtxt","lapp","fapp"]:
-                                L = self.client.eval_vector(type_var, type_calcul)
-                                L = L.split(',')         
-                                if (type_calcul == "freq"):
-                                        t_calc = "val"
-                                else:
-                                        t_calc = type_calcul
-                                indice = 0
-                                for val in L :
-                                        self.client.add_cache_var ("%s%s.%s"%(type_var,str(indice),t_calc),val)
-                                        indice+=1
-                                
-                                self.PrgBar.add(  3 )
-			self.PrgBar.add(  -2 )
-
+                # associated values
+		self.activity("pre-computing : values")
+		for typ in self.preCalcul.type_var :
+			for calc in self.preCalcul.type_calcul:
+			#freq et nbaut ne marche pas ?
+				self.preCalcul.cacheAssocValue(typ,calc)
+                                self.PrgBar.add(  50 / 4 )
                 self.PrgBar.reset()
 
         
@@ -1022,8 +929,9 @@ class Principal(QtGui.QMainWindow):
 
         def display_liste_textes_corpus(self):
                 """displays texts for the corpus"""
-                self.activity(u"Displaying text list (%d items)" %len(self.listeTextes)  )
-                tab_title ="corpus (%d)"%len(self.listeTextes) 
+		n = len(self.preCalcul.listeTextes)
+                self.activity(u"Displaying text list (%d items)" % n )
+                tab_title ="corpus (%d)"%n
                 self.SOT1.tabBar().setTabText(0,tab_title)
                 self.CorpusTexts.clear()
 
@@ -2125,7 +2033,7 @@ class Principal(QtGui.QMainWindow):
                 liste_textes = re.split(", ",result)
                 self.activity(u"Displaying %d texts for %s" % (len(liste_textes),motif))
 
-                liste_textes = map(lambda k : self.dicTxtSem[k],liste_textes)
+                liste_textes = map(lambda k : self.preCalcul.dicTxtSem[k],liste_textes)
 
                 texts_widget = Viewer.Liste_texte(motif,liste_textes)
 
@@ -2176,7 +2084,7 @@ class Principal(QtGui.QMainWindow):
                         liste_textes = re.split(", ",result) 
                         self.activity(u"Displaying %d texts for %s" % (len(liste_textes),element) )
 
-                        liste_textes = map(lambda k : self.dicTxtSem[k],liste_textes)
+                        liste_textes = map(lambda k : self.preCalcul.dicTxtSem[k],liste_textes)
 
                         texts_widget = Viewer.Liste_texte(element,liste_textes)
                         self.dic_widget_list_txt[ texts_widget.tab_title ] =  [ [],[] ]
@@ -2327,10 +2235,6 @@ class Principal(QtGui.QMainWindow):
                         for el in sorted(dic_CTX.items(), key= lambda (k,v) : (-v,k)):
                                 self.NOT5_cont.addItem(u"%d %s"%(el[1],re.sub("\\\,",",",el[0])))
 
-
-        def recup_texts(self):
-                txts = self.client.eval_var("$txt[0:]")
-                return re.split(", ",txts)
 
         
         def genere_identify(self):
