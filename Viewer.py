@@ -44,12 +44,14 @@ class PrgBar(object):
 	def reset(self):
 		self.bar.reset()
 		
+def formeResume(resume):
+	return u"%s <span style=\"font: bold\">%s</span> %s" % resume 
 
 
 class TexteWidgetItem(object):
         def __init__(self,resume):
 		self.Widget = QtGui.QListWidgetItem()
-                txt_resume = u"%s <span style=\"font: bold\">%s</span> %s" % resume 
+                txt_resume = formeResume(resume)
                 self.WidgetLabel = QtGui.QLabel(txt_resume)
                 #TODO texte en blanc quand selectionné
 

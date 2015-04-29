@@ -1060,7 +1060,7 @@ class Principal(QtGui.QMainWindow):
         def saveCTX(self):
                 sem_txt = self.semantique_txt_item
                 txt =  self.listeObjetsTextes[sem_txt]
-                txtResume = txt.getResume()
+                txtResume = Viewer.formeResume(txt.getResume())
                 modif = []
                 for r in range( self.textCTX.rowCount()):
                         field = self.textCTX.item(r,0).text()
@@ -1080,16 +1080,16 @@ class Principal(QtGui.QMainWindow):
                 #self.client.eval_set_ctx( sem_txt,"testfield",val)
 
 
-                # mettre à jour listes si auteur, date, titre
+                # mettre à jour listes des textes si auteur, date, titre
                 if len(set(modif) & set(  ["author","date","title"])):
                         if "date" in modif:
                                 self.display_liste_textes_corpus()
                                 self.selectTxtCorpus(txt)
-                                #TODO faire de même pour les autres onglets
+		#TODO faire de même pour les autres onglets
                                 for tab in range(1,self.SOT1.count())   :
                                         self.SOT1.removeTab(tab)
                         else :
-                                newResume = txt.getResume()
+                                newResume = Viewer.formeResume(txt.getResume())
                                 for listWidget in self.SOT1.findChildren(QtGui.QListWidget):
                                         for label in  listWidget.findChildren(QtGui.QLabel):
                                                 if label.text() == txtResume:

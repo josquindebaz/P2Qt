@@ -264,6 +264,7 @@ class ConnecteurPII (threading.Thread):
 		'''
 	
 		'''
+		print (text, props,value)
 		self.m_threadlock.acquire()
 		
 		cle = text + props +value
@@ -276,7 +277,9 @@ class ConnecteurPII (threading.Thread):
 			if not self.connect():
 				self.m_threadlock.release()
 				return ""
+
 		lexpr = self.creer_msg_set_ctx( (text,props,value) )
+
 		for exp in lexpr :
 			if (verbose) :
 				print "exp:%s" % exp
