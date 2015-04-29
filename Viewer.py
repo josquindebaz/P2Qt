@@ -7,6 +7,45 @@ import Model
 import datetime
 
 
+class PrgBar(object):
+	"""a progress bar"""
+	def __init__(self, parent=None): 
+                self.bar = QtGui.QProgressBar()
+                self.bar.setMaximumSize(199, 19)
+		self.val = 0
+		self.disp()
+		self.total = 0
+
+	def setv(self,val):
+		self.val = val 
+		self.disp()
+
+	def disp(self):
+		self.bar.setValue( self.val )
+		QtGui.QApplication.processEvents()
+
+	def add(self,i):
+		self.val += i
+		self.disp()
+
+	def perc(self,total):
+		self.total = total
+		self.inc = 0
+		self.setv(0)
+
+	def percAdd(self,i):
+		self.inc += i
+		self.setv(self.inc*100/self.total)
+		if self.inc == self.total:
+			self.inc = 0
+			self.total = 0
+			self.setv(0)
+
+	def reset(self):
+		self.bar.reset()
+		
+
+
 class TexteWidgetItem(object):
         def __init__(self,resume):
 		self.Widget = QtGui.QListWidgetItem()

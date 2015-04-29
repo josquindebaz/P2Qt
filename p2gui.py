@@ -178,15 +178,11 @@ class Principal(QtGui.QMainWindow):
                                         self.client.add_cache_var( txt.sem + ".ctx.%s"%champ, data)
                                         txt.setCTX(champ,data)
 
-                                #self.PrgBar.setValue(  indice   * 50 / len(self.listeTextes))
-                                #QtGui.QApplication.processEvents()
-
 
                 self.NOT5_list.clear()
                 self.NOT5_list.addItems(liste_champs_ajuste)
 
-                prgbar_val = 50
-
+		self.PrgBar.setv(  50 )
                 
                 # précalcule de valeurs associées 
                 for type_var in [ "$ent" , "$ef" , "$col", "$qualite"] :
@@ -205,10 +201,8 @@ class Principal(QtGui.QMainWindow):
                                         self.client.add_cache_var ("%s%s.%s"%(type_var,str(indice),t_calc),val)
                                         indice+=1
                                 
-                                prgbar_val += 3
-                                self.PrgBar.setValue(  prgbar_val )
-                                QtGui.QApplication.processEvents()
-                        prgbar_val -= 2
+                                self.PrgBar.add(  3 )
+			self.PrgBar.add(  -2 )
 
                 self.PrgBar.reset()
 
@@ -261,16 +255,16 @@ class Principal(QtGui.QMainWindow):
                 self.status.showMessage(u"Ready")
 
                 #create the progressebar
-                self.PrgBar = QtGui.QProgressBar()
-                self.PrgBar.setMaximumSize(199, 19)
-                self.status.addPermanentWidget(self.PrgBar)
+                self.PrgBar = Viewer.PrgBar(self)
+                self.status.addPermanentWidget(self.PrgBar.bar)
 
                 
 
         
+		"""
                 # create the toolbar
                 toolbar = self.addToolBar("toolbar")    
-                #toolbar.setIconSize(QtCore.QSize(16, 16))
+                toolbar.setIconSize(QtCore.QSize(16, 16))
                 toolbar.setMovable( 0 )
 
                 
@@ -298,7 +292,7 @@ class Principal(QtGui.QMainWindow):
                 etat2 = QtGui.QLabel()
 #               etat2.setText("/Users/gspr/corpus/Alarm and Controversies/AaC.prc")
                 toolbar.addWidget(etat2)
-
+		"""
 
 ##################################################
                 #quart SE
@@ -1033,11 +1027,13 @@ class Principal(QtGui.QMainWindow):
                 self.SOT1.tabBar().setTabText(0,tab_title)
                 self.CorpusTexts.clear()
 
-                i = 0
                 if not hasattr(self, "dic_widget_list_txt"):
                         self.dic_widget_list_txt = { 0 : []}
                 else : 
                         self.dic_widget_list_txt[0] =  []
+
+		self.PrgBar.perc(len(self.listeObjetsTextes))
+
                 for sem,tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
                         txt =  self.listeObjetsTextes[sem]
                         self.dic_widget_list_txt[0].append(txt)
@@ -1045,11 +1041,8 @@ class Principal(QtGui.QMainWindow):
                         self.CorpusTexts.addItem(WI.Widget)
                         self.CorpusTexts.setItemWidget(WI.Widget,WI.WidgetLabel)
 
-                        i += 1
-                        self.PrgBar.setValue(i * 100 / len(self.listeObjetsTextes))
-                        QtGui.QApplication.processEvents()
+                        self.PrgBar.percAdd(1)
 
-                self.PrgBar.reset()
 
 
         def onSelectText(self):
@@ -1347,6 +1340,9 @@ class Principal(QtGui.QMainWindow):
                 content = self.client.recup_liste_concept(self.sem_concept)
                 self.activity(u"Displaying %s list (%d items) ordered by %s" % (typ,len(content), self.which_concepts))
                 liste_valued =[]
+
+		self.PrgBar.perc(len(content))
+
                 for row  in range(len(content)):
                         if (self.which_concepts == "occurences" or self.which_concepts == "alphabetically"):
                                 order = "val"
@@ -1376,11 +1372,9 @@ class Principal(QtGui.QMainWindow):
                                 print "pb",[ask]
                                 val = 0
                         liste_valued.append([val,content[row]])
+
         
-                        self.PrgBar.setValue(row * 100 / len(content))
-                        QtGui.QApplication.processEvents()
-
-
+                        self.PrgBar.percAdd(1)
 
 
                 liste_final =[]
@@ -1397,9 +1391,6 @@ class Principal(QtGui.QMainWindow):
                                 self.content_liste_concept.append(i[1])
                 self.change_liste_concepts(liste_final)
 
-                self.PrgBar.reset()
-
-
 
 
         def affiche_liste_scores(self):
@@ -1410,6 +1401,7 @@ class Principal(QtGui.QMainWindow):
                         self.lexicon_list_semantique = content
                 self.activity(u"Displaying %s list (%d items) ordered by %s" % (typ,len(content), self.which))
                 liste_valued =[]
+		self.PrgBar.perc(len(content))
                 for row  in range(len(content)):
                         if (self.which == "occurences" or self.which == "alphabetically"):
                                 order = "val"
@@ -1442,9 +1434,7 @@ class Principal(QtGui.QMainWindow):
                                 val = 0
                         liste_valued.append([val,content[row]])
         
-                        self.PrgBar.setValue(row * 100 / len(content))
-                        QtGui.QApplication.processEvents()
-
+                        self.PrgBar.percAdd(1)
 
 
 
@@ -1462,7 +1452,6 @@ class Principal(QtGui.QMainWindow):
                                 self.content_liste_lexicon.append(i[1])
                 self.change_liste(liste_final)
 
-                self.PrgBar.reset()
 
 
 
@@ -1544,15 +1533,19 @@ class Principal(QtGui.QMainWindow):
                                 result = re.split(", ", result)
                                 if (self.which == "alphabetically"):
                                         liste_scoree = []
+
+					self.PrgBar.perc(len(result))
+
                                         for r in range(len(result)):
                                                 ask = "%s.rep%d.rep%d.val"% (self.semantique_liste_item,row,r)
                                                 val = int(self.client.eval_var(ask))
                                                 
                                                 liste_scoree.append([result[r],val])
-                                                self.PrgBar.setValue(  r * 100 /len(result) )
-                                                QtGui.QApplication.processEvents()
+                                                self.PrgBar.percAdd(1)
+
                                         self.NOT12_E.addItems(map(lambda x : "%d %s"% (x[1], x[0]),sorted(liste_scoree)))
                                 else :
+					self.PrgBar.perc(len(result))
                                         for r in range(len(result)):
                                                 ask = "%s.rep%d.rep%d.val"% (self.semantique_liste_item,row,r)
                                                 val = int(self.client.eval_var(ask))
@@ -1562,9 +1555,8 @@ class Principal(QtGui.QMainWindow):
                                                         self.NOT12_E.addItems( map(lambda x : "0 %s" %x ,result[r:]) )
                                                         break
                                                 self.NOT12_E.addItem("%d %s"%(val, result[r] )) 
-                                                self.PrgBar.setValue(  r * 100 /len(result) )
-                                                QtGui.QApplication.processEvents()
-                                self.PrgBar.reset()
+                                                self.PrgBar.percAdd(  1 )
+		self.PrgBar.reset()
 
         def liste_E_item_changed(self):
                 itemT = self.NOT12_E.currentItem()
@@ -1596,6 +1588,7 @@ class Principal(QtGui.QMainWindow):
                                 if (sem in ["$cat_ent"]):#affiche directement sur la liste E
                                         liste_scoree = []
                                         prgbar_val = 0
+					self.PrgBar.perc(len(result))
                                         for r in range(len(result)):
                                                 if (self.which_concepts == "number of texts"):
 #TODO corriger, il donne la valeur de la categorie entiere
@@ -1605,12 +1598,10 @@ class Principal(QtGui.QMainWindow):
                                                 val = int(self.client.eval_var(ask))
                                                 
                                                 liste_scoree.append( [ result[r] , val ])
-                                                self.PrgBar.setValue( r * 100 / len(result)  )
-                                                QtGui.QApplication.processEvents()
+                                                self.PrgBar.percAdd( 1  )
                                         if (self.which_concepts == "alphabetically"):
                                                 liste_scoree.sort()
                                         self.NOT22_E.addItems(map(lambda x : "%d %s"% (x[1], x[0]),liste_scoree))   
-                                        self.PrgBar.reset()
 
                                 else:
                                         self.liste_D_concepts_unsorted = []
@@ -1662,15 +1653,16 @@ class Principal(QtGui.QMainWindow):
                                 result = re.split(", ", result)
                                 if (self.which_concepts == "alphabetically"):
                                         liste_scoree = []
+					self.PrgBar.perc(len(result))
                                         for r in range(len(result)):
                                                 ask = "%s.rep%d.rep%d.val"% (self.semantique_concept_item,row,r)
                                                 val = int(self.client.eval_var(ask))
                                                 
                                                 liste_scoree.append([result[r],val])
-                                                self.PrgBar.setValue(  r * 100 /len(result) )
-                                                QtGui.QApplication.processEvents()
+                                                self.PrgBar.percAdd(1)
                                         self.NOT22_E.addItems(map(lambda x : "%d %s"% (x[1], x[0]),sorted(liste_scoree)))
                                 else :
+					self.PrgBar.perc(len(result))
                                         for r in range(len(result)):
                                                 ask = "%s.rep%d.rep%d.val"% (self.semantique_concept_item,row,r)
                                                 val = int(self.client.eval_var(ask))
@@ -1680,9 +1672,8 @@ class Principal(QtGui.QMainWindow):
                                                         self.NOT22_E.addItems( map(lambda x : "0 %s" %x ,result[r:]) )
                                                         break
                                                 self.NOT22_E.addItem("%d %s"%(val, result[r] )) 
-                                                self.PrgBar.setValue(  r * 100 /len(result) )
-                                                QtGui.QApplication.processEvents()
-                                self.PrgBar.reset()
+                                                self.PrgBar.percAdd( 1  )
+		self.PrgBar.reset()
 
         def liste_E_concept_changed(self):
                 itemT = self.NOT22_E.currentItem()
@@ -1767,6 +1758,9 @@ class Principal(QtGui.QMainWindow):
                 #self.client.teste_connect()
 		
 		if (self.client.Etat):
+                        # donne le focus a l'onglet history
+                        self.SubWdwNE.setCurrentIndex(self.History_index)
+
                         # calcule en avance
                         self.pre_calcule()
 
@@ -1784,8 +1778,6 @@ class Principal(QtGui.QMainWindow):
                         #self.Param_Server_B.clicked.connect(self.disconnect_server)
                         #self.Param_Server_B.setText("Disconnect")
                         #self.Param_Server_B.setStyleSheet(None)  #supprime css bouton vert
-                        # donne le focus a l'onglet history
-                        self.SubWdwNE.setCurrentIndex(self.History_index)
 
                         #self.Explo_action.setEnabled(True) 
                 
@@ -1851,13 +1843,13 @@ class Principal(QtGui.QMainWindow):
                         #self.list_act = re.split(", ",list_act)
                         self.list_act = list_act
                         self.liste_act_valued = {}
+			self.PrgBar.perc(len(self.list_act))
                         for i in range(len(self.list_act)) :
                                 val = int(self.client.eval_var(u"%s.act%d.val"%(sem_txt,i)))
                                 
                                 self.liste_act_valued [self.list_act[i]] = [ val, 0 ] 
                                 self.saillantesAct.addItem(u"%d %s" % (val, self.list_act[i]))
-                                self.PrgBar.setValue ( i * 33 / len(self.list_act) )
-                                QtGui.QApplication.processEvents()
+                                self.PrgBar.percAdd ( 1 )
                         
 
                 #les catégories
@@ -1884,6 +1876,7 @@ class Principal(QtGui.QMainWindow):
                                 cum = 0
                                 old_val = 0
                                 #old_val2 = 0
+				self.PrgBar.perc(len(list_cat_items))
                                 for i in range(len(list_cat_items)):
                                         ask = u"%s.%s%d.val"%(sem_txt,typ,i)
                                         val = int(self.client.eval_var(ask))
@@ -1898,8 +1891,7 @@ class Principal(QtGui.QMainWindow):
                                         if (C > 0.25 and old_val == 0) :
                                                 old_val = val   
                                         self.list_cat_valued[list_cat_items[i]] = val
-                                        self.PrgBar.setValue ( 33 + ( i * 34 / len(list_cat_items) ) )
-                                        QtGui.QApplication.processEvents()
+					self.PrgBar.percAdd ( 1 )
 
                 self.list_cat_valued_ord = []
                 for cat in sorted( self.list_cat_valued.items(), key = lambda(k,v) : v,reverse=1):
@@ -1923,15 +1915,14 @@ class Principal(QtGui.QMainWindow):
                 if (result != u""):
                         self.list_col = re.split(", ",result)   
                         self.list_col_valued = {}
+			self.PrgBar.perc(len(self.list_col))
                         for i in range(len(self.list_col)) :
                                 val = int(self.client.eval_var(u"%s.col%d.dep"%(sem_txt,i)))
                                 
                                 self.saillantesCol.addItem(u"%d %s" % (val, self.list_col[i]))
                                 self.list_col_valued[self.list_col[i]] = val
-                                self.PrgBar.setValue ( 66 + ( i * 34 / len(self.list_col) ) )
-                                QtGui.QApplication.processEvents()
+                                self.PrgBar.percAdd ( 1 )
 
-                self.PrgBar.reset()
 
 
         def deploie_Col(self):
@@ -2306,15 +2297,14 @@ class Principal(QtGui.QMainWindow):
                         if (result != u''):
                                 liste_result = re.split(", ", result)
                                 self.activity("searching for {%s} %d results"%(motif,len(liste_result)))
+				self.PrgBar.perc(len(liste_result))
                                 for i in range(len(liste_result)):
                                         ask = self.client.creer_msg_search(type_search,motif,"%d"%i,val=True) #la valeur du match
 #TODO get_sem, liste textes, énoncés
 #TODO select all
                                         r = self.client.eval( ask )
-                                        self.PrgBar.setValue(  100 * i / len(liste_result) )    
-                                        QtGui.QApplication.processEvents()
+                                        self.PrgBar.percAdd(1)
                                         self.Explo_liste.addItem("%s %s"% (r,liste_result[i]))
-                                self.PrgBar.reset()
                         else :
                                 result = re.split(", ", self.activity("searching for {%s} : 0 result" % motif))
                                 
