@@ -29,13 +29,13 @@ class client(object):
                 self.c = interface_prospero.ConnecteurPII() 
                 #self.c.start()
                 self.c.set(h,p)
-		self.Etat = self.c.connect_x(5)
+                self.Etat = self.c.connect_x(5)
                 #self.teste_connect()
-		if not (self.Etat):
-			msgBox = QtGui.QMessageBox()
-			msgBox.setText("connection failed")
-			msgBox.setIcon(QtGui.QMessageBox.Critical)
-			msgBox.exec_()
+                if not (self.Etat):
+                        msgBox = QtGui.QMessageBox()
+                        msgBox.setText("connection failed")
+                        msgBox.setIcon(QtGui.QMessageBox.Critical)
+                        msgBox.exec_()
 
         def teste_connect(self):
                 teste = self.c.connect()
@@ -43,7 +43,7 @@ class client(object):
                         self.Etat = True
                 else :
                         self.Etat = False
-			print "niet"
+                        print "niet"
 
         def disconnect(self):
                 self.c.disconnect()
@@ -221,9 +221,9 @@ class Principal(QtGui.QMainWindow):
 
                 Menu_Corpus = Menubar.addMenu('&Corpus')
                 #Menu_Corpus.setShortcut('Ctrl+C')
-		#Menu_project = QtGui.QAction('&corpus',self)
-		#Menu_project.triggered.connect(self.edit_corpus)
-		#Menu_Corpus.addAction(Menu_project)
+                #Menu_project = QtGui.QAction('&corpus',self)
+                #Menu_project.triggered.connect(self.edit_corpus)
+                #Menu_Corpus.addAction(Menu_project)
                 Menu_codex = QtGui.QAction("&codex",self)
                 Menu_codex.setStatusTip("Use and edit source repositories for ctx generation")
                 Menu_codex.triggered.connect(self.codex_window)
@@ -464,7 +464,7 @@ class Principal(QtGui.QMainWindow):
 #Corpus
 #
 
-		self.param_corpus = Viewer.Corpus_tab(self)
+                self.param_corpus = Viewer.Corpus_tab(self)
                 QtCore.QObject.connect(self.param_corpus.send_codex_ViewListeTextes, QtCore.SIGNAL("triggered()"), self.send_codex_ViewListeTextes)
                 self.param_corpus.launchPRC_button.clicked.connect(self.launchPRC)
 
@@ -1041,7 +1041,7 @@ class Principal(QtGui.QMainWindow):
                 for sem,tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
                         txt =  self.listeObjetsTextes[sem]
                         self.dic_widget_list_txt[0].append(txt)
-			WI = Viewer.TexteWidgetItem(txt.getResume())
+                        WI = Viewer.TexteWidgetItem(txt.getResume())
                         self.CorpusTexts.addItem(WI.Widget)
                         self.CorpusTexts.setItemWidget(WI.Widget,WI.WidgetLabel)
 
@@ -1235,11 +1235,11 @@ class Principal(QtGui.QMainWindow):
                 self.NOT12.clear()
                 self.NOT12_D.clear()
                 self.NOT12_E.clear()
-		for r in range(len(content)):
-			i = QtGui.QListWidgetItem(content[r])
-			self.NOT12.addItem(i)
-			i.setToolTip('rank:%d'%(r+1))
-			
+                for r in range(len(content)):
+                        i = QtGui.QListWidgetItem(content[r])
+                        self.NOT12.addItem(i)
+                        i.setToolTip('rank:%d'%(r+1))
+                        
 
 
         def change_liste_concepts(self,content):
@@ -1765,8 +1765,8 @@ class Principal(QtGui.QMainWindow):
                 #self.client=client("localhost","60000")
 
                 #self.client.teste_connect()
-		
-		if (self.client.Etat):
+                
+                if (self.client.Etat):
                         # calcule en avance
                         self.pre_calcule()
 
@@ -2142,12 +2142,12 @@ class Principal(QtGui.QMainWindow):
                 for sem,tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
                         txt =  self.listeObjetsTextes[sem]
                         if sem in liste_textes: 
-				WI = Viewer.TexteWidgetItem(txt.getResume())
+                                WI = Viewer.TexteWidgetItem(txt.getResume())
                                 texts_widget.show_texts_corpus.addItem(WI.Widget)
                                 texts_widget.show_texts_corpus.setItemWidget(WI.Widget,WI.WidgetLabel)
                                 self.dic_widget_list_txt[texts_widget.tab_title][0].append(txt)
                         else :
-				WI = Viewer.TexteWidgetItem(txt.getResume())
+                                WI = Viewer.TexteWidgetItem(txt.getResume())
                                 texts_widget.show_texts_anticorpus.addItem(WI.Widget)
                                 texts_widget.show_texts_anticorpus.setItemWidget(WI.Widget,WI.WidgetLabel)
                                 self.dic_widget_list_txt[texts_widget.tab_title][1].append(txt)
@@ -2192,12 +2192,12 @@ class Principal(QtGui.QMainWindow):
                         for sem,tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
                                 txt =  self.listeObjetsTextes[sem]
                                 if sem in liste_textes: 
-					WI = Viewer.TexteWidgetItem(txt.getResume())
+                                        WI = Viewer.TexteWidgetItem(txt.getResume())
                                         texts_widget.show_texts_corpus.addItem(WI.Widget)
                                         texts_widget.show_texts_corpus.setItemWidget(WI.Widget,WI.WidgetLabel)
                                         self.dic_widget_list_txt[texts_widget.tab_title][0].append(txt)
                                 else :
-					WI = Viewer.TexteWidgetItem(txt.getResume())
+                                        WI = Viewer.TexteWidgetItem(txt.getResume())
                                         texts_widget.show_texts_anticorpus.addItem(WI.Widget)
                                         texts_widget.show_texts_anticorpus.setItemWidget(WI.Widget,WI.WidgetLabel)
                                         self.dic_widget_list_txt[texts_widget.tab_title][1].append(txt)
@@ -2405,28 +2405,31 @@ class Principal(QtGui.QMainWindow):
 
 
 
-	def send_codex_ViewListeTextes(self):
+        def send_codex_ViewListeTextes(self):
                 Items = self.param_corpus.ViewListeTextes.selectedItems()
                 if (Items):
-			codex_w = codex_window(self)
-			codex_w.show()
-			l = []
+                        codex_w = codex_window(self)
+                        codex_w.show()
+                        l = []
                         for item in Items:
-				l.append(item.text())	
-			codex_w.appendItems(l)
+                                l.append(item.text())   
+                        codex_w.appendItems(l)
 
 
-	def launchPRC(self):
-		PRC = self.param_corpus.nameCorpus.text()
-		server_path = "./prospero-server"
-		port = 60000
-                commande = "%s -e -p %s -f %s" % (server_path,port,PRC)
-		print commande
+        def launchPRC(self):
+                PRC = self.param_corpus.nameCorpus.text()
+                if (os.name == 'nt'):
+                        server_path = "prospero-II-serveur.exe"
+                else:
+                        server_path = "./prospero-server"
+                port = 60000
+                commande = "%s -e -d 1 -p %s -f %s" % (server_path,port,PRC)
+                print commande
                 local_server = subprocess.Popen(commande, shell=True)
-		time.sleep(5)
-		self.connect_server("localhost",port)
-		atexit.register(local_server.terminate) #kill the server when the gui is closed
-			
+                time.sleep(5)
+                self.connect_server("localhost",port)
+                atexit.register(local_server.terminate) #kill the server when the gui is closed
+                        
 
 class codex_window(QtGui.QWidget):
         def __init__(self, parent=None):
@@ -2451,8 +2454,8 @@ class codex_window(QtGui.QWidget):
                 h22_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
                 h22Buttons.addWidget(h22_spacer)
                 h22gen = QtGui.QPushButton()
-              	h22gen.setIcon(QtGui.QIcon("images/gear.png"))
-		h22gen.setToolTip(u"test file names")
+                h22gen.setIcon(QtGui.QIcon("images/gear.png"))
+                h22gen.setToolTip(u"test file names")
                 h22Buttons.addWidget(h22gen)
                 QtCore.QObject.connect(h22gen, QtCore.SIGNAL("clicked()"), self.generate)
 
@@ -2704,7 +2707,7 @@ class codex_window(QtGui.QWidget):
                 if self.h22liste.selectedItems():
                         self.h22liste.takeItem(self.h22liste.currentRow())
                         #self.generate()
-			self.h22Label.setText(u"%s texts"% self.h22liste.count())
+                        self.h22Label.setText(u"%s texts"% self.h22liste.count())
 
         def changeRad(self):
                 self.h13List.clear()    
@@ -2765,30 +2768,30 @@ class codex_window(QtGui.QWidget):
                 for r in range( self.h22liste.count()):
                         existing.append( self.h22liste.item(r).text())
                 for url in list(set(l) - set(existing)):
-			if os.path.splitext(url)[1] in ['.txt','.TXT']:
-				item = QtGui.QListWidgetItem(url, self.h22liste)
-				item.setStatusTip(url)
-				self.h22Label.setText(u"%s texts"% self.h22liste.count())
-				QtGui.QApplication.processEvents()
-		self.h22liste.sortItems()
-		"""
+                        if os.path.splitext(url)[1] in ['.txt','.TXT']:
+                                item = QtGui.QListWidgetItem(url, self.h22liste)
+                                item.setStatusTip(url)
+                                self.h22Label.setText(u"%s texts"% self.h22liste.count())
+                                QtGui.QApplication.processEvents()
+                self.h22liste.sortItems()
+                """
                         if os.path.exists(url):
                                 if os.path.splitext(url)[1] in ['.txt','.TXT']:
                                         item = QtGui.QListWidgetItem(url, self.h22liste)
                                         item.setStatusTip(url)
-					self.h22Label.setText(u"%s texts"% self.h22liste.count())
-					QtGui.QApplication.processEvents()
+                                        self.h22Label.setText(u"%s texts"% self.h22liste.count())
+                                        QtGui.QApplication.processEvents()
                         self.h22liste.sortItems()
                 self.generate()
-		"""
+                """
 
-	def appendItems(self,liste):
-		self.h22liste.clear()
-		self.h22liste.addItems(liste)
-		self.h22Label.setText(u"%s texts"% self.h22liste.count())
-		self.h22liste.sortItems()
-		
-	
+        def appendItems(self,liste):
+                self.h22liste.clear()
+                self.h22liste.addItems(liste)
+                self.h22Label.setText(u"%s texts"% self.h22liste.count())
+                self.h22liste.sortItems()
+                
+        
         def eval_search_line(self):
                 self.search_result.clear()
                 pattern = self.search_line.text()
@@ -2827,8 +2830,8 @@ class codex_window(QtGui.QWidget):
                         else :
                                 self.failed_add(path)
                                 f += 1
-			self.h23Label.setText("%d matches, %d fails" % (m,f))
-			QtGui.QApplication.processEvents()
+                        self.h23Label.setText("%d matches, %d fails" % (m,f))
+                        QtGui.QApplication.processEvents()
                 self.h23liste.resizeColumnToContents (0)
                 self.h23liste.sortItems(1)
         
