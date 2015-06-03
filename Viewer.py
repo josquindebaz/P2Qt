@@ -258,7 +258,7 @@ class Corpus_tab(QtGui.QListWidget):
 			rep = "/Users/gspr/corpus"
 		else:
 			rep = "."
-                fname, filt = QtGui.QFileDialog.getOpenFileName(self, 'Open file', rep, '*.prc;*.PRC')
+                fname, filt = QtGui.QFileDialog.getOpenFileName(self, 'Open file', rep, 'Corpus (*.prc *.PRC)')
                 return fname
       
         def openPRC(self):
