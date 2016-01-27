@@ -13,6 +13,7 @@ import datetime
 import subprocess, threading, socket, atexit
 import os
 import time
+import functools
 
 import interface_prospero
 import generator_mrlw
@@ -228,10 +229,18 @@ class Principal(QtGui.QMainWindow):
                 Menu_codex.setStatusTip("Use and edit source repositories for ctx generation")
                 Menu_codex.triggered.connect(self.codex_window)
                 Menu_Corpus.addAction(Menu_codex)
-                Menu_distant = QtGui.QAction(QtGui.QIcon('images/distant.png'), '&prosperologie.org', self)        
-                Menu_distant.setStatusTip('Connect to prosperologie.org server')
-                Menu_distant.triggered.connect(self.connect_server)
-                Menu_Corpus.addAction(Menu_distant)
+                Menu_distant = Menu_Corpus.addMenu(QtGui.QIcon('images/distant.png'), '&remote')        
+                #Menu_distant = QtGui.QAction(QtGui.QIcon('images/distant.png'), '&prosperologie.org', self)        
+                Menu_distant.setStatusTip('Connect to prosperologie.org servers')
+                Menu_distant_1 = QtGui.QAction( 'environnement', self)        
+                Menu_distant_2 = QtGui.QAction( u'nucléaire', self)        
+                Menu_distant_3 = QtGui.QAction( 'anglais environnement', self)        
+                Menu_distant_1.triggered.connect(functools.partial(self.connect_server,"prosperologie.org","60000"))
+                Menu_distant_2.triggered.connect(functools.partial(self.connect_server,"prosperologie.org","60001"))
+                Menu_distant_3.triggered.connect(functools.partial(self.connect_server,"prosperologie.org","60002"))
+                Menu_distant.addAction(Menu_distant_1)
+                Menu_distant.addAction(Menu_distant_2)
+                Menu_distant.addAction(Menu_distant_3)
                 Menu_local = QtGui.QAction(QtGui.QIcon('images/home.png'), '&local', self)        
                 Menu_local.setStatusTip('Launch a local server')
                 Menu_local.triggered.connect(self.connect_server_localhost)
