@@ -112,8 +112,10 @@ class ListViewDrop(QtGui.QListWidget):
 			event.setDropAction(QtCore.Qt.CopyAction)
 			event.accept()
 			links = []
-			event.setDropAction(QtCore.Qt.CopyAction)
+#FIXME bug Qt et Yosemite ne donne pas path complet
+                        print event.mimeData().text()
 			for url in event.mimeData().urls():
+                                print url.host(), url.path()
 				#links.append(str(url.toLocalFile())) #pb encodage
 				links.append(url.toLocalFile())
 			self.fileDropped.emit(links)
@@ -300,7 +302,7 @@ class Corpus_tab(QtGui.QListWidget):
 			rep = "/Users/gspr/corpus"
 		else:
 			rep = "."
-                fname, filt = QtGui.QFileDialog.getOpenFileName(self, 'Open file', rep, '*.prc;*.PRC')
+                fname, filt = QtGui.QFileDialog.getOpenFileName(self, 'Open file', rep, 'Corpus (*.prc *.PRC)')
                 return fname
       
         def openPRC(self):
