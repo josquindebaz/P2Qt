@@ -1636,6 +1636,7 @@ class Principal(QtGui.QMainWindow):
                 server_path = self.Param_Server_path_P2.text()
                 port = self.Param_Server_val_port.text()
                 PRC  = self.Param_Server_path_PRC.text()
+		#TODO protéger l'adresse du prc
                 commande = "%s -e -p %s -f %s" % (server_path,port,PRC)
                 self.activity("Loading %s" % PRC)
                 self.local_server = subprocess.Popen(commande, shell=True)

@@ -112,6 +112,7 @@ class ListViewDrop(QtGui.QListWidget):
 			event.setDropAction(QtCore.Qt.CopyAction)
 			event.accept()
 			links = []
+			event.setDropAction(QtCore.Qt.CopyAction)
 			for url in event.mimeData().urls():
 				#links.append(str(url.toLocalFile())) #pb encodage
 				links.append(url.toLocalFile())
