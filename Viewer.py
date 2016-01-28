@@ -71,7 +71,10 @@ class ListViewDrop(QtGui.QListWidget):
 			event.setDropAction(QtCore.Qt.CopyAction)
 			event.accept()
 			links = []
+#FIXME bug Qt et Yosemite ne donne pas path complet
+                        print event.mimeData().text()
 			for url in event.mimeData().urls():
+                                print url.host(), url.path()
 				#links.append(str(url.toLocalFile())) #pb encodage
 				links.append(url.toLocalFile())
 			self.fileDropped.emit(links)

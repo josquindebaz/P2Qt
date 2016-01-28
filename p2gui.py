@@ -961,7 +961,7 @@ class Principal(QtGui.QMainWindow):
 
 ################################################
 ################################################
-#TODO corriger resize des grids sur petits ecrans
+#FIXME corriger resize des grids sur petits ecrans
                 ###Layout en grid
                 main = QtGui.QWidget()
                 grid = QtGui.QGridLayout()
@@ -1504,7 +1504,7 @@ class Principal(QtGui.QMainWindow):
                                                 elif (self.which  == "deployement" ):
                                                         ask = "%s.rep%d.dep"% (self.semantique_liste_item,r)
                                                 elif (self.which  == "number of texts" ):
-#TODO corriger : il donne la valeur de l'EF entier
+#FIXME corriger : il donne la valeur de l'EF entier
                                                         ask = "%s.rep%d.nbtxt"% (self.semantique_liste_item,r)
                                                 val = int(self.client.eval_var(ask))
                                                 
@@ -2783,6 +2783,7 @@ class codex_window(QtGui.QWidget):
                                 item = QtGui.QListWidgetItem(url, self.h22liste)
                                 item.setStatusTip(url)
                                 self.h22Label.setText(u"%s texts"% self.h22liste.count())
+                                print "a"
                                 QtGui.QApplication.processEvents()
                 self.h22liste.sortItems()
                 """
