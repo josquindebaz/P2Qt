@@ -1613,9 +1613,9 @@ class Principal(QtGui.QMainWindow):
                 var = self.server_vars_champ.text()
                 self.server_vars_champ.clear()
                 result = self.client.eval_var(var)
-                self.server_vars_result.setColor("red")
+                self.server_vars_result.setTextColor("red")
                 self.server_vars_result.append("%s" % var)
-                self.server_vars_result.setColor("black")
+                self.server_vars_result.setTextColor("black")
                 self.server_vars_result.append(result)
 
 
