@@ -3,14 +3,14 @@ import urllib
 
 
 class myxml(object):
-    def __init__(self,url ="http://prosperologie.org/P-II/info.xml" ):
+    def __init__(self,url ="http://prosperologie.org/P-II/info.xml"):
         self.url = url
 
     def get(self): 
-       try :
-            self. buf = urllib.urlopen(self.url)
+        try :
+            self.buf = urllib.urlopen(self.url)
             return 1
-       except:
+        except:
             return 0
 
     def parse(self):
@@ -24,8 +24,7 @@ class myxml(object):
         items = self.xmlbuf.getElementsByTagName('projet')
         liste = []
         for item in items:
-            liste.append([ item.attributes['nom'].value, item.attributes['port'].value])
+            liste.append([item.attributes['nom'].value, 
+                            item.attributes['port'].value])
         return liste
-
-        
 
