@@ -3,9 +3,10 @@
 from PySide import QtCore 
 from PySide import QtGui 
 import re,os
-import Model
+import Controller
 import datetime
 
+#from Foundation import NSURL
 
 class PrgBar(object):
 	"""a progress bar"""
@@ -113,9 +114,8 @@ class ListViewDrop(QtGui.QListWidget):
 			event.accept()
 			links = []
 #FIXME bug Qt et Yosemite ne donne pas path complet
-                        print event.mimeData().text()
 			for url in event.mimeData().urls():
-                                print url.host(), url.path()
+                                #print str(NSURL.URLWithString_(str(url.toString())))
 				#links.append(str(url.toLocalFile())) #pb encodage
 				links.append(url.toLocalFile())
 			self.fileDropped.emit(links)
@@ -308,7 +308,7 @@ class Corpus_tab(QtGui.QListWidget):
         def openPRC(self):
                 fname = self.getFile()
                 if ( fname) :
-                        corpus = Model.parseCorpus()
+                        corpus = Controller.parseCorpus()
                         corpus.open(fname)
 
                         self.nameCorpus.clear()
@@ -350,7 +350,7 @@ class Corpus_tab(QtGui.QListWidget):
         def mergePRC(self):
                 fname = self.getFile()
                 if ( fname) :
-                        corpusM = Model.parseCorpus()
+                        corpusM = Controller.parseCorpus()
                         corpusM.open(fname)
                         for f in corpusM.textFileList(): 
                                 if f[0] not in self.TextFilesDates.keys():
@@ -365,7 +365,7 @@ class Corpus_tab(QtGui.QListWidget):
 
         def savePRC(self):
                 fileName,ext = QtGui.QFileDialog.getSaveFileName(self,"Save prc file", '', '*.prc') 
-                corpusS = Model.parseCorpus()    
+                corpusS = Controller.parseCorpus()    
 		concepts = []
 		for r in range(self.ViewListeConcepts.count()):
 			concepts.append(self.ViewListeConcepts.item(r).text())

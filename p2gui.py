@@ -18,7 +18,7 @@ import functools
 import interface_prospero
 import generator_mrlw
 import Viewer
-import Model
+import Controller
 
 import xml_info
 
@@ -98,7 +98,7 @@ class Principal(QtGui.QMainWindow):
                 
         def pre_calcule(self):
                 self.activity("pre-computing : texts")
-		self.preCalcul = Model.preCalcul(self)
+		self.preCalcul = Controller.preCalcul(self)
 		self.listeObjetsTextes = self.preCalcul.listeObjetsTextes
 
                 self.NOT5_list.clear()
@@ -659,12 +659,15 @@ class Principal(QtGui.QMainWindow):
                 copy_to_clipboard = QtGui.QAction('copy list to clipboard',self)
                 show_network = QtGui.QAction('network' , self)
                 show_texts =QtGui.QAction('texts' , self)
+                #show_utterances =QtGui.QAction('utterances' , self)
                 QtCore.QObject.connect(show_texts, QtCore.SIGNAL("triggered()"), self.show_texts)
                 QtCore.QObject.connect(show_network, QtCore.SIGNAL("triggered()"), self.show_network)
                 QtCore.QObject.connect(copy_to_clipboard, QtCore.SIGNAL("triggered()"), self.copy_to_cb)
+                #QtCore.QObject.connect(show_utterances, QtCore.SIGNAL("triggered()"), self.show_utterances)
                 self.NOT12.addAction(show_texts)
                 self.NOT12.addAction(show_network)
                 self.NOT12.addAction(copy_to_clipboard)
+                #self.NOT12.addAction(show_utterances)
 
         #le deploiement
                 self.NOT12_D = QtGui.QListWidget()
@@ -1381,6 +1384,7 @@ class Principal(QtGui.QMainWindow):
                 if (itemT):
                         item = re.sub("^\d* ","",itemT.text())
                         row = self.NOT12.currentRow() 
+#TODO clarify the rules for exaequos in rank
                         self.activity("%s selected, rank %d" % (item,row+1))
                         self.NOT12_D.clear() # on efface la liste
                         self.NOT12_E.clear()
@@ -1623,10 +1627,10 @@ class Principal(QtGui.QMainWindow):
                 var = self.server_vars_champ.text()
                 self.server_vars_champ.clear()
                 items = re.split("\s*",var)
-                self.server_vars_result.setColor("red")
+                self.server_vars_result.setTextColor("red")
                 self.server_vars_result.append("%s" % var)
                 if (len(items) == 2):
-                        self.server_vars_result.setColor("black")
+                        self.server_vars_result.setTextColor("black")
                         el, sem = items
                         self.server_vars_result.append(self.client.eval_get_sem(el, sem))
                         
@@ -2340,7 +2344,7 @@ class Principal(QtGui.QMainWindow):
 class codex_window(QtGui.QWidget):
         def __init__(self, parent=None):
                 super(codex_window, self).__init__(parent,QtCore.Qt.Window)
-                self.codex_dic = Model.edit_codex()
+                self.codex_dic = Controller.edit_codex()
                 if self.codex_dic.cherche_codex():
                         self.codex_dic.parse_codex_xml("codex.xml")
 
@@ -2789,7 +2793,7 @@ class codex_window(QtGui.QWidget):
         def merge_codex(self):
                 fname, filt = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '.', '*.cfg;*.publi;*.xml')
                 if ( fname) :
-                        m_codex = Model.edit_codex()
+                        m_codex = Controller.edit_codex()
                         if os.path.splitext(fname)[1]  == ".publi":
                                 m_codex.parse_supports_publi(fname)
                         elif os.path.splitext(fname)[1]  == ".cfg": 
@@ -2807,7 +2811,7 @@ class codex_window(QtGui.QWidget):
                 if hasattr(self,"CTX_to_be_saved"):
                         for path,v in self.CTX_to_be_saved.iteritems():
                                 if  not (os.path.isfile(path) and not self.h23BR.checkState())   :
-                                        CTX = Model.parseCTX()
+                                        CTX = Controller.parseCTX()
                                         CTX.path = path
                                         CTX.dico = v    
                                         CTX.savefile()
