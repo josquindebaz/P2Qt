@@ -525,6 +525,27 @@ class ConnecteurPII (threading.Thread):
 	
 
 	
+	def stop(self):
+		self.m_threadlock.acquire()
+		if not self.connexion : 
+			if not self.connect():
+				self.m_threadlock.release()
+				return ""
+			
+		self.send_expression("STOP")
+		self.m_threadlock.release()
+		
+	def load(self, path):
+		self.m_threadlock.acquire()
+		if not self.connexion : 
+			if not self.connect():
+				self.m_threadlock.release()
+				return ""
+			
+		self.send_expression("LOAD:" + path)
+		self.m_threadlock.release()		
+		
+	
 
 
 	def send_expression(self, expression):
@@ -1471,6 +1492,20 @@ if __name__ == "__main__" :
 	c = ConnecteurPII()
 	#L= c.creer_msg_ctx("titre","[0:]")
 	c.set( '192.168.1.99','60000' )
+	
+	path="C:\corpus\chronique\projet_chronique.prc"
+	c.load(path)
+	i = 0
+	while 1:
+		status = c.eval_variable("$status")
+		print status , "   " , i
+		i+=1 
+		time.sleep(1)
+		if status == "1" :
+			break
+		time.sleep(1)
+
+		
 	x = c.eval_variable("$ctx" )
 	print x
 	x = c.eval_variable("$txt2.ctx.title" )
