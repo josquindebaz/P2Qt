@@ -1514,7 +1514,7 @@ class Principal(QtGui.QMainWindow):
 					self.PrgBar.perc(len(result))
                                         for r in range(len(result)):
                                                 if (self.which_concepts == "number of texts"):
-#TODO corriger, il donne la valeur de la categorie entiere
+#FIXME corriger, il donne la valeur de la categorie entiere
                                                         ask = "%s.rep%d.nbtxt"% (self.semantique_concept_item,r)
                                                 else :
                                                         ask = "%s.rep%d.val"% (self.semantique_concept_item,r)
