@@ -373,7 +373,6 @@ class Principal(QtGui.QMainWindow):
         self.param_corpus.launchPRC_button.clicked.connect(self.launchPRC)
 
 ##################################################
-#TODO logs
 
 ####parametrer le serveur
 ###        Param_Server = QtGui.QWidget()
@@ -812,7 +811,8 @@ class Principal(QtGui.QMainWindow):
         #NOT3VH.addWidget(self.Explo_action)
 
         Explo_spacer1 = QtGui.QLabel()
-        Explo_spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        Explo_spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                                         QtGui.QSizePolicy.Minimum)
         NOT3VH.addWidget(Explo_spacer1)
 
 
@@ -856,12 +856,14 @@ class Principal(QtGui.QMainWindow):
         NOT5V.addLayout(NOT5VHC)
 
         spacer_CTX_1 = QtGui.QLabel()
-        spacer_CTX_1.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        spacer_CTX_1.setSizePolicy(QtGui.QSizePolicy.Expanding, 
+                                        QtGui.QSizePolicy.Minimum)
         NOT5VHC.addWidget(spacer_CTX_1)
     
         self.NOT5Commands1 = QtGui.QPushButton()
         self.NOT5Commands1.setIcon(QtGui.QIcon("images/gear.png"))
-        self.NOT5Commands1.setEnabled(False) #desactivé au lancement, tant qu'on a pas de liste
+#desactivé au lancement, tant qu'on a pas de liste
+        self.NOT5Commands1.setEnabled(False) 
         NOT5VHC.addWidget(self.NOT5Commands1)
 
     #une box horizontale pour liste et deploiement
@@ -869,7 +871,8 @@ class Principal(QtGui.QMainWindow):
         NOT5V.addLayout(NOT5VH) 
         self.NOT5_list = QtGui.QListWidget()
         self.NOT5_list.setAlternatingRowColors(True)
-        self.NOT5_list.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Preferred)
+        self.NOT5_list.setSizePolicy(QtGui.QSizePolicy.Minimum,
+                                     QtGui.QSizePolicy.Preferred)
         self.NOT5_list.currentItemChanged.connect(self.contexts_contents) 
         NOT5VH.addWidget(self.NOT5_list)
         self.NOT5_cont = QtGui.QListWidget()
@@ -901,7 +904,7 @@ class Principal(QtGui.QMainWindow):
         main.setLayout(grid)
         self.setCentralWidget(main)
 
-        self.setWindowTitle(u'Prospéro interface')
+        self.setWindowTitle(u'P-II interface')
         self.show() 
         #codex_w = codex_window(self)
         #codex_w.show()
@@ -948,6 +951,8 @@ class Principal(QtGui.QMainWindow):
         self.status.showMessage(message)
         time = u"%s" % datetime.datetime.now()
         self.History.append("%s %s" % (time[:19], message))
+        with open("P-II-gui.log",'a') as logfile:
+            logfile.write("%s %s\n" % (time[:19], message))
 
     def ord_liste_txt(self, liste_sem, order="chrono"):
         liste = {}
@@ -2357,7 +2362,8 @@ class Principal(QtGui.QMainWindow):
         local_server = subprocess.Popen(commande, shell=True)
         time.sleep(5)
         self.connect_server("localhost", port)
-        atexit.register(local_server.terminate) #kill the server when the gui is closed
+#kill the server when the gui is closed
+        atexit.register(local_server.terminate) 
             
 
 class codex_window(QtGui.QWidget):
@@ -2380,13 +2386,15 @@ class codex_window(QtGui.QWidget):
         self.h22Label = QtGui.QLabel("Text file list: drag and drop")
         h22Buttons.addWidget(self.h22Label)
         h22_spacer = QtGui.QLabel()
-        h22_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        h22_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                                     QtGui.QSizePolicy.Minimum)
         h22Buttons.addWidget(h22_spacer)
         h22gen = QtGui.QPushButton()
         h22gen.setIcon(QtGui.QIcon("images/gear.png"))
         h22gen.setToolTip(u"test file names")
         h22Buttons.addWidget(h22gen)
-        QtCore.QObject.connect(h22gen, QtCore.SIGNAL("clicked()"), self.generate)
+        QtCore.QObject.connect(h22gen, 
+            QtCore.SIGNAL("clicked()"), self.generate)
 
         self.h22liste = Viewer.ListViewDrop(self)
         self.h22liste.fileDropped.connect(self.FilesDropped)
@@ -2751,7 +2759,7 @@ class codex_window(QtGui.QWidget):
         f = 0
         for r in range(self.h22liste.count()):
             path = self.h22liste.item(r).text()
-            test = self.codex_dic.eval_file(path)
+            test = self.eval_file(path)
             if (test):
                 self.match_add(path, test)
                 m += 1
@@ -2762,7 +2770,40 @@ class codex_window(QtGui.QWidget):
             QtGui.QApplication.processEvents()
         self.h23liste.resizeColumnToContents (0)
         self.h23liste.sortItems(1)
-    
+
+    def eval_file(self, path):
+        """check if the name of the file is in a correct form
+            radicalYYMDD(supplement).txt (old P1 version) or
+            radicalYYYYMMDD(supplement).txt
+        """
+        p, namefile = os.path.split(path)
+        result = False
+        test_date_YYMDD = re.compile("^(\S*)(\d{2})([0-9A-Ca-c])(\d{2})\S*\.[txTX]*")
+        test_date_YYYYMMDD = re.compile("^(\S*)(\d{4})(\d{2})(\d{2})\S*\.[txTX]*")
+
+        if test_date_YYYYMMDD.match(namefile):
+            radical, year, month ,day = test_date_YYYYMMDD.search(namefile).groups()
+            if radical in self.codex_dic.dico.keys():
+                result =  (radical,  u"%s/%s/%s" % (day, month ,year) ) 
+
+        elif test_date_YYMDD.match(namefile): # P-1 FORM: YYMDD
+            radical, year, month , day = test_date_YYMDD.search(namefile).groups()
+            if radical in self.codex_dic.dico.keys():
+#TODO verify retro-compatibility with p1 (1935?)
+                if int(year) > 50:
+                    year = "19%s" % year
+                else:
+                    year = "20%s" % year
+                months = {"a":"10", "A":"10", "b":"11", "B":"11", "c":"12",
+                                                                    "C":"12"}
+                if month in months.keys():
+                    month = months[month]
+                else :
+                       month = "0%s" % month
+                result = (radical,  u"%s/%s/%s" % (day, month, year))
+        
+        return result
+
     def match_add(self, path, result):
         r = self.h23liste.rowCount()
         self.h23liste.insertRow(r)
@@ -2774,7 +2815,10 @@ class codex_window(QtGui.QWidget):
         self.CTX_to_be_saved[CTXpath]["date"] = result[1] + " 00:00:00"
 
         if self.h23BT.checkState():
-            title = self.get_title(path)
+            if (os.path.isfile(path)): 
+                title = self.get_title(path)
+            else :
+                title = ""
             item_value_txt = u" ".join(result) + u" %s"% title
             self.CTX_to_be_saved[CTXpath][u"title"] = title
         else :
@@ -2788,8 +2832,9 @@ class codex_window(QtGui.QWidget):
         item_value.setToolTip(data[:-1])
 
     def get_title(self, path):
-#FIXME use open with
-        B = open(path, "rU").readlines()
+        """the first line of the .txt is taken for ctx title"""
+        with open(path, "rU") as buf:
+            B = buf.readlines()
         title = B[0][:-1]
         try :
             return title.decode('latin-1')
