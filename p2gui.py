@@ -440,8 +440,6 @@ class Principal(QtGui.QMainWindow):
 #l'historique des actions
         self.History =  QtGui.QTextEdit()
 
-
-
 #evaluer directement les variables du serveur
         server_vars = QtGui.QWidget()
         server_vars_Vbox =  QtGui.QVBoxLayout() 
@@ -560,9 +558,6 @@ class Principal(QtGui.QMainWindow):
 
         self.SubWdwNE.setCurrentIndex(0)
         #self.SubWdwNE.setCurrentIndex(2)
-
-
-
 
 
 ##################################################
@@ -771,7 +766,6 @@ class Principal(QtGui.QMainWindow):
         self.NOT22_E.doubleClicked.connect(self.teste_wording)
 
 
-
 ################################################
 #Explorer
         NOT3 =  QtGui.QWidget()
@@ -802,8 +796,6 @@ class Principal(QtGui.QMainWindow):
         self.Explo_radioGroup.addButton(Explo_check_prefix, 0)
         self.Explo_radioGroup.addButton(Explo_check_suffix, 1)
         self.Explo_radioGroup.addButton(Explo_check_infix, 2)
-
-
 
         #self.Explo_action = QtGui.QPushButton("search")
         #self.Explo_action.setEnabled(False) #desactivé au lancement
@@ -994,8 +986,6 @@ class Principal(QtGui.QMainWindow):
 
             self.PrgBar.percAdd(1)
 
-
-
     def onSelectText(self):
         """Update text properties windows when a text is selected """
 
@@ -1066,8 +1056,6 @@ class Principal(QtGui.QMainWindow):
             listwidget.itemSelectionChanged.disconnect(self.onSelectText)
             listwidget.clearSelection()
             listwidget.itemSelectionChanged.connect(self.onSelectText)
-
-
 
     def change_NOTab(self):
         if (self.SubWdwNO.currentIndex() == 1) : # si l'onglet des Concepts est sélectionné
@@ -1342,8 +1330,6 @@ class Principal(QtGui.QMainWindow):
                 self.content_liste_concept.append(i[1])
         self.change_liste_concepts(liste_final)
 
-
-
     def affiche_liste_scores(self):
         typ = self.NOT1select.currentText()
         self.sem_liste_concept = self.get_semantique()
@@ -1387,8 +1373,6 @@ class Principal(QtGui.QMainWindow):
     
             self.PrgBar.percAdd(1)
 
-
-
         liste_final =[]
         self.content_liste_lexicon = []
         if (self.which == "alphabetically"):
@@ -1402,9 +1386,6 @@ class Principal(QtGui.QMainWindow):
                 liste_final.append(item_resume) 
                 self.content_liste_lexicon.append(i[1])
         self.change_liste(liste_final)
-
-
-
 
     def liste_item_changed(self):
         """ suite au changement de sélection, mettre à jour les vues dépendantes """ 
@@ -1458,9 +1439,6 @@ class Principal(QtGui.QMainWindow):
 
             #activation des boutons de commande
             self.NOT1Commands2.setEnabled(True) 
-
-
-
 
     def liste_D_item_changed(self):
         """quand un item de D est sélectionné, afficher représentants dans E"""
@@ -1584,9 +1562,6 @@ class Principal(QtGui.QMainWindow):
 
             #activation des boutons de commande
             self.NOT2Commands2.setEnabled(True) 
-
-
-
 
     def liste_D_concept_changed(self):
         """quand un item de D est sélectionné, afficher représentants dans E"""
@@ -1872,8 +1847,6 @@ class Principal(QtGui.QMainWindow):
                 self.saillantesCol.addItem(u"%d %s" % (val, self.list_col[i]))
                 self.list_col_valued[self.list_col[i]] = val
                 self.PrgBar.percAdd (1)
-
-
 
     def deploie_Col(self):
         item = self.saillantesCol.currentItem().text()
@@ -2201,8 +2174,6 @@ class Principal(QtGui.QMainWindow):
             self.tabUtterances.setCurrentIndex(index)# donne le focus a l'onglet créé
             self.SubWdwNE.setCurrentIndex(2)
 
-
-
     def list_lexicon_search(self):
         """recherche un motif dans la liste gauche du type de lexicon selectionné"""
         motif = self.list_research.text()
@@ -2337,8 +2308,6 @@ class Principal(QtGui.QMainWindow):
             clipboard.setText("\n".join(liste))
             self.activity(u"%d elements copied to clipboard" % (len(liste)))
 
-
-
     def send_codex_ViewListeTextes(self):
         Items = self.param_corpus.ViewListeTextes.selectedItems()
         if (Items):
@@ -2438,8 +2407,6 @@ class codex_window(QtGui.QWidget):
 
         
         H2.addLayout(h23)
-
-
 
         H1 = QtGui.QHBoxLayout()
 
@@ -2557,7 +2524,6 @@ class codex_window(QtGui.QWidget):
             self.select_champ.addItems(self.codex_dic.champs())
         self.search_line.clear()
         self.search_result.clear()
-        
 
     def efface_listRadItem(self):
         item = self.listRad.currentItem().text()
@@ -2698,7 +2664,6 @@ class codex_window(QtGui.QWidget):
             return L[0]
         else :
             return False
-        
 
     def FilesDropped(self, l):
         existing = [] 
@@ -2759,7 +2724,7 @@ class codex_window(QtGui.QWidget):
         f = 0
         for r in range(self.h22liste.count()):
             path = self.h22liste.item(r).text()
-            test = self.eval_file(path)
+            test = self.codex_dic.eval_file(path)
             if (test):
                 self.match_add(path, test)
                 m += 1
@@ -2770,39 +2735,6 @@ class codex_window(QtGui.QWidget):
             QtGui.QApplication.processEvents()
         self.h23liste.resizeColumnToContents (0)
         self.h23liste.sortItems(1)
-
-    def eval_file(self, path):
-        """check if the name of the file is in a correct form
-            radicalYYMDD(supplement).txt (old P1 version) or
-            radicalYYYYMMDD(supplement).txt
-        """
-        p, namefile = os.path.split(path)
-        result = False
-        test_date_YYMDD = re.compile("^(\S*)(\d{2})([0-9A-Ca-c])(\d{2})\S*\.[txTX]*")
-        test_date_YYYYMMDD = re.compile("^(\S*)(\d{4})(\d{2})(\d{2})\S*\.[txTX]*")
-
-        if test_date_YYYYMMDD.match(namefile):
-            radical, year, month ,day = test_date_YYYYMMDD.search(namefile).groups()
-            if radical in self.codex_dic.dico.keys():
-                result =  (radical,  u"%s/%s/%s" % (day, month ,year) ) 
-
-        elif test_date_YYMDD.match(namefile): # P-1 FORM: YYMDD
-            radical, year, month , day = test_date_YYMDD.search(namefile).groups()
-            if radical in self.codex_dic.dico.keys():
-#TODO verify retro-compatibility with p1 (1935?)
-                if int(year) > 50:
-                    year = "19%s" % year
-                else:
-                    year = "20%s" % year
-                months = {"a":"10", "A":"10", "b":"11", "B":"11", "c":"12",
-                                                                    "C":"12"}
-                if month in months.keys():
-                    month = months[month]
-                else :
-                       month = "0%s" % month
-                result = (radical,  u"%s/%s/%s" % (day, month, year))
-        
-        return result
 
     def match_add(self, path, result):
         r = self.h23liste.rowCount()
@@ -2878,10 +2810,8 @@ class codex_window(QtGui.QWidget):
                     CTX.path = path
                     CTX.dico = v    
                     CTX.savefile()
-
-
-
     
+
 def main():
     app = QtGui.QApplication(sys.argv)
 

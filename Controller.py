@@ -197,19 +197,19 @@ class edit_codex(object):
         return os.path.isfile("codex.xml")
 
     def parse_codex_xml(self, codex_path):
-#FIXME use with open
-        F = open(codex_path, "rU")
-        B = minidom.parse(F)
-        C = B.firstChild
-        self.dico = {}
-        for E in C.getElementsByTagName('Entry'):
-            d = {}
-            for F in E.getElementsByTagName('Field'):
-                d[F.getAttribute('name')] = F.getAttribute('value')
-            self.dico [E.getAttribute('ABREV')] = d            
+        with open(codex_path, "rU") as F:
+            B = minidom.parse(F)
+            C = B.firstChild
+            self.dico = {}
+            for E in C.getElementsByTagName('Entry'):
+                d = {}
+                for F in E.getElementsByTagName('Field'):
+                    d[F.getAttribute('name')] = F.getAttribute('value')
+                self.dico [E.getAttribute('ABREV')] = d            
         
     def parse_codex_cfg(self, codex_path):
-        B = open(codex_path, "rU").read()
+        with open(codex_path, "rU") as buf:
+            B = buf.read() 
         items = re.split("#{2,}", B.decode('latin-1'))
         dico = {}
         tr = {"ABREV":u"ABREV", "AUTEUR":u"author", "SUPPORT":u"medium", 
@@ -237,7 +237,8 @@ class edit_codex(object):
         return os.path.isfile("support.publi") 
 
     def parse_supports_publi(self, supports_path):
-        B = open(supports_path, "rU").read()
+        with open(supports_path, "rU") as buf:
+            B = buf.read()
         items = re.split("\n", B.decode('latin-1'))
         dico = {}
         for item in items:
@@ -279,37 +280,37 @@ class edit_codex(object):
         return liste
     
     def eval_file(self, path):
-        p, n = os.path.split(path)
-        r = False
-        testAAMDD = re.compile("^(\S*)(\d{2})([0-9A-Ca-c])\
-                                        (\d{2})[^\d]\S*\.[txTX]*$")
-        testAAAAMMDD = re.compile("^(\S*)(\d{4})(\d{2})\
-                                    (\d{2})[^\d]\S*\.[txTX]*$")
+        """check if the name of the file is in a correct form
+            radicalYYMDD(supplement).txt (old P1 version) or
+            radicalYYYYMMDD(supplement).txt
+        """
+        p, namefile = os.path.split(path)
+        result = False
+        test_date_YYMDD = re.compile("^(\S*)(\d{2})([0-9A-Ca-c])(\d{2})\S*\.[txTX]*")
+        test_date_YYYYMMDD = re.compile("^(\S*)(\d{4})(\d{2})(\d{2})\S*\.[txTX]*")
 
-        if testAAAAMMDD.match(n): #FORME AAAAMMDD
-            a, y, m, d = testAAAAMMDD.search(n).groups()
-            if a in self.dico.keys():
-                r =  (a,  u"%s/%s/%s" % (d, m, y))
-        elif testAAMDD.match(n): #FORME AAMDD
-            a, y, m, d = testAAMDD.search(n).groups()
-            if a in self.dico.keys():
-                if int(y) > 50:
-                    y = "19%s" % y
+        if test_date_YYYYMMDD.match(namefile):
+            radical, year, month ,day = test_date_YYYYMMDD.search(namefile).groups()
+            if radical in self.dico.keys():
+                result =  (radical,  u"%s/%s/%s" % (day, month ,year) ) 
+
+        elif test_date_YYMDD.match(namefile): # P-1 FORM: YYMDD
+            radical, year, month , day = test_date_YYMDD.search(namefile).groups()
+            if radical in self.dico.keys():
+#TODO verify retro-compatibility with p1 (1935?)
+                if int(year) > 50:
+                    year = "19%s" % year
                 else:
-                    y = "20%s" % y
-
-                if m in ["a", "A"]:
-                    m = "10"
-                elif m in ["b", "B"]:
-                    m = "11"
-                elif m in ["c", "C"]:
-                    m = "11"
+                    year = "20%s" % year
+                months = {"a":"10", "A":"10", "b":"11", "B":"11", "c":"12",
+                                                                    "C":"12"}
+                if month in months.keys():
+                    month = months[month]
                 else :
-                    m = "0%s" % m
-                    
-                r = (a,  u"%s/%s/%s" % (d, m, y))
-
-        return r    
+                       month = "0%s" % month
+                result = (radical,  u"%s/%s/%s" % (day, month, year))
+        
+        return result
 
     def save_codex(self, path="codex.dat"):
         content = minidom.Document()
