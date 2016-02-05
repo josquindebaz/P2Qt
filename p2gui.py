@@ -3,6 +3,7 @@
 
 from PySide import QtCore 
 from PySide import QtGui 
+from PySide import QtWebKit
 import sys
 import re
 import datetime
@@ -154,6 +155,12 @@ class Principal(QtGui.QMainWindow):
         Menu_ModTex = QtGui.QAction('&Action on selected texts', self)    
         Menu_Texts.addAction(Menu_ModTex)
         Menu_ModTex.setEnabled(False)
+
+        Menu_Marlowe = Menubar.addMenu('&Marlowe')
+        Menu_Marlowe_remote = QtGui.QAction("&remote", self)
+        Menu_Marlowe_remote.triggered.connect(self.MarloweViewer)
+        Menu_Marlowe.addAction(Menu_Marlowe_remote)
+
     
 # parametrage du Gui : langue etc
         #ParamMenu = Menubar.addMenu(self.tr('&Parameters'))
@@ -1717,6 +1724,15 @@ class Principal(QtGui.QMainWindow):
     def codex_window(self):
         codex_w = codex_window(self)
         codex_w.show()
+
+    def MarloweViewer(self):
+        MarloweView = QtWebKit.QWebView()
+        tabindex = self.SubWdwNE.addTab(MarloweView, "Marlowe")
+        self.SubWdwNE.setCurrentIndex(tabindex)
+        url = "http://tiresias.xyz:8080/accueil"
+        MarloweView.load(QtCore.QUrl(url))
+    
+
 
     def show_textContent(self,  sem_txt):
         """Insert text content in the dedicated window"""
