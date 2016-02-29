@@ -179,6 +179,10 @@ class Corpus_tab(QtGui.QListWidget):
         H2LV1.addWidget(self.ViewListeTextes)
 
         self.ViewListeTextes.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        addItem_ViewListeTextes = QtGui.QAction('add text', self)
+        self.ViewListeTextes.addAction(addItem_ViewListeTextes)
+        QtCore.QObject.connect(addItem_ViewListeTextes, 
+            QtCore.SIGNAL("triggered()"), self.addItem_ViewListeTextes)
         efface_ViewListeTextesItem = QtGui.QAction('delete item', self)
         self.ViewListeTextes.addAction(efface_ViewListeTextesItem)
         QtCore.QObject.connect(efface_ViewListeTextesItem, 
@@ -208,6 +212,13 @@ class Corpus_tab(QtGui.QListWidget):
         self.ViewListeConcepts.fileDropped.connect(self.ccfFilesDropped)
         self.ViewListeConcepts.setContextMenuPolicy(
                             QtCore.Qt.ActionsContextMenu)
+
+        self.ViewListeConcepts.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        addItem_ViewListeConcepts = QtGui.QAction('add concept file', self)
+        self.ViewListeConcepts.addAction(addItem_ViewListeConcepts)
+        QtCore.QObject.connect(addItem_ViewListeConcepts, 
+            QtCore.SIGNAL("triggered()"), self.addItem_ViewListeConcepts)
+
         efface_ViewListeConceptsItem = QtGui.QAction('delete item', self)
         self.ViewListeConcepts.addAction(efface_ViewListeConceptsItem)
         QtCore.QObject.connect(efface_ViewListeConceptsItem, 
@@ -224,6 +235,12 @@ class Corpus_tab(QtGui.QListWidget):
         self.ViewListeLexicons.fileDropped.connect(self.dicFilesDropped)
         self.ViewListeLexicons.setContextMenuPolicy(
                         QtCore.Qt.ActionsContextMenu)
+
+        addItem_ViewListeLexicons = QtGui.QAction('add lexicon file', self)
+        self.ViewListeLexicons.addAction(addItem_ViewListeLexicons)
+        QtCore.QObject.connect(addItem_ViewListeLexicons, 
+            QtCore.SIGNAL("triggered()"), self.addItem_ViewListeLexicons)
+
         efface_ViewListeLexiconsItem = QtGui.QAction('delete item', self)
         self.ViewListeLexicons.addAction(efface_ViewListeLexiconsItem)
         QtCore.QObject.connect(efface_ViewListeLexiconsItem, 
@@ -256,6 +273,12 @@ class Corpus_tab(QtGui.QListWidget):
         self.numTexts.setText(u"%d texts"%self.ViewListeTextes.count())
         self.TextFilesDates = {}
 
+    def addItem_ViewListeTextes(self):
+        fnames, filt = QtGui.QFileDialog.getOpenFileNames(self, 'Add file',
+                                                         '.', '*.txt;*.TXT')
+        if (fnames):
+            self.TxtFilesDropped(fnames)
+
     def efface_ViewListeTextesItem(self):
         Items = self.ViewListeTextes.selectedItems()
         if (Items):
@@ -266,6 +289,12 @@ class Corpus_tab(QtGui.QListWidget):
     
     def efface_ViewListeConcepts(self):
         self.ViewListeConcepts.clear()
+
+    def addItem_ViewListeConcepts(self):
+        fnames, filt = QtGui.QFileDialog.getOpenFileNames(self, 'Add file',
+                                                         '.', '*.fic;*.cat;*.col')
+        if (fnames):
+            self.ccfFilesDropped(fnames)
 
     def efface_ViewListeConceptsItem(self):
         Items = self.ViewListeConcepts.selectedItems()
@@ -287,6 +316,12 @@ class Corpus_tab(QtGui.QListWidget):
         
     def efface_ViewListeLexicons(self):
         self.ViewListeLexicons.clear()
+
+    def addItem_ViewListeLexicons(self):
+        fnames, filt = QtGui.QFileDialog.getOpenFileNames(self, 'Add file',
+                                                         '.', '*.dic')
+        if (fnames):
+            self.dicFilesDropped(fnames)
 
     def efface_ViewListeLexiconsItem(self):
         Items = self.ViewListeLexicons.selectedItems()

@@ -916,16 +916,17 @@ class Principal(QtGui.QMainWindow):
 ################################################
 ################################################
 
-    def menu_ctx(self, pos):
-        menu = QtGui.Qmenu
-    def select_P2_path(self):
-        path = QtGui.QFileDialog.getOpenFileName(self, 'Select server path')
-        self.Param_Server_path_P2.setText(path[0])
-
-    def select_PRC_path(self):
-        #ajouter un filtre d'extensions
-        path = QtGui.QFileDialog.getOpenFileName(self, 'Select corpus path')
-        self.Param_Server_path_PRC.setText(path[0])
+#    def menu_ctx(self, pos):
+#        menu = QtGui.Qmenu
+#
+#    def select_P2_path(self):
+#        path = QtGui.QFileDialog.getOpenFileName(self, 'Select server path')
+#        self.Param_Server_path_P2.setText(path[0])
+#
+#    def select_PRC_path(self):
+#        #ajouter un filtre d'extensions
+#        path = QtGui.QFileDialog.getOpenFileName(self, 'Select corpus path')
+#        self.Param_Server_path_PRC.setText(path[0])
 
     def get_semantique_concepts(self):
         if (self.NOT2select.currentText()=="collections") : 
