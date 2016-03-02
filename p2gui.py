@@ -444,8 +444,23 @@ class Principal(QtGui.QMainWindow):
 ###
 
 ##################################################
-#l'historique des actions
-        self.History =  QtGui.QTextEdit()
+#l'historique des actions -> Journal
+        self.journal = QtGui.QWidget()
+        journal_vbox =  QtGui.QVBoxLayout() 
+        self.journal.setLayout(journal_vbox)
+        journal_vbox.setContentsMargins(0,0,0,0) 
+        journal_vbox.setSpacing(0)
+        journal_hobx = QtGui.QHBoxLayout()
+        journal_button_save = QtGui.QPushButton(self.tr('Save journal'))
+        width = journal_button_save.fontMetrics().boundingRect(
+                        journal_button_save.text()).width() + 30
+        journal_button_save.setMaximumWidth(width)
+        journal_button_save.clicked.connect(self.journal_save)
+        journal_hobx.addWidget(journal_button_save)
+        journal_vbox.addLayout(journal_hobx)
+        self.history =  QtGui.QTextEdit()
+        journal_vbox.addWidget(self.history)
+        
 
 #evaluer directement les variables du serveur
         server_vars = QtGui.QWidget()
@@ -559,7 +574,7 @@ class Principal(QtGui.QMainWindow):
 ###        SubWdwNE.addTab(NET1, "Marlowe")
 ###        self.SubWdwNE.addTab(Param_Server, "Server")
         self.SubWdwNE.addTab(self.param_corpus, "Corpus")
-        self.History_index = self.SubWdwNE.addTab(self.History, "History")
+        self.journal_index = self.SubWdwNE.addTab(self.journal, "Journal")
         self.SubWdwNE.addTab(server_vars, "Vars")
         self.SubWdwNE.addTab(gen_mrlw, self.tr("Variant generation"))
 
@@ -949,10 +964,10 @@ class Principal(QtGui.QMainWindow):
     def activity(self, message):
         """Add message to the history window"""
         self.status.showMessage(message)
-        time = u"%s" % datetime.datetime.now()
-        self.History.append("%s %s" % (time[:19], message))
+        time = "%s" % datetime.datetime.now()
+        self.history.append("%s %s" % (time[:19], message))
         with open("P-II-gui.log",'a') as logfile:
-            logfile.write("%s %s\n" % (time[:19], message))
+            logfile.write("%s %s\n" % (time[:19], message.encode("utf-8")))
 
     def ord_liste_txt(self, liste_sem, order="chrono"):
         liste = {}
@@ -1399,10 +1414,11 @@ class Principal(QtGui.QMainWindow):
         """ suite au changement de sélection, mettre à jour les vues dépendantes """ 
         itemT = self.NOT12.currentItem()
         if (itemT):
-            item = re.sub("^\d* ", "", itemT.text())
+            value, item = re.split(" ",itemT.text(),1)
             row = self.NOT12.currentRow() 
 #TODO clarify the rules for exaequos in rank
-            self.activity("%s selected, rank %d" % (item, row+1))
+            #self.activity("%s selected, rank %d" % (item, row+1))
+            self.activity("%s selected, rank %d, value %s" % (item, row+1, value))
             self.NOT12_D.clear() # on efface la liste
             self.NOT12_E.clear()
             sem = self.sem_liste_concept
@@ -1619,7 +1635,12 @@ class Principal(QtGui.QMainWindow):
             else :
                 self.semantique_concept_item_E = u"%s.rep%d" % (self.semantique_concept_item_D,  row)
         
-
+    def journal_save(self):
+	dte = str(datetime.date.today())
+	fname, filt = QtGui.QFileDialog.getSaveFileName(self, 'Save file','journal_%s.txt'%dte,'*.txt')
+	if (fname):
+		with open(fname, 'w') as journal_file:
+			journal_file.write(self.history.toPlainText().encode('utf-8'))
 
             
     def server_vars_Evalue(self):
@@ -1692,7 +1713,7 @@ class Principal(QtGui.QMainWindow):
         
         if (self.client.Etat):
             # donne le focus a l'onglet history
-            self.SubWdwNE.setCurrentIndex(self.History_index)
+            self.SubWdwNE.setCurrentIndex(self.journal_index)
 
             # calcule en avance
             self.pre_calcule()
