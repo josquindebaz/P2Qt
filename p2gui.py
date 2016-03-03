@@ -1789,6 +1789,34 @@ class Principal(QtGui.QMainWindow):
         """Show text sailent properties"""
         #les actants
         #les actants en tête sont calculés par le serveur
+#    ex entre 0 et 4 pages :  le poids mini d'un actant est de 2 , le nbre d'actants ideal est 5
+#    ex entre 5 et 9 pages :  le poids mini d'un actant est de 3 , le nbre d'actants ideal est 7
+#    ...
+#
+#    ex entre 50 et 99 pages :  le poids mini d'un actant est de 7 , le nbre d'actants ideal est 25
+#
+#    une page == 2000 caractères
+#TexteParametrageDesActants TableDuParametrageDuNombreDActants[]=
+#{
+#    { 0 , 5 , 2 , 5 },
+#    { 5 , 10, 3 , 7 },
+#    {10 , 20, 4 ,10},
+#    {20 , 50, 5 ,15 },
+#    {50, 100, 6 ,20},
+#    {100,-1,  7 ,25},  // PS le -1 sert de fin de table .... in for
+#};
+#TexteParametrage_ConceptsEmergents TableDuParametrageDesConceptsEmergents[]=
+#{
+#    { 0 , 5 , 2 , 2 },
+#    { 5 , 10, 3 , 3 },
+#    {10 , 20, 4 , 4},
+#    {20 , 50, 7 , 5 },
+#    {50, 100, 10, 7},
+#    {100,-1,  12 ,10},
+#};
+
+
+
         self.saillantesAct.clear()
         self.saillantesAct_deployes = []
         list_act_sem = "%s.act[0:]" % sem_txt
