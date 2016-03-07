@@ -623,3 +623,4 @@ def hide_close_buttons(tabs_widget,index):
             tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).resize(0,0)
             tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).hide()
 
+
