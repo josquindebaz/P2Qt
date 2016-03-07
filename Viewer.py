@@ -8,6 +8,7 @@ import datetime
 #from Foundation import NSURL
 
 import Controller
+import generator_mrlw
 
 
 class PrgBar(object):
@@ -426,4 +427,199 @@ class Corpus_tab(QtGui.QListWidget):
         self.launchPRC_button.setEnabled(True)
         self.nameCorpus.setText(fileName)
 
+
+class MrlwVarGenerator(object):
+    """le 'generateur' Marlowe"""
+    def __init__(self, parent=None):
+        self.gen_mrlw = QtGui.QWidget()
+        gen_mrlw_Hbox =  QtGui.QHBoxLayout() 
+        self.gen_mrlw.setLayout(gen_mrlw_Hbox)
+        gen_mrlw_Hbox.setContentsMargins(0,0,0,0) 
+        gen_mrlw_Hbox.setSpacing(0) 
+
+        gen_mrlw_Vbox_left = QtGui.QVBoxLayout()
+        gen_mrlw_Hbox.addLayout(gen_mrlw_Vbox_left)
+        self.gen_mrlw_phrase = QtGui.QTextEdit() 
+        self.gen_mrlw_phrase.setSizePolicy(
+            QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        self.gen_mrlw_phrase.setFixedHeight(70) 
+        gen_mrlw_Vbox_left.addWidget(self.gen_mrlw_phrase)
+        gen_mrlw_Button_varifie = QtGui.QPushButton("Identify")
+        width = gen_mrlw_Button_varifie.fontMetrics().boundingRect(
+                        gen_mrlw_Button_varifie.text()).width() + 30
+        gen_mrlw_Button_varifie.setMaximumWidth(width)
+        gen_mrlw_Button_varifie.clicked.connect(self.genere_identify)
+        gen_mrlw_Vbox_left.addWidget(gen_mrlw_Button_varifie)
+        gen_mrlw_Button_varifie_spacer = QtGui.QLabel()
+        
+        self.gen_mrlw_vars = QtGui.QTextEdit()
+        self.gen_mrlw_vars.setSizePolicy(
+            QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        self.gen_mrlw_vars.setFixedHeight(70)
+        gen_mrlw_Vbox_left.addWidget(self.gen_mrlw_vars)
+        gen_mrlw_genere_Hbox =   QtGui.QHBoxLayout() 
+        gen_mrlw_Vbox_left.addLayout(gen_mrlw_genere_Hbox)
+        gen_mrlw_Button_genere = QtGui.QPushButton("Generate")
+        width = gen_mrlw_Button_genere.fontMetrics().boundingRect(
+                        gen_mrlw_Button_genere.text()).width() + 30
+        gen_mrlw_Button_genere.setMaximumWidth(width)
+        gen_mrlw_genere_Hbox.addWidget(gen_mrlw_Button_genere)
+        gen_mrlw_Button_genere.clicked.connect(self.genere_generate)
+        gen_mrlw_genere_spacer = QtGui.QLabel()
+        gen_mrlw_genere_spacer.setSizePolicy(
+            QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        gen_mrlw_genere_Hbox.addWidget(gen_mrlw_genere_spacer)
+
+        self.gen_genere_spinbox = QtGui.QSpinBox()
+        gen_mrlw_genere_Hbox.addWidget(self.gen_genere_spinbox)
+        self.gen_genere_spinbox.setValue(1)
+        self.gen_mrlw_result = QtGui.QTextEdit() 
+        self.gen_mrlw_result.setSizePolicy(
+            QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        self.gen_mrlw_result.setFixedHeight(100)
+        gen_mrlw_Vbox_left.addWidget(self.gen_mrlw_result)
+
+        gen_mrlw_Vbox_right = QtGui.QVBoxLayout()
+        gen_mrlw_Hbox.addLayout(gen_mrlw_Vbox_right)
+        self.gen_mrlw_test = QtGui.QLineEdit()
+        self.gen_mrlw_test.returnPressed.connect(self.genere_test)
+        self.gen_mrlw_test.setSizePolicy(
+            QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        self.gen_mrlw_test.setFixedWidth(256)
+        gen_mrlw_Vbox_right.addWidget(self.gen_mrlw_test)
+        self.gen_mrlw_test_result = QtGui.QListWidget()
+        self.gen_mrlw_test_result.setSizePolicy(
+            QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
+        gen_mrlw_Vbox_right.addWidget(self.gen_mrlw_test_result)
+        self.gen_mrlw_test_result.doubleClicked.connect(
+                                self.genere_test_result_dc)
+        self.gen_mrlw_files = QtGui.QListWidget()
+        self.gen_mrlw_files.setSizePolicy(
+            QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        self.gen_mrlw_files.setFixedHeight(50)
+        gen_mrlw_Vbox_right.addWidget(self.gen_mrlw_files)
+
+        self.genere_mrlw = generator_mrlw.mrlw_variables()
+        for F in self.genere_mrlw.files:
+            self.gen_mrlw_files.addItem(F)
+
+    
+    def genere_identify(self):
+        phrase = self.gen_mrlw_phrase.toPlainText()
+        if  (phrase != u''):
+            self.gen_mrlw_vars.clear()
+            phrase = re.sub('[\r\n]', ' ', phrase)
+            self.gen_mrlw_vars.append(self.genere_mrlw.get_vars_sentence(phrase))
+
+    def genere_test(self):
+        mot = self.gen_mrlw_test.text()
+        self.gen_mrlw_test_result.clear()       
+        recup = []
+        if (mot != u""):
+            if re.search("^\s*/Var\S{1,}", mot):
+                mot = re.sub("^\s*", "", mot)
+                mot = re.sub("\s{1,}$", "", mot)
+                if mot[1:] in self.genere_mrlw.mrlw_vars.keys():
+                    recup = self.genere_mrlw.mrlw_vars[mot[1:]]
+                    self.gen_mrlw_test_result.addItems(recup)
+            else :
+                mot = re.sub("^\s*","", mot)
+                mot = re.sub("\s{1,}$", "", mot)
+                recup = self.genere_mrlw.repere_vars2(mot)
+                for i in recup:
+                    self.gen_mrlw_test_result.addItem("/%s"%i[1])
+                
+
+    def genere_generate(self):
+        phrase = self.gen_mrlw_vars.toPlainText()
+        if  (phrase != u''):
+            for i in range(self.gen_genere_spinbox.value()):
+                self.gen_mrlw_result.append(self.genere_mrlw.genere_phrase(phrase))
+        
+    
+    def genere_test_result_dc(self):
+        self.gen_mrlw_test.clear()
+        self.gen_mrlw_test.setText(self.gen_mrlw_test_result.currentItem().text())
+        self.genere_test()
+
+
+class Journal(object):
+    """Le journal d'enquête"""
+    def __init__(self, parent=None): 
+        self.journal = QtGui.QWidget()
+        journal_vbox =  QtGui.QVBoxLayout() 
+        self.journal.setLayout(journal_vbox)
+        journal_vbox.setContentsMargins(0,0,0,0) 
+        journal_vbox.setSpacing(0)
+
+        self.history =  QtGui.QTextEdit()
+        journal_vbox.addWidget(self.history)
+
+        journal_hobx = QtGui.QHBoxLayout()
+
+        spacer1 = QtGui.QLabel()
+        spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                                         QtGui.QSizePolicy.Minimum)
+        journal_hobx.addWidget(spacer1)
+
+        journal_button_save = QtGui.QPushButton('Save journal')
+        width = journal_button_save.fontMetrics().boundingRect(
+                        journal_button_save.text()).width() + 30
+        journal_button_save.setMaximumWidth(width)
+        journal_button_save.clicked.connect(self.journal_save)
+        journal_hobx.addWidget(journal_button_save)
+        journal_vbox.addLayout(journal_hobx)
+
+    def journal_save(self):
+	dte = str(datetime.date.today())
+	fname, filt = QtGui.QFileDialog.getSaveFileName(self.journal,
+                             'Save file','journal_%s.txt'%dte,'*.txt')
+	if (fname):
+		with open(fname, 'w') as journal_file:
+			journal_file.write(self.history.toPlainText().encode('utf-8'))
+
+class NetworksViewer(object):
+    """Display co-occurence network"""
+    def __init__(self, items, parent=None):
+        self.show_network_widget = QtGui.QWidget()
+        show_network_box = QtGui.QVBoxLayout()
+        # on prend toute la place
+        show_network_box.setContentsMargins(0,0,0,0) 
+        show_network_box.setSpacing(0) 
+        self.show_network_widget.setLayout(show_network_box)
+
+        #selecteur de concept
+        net_sel_concept = QtGui.QComboBox()
+        net_sel_concept.addItems([u"Entities"])
+        show_network_box.addWidget(net_sel_concept)
+
+        Network_list =  QtGui.QListWidget()
+        Network_list.addItems(items)
+        show_network_box.addWidget(Network_list)
+
+class TextElements(object):
+    """Display text elements"""
+    def __init__(self,  parent=None):
+        self.widget = QtGui.QWidget()
+        box = QtGui.QVBoxLayout()
+        box.setContentsMargins(0,0,0,0) 
+        box.setSpacing(0) 
+        self.widget.setLayout(box)
+
+        selector = QtGui.QComboBox()
+        selector.addItems([u"Entity categories"])
+        box.addWidget(selector)
+
+        self.element_list =  QtGui.QListWidget()
+        box.addWidget(self.element_list)
+
+
+def hide_close_buttons(tabs_widget,index):
+        """hide close button on tab no 'index', on the left side for Mac"""
+        if tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.RightSide):
+            tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.RightSide).resize(0,0)
+            tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.RightSide).hide()
+        elif tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide):
+            tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).resize(0,0)
+            tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).hide()
 
