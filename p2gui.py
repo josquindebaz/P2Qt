@@ -553,7 +553,7 @@ class Principal(QtGui.QMainWindow):
         self.NOT1Commands1Menu.addAction('last apparition', 
             self.affiche_liste_scores_lapp)
 #TODO ajouter pondere, nb textes, nb auteurs, nb jours presents, 
-#relatif nb jours, nb representants, nb elements reseau
+#TODO relatif nb jours, nb representants, nb elements reseau
         #NOT1Commands1Menu.addAction('&sort')
         #NOT1Commands1Menu.addAction('&filter')
         self.NOT1Commands1.setMenu(self.NOT1Commands1Menu)
