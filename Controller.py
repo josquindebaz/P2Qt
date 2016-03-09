@@ -5,7 +5,6 @@ import os
 import re
 import datetime
 
-
 class Texte(object):
     def __init__(self, sem, path):
         self.sem = sem 
@@ -335,14 +334,16 @@ class edit_codex(object):
         file_handle.close()
 
 
-class preCalcul(object):
+class preCompute(object):
     """cache values"""
     def __init__(self, parent):
         self.parent=parent
         
         self.recup_texts() #texts
         self.recup_ctx() #ctx
-        self.type_var =  [ "$ent", "$ef", "$col", "$qualite"] 
+        self.type_var =  [ "$ent", "$ef", "$col", "$qualite", '$marqueur',
+            '$epr', '$pers', '$undef', '$act', '$expr', '$cat_ent', '$cat_epr',
+            '$cat_qua', '$cat_mar'] 
         self.type_calcul = ["freq", "dep", "nbaut", "nbtxt", "lapp", "fapp"]
     
     def recup_texts(self):
@@ -401,6 +402,14 @@ class preCalcul(object):
             m = "%s%s.%s"%(type_var, str(indice), type_calcul)
             self.parent.client.add_cache_var (m, val)
             indice += 1
-            
-       
- 
+    
+def sp_el(element):
+    return element.split(' ', 1)
+
+semantiques = { 'collections': '$col', 'fictions': '$ef', 'entity categories':
+'$cat_ent', 'event categories': '$cat_epr', 'marker categories': '$cat_mar',
+'quality categories': '$cat_qua', 'entities': '$ent', 'qualities': '$qualite',
+'markers': '$marqueur', 'events': '$epr', 'persons': '$pers', 'undefineds':
+'$undef', 'actants': '$act', 'expressions': '$expr' }
+     
+

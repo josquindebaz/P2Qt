@@ -613,6 +613,30 @@ class TextElements(object):
         self.element_list =  QtGui.QListWidget()
         box.addWidget(self.element_list)
 
+class ConceptListWidget(QtGui.QListWidget):
+    """a specific widget for concept/lexicon lists"""
+
+    deselected = QtCore.Signal()
+
+    def __init__(self, parent=None):
+        QtGui.QListWidget.__init__(self)
+        self.setAlternatingRowColors(True)
+        self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        self.previousItem = False
+        self.itemClicked.connect(self.deselect)
+#        self.deselected.connect(test)
+
+    def deselect(self,item):
+        if (self.previousItem): 
+            if ( str(self.previousItem) == str(item) ):
+                self.clearSelection()
+                self.setCurrentRow(-1)
+                self.previousItem = False
+                self.deselected.emit()
+            else :
+                self.previousItem = item
+        else : 
+            self.previousItem = item
 
 def hide_close_buttons(tabs_widget,index):
         """hide close button on tab no 'index', on the left side for Mac"""
@@ -623,3 +647,5 @@ def hide_close_buttons(tabs_widget,index):
             tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).resize(0,0)
             tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).hide()
 
+def test():
+    print "blabla"
