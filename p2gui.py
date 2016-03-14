@@ -338,7 +338,6 @@ class Principal(QtGui.QMainWindow):
         self.SubWdwSO.addTab(self.SOT1, self.tr("Texts"))
         Viewer.hide_close_buttons(self.SubWdwSO,0)
 
-
 ##################################################
         #quart NE
 ##################################################
@@ -1914,7 +1913,7 @@ triggered=lambda: self.show_network(0)))
             result = self.client.eval(ask)
             if (result != u''):
                 liste_result = re.split(", ", result)
-                self.activity("searching for {%s} %d results"%(motif, len(liste_result)))
+                self.activity("searching for {%s}: %d results"%(motif, len(liste_result)))
                 self.PrgBar.perc(len(liste_result))
                 for i in range(len(liste_result)):
                     ask = self.client.creer_msg_search(type_search, motif,
@@ -1925,8 +1924,7 @@ triggered=lambda: self.show_network(0)))
                     self.PrgBar.percAdd(1)
                     self.explorer_widget.Explo_liste.addItem("%s %s"% (r, liste_result[i]))
             else :
-                result = re.split(", ", self.activity("searching for {%s} : 0\
-                    result" % motif))
+                self.activity("searching for {%s}: 0 result" % (motif) )
     
     def contexts_contents(self):
         self.NOT5_cont.clear()
