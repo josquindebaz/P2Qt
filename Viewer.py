@@ -55,10 +55,13 @@ class TexteWidgetItem(object):
         txt_resume = formeResume(resume)
         self.WidgetLabel = QtGui.QLabel(txt_resume)
 #TODO texte en blanc quand selectionné
+        self.Widget.setToolTip(txt_resume)
 
 def formeResume(resume):
     return u"%s <span style=\"font: bold\">%s</span> %s" % resume 
 
+def formeResume2(resume):
+    return u"%s : %s (%s)" % (resume[1], resume[2], resume[0])
 
 class Liste_texte(object):
     def __init__(self, element, liste_textes):
@@ -606,16 +609,17 @@ class TextElements(object):
         box.setSpacing(0) 
         self.widget.setLayout(box)
 
-        selector = QtGui.QComboBox()
-        selector.addItems([u"Entity categories"])
-        box.addWidget(selector)
+        self.selector = QtGui.QComboBox()
+        self.selector.addItems([u'entities', 'collections', u"entity categories",
+            'verb categories', 'marker categories', 'quality categories',
+            'fictions', 'expressions'])
+        box.addWidget(self.selector)
 
         self.element_list =  QtGui.QListWidget()
         box.addWidget(self.element_list)
 
 class ConceptListWidget(QtGui.QListWidget):
     """a specific widget for concept/lexicon lists"""
-
     deselected = QtCore.Signal()
 
     def __init__(self, parent=None):
@@ -624,7 +628,6 @@ class ConceptListWidget(QtGui.QListWidget):
         self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         self.previousItem = False
         self.itemClicked.connect(self.deselect)
-#        self.deselected.connect(test)
 
     def deselect(self,item):
         if (self.previousItem): 
@@ -637,6 +640,133 @@ class ConceptListWidget(QtGui.QListWidget):
                 self.previousItem = item
         else : 
             self.previousItem = item
+
+    def event(self, event):
+        """partial reimplementation of event for a efficient keyboard search system"""
+        if (event.type()==QtCore.QEvent.KeyPress and (event.key() in
+                    range(256) or event.key()==QtCore.Qt.Key_Space)):
+            if hasattr(self, "motif"):
+                self.motif += chr(event.key())
+            else:
+                self.motif = chr(event.key()) 
+            self.searchmotif(self.motif, 0)
+            return True
+        elif (event.type()==QtCore.QEvent.KeyPress and
+                    (event.key()==QtCore.Qt.Key_Escape)):
+            self.motif = ""
+            self.searchmotif('', 0)
+            return True
+        elif (event.type()==QtCore.QEvent.KeyPress and
+                    (event.key()==QtCore.Qt.Key_Backspace)):
+            if hasattr(self, "motif"):
+                self.motif = self.motif[:-1]
+                self.searchmotif(self.motif, 0)
+            return True
+        elif (event.type()==QtCore.QEvent.KeyPress and
+                    (event.key()==QtCore.Qt.Key_Return)):
+            if hasattr(self, "motif"):
+                if (self.motif != ""):
+                    self.searchmotif(self.motif, 1)
+            return True
+        return QtGui.QListWidget.event(self, event)
+
+    def searchmotif(self, motif, pos=0):
+        if (self.motif != ""):
+            if (pos == 0):
+                self.pos = 0
+            else:
+                self.pos += 1
+            matches = self.findItems(self.motif, QtCore.Qt.MatchContains)
+            if (matches):
+                if (self.pos >= len(matches)):
+                    self.pos = 0
+                self.setCurrentItem(matches[self.pos])
+            else:
+                self.clearSelection()
+                self.deselected.emit()
+        else:
+            self.pos = 0
+            self.clearSelection()
+            self.deselected.emit()
+        x = self.window().x() + self.x()
+        y = self.window().y() + self.y()
+#TODO position within the window, tooltip permanent
+        position = QtCore.QPoint(x, y) 
+        QtGui.QToolTip.showText(position, u"%s"%self.motif, self)
+
+
+class Explorer(QtGui.QWidget):
+    """Searches"""
+    def __init__(self, parent=None): 
+        QtGui.QWidget.__init__(self)
+        vbox = QtGui.QVBoxLayout()
+
+        self.setLayout(vbox)
+        vbox.setContentsMargins(0,0,0,0) 
+       # vbox.setSpacing(0) 
+
+        self.Explo_saisie = QtGui.QLineEdit()
+        vbox.addWidget(self.Explo_saisie)
+        #self.Explo_saisie.setEnabled(False)
+
+        hbox1 = QtGui.QHBoxLayout()
+        vbox.addLayout(hbox1)
+
+        self.select_fix = QtGui.QComboBox()
+        self.select_fix.addItems(["prefix", "suffix", "infix"])
+        hbox1.addWidget(self.select_fix)
+#TODO add case sensitivity
+        sensitivity = QtGui.QCheckBox("case sensitivity")
+        sensitivity.setEnabled(False)
+        hbox1.addWidget(sensitivity)
+
+        Explo_spacer1 = QtGui.QLabel()
+        Explo_spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                                         QtGui.QSizePolicy.Minimum)
+        hbox1.addWidget(Explo_spacer1)
+
+#TODO trouver un moyen de faire disparaitre ce bouton
+        self.Explo_commands = QtGui.QPushButton()
+        self.Explo_commands.setIcon(QtGui.QIcon("images/gear.png"))
+        self.Explo_commands.setEnabled(False) 
+        hbox1.addWidget(self.Explo_commands)
+        Explo_commands_texts= QtGui.QMenu(self)
+        #Explo_commands_texts.addAction('texts', self.explo_show_text)
+        self.Explo_commands.setMenu(Explo_commands_texts)
+
+        hbox2 = QtGui.QHBoxLayout()
+        vbox.addLayout(hbox2)
+        self.Explo_liste = QtGui.QListWidget()
+        hbox2.addWidget(self.Explo_liste)
+#TODO display item presence in concepts
+        self.Explo_concepts = QtGui.QLabel()
+        hbox2.addWidget(self.Explo_concepts)
+
+class ServerVars(QtGui.QListWidget):
+    """Asking directly the server vars"""
+    def __init__(self, parent=None): 
+        QtGui.QListWidget.__init__(self)
+        Vbox =  QtGui.QVBoxLayout() 
+        self.setLayout(Vbox)
+        Vbox.setContentsMargins(0,0,0,0) 
+        Vbox.setSpacing(0) 
+        Hbox = QtGui.QHBoxLayout()
+        server_vars_champL = QtGui.QFormLayout()
+        self.champ = QtGui.QLineEdit()
+        Hbox.addWidget(self.champ)
+        self.button_eval = QtGui.QPushButton('Eval')
+        Hbox.addWidget(self.button_eval)
+        self.button_getsem = QtGui.QPushButton('Get sem')
+        Hbox.addWidget(self.button_getsem)
+
+        self.button_clear = QtGui.QPushButton('Clear')
+        Hbox.addWidget(self.button_clear)
+
+        Vbox.addLayout(Hbox)
+        #self.result = QtGui.QTextEdit(readOnly = True) 
+        self.result = QtGui.QTextEdit(readOnly = False) 
+        Vbox.addWidget(self.result)
+        self.button_clear.clicked.connect(self.result.clear)
 
 def hide_close_buttons(tabs_widget,index):
         """hide close button on tab no 'index', on the left side for Mac"""

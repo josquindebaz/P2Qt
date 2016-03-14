@@ -346,6 +346,10 @@ class preCompute(object):
             '$cat_qua', '$cat_mar'] 
         self.type_calcul = ["freq", "dep", "nbaut", "nbtxt", "lapp", "fapp"]
     
+        self.nbpg = self.parent.client.eval_var("$nbpg")
+        self.nbtxt = self.parent.client.eval_var("$nbtxt")
+
+
     def recup_texts(self):
         """cache text list"""
         txts = self.parent.client.eval_var("$txt[0:]")
@@ -407,9 +411,9 @@ def sp_el(element):
     return element.split(' ', 1)
 
 semantiques = { 'collections': '$col', 'fictions': '$ef', 'entity categories':
-'$cat_ent', 'event categories': '$cat_epr', 'marker categories': '$cat_mar',
+'$cat_ent', 'verb categories': '$cat_epr', 'marker categories': '$cat_mar',
 'quality categories': '$cat_qua', 'entities': '$ent', 'qualities': '$qualite',
-'markers': '$marqueur', 'events': '$epr', 'persons': '$pers', 'undefineds':
+'markers': '$marqueur', 'verbs': '$epr', 'persons': '$pers', 'undefined':
 '$undef', 'actants': '$act', 'expressions': '$expr' }
      
 
