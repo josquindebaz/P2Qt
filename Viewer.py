@@ -692,52 +692,43 @@ class ConceptListWidget(QtGui.QListWidget):
         y = self.window().y() + self.y()
 #TODO position within the window, tooltip permanent
         position = QtCore.QPoint(x, y) 
-        QtGui.QToolTip.showText(position, u"%s"%self.motif, self)
-
+	message = "%s"%self.motif
+        QtGui.QToolTip.showText(position, message, self)
 
 class Explorer(QtGui.QWidget):
     """Searches"""
     def __init__(self, parent=None): 
         QtGui.QWidget.__init__(self)
         vbox = QtGui.QVBoxLayout()
-
         self.setLayout(vbox)
         vbox.setContentsMargins(0,0,0,0) 
-       # vbox.setSpacing(0) 
+        vbox.setSpacing(0) 
 
-        self.Explo_saisie = QtGui.QLineEdit()
-        vbox.addWidget(self.Explo_saisie)
-        #self.Explo_saisie.setEnabled(False)
+        self.explo_saisie = QtGui.QLineEdit()
+        vbox.addWidget(self.explo_saisie)
+        #self.explo_saisie.setEnabled(False)
 
         hbox1 = QtGui.QHBoxLayout()
         vbox.addLayout(hbox1)
-
         self.select_fix = QtGui.QComboBox()
         self.select_fix.addItems(["prefix", "suffix", "infix"])
         hbox1.addWidget(self.select_fix)
-#TODO add case sensitivity
-        sensitivity = QtGui.QCheckBox("case sensitivity")
-        sensitivity.setEnabled(False)
-        hbox1.addWidget(sensitivity)
 
         Explo_spacer1 = QtGui.QLabel()
         Explo_spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                          QtGui.QSizePolicy.Minimum)
         hbox1.addWidget(Explo_spacer1)
 
-#TODO trouver un moyen de faire disparaitre ce bouton
-        self.Explo_commands = QtGui.QPushButton()
-        self.Explo_commands.setIcon(QtGui.QIcon("images/gear.png"))
-        self.Explo_commands.setEnabled(False) 
-        hbox1.addWidget(self.Explo_commands)
-        Explo_commands_texts= QtGui.QMenu(self)
-        #Explo_commands_texts.addAction('texts', self.explo_show_text)
-        self.Explo_commands.setMenu(Explo_commands_texts)
+#TODO add case sensitivity
+        self.sensitivity = QtGui.QCheckBox("case sensitivity")
+        self.sensitivity.setEnabled(False)
+        #hbox1.addWidget(self.sensitivity)
 
         hbox2 = QtGui.QHBoxLayout()
         vbox.addLayout(hbox2)
-        self.Explo_liste = QtGui.QListWidget()
-        hbox2.addWidget(self.Explo_liste)
+        #self.Explo_liste = QtGui.QListWidget()
+        self.explo_liste = ConceptListWidget()
+        hbox2.addWidget(self.explo_liste)
 #TODO display item presence in concepts
         self.Explo_concepts = QtGui.QLabel()
         hbox2.addWidget(self.Explo_concepts)

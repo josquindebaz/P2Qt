@@ -50,12 +50,10 @@ class client(object):
         var = "%s[0:]" % sem
         return re.split(", ", self.c.eval_variable(var))
     
-
     def eval_vector(self, type, type_calc):
         return self.c.eval_vect_values(type, type_calc)
 
     def eval_var(self, var):
-        #self.eval_var_result = self.c.eval_variable(var)
         return self.c.eval_variable(var)
         
     def eval_var_ctx(self, props, ctx_range):
@@ -86,6 +84,9 @@ class client(object):
 
     def eval_set_ctx(self, sem_txt, field, val):
         return self.c.eval_set_ctx(sem_txt, field, val)
+
+    def eval_index(self, exp):
+        return self.c.eval_index(exp)
 
 
 class Principal(QtGui.QMainWindow):
@@ -488,8 +489,9 @@ class Principal(QtGui.QMainWindow):
 #Explorer Tab
 #TODO ajouter navigateur (concepts)
         self.explorer_widget =  Viewer.Explorer()
-        self.explorer_widget.Explo_saisie.returnPressed.connect(self.explorer)
-        self.explorer_widget.Explo_liste.currentItemChanged.connect(self.explo_item_selected)
+        self.explorer_widget.explo_saisie.returnPressed.connect(self.explorer)
+        self.explorer_widget.explo_liste.currentItemChanged.connect(self.explo_item_selected)
+        self.explorer_widget.explo_liste.addAction(QtGui.QAction('texts', self, triggered=self.explo_show_text))
 
 
 ################################################
@@ -1250,7 +1252,6 @@ class Principal(QtGui.QMainWindow):
 
             self.NOT2select.setEnabled(True) 
 
-
 #TODO activate all context menus via the Controller
             #context menu activation
 
@@ -1258,7 +1259,7 @@ class Principal(QtGui.QMainWindow):
                 self.show_texts(0)))
 #TODO #self.lexicon_depl_0.addAction(QtGui.QAction('sentences', self, triggered=self.teste_wording))
             self.lexicon_depl_0.addAction(QtGui.QAction('network', self,
-triggered=lambda: self.show_network(0)))
+                triggered=lambda: self.show_network(0)))
             self.lexicon_depl_0.addAction(QtGui.QAction('copy list', self,
                 triggered=self.copy_to_cb))
             self.lexicon_depl_I.addAction(QtGui.QAction('texts', self,
@@ -1272,12 +1273,11 @@ triggered=lambda: self.show_network(0)))
             self.lexicon_depl_II.addAction(QtGui.QAction('network', self,
                 triggered=lambda: self.show_network(2)))
 
-
             self.concepts_depl_0.addAction(QtGui.QAction('texts', self, triggered=lambda:
                 self.show_texts(0)))
 #TODO #self.concepts_depl_0.addAction(QtGui.QAction('sentences', self, triggered=self.teste_wording))
             self.concepts_depl_0.addAction(QtGui.QAction('network', self,
-triggered=lambda: self.show_network(0)))
+                triggered=lambda: self.show_network(0)))
 #TODO #self.concepts_depl_0.addAction(QtGui.QAction('copy list', self, triggered=self.copy_to_cb))
             self.concepts_depl_I.addAction(QtGui.QAction('texts', self,
                 triggered=lambda: self.show_texts(1)))
@@ -1293,8 +1293,6 @@ triggered=lambda: self.show_network(0)))
             # affiche textes au demarrage
             self.display_liste_textes_corpus()
 
-            #self.Explo_action.setEnabled(True) 
-        
     def disconnect_server(self):
         """Disconnect"""
         self.activity("Disconnecting")
@@ -1732,9 +1730,13 @@ triggered=lambda: self.show_network(0)))
         self.tabNetworks.setCurrentIndex(index)
         self.SubWdwSO.setCurrentIndex(self.networks_tab_index)
 
+#TODO check concept
     def explo_item_selected(self):
-        self.Explo_commands.setEnabled(True) 
-###        motif = re.sub("^\d* ", "", self.Explo_liste.currentItem().text())
+	motif = self.explorer_widget.explo_liste.currentItem().text()
+        val, motif = Controller.sp_el(motif)
+	print [motif]
+        result = self.client.eval_index(motif)
+	print result
 ###        self.client.eval_var("$ef[0:]")
 ###        liste_ef =re.split(", ", self.client.eval_var_result) 
 ###        for efN in  range(len(liste_ef)):
@@ -1748,13 +1750,12 @@ triggered=lambda: self.show_network(0)))
         """Show texts containing a pattern"""
 #TODO scorer/trier
         self.deselectText()
-
-        motif = self.Explo_saisie.text()
-        row =  self.Explo_liste.currentRow()
+        motif = self.explorer_widget.explo_saisie.text()
+        row =  self.explorer_widget.explo_liste.currentRow()
         ask = self.client.creer_msg_search("$search.rac", motif, "%d"%row, txt=True, ptxt="[0:]")
         result = self.client.eval(ask)
         liste_textes = re.split(", ", result)
-        self.activity(u"Displaying %d texts for %s" % (len(liste_textes), motif))
+        self.activity(u"Displaying %d texts for {%s}" % (len(liste_textes), motif))
 
         liste_textes = map(lambda k : self.preCompute.dicTxtSem[k], liste_textes)
 
@@ -1899,16 +1900,13 @@ triggered=lambda: self.show_network(0)))
         self.explorer_widget.Explo_concepts.setPixmap(tempImage)
 
     def explorer(self):
-        self.explorer_widget.Explo_liste.clear()
-        motif = self.explorer_widget.Explo_saisie.text()
+        self.explorer_widget.explo_liste.clear()
+        motif = self.explorer_widget.explo_saisie.text()
         if (motif != ""):
             types = [u"$search.pre", u"$search.suf", u"$search.rac"]
             type_search = types[self.explorer_widget.select_fix.currentIndex()]
-
-            if (motif == "abracadabri"):
-                self.easter1()
-
-            #la liste des match
+            if (motif == "abracadabri"): self.easter1()
+            #match list
             ask = self.client.creer_msg_search(type_search, motif, "[0:]") 
             result = self.client.eval(ask)
             if (result != u''):
@@ -1917,12 +1915,12 @@ triggered=lambda: self.show_network(0)))
                 self.PrgBar.perc(len(liste_result))
                 for i in range(len(liste_result)):
                     ask = self.client.creer_msg_search(type_search, motif,
-                                        "%d"%i, val=True) #la valeur du match
-#TODO get_sem, liste textes, énoncés
+                                        "%d"%i, val=True) #match value
+#TODO get_sem, liste textes, énoncée
 #TODO select all
                     r = self.client.eval(ask)
                     self.PrgBar.percAdd(1)
-                    self.explorer_widget.Explo_liste.addItem("%s %s"% (r, liste_result[i]))
+                    self.explorer_widget.explo_liste.addItem("%s %s"% (r, liste_result[i]))
             else :
                 self.activity("searching for {%s}: 0 result" % (motif) )
     
