@@ -1898,10 +1898,9 @@ class Principal(QtGui.QMainWindow):
             types = [u"$search.pre", u"$search.suf", u"$search.rac"]
             type_search = types[self.explorer_widget.select_fix.currentIndex()]
             if (self.explorer_widget.sensitivity.isChecked()):
-                type_search = re.sub("search", "search_cs", type_search)
+                type_search = re.sub("search", "searchcs", type_search)
             if (motif == "abracadabri"): self.easter1()
             if (motif != "" and hasattr(self, "client")):
-                print type_search
                 ask = self.client.creer_msg_search(type_search, motif, "[0:]") 
                 result = self.client.eval(ask)
                 if (result != u''):

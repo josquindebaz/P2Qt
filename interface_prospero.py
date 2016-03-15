@@ -35,7 +35,7 @@ correctement la dernière composante phadt ... un énoncé aléatoire avec auteu
 """
 #from settings import hostPII , portPII , logger
 
-
+eval_status_done = 0
 verbose = 0
 
 import threading, socket, time , re
@@ -487,11 +487,14 @@ class ConnecteurPII (threading.Thread):
 
 		data = data.decode('utf-8')	
 		return data					
-		
+
+
+	
 	def eval_variable(self, var,user_env=None,corpus_env=None,env_dialogue=None):
 		""" 
 			
 		"""
+
 
 		if (verbose):
 			print var 
@@ -608,18 +611,20 @@ class ConnecteurPII (threading.Thread):
 		# E:search.rac.chaine recherchée
 		# la signature étant : "search.rac.chaine recherchée"
 		fonc = fonc.encode('utf-8')
+		fonc = fonc[1:] # vire le $
+		
 		element =  element.encode('utf-8')
 		signature = fonc + '.' + element
 		cle = signature
 		
-  		lexpr.append("E:" +signature)
-  		'''
-		if pelement:
-			POS = "P:"+pelement
-		else:
-			POS=""
+		lexpr.append("E:" +signature)
+		''' 	search
+		ou searchcs
 		'''
-		lexpr.append("V:search:" +signature + "." +  pelement )
+		
+		f =  fonc.split('.')[0]
+		#lexpr.append("V:search:" +signature + "." +  pelement )
+		lexpr.append("V:" + f +":" +signature + "." +  pelement )
 		# le premier ARG indiquera rac pre ou suf
 		if signature.find('.rac.') != -1:
 			lexpr.append("ARG:rac" )
@@ -1491,10 +1496,14 @@ if __name__ == "__main__" :
 
 	c = ConnecteurPII()
 	#L= c.creer_msg_ctx("titre","[0:]")
-	c.set( '192.168.1.99','60000' )
+	#c.set( '192.168.1.63','6000' )
 	
+	
+	c.set( '192.168.1.35','60000' )
 	path="C:\corpus\chronique\projet_chronique.prc"
-	c.load(path)
+	#path="/home/jeanjean/monProjet.prc"
+	#c.load(path)
+	
 	i = 0
 	while 1:
 		status = c.eval_variable("$status")
@@ -1504,10 +1513,29 @@ if __name__ == "__main__" :
 		if status == "1" :
 			break
 		time.sleep(1)
+	L = c.creer_msg_search ( u"$searchcs.rac" , u"La" , "0" )
+	for  x in L : print x
+	print c.eval(L)
+	L = c.creer_msg_search ( u"$searchcs.rac" , u"la" , "0" )
+	for  x in L : print x
+	print c.eval(L)
+	L = c.creer_msg_search ( u"$searchcs.rac" , u"la" , "[0:]" )
+	print c.eval(L)
+	
+	L = c.creer_msg_search ( u"$searchcs.rac" , u"me" , "[0:]" , txt=True, ptxt="[0:10]")
+	print c.eval(L)
 
+	
+	v = c.eval (c.creer_msg_search ( u"$search.rac" , u"le" , pelement="0" ,txt=True, ptxt="[0:10]", ph=True ,pph="[0:]",val=False))
+	print v
+	v = c.eval (c.creer_msg_search ( u"$searchcs.rac" , u"le" , pelement="0" ,txt=True, ptxt="[0:10]", ph=True ,pph="[0:]",val=False))
+	print v
 		
-	x = c.eval_variable("$ctx" )
+	x = c.eval_variable("$col[O:]" )
 	print x
+	x = c.eval_variable("$col[O:99999].val" )
+	print x
+
 	x = c.eval_variable("$txt2.ctx.title" )
 	print x
 	x = c.eval_variable("$ctx.title[0:]" )

@@ -817,7 +817,6 @@ class Explorer(QtGui.QWidget):
 
 #TODO add case sensitivity
         self.sensitivity = QtGui.QCheckBox("case sensitivity")
-        self.sensitivity.setEnabled(False)
         hbox1.addWidget(self.sensitivity)
 
         hbox2 = QtGui.QHBoxLayout()
