@@ -565,6 +565,7 @@ class Journal(object):
                                          QtGui.QSizePolicy.Minimum)
         journal_hobx.addWidget(spacer1)
 
+#TODO remove this button
         journal_button_save = QtGui.QPushButton('Save journal')
         width = journal_button_save.fontMetrics().boundingRect(
                         journal_button_save.text()).width() + 30
@@ -612,11 +613,106 @@ class TextElements(object):
         self.selector = QtGui.QComboBox()
         self.selector.addItems([u'entities', 'collections', u"entity categories",
             'verb categories', 'marker categories', 'quality categories',
-            'fictions', 'expressions'])
+            'fictions', 'expressions', 'undefined'])
         box.addWidget(self.selector)
+        self.selector.model().item(8).setEnabled(False)
 
         self.element_list =  QtGui.QListWidget()
         box.addWidget(self.element_list)
+
+class MyListWidget(QtGui.QWidget):
+    """a specific widget for concept/lexicon lists""" 
+    deselected = QtCore.Signal()
+
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self)
+        self.listw = QtGui.QListWidget()
+        self.listw.setAlternatingRowColors(True)
+        self.listw.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        self.previousItem = False
+        self.listw.itemClicked.connect(self.deselect)
+        self.listw.installEventFilter(self)
+
+        vbox = QtGui.QVBoxLayout()
+        self.setLayout(vbox)
+        vbox.setContentsMargins(0, 0, 0, 0)
+        #vbox.setSpacing(0)
+        self.label = QtGui.QLabel()
+        self.label.setVisible(False)
+        self.label.setStyleSheet("* {border: 2px solid #E0ECF8;\
+            background-color: white; padding: 2px; margin: 0px;\
+            text-transform: lowercase;}")
+        vbox.addWidget(self.label)
+        vbox.addWidget(self.listw)
+
+    def deselect(self, item):
+        if (self.previousItem): 
+            if ( str(self.previousItem) == str(item) ):
+                self.listw.clearSelection()
+                self.listw.setCurrentRow(-1)
+                self.previousItem = False
+                self.deselected.emit()
+            else :
+                self.previousItem = item
+        else : 
+            self.previousItem = item
+
+    def eventFilter(self, widget, event):
+        if (event.type() == QtCore.QEvent.KeyPress and
+                widget is self.listw):
+            if (event.type()==QtCore.QEvent.KeyPress and (event.key() in
+                        range(256) or event.key()==QtCore.Qt.Key_Space)):
+                if hasattr(self, "motif"):
+                    self.motif += chr(event.key())
+                else:
+                    self.motif = chr(event.key()) 
+                self.searchmotif(self.motif, 0)
+                return True
+            elif (event.type()==QtCore.QEvent.KeyPress and
+                        (event.key()==QtCore.Qt.Key_Escape)):
+                self.motif = ""
+                self.searchmotif('', 0)
+                return True
+            elif (event.type()==QtCore.QEvent.KeyPress and
+                        (event.key()==QtCore.Qt.Key_Backspace)):
+                if hasattr(self, "motif"):
+                    self.motif = self.motif[:-1]
+                    self.searchmotif(self.motif, 0)
+                return True
+            elif (event.type()==QtCore.QEvent.KeyPress and
+                        (event.key()==QtCore.Qt.Key_Return)):
+                if hasattr(self, "motif"):
+                    if (self.motif != ""):
+                        self.searchmotif(self.motif, 1)
+                return True
+        return QtGui.QWidget.eventFilter(self, widget, event)
+
+    def searchmotif(self, motif, pos=0):
+        if (self.motif != ""):
+            if (pos == 0):
+                self.pos = 0
+            else:
+                self.pos += 1
+            matches = self.listw.findItems(self.motif, QtCore.Qt.MatchContains)
+            if (matches):
+                if (self.pos >= len(matches)):
+                    self.pos = 0
+                self.listw.setCurrentItem(matches[self.pos])
+            else:
+                self.listw.clearSelection()
+                self.deselected.emit()
+            self.label.setText(self.motif)
+            self.label.setVisible(True)
+        else:
+            self.pos = 0
+            self.listw.clearSelection()
+            self.deselected.emit()
+            self.label.setVisible(False)
+            
+
+
+        
+
 
 class ConceptListWidget(QtGui.QListWidget):
     """a specific widget for concept/lexicon lists"""
@@ -704,9 +800,9 @@ class Explorer(QtGui.QWidget):
         vbox.setContentsMargins(0,0,0,0) 
         vbox.setSpacing(0) 
 
-        self.explo_saisie = QtGui.QLineEdit()
-        vbox.addWidget(self.explo_saisie)
-        #self.explo_saisie.setEnabled(False)
+        self.saisie = QtGui.QLineEdit()
+        vbox.addWidget(self.saisie)
+        #self.saisie.setEnabled(False)
 
         hbox1 = QtGui.QHBoxLayout()
         vbox.addLayout(hbox1)
@@ -722,16 +818,23 @@ class Explorer(QtGui.QWidget):
 #TODO add case sensitivity
         self.sensitivity = QtGui.QCheckBox("case sensitivity")
         self.sensitivity.setEnabled(False)
-        #hbox1.addWidget(self.sensitivity)
+        hbox1.addWidget(self.sensitivity)
 
         hbox2 = QtGui.QHBoxLayout()
         vbox.addLayout(hbox2)
-        #self.Explo_liste = QtGui.QListWidget()
-        self.explo_liste = ConceptListWidget()
-        hbox2.addWidget(self.explo_liste)
+        self.liste = MyListWidget()
+        hbox2.addWidget(self.liste)
+
 #TODO display item presence in concepts
-        self.Explo_concepts = QtGui.QLabel()
-        hbox2.addWidget(self.Explo_concepts)
+        vbox2 = QtGui.QVBoxLayout()
+        hbox2.addLayout(vbox2)
+#TODO clic -> to the list, typer-retyper
+        self.explo_lexi = QtGui.QListWidget()
+        vbox2.addWidget(self.explo_lexi)
+        self.explo_easter = QtGui.QLabel()
+        vbox2.addWidget(self.explo_easter)
+#        self.explo_concepts = QtGui.QListWidget()
+#        vbox2.addWidget(self.explo_concepts)
 
 class ServerVars(QtGui.QListWidget):
     """Asking directly the server vars"""
@@ -745,12 +848,14 @@ class ServerVars(QtGui.QListWidget):
         server_vars_champL = QtGui.QFormLayout()
         self.champ = QtGui.QLineEdit()
         Hbox.addWidget(self.champ)
-        self.button_eval = QtGui.QPushButton('Eval')
+        self.button_eval = QtGui.QPushButton('eval')
         Hbox.addWidget(self.button_eval)
-        self.button_getsem = QtGui.QPushButton('Get sem')
+        self.button_getsem = QtGui.QPushButton('get sem')
         Hbox.addWidget(self.button_getsem)
+        self.button_eval_index = QtGui.QPushButton('index')
+        Hbox.addWidget(self.button_eval_index)
 
-        self.button_clear = QtGui.QPushButton('Clear')
+        self.button_clear = QtGui.QPushButton('clear')
         Hbox.addWidget(self.button_clear)
 
         Vbox.addLayout(Hbox)

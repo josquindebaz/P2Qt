@@ -401,19 +401,22 @@ class preCompute(object):
         if (type_calcul == "freq"):
             type_calcul = "val"
 
-        indice = 0
-        for val in ask.split(', ') :
+        for indice, val in enumerate(ask.split(', ')):
             m = "%s%s.%s"%(type_var, str(indice), type_calcul)
             self.parent.client.add_cache_var (m, val)
-            indice += 1
     
 def sp_el(element):
     return element.split(' ', 1)
 
-semantiques = { 'collections': '$col', 'fictions': '$ef', 'entity categories':
+semantiques = {'collections': '$col', 'fictions': '$ef', 'entity categories':
 '$cat_ent', 'verb categories': '$cat_epr', 'marker categories': '$cat_mar',
-'quality categories': '$cat_qua', 'entities': '$ent', 'qualities': '$qualite',
+'quality categories': '$cat_qua', 'entities': '$ent_sf', 'qualities': '$qualite',
 'markers': '$marqueur', 'verbs': '$epr', 'persons': '$pers', 'undefined':
-'$undef', 'actants': '$act', 'expressions': '$expr' }
-     
+'$undef', 'actants': '$act', 'expressions': '$expr', 'entities&fictions': '$ent'}
+
+#For eval_index result
+explo_lexic = {'$ent_sf': 'entity', '$qual': 'quality', '$marqueur': 'marker',
+'$epreuve': 'verbs', '$mo': 'function word' }
+
+#$entef = entite out of fictions + fictions + entities in fictions
 
