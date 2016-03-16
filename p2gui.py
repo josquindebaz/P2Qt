@@ -325,13 +325,6 @@ class Principal(QtGui.QMainWindow):
         self.SOT1 = QtGui.QTabWidget()
         self.SOT1.setTabsClosable(True)
         self.SOT1.tabCloseRequested.connect(self.SOT1.removeTab)
-
-        #la liste des textes du corpus
-        self.CorpusTexts = QtGui.QListWidget()
-        self.CorpusTexts.setAlternatingRowColors(True)
-        self.SOT1.addTab(self.CorpusTexts, "corpus")
-        Viewer.hide_close_buttons(self.SOT1,0)
-        self.CorpusTexts.itemSelectionChanged.connect(self.onSelectText)
         
 #TODO les expression englobantes
 
@@ -596,27 +589,43 @@ class Principal(QtGui.QMainWindow):
             liste =   sorted(liste.items(), key=lambda (k, v) : v) 
             return liste
 
+    def destroy_texts_tabs(self):
+        for i in reversed(range(self.SOT1.tabBar().count())):
+            self.SOT1.tabBar().removeTab(i)
+
+    def create_corpus_texts_tab(self):
+        """create a tab for corpus texts"""
+        self.destroy_texts_tabs()
+        self.CorpusTexts = Viewer.MyListWidgetTexts()
+        self.CorpusTexts.itemSelectionChanged.connect(self.onSelectText)
+        self.SOT1.addTab(self.CorpusTexts, "corpus")
+        Viewer.hide_close_buttons(self.SOT1,0) #corpus text tab permanent
+
     def display_liste_textes_corpus(self):
         """displays texts for the corpus"""
         n = len(self.preCompute.listeTextes)
         self.activity(u"Displaying text list (%d items)" % n)
         tab_title ="corpus (%d)"%n
         self.SOT1.tabBar().setTabText(0, tab_title)
-        self.CorpusTexts.clear()
-
-        if not hasattr(self, "dic_widget_list_txt"):
-            self.dic_widget_list_txt = { 0 : []}
-        else : 
-            self.dic_widget_list_txt[0] =  []
 
         self.PrgBar.perc(len(self.listeObjetsTextes))
+
+#REMOVEME
+#        if not hasattr(self, "dic_widget_list_txt"):
+#            self.dic_widget_list_txt = { 0 : []}
+#        else : 
+#            self.dic_widget_list_txt[0] =  []
+#REMOVEME
+
+
+        self.dic_widget_list_txt = { 0 : []}
 
         for sem, tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
             txt =  self.listeObjetsTextes[sem]
             self.dic_widget_list_txt[0].append(txt)
             WI = Viewer.TexteWidgetItem(txt.getResume())
-            self.CorpusTexts.addItem(WI.Widget)
-            self.CorpusTexts.setItemWidget(WI.Widget, WI.WidgetLabel)
+            self.CorpusTexts.addItem(WI)
+            self.CorpusTexts.setItemWidget(WI, WI.label)
 
             self.PrgBar.percAdd(1)
 
@@ -627,7 +636,7 @@ class Principal(QtGui.QMainWindow):
 
         if (self.SOT1.currentIndex() == 0) :
             txt = self.dic_widget_list_txt[0][row]
-            self.semantique_txt_item =  txt.sem
+            self.semantique_txt_item = txt.sem
         else :
             for i, listwidget in enumerate(self.SOT1.currentWidget().findChildren(QtGui.QListWidget)):
                 if listwidget == self.SOT1.focusWidget():
@@ -652,8 +661,7 @@ class Principal(QtGui.QMainWindow):
                 l[0].itemSelectionChanged.connect(self.onSelectText)
                 l[1].itemSelectionChanged.connect(self.onSelectText)
 
-         
-        self.activity("Displaying %s" %Viewer.formeResume2(txt.getResume()))
+        self.activity("Displaying %s %s %s" %txt.getResume())
 
         #pour accélérer l'affichage, on ne remplit que l'onglet sélectionné
         if (self.SubWdwSETabs.currentIndex() == 0):
@@ -728,7 +736,7 @@ class Principal(QtGui.QMainWindow):
     def saveCTX(self):
         sem_txt = self.semantique_txt_item
         txt =  self.listeObjetsTextes[sem_txt]
-        txtResume = Viewer.formeResume(txt.getResume())
+        txtResume = txt.formeResume()
         modif = []
         for r in range(self.textCTX.rowCount()):
             field = self.textCTX.item(r, 0).text()
@@ -756,7 +764,7 @@ class Principal(QtGui.QMainWindow):
                 for tab in range(1, self.SOT1.count())   :
                     self.SOT1.removeTab(tab)
             else :
-                newResume = Viewer.formeResume(txt.getResume())
+                newResume = txt.formeResume()
                 for listWidget in self.SOT1.findChildren(QtGui.QListWidget):
                     for label in  listWidget.findChildren(QtGui.QLabel):
                         if label.text() == txtResume:
@@ -1293,6 +1301,7 @@ class Principal(QtGui.QMainWindow):
                 triggered=lambda: self.show_network(2)))
 
             # affiche textes au demarrage
+            self.create_corpus_texts_tab()
             self.display_liste_textes_corpus()
 
     def disconnect_server(self):
@@ -1326,7 +1335,6 @@ class Principal(QtGui.QMainWindow):
         self.SubWdwNE.setCurrentIndex(tabindex)
         url = "http://tiresias.xyz:8080/accueil"
         MarloweView.load(QtCore.QUrl(url))
-    
 
     def show_textContent(self,  sem_txt):
         """Insert text content in the dedicated window"""
@@ -1727,6 +1735,8 @@ class Principal(QtGui.QMainWindow):
             for r in result[0][1]:
                 if Controller.explo_lexic.has_key(r):
                     self.explorer_widget.explo_lexi.addItem(Controller.explo_lexic[r])
+                else:
+                    print "C17249 %s" % r
 #TODO check concept
 
 
@@ -1754,6 +1764,7 @@ class Principal(QtGui.QMainWindow):
         self.activity(u"Displaying %d texts for %s" % (len(liste_textes),
             element))
         liste_textes = map(lambda k : self.preCompute.dicTxtSem[k], liste_textes)
+        #texts_widget = Viewer.Liste_texte(element, liste_textes)
         texts_widget = Viewer.Liste_texte(element, liste_textes)
 
         self.dic_widget_list_txt[texts_widget.tab_title] =  [[], []]
@@ -1761,15 +1772,16 @@ class Principal(QtGui.QMainWindow):
             txt =  self.listeObjetsTextes[sem]
             if sem in liste_textes: 
                 WI = Viewer.TexteWidgetItem(txt.getResume())
-                texts_widget.show_texts_corpus.addItem(WI.Widget)
-                texts_widget.show_texts_corpus.setItemWidget(WI.Widget, WI.WidgetLabel)
+                texts_widget.show_texts_corpus.addItem(WI)
+                texts_widget.show_texts_corpus.setItemWidget(WI, WI.label)
                 self.dic_widget_list_txt[texts_widget.tab_title][0].append(txt)
             else :
                 WI = Viewer.TexteWidgetItem(txt.getResume())
-                texts_widget.show_texts_anticorpus.addItem(WI.Widget)
-                texts_widget.show_texts_anticorpus.setItemWidget(WI.Widget, WI.WidgetLabel)
+                texts_widget.show_texts_anticorpus.addItem(WI)
+                texts_widget.show_texts_anticorpus.setItemWidget(WI, WI.label)
                 self.dic_widget_list_txt[texts_widget.tab_title][1].append(txt)
 
+#FIXME color black for deselected
         texts_widget.show_texts_corpus.itemSelectionChanged.connect(self.onSelectText) 
         texts_widget.show_texts_anticorpus.itemSelectionChanged.connect(self.onSelectText)  
         self.del_tab_text_doubl(element)
@@ -1819,14 +1831,13 @@ class Principal(QtGui.QMainWindow):
                 if sem in liste_textes: 
                     new_resume = ("%s (%s)"%(txt.getResume()[0],liste_textes_valued[sem]) , txt.getResume()[1], txt.getResume()[2])
                     WI = Viewer.TexteWidgetItem(new_resume)
-                    texts_widget.show_texts_corpus.addItem(WI.Widget)
-                    texts_widget.show_texts_corpus.setItemWidget(WI.Widget,
-                                                                     WI.WidgetLabel)
+                    texts_widget.show_texts_corpus.addItem(WI)
+                    texts_widget.show_texts_corpus.setItemWidget(WI, WI.label)
                     self.dic_widget_list_txt[texts_widget.tab_title][0].append(txt)
                 else :
                     WI = Viewer.TexteWidgetItem(txt.getResume())
-                    texts_widget.show_texts_anticorpus.addItem(WI.Widget)
-                    texts_widget.show_texts_anticorpus.setItemWidget(WI.Widget, WI.WidgetLabel)
+                    texts_widget.show_texts_anticorpus.addItem(WI)
+                    texts_widget.show_texts_anticorpus.setItemWidget(WI, WI.label)
                     self.dic_widget_list_txt[texts_widget.tab_title][1].append(txt)
 
         

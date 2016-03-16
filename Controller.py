@@ -41,7 +41,6 @@ class Texte(object):
 
         return (date, author, title)
 
-
 class parseCorpus(object):
     def __init__(self):
         self.corpus = 0
@@ -349,18 +348,23 @@ class preCompute(object):
         self.nbpg = self.parent.client.eval_var("$nbpg")
         self.nbtxt = self.parent.client.eval_var("$nbtxt")
 
-
     def recup_texts(self):
         """cache text list"""
         txts = self.parent.client.eval_var("$txt[0:]")
         self.listeTextes  = re.split(", ", txts)
         self.listeObjetsTextes = {}
         self.dicTxtSem = {}
-        for t in range(len(self.listeTextes)):
-            sem_texte = u"$txt%d"%(t)
-            self.listeObjetsTextes[sem_texte] =  Texte(sem_texte, 
-                                                self.listeTextes[t])
-            self.dicTxtSem[self.listeTextes[t]] = sem_texte
+#REMOVEME
+#        for t in range(len(self.listeTextes)):
+#            sem_texte = u"$txt%d"%(t)
+#            self.listeObjetsTextes[sem_texte] =  Texte(sem_texte, 
+#                                                self.listeTextes[t])
+#            self.dicTxtSem[self.listeTextes[t]] = sem_texte
+#REMOVEME
+        for i, t in enumerate(self.listeTextes):
+            sem_texte = u"$txt%d"%(i)
+            self.listeObjetsTextes[sem_texte] =  Texte(sem_texte, t)
+            self.dicTxtSem[t] = sem_texte
 
     def recup_ctx(self):
         """cache ctx content"""

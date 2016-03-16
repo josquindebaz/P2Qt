@@ -48,20 +48,31 @@ class PrgBar(object):
     def reset(self):
         self.bar.reset()
 
+class MyListWidgetTexts(QtGui.QListWidget):
+    """a specific widget for textslists""" 
+    def __init__(self, parent=None):
+        QtGui.QListWidget.__init__(self)
+        self.setAlternatingRowColors(True)
+        self.itemSelectionChanged.connect(self.changeColor)
+    
+    def changeColor(self):
+        currentRow = self.currentRow()
+        for r in range(self.count()):
+            self.item(r).label.setStyleSheet("color: white;") if (r ==
+            currentRow) else self.item(r).label.setStyleSheet("color: black;")
 
-class TexteWidgetItem(object):
-    def __init__(self, resume):
-        self.Widget = QtGui.QListWidgetItem()
-        txt_resume = formeResume(resume)
-        self.WidgetLabel = QtGui.QLabel(txt_resume)
-#TODO texte en blanc quand selectionné
-        self.Widget.setToolTip(txt_resume)
+class TexteWidgetItem(QtGui.QListWidgetItem):
+    def __init__(self, text, parent=None):
+        QtGui.QListWidgetItem.__init__(self)
+        #self.setText(text)
+        self.resume = text
+        txt_resume = self.formeResume()
+        self.label = QtGui.QLabel(txt_resume)
+        self.setToolTip(txt_resume)
+        #self.setData(QtCore.Qt.UserRole, text)
 
-def formeResume(resume):
-    return u"%s <span style=\"font: bold\">%s</span> %s" % resume 
-
-def formeResume2(resume):
-    return u"%s : %s (%s)" % (resume[1], resume[2], resume[0])
+    def formeResume(self):
+        return u"%s <span style=\"font: bold\">%s</span> %s" % self.resume 
 
 class Liste_texte(object):
     def __init__(self, element, liste_textes):
@@ -72,15 +83,19 @@ class Liste_texte(object):
         HBox_texts.setContentsMargins(0,0,0,0) 
         HBox_texts.setSpacing(0) 
         self.show_texts_widget.setLayout(HBox_texts)
-        self.show_texts_corpus = QtGui.QListWidget()
-        self.show_texts_corpus.setAlternatingRowColors(True)
+        self.show_texts_corpus = MyListWidgetTexts()
         HBox_texts.addWidget(self.show_texts_corpus)
-        self.show_texts_anticorpus = QtGui.QListWidget()
-        self.show_texts_anticorpus.setAlternatingRowColors(True)
+        self.show_texts_anticorpus = MyListWidgetTexts()
+#REMOVEME
+        #self.show_texts_corpus = QtGui.QListWidget()
+        #self.show_texts_corpus.setAlternatingRowColors(True)
+        #self.show_texts_anticorpus = QtGui.QListWidget()
+        #self.show_texts_anticorpus.setAlternatingRowColors(True)
+#REMOVEME
         HBox_texts.addWidget(self.show_texts_anticorpus)
 
 
-class MyDelegate (QtGui.QStyledItemDelegate):
+class MyDelegate(QtGui.QStyledItemDelegate):
     
     closedSignal = QtCore.Signal()
 
@@ -639,7 +654,7 @@ class MyListWidget(QtGui.QWidget):
         #vbox.setSpacing(0)
         self.label = QtGui.QLabel()
         self.label.setVisible(False)
-        self.label.setStyleSheet("* {border: 2px solid #E0ECF8;\
+        self.label.setStyleSheet("* {border: 2px solid rgb(234, 240, 253);\
             background-color: white; padding: 2px; margin: 0px;\
             text-transform: lowercase;}")
         vbox.addWidget(self.label)
@@ -709,88 +724,6 @@ class MyListWidget(QtGui.QWidget):
             self.deselected.emit()
             self.label.setVisible(False)
             
-
-
-        
-
-
-class ConceptListWidget(QtGui.QListWidget):
-    """a specific widget for concept/lexicon lists"""
-    deselected = QtCore.Signal()
-
-    def __init__(self, parent=None):
-        QtGui.QListWidget.__init__(self)
-        self.setAlternatingRowColors(True)
-        self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-        self.previousItem = False
-        self.itemClicked.connect(self.deselect)
-
-    def deselect(self,item):
-        if (self.previousItem): 
-            if ( str(self.previousItem) == str(item) ):
-                self.clearSelection()
-                self.setCurrentRow(-1)
-                self.previousItem = False
-                self.deselected.emit()
-            else :
-                self.previousItem = item
-        else : 
-            self.previousItem = item
-
-    def event(self, event):
-        """partial reimplementation of event for a efficient keyboard search system"""
-        if (event.type()==QtCore.QEvent.KeyPress and (event.key() in
-                    range(256) or event.key()==QtCore.Qt.Key_Space)):
-            if hasattr(self, "motif"):
-                self.motif += chr(event.key())
-            else:
-                self.motif = chr(event.key()) 
-            self.searchmotif(self.motif, 0)
-            return True
-        elif (event.type()==QtCore.QEvent.KeyPress and
-                    (event.key()==QtCore.Qt.Key_Escape)):
-            self.motif = ""
-            self.searchmotif('', 0)
-            return True
-        elif (event.type()==QtCore.QEvent.KeyPress and
-                    (event.key()==QtCore.Qt.Key_Backspace)):
-            if hasattr(self, "motif"):
-                self.motif = self.motif[:-1]
-                self.searchmotif(self.motif, 0)
-            return True
-        elif (event.type()==QtCore.QEvent.KeyPress and
-                    (event.key()==QtCore.Qt.Key_Return)):
-            if hasattr(self, "motif"):
-                if (self.motif != ""):
-                    self.searchmotif(self.motif, 1)
-            return True
-        return QtGui.QListWidget.event(self, event)
-
-    def searchmotif(self, motif, pos=0):
-        if (self.motif != ""):
-            if (pos == 0):
-                self.pos = 0
-            else:
-                self.pos += 1
-            matches = self.findItems(self.motif, QtCore.Qt.MatchContains)
-            if (matches):
-                if (self.pos >= len(matches)):
-                    self.pos = 0
-                self.setCurrentItem(matches[self.pos])
-            else:
-                self.clearSelection()
-                self.deselected.emit()
-        else:
-            self.pos = 0
-            self.clearSelection()
-            self.deselected.emit()
-        x = self.window().x() + self.x()
-        y = self.window().y() + self.y()
-#TODO position within the window, tooltip permanent
-        position = QtCore.QPoint(x, y) 
-	message = "%s"%self.motif
-        QtGui.QToolTip.showText(position, message, self)
-
 class Explorer(QtGui.QWidget):
     """Searches"""
     def __init__(self, parent=None): 
