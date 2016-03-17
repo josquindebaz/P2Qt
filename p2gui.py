@@ -70,8 +70,8 @@ class client(object):
     def add_cache_var(self, cle, val):
         self.c.add_cache_var(cle, val)
 
-    # pour anticiper les getsem /corpus/texte $txt
     def add_cache_fonct(self, cle, val):
+    # pour anticiper les getsem /corpus/texte $txt
         self.c.add_cache_fonc(cle, val)
     
     def creer_msg_search(self, fonc, element, pelement='', txt=False, 
@@ -574,20 +574,21 @@ class Principal(QtGui.QMainWindow):
         with open("P-II-gui.log",'a') as logfile:
             logfile.write("%s %s\n" % (time[:19], message.encode("utf-8")))
 
-    def ord_liste_txt(self, liste_sem, order="chrono"):
-        liste = {}
-        if (order=="chrono"):
-            for e in liste_sem :
-                txt = self.listeObjetsTextes[e]
-                date = txt.getCTX("date")
-                date = re.split(" ", date) #sépare date et heure
-                if (len(date) > 1):
-                    date, heure = date
-                else:
-                    date = date[0]
-                liste[e] = "-".join(reversed(re.split("/", date)))
-            liste =   sorted(liste.items(), key=lambda (k, v) : v) 
-            return liste
+#REMOVEME>
+#    def ord_liste_txt(self, liste_sem, order="chrono"):
+#        liste = {}
+#        if (order=="chrono"):
+#            for e in liste_sem :
+#                txt = self.listeObjetsTextes[e]
+#                date = txt.getCTX("date")
+#                date = re.split(" ", date) #sépare date et heure
+#                if (len(date) > 1):
+#                    date, heure = date
+#                else:
+#                    date = date[0]
+#                liste[e] = "-".join(reversed(re.split("/", date)))
+#            return sorted(liste.items(), key=lambda (k, v) : v) 
+#<REMOVEME
 
     def destroy_texts_tabs(self):
         for i in reversed(range(self.SOT1.tabBar().count())):
@@ -595,75 +596,37 @@ class Principal(QtGui.QMainWindow):
 
     def create_corpus_texts_tab(self):
         """create a tab for corpus texts"""
+#FIXME reset if open a new corpus
         self.destroy_texts_tabs()
-        self.CorpusTexts = Viewer.MyListWidgetTexts()
-        self.CorpusTexts.itemSelectionChanged.connect(self.onSelectText)
-        self.SOT1.addTab(self.CorpusTexts, "corpus")
-        Viewer.hide_close_buttons(self.SOT1,0) #corpus text tab permanent
-
-    def display_liste_textes_corpus(self):
-        """displays texts for the corpus"""
         n = len(self.preCompute.listeTextes)
         self.activity(u"Displaying text list (%d items)" % n)
-        tab_title ="corpus (%d)"%n
-        self.SOT1.tabBar().setTabText(0, tab_title)
-
-        self.PrgBar.perc(len(self.listeObjetsTextes))
-
-#REMOVEME
-#        if not hasattr(self, "dic_widget_list_txt"):
-#            self.dic_widget_list_txt = { 0 : []}
-#        else : 
-#            self.dic_widget_list_txt[0] =  []
-#REMOVEME
-
-
-        self.dic_widget_list_txt = { 0 : []}
-
-        for sem, tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
-            txt =  self.listeObjetsTextes[sem]
-            self.dic_widget_list_txt[0].append(txt)
-            WI = Viewer.TexteWidgetItem(txt.getResume())
-            self.CorpusTexts.addItem(WI)
-            self.CorpusTexts.setItemWidget(WI, WI.label)
-
-            self.PrgBar.percAdd(1)
+        self.CorpusTexts = Viewer.ListTexts(False,
+            self.preCompute.dicTxtSem.values(), self.listeObjetsTextes)
+        self.CorpusTexts.corpus.itemSelectionChanged.connect(self.onSelectText)
+        self.SOT1.addTab(self.CorpusTexts, "corpus (%d)"%n)
+        Viewer.hide_close_buttons(self.SOT1,0) #corpus text tab permanent
 
     def onSelectText(self):
-        """Update text properties windows when a text is selected """
-        tab = self.SOT1.tabText(self.SOT1.currentIndex())
+        """when a text is selected, select it in other lists and display text properties"""
+        #get txt sem
         row = self.SOT1.focusWidget().currentRow()
-
-        if (self.SOT1.currentIndex() == 0) :
-            txt = self.dic_widget_list_txt[0][row]
-            self.semantique_txt_item = txt.sem
-        else :
-            for i, listwidget in enumerate(self.SOT1.currentWidget().findChildren(QtGui.QListWidget)):
-                if listwidget == self.SOT1.focusWidget():
-                    txt = self.dic_widget_list_txt[tab][i][row]
-                    self.semantique_txt_item = txt.sem
-
-        #selectionne le texte dans l'onglet corpus s'il n'est pas actif
-        if (self.SOT1.currentIndex() != 0): 
-            self.selectTxtCorpus(txt)
-        if (self.SOT1.count() > 1): #si plus d'une tab
-            for t in range (1, self.SOT1.count()): #parcourt les tabs
-                l =  self.SOT1.widget(t).findChildren(QtGui.QListWidget) #les listwidget de la tab
-                l[0].itemSelectionChanged.disconnect(self.onSelectText)
-                l[1].itemSelectionChanged.disconnect(self.onSelectText)
-                #si l'objet txt est dans le dic de l'element
-                if txt in  self.dic_widget_list_txt[self.SOT1.tabText(t)][0]:
-                    l[0].setCurrentRow(self.dic_widget_list_txt[self.SOT1.tabText(t)][0].index(txt)) #selectionne le txt
-                    l[1].clearSelection()
-                else: #s'il est dans son anticorpus
-                    l[1].setCurrentRow(self.dic_widget_list_txt[self.SOT1.tabText(t)][1].index(txt))
-                    l[0].clearSelection()
-                l[0].itemSelectionChanged.connect(self.onSelectText)
-                l[1].itemSelectionChanged.connect(self.onSelectText)
-
+        txt = self.SOT1.focusWidget().widget_list[row]
+        self.semantique_txt_item = txt.sem
         self.activity("Displaying %s %s %s" %txt.getResume())
 
-        #pour accélérer l'affichage, on ne remplit que l'onglet sélectionné
+        #find txt in other tabs
+        for t in range (self.SOT1.count()): 
+            lw =  self.SOT1.widget(t).findChildren(QtGui.QListWidget) 
+            for i, l in enumerate(lw):
+                l.itemSelectionChanged.disconnect(self.onSelectText)
+                tab_txts = l.widget_list
+                if txt in tab_txts:
+                    l.setCurrentRow(tab_txts.index(txt)) 
+                else:
+                    l.deselect_all()
+                l.itemSelectionChanged.connect(self.onSelectText)
+
+        #display properties in selected tab
         if (self.SubWdwSETabs.currentIndex() == 0):
             self.show_textProperties(self.semantique_txt_item)
         elif (self.SubWdwSETabs.currentIndex() == 1):
@@ -671,10 +634,12 @@ class Principal(QtGui.QMainWindow):
         elif (self.SubWdwSETabs.currentIndex() == 2):
             self.show_textContent(self.semantique_txt_item)
                 
-    def selectTxtCorpus(self, txt):
-        self.CorpusTexts.itemSelectionChanged.disconnect(self.onSelectText)
-        self.CorpusTexts.setCurrentRow(self.dic_widget_list_txt[0].index(txt))
-        self.CorpusTexts.itemSelectionChanged.connect(self.onSelectText)
+#REMOVEME>
+#    def selectTxtCorpus(self, txt):
+#        self.CorpusTexts.corpus.itemSelectionChanged.disconnect(self.onSelectText)
+#        self.CorpusTexts.corpus.setCurrentRow(self.dic_widget_list_txt[0].index(txt))
+#        self.CorpusTexts.corpus.itemSelectionChanged.connect(self.onSelectText)
+#<REMOVEME
 
     def deselectText(self):
         """vide les listes pour eviter confusion et deselectionne les listwidget"""
@@ -684,12 +649,13 @@ class Principal(QtGui.QMainWindow):
         self.text_elements.element_list.clear()
         self.efface_textCTX()
         self.textContent.clear()
+
         if hasattr(self, "semantique_txt_item"):
             del self.semantique_txt_item
 
         for listwidget in self.SOT1.findChildren(QtGui.QListWidget) :
             listwidget.itemSelectionChanged.disconnect(self.onSelectText)
-            listwidget.clearSelection()
+            listwidget.deselect_all()
             listwidget.itemSelectionChanged.connect(self.onSelectText)
 
     def change_NOTab(self):
@@ -963,7 +929,8 @@ class Principal(QtGui.QMainWindow):
                         elif (which  == "number of texts"):
 #FIXME corriger : il donne la valeur de l'EF entier
                             ask = "%s.rep%d.nbtxt"% (self.semantique_lexicon_item_0, r)
-                            print ask
+                            print "C26624: %s" %ask
+
                         val = int(self.client.eval_var(ask))
                         
                         to_add = "%d %s"%(val, result[r])
@@ -1066,6 +1033,7 @@ class Principal(QtGui.QMainWindow):
                             ask = "%s.rep%d.nbtxt"% (self.semantique_concept_item, r)
                         else :
                             ask = "%s.rep%d.val"% (self.semantique_concept_item, r)
+                        print "C1976: %s" % ask
                         val = int(self.client.eval_var(ask))
                         
                         liste_scoree.append([ result[r], val ])
@@ -1265,44 +1233,43 @@ class Principal(QtGui.QMainWindow):
 #TODO activate all context menus via the Controller
             #context menu activation
 
-            self.lexicon_depl_0.listw.addAction(QtGui.QAction('texts', self, triggered=lambda:
-                self.show_texts(0)))
+            self.lexicon_depl_0.listw.addAction(QtGui.QAction('texts', self,
+                triggered=lambda: self.show_texts_from_list(0)))
 #TODO #self.lexicon_depl_0.listw.addAction(QtGui.QAction('sentences', self, triggered=self.teste_wording))
             self.lexicon_depl_0.listw.addAction(QtGui.QAction('network', self,
                 triggered=lambda: self.show_network(0)))
             self.lexicon_depl_0.listw.addAction(QtGui.QAction('copy list', self,
                 triggered=self.copy_to_cb))
             self.lexicon_depl_I.listw.addAction(QtGui.QAction('texts', self,
-                triggered=lambda: self.show_texts(1)))
+                triggered=lambda: self.show_texts_from_list(1)))
             self.lexicon_depl_I.listw.addAction(QtGui.QAction('network', self,
                 triggered=lambda: self.show_network(1)))
             self.lexicon_depl_II.listw.addAction(QtGui.QAction('texts', self,
-                triggered=lambda: self.show_texts(2)))
+                triggered=lambda: self.show_texts_from_list(2)))
             self.lexicon_depl_II.listw.addAction(QtGui.QAction('sentences', self,
                 triggered=self.teste_wording))
             self.lexicon_depl_II.listw.addAction(QtGui.QAction('network', self,
                 triggered=lambda: self.show_network(2)))
 
-            self.concepts_depl_0.listw.addAction(QtGui.QAction('texts', self, triggered=lambda:
-                self.show_texts(0)))
+            self.concepts_depl_0.listw.addAction(QtGui.QAction('texts', self,
+                triggered=lambda: self.show_texts_from_list(0)))
 #TODO #self.concepts_depl_0.addAction(QtGui.QAction('sentences', self, triggered=self.teste_wording))
             self.concepts_depl_0.listw.addAction(QtGui.QAction('network', self,
                 triggered=lambda: self.show_network(0)))
 #TODO #self.concepts_depl_0.addAction(QtGui.QAction('copy list', self, triggered=self.copy_to_cb))
             self.concepts_depl_I.listw.addAction(QtGui.QAction('texts', self,
-                triggered=lambda: self.show_texts(1)))
+                triggered=lambda: self.show_texts_from_list(1)))
             self.concepts_depl_I.listw.addAction(QtGui.QAction('network', self,
                 triggered=lambda: self.show_network(1)))
             self.concepts_depl_II.listw.addAction(QtGui.QAction('texts', self,
-                triggered=lambda: self.show_texts(2)))
+                triggered=lambda: self.show_texts_from_list(2)))
             self.concepts_depl_II.listw.addAction(QtGui.QAction('sentences', self,
                 triggered=self.teste_wording))
             self.concepts_depl_II.listw.addAction(QtGui.QAction('network', self,
                 triggered=lambda: self.show_network(2)))
 
-            # affiche textes au demarrage
+            #Show corpus texts list on its own tab
             self.create_corpus_texts_tab()
-            self.display_liste_textes_corpus()
 
     def disconnect_server(self):
         """Disconnect"""
@@ -1550,7 +1517,7 @@ class Principal(QtGui.QMainWindow):
             self.PrgBar.perc(len(self.list_col))
             for i in range(len(self.list_col)) :
                 val = int(self.client.eval_var(u"%s.col%d.dep"%(sem_txt, i)))
-                
+                #FIXME list index out of range
                 self.saillantesCol.addItem(u"%d %s" % (val, self.list_col[i]))
                 self.list_col_valued[self.list_col[i]] = val
                 self.PrgBar.percAdd (1)
@@ -1581,10 +1548,9 @@ class Principal(QtGui.QMainWindow):
                             
                             self.list_col_valued[result[sub_n]] = res
                         i = QtGui.QListWidgetItem()
-                        i.setText(u"  %s %s"%(self.list_col_valued[result[sub_n]], result[sub_n]))
-#TODO trouver couleur par defaut du alternate
-                        #i.setBackground(QtGui.QColor(245,245,245)) # gris clair
-                        i.setBackground(QtGui.QColor(237,243,254)) # cyan
+                        i.setText(u"\u00B7 %s %s"%(self.list_col_valued[result[sub_n]],
+                            result[sub_n]))
+                        i.setBackground(QtGui.QColor(237,243,254))
                         self.saillantesCol.addItem(i)
                 
     def deploie_Cat(self):
@@ -1742,8 +1708,6 @@ class Principal(QtGui.QMainWindow):
 
     def explo_show_text(self):
         """Show texts containing a pattern"""
-#TODO scorer/trier
-        self.deselectText()
         motif = self.explorer_widget.saisie.text()
         row =  self.explorer_widget.liste.listw.currentRow()
         element = self.explorer_widget.liste.listw.currentItem().text()
@@ -1753,103 +1717,37 @@ class Principal(QtGui.QMainWindow):
         types = [u"$search.pre", u"$search.suf", u"$search.rac"]
         type_search = types[select_search]
         
-        ask = self.client.creer_msg_search(type_search, motif, pelement="%d"%row, txt=True, ptxt="[0:]")
+        ask = self.client.creer_msg_search(type_search, motif,
+            pelement="%d"%row, txt=True, ptxt="[0:]", val=True)
         result = self.client.eval(ask)
         liste_textes = re.split(", ", result)
+        lt_valued = {}
+        list_sems = map(lambda k: self.preCompute.dicTxtSem[k], liste_textes)
+        for i in list_sems:
+#TODO scorer/trier
+            lt_valued[i] = 1
+        self.show_texts(element, lt_valued)
 
-        self.show_texts_tab(liste_textes, element)
-
-    def show_texts_tab(self, liste_textes, element):
-#TODO relier a show_texts, put values
-        self.activity(u"Displaying %d texts for %s" % (len(liste_textes),
-            element))
-        liste_textes = map(lambda k : self.preCompute.dicTxtSem[k], liste_textes)
-        #texts_widget = Viewer.Liste_texte(element, liste_textes)
-        texts_widget = Viewer.Liste_texte(element, liste_textes)
-
-        self.dic_widget_list_txt[texts_widget.tab_title] =  [[], []]
-        for sem, tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
-            txt =  self.listeObjetsTextes[sem]
-            if sem in liste_textes: 
-                WI = Viewer.TexteWidgetItem(txt.getResume())
-                texts_widget.show_texts_corpus.addItem(WI)
-                texts_widget.show_texts_corpus.setItemWidget(WI, WI.label)
-                self.dic_widget_list_txt[texts_widget.tab_title][0].append(txt)
-            else :
-                WI = Viewer.TexteWidgetItem(txt.getResume())
-                texts_widget.show_texts_anticorpus.addItem(WI)
-                texts_widget.show_texts_anticorpus.setItemWidget(WI, WI.label)
-                self.dic_widget_list_txt[texts_widget.tab_title][1].append(txt)
-
-#FIXME color black for deselected
-        texts_widget.show_texts_corpus.itemSelectionChanged.connect(self.onSelectText) 
-        texts_widget.show_texts_anticorpus.itemSelectionChanged.connect(self.onSelectText)  
-        self.del_tab_text_doubl(element)
-        index = self.SOT1.addTab(texts_widget.show_texts_widget, texts_widget.tab_title)
-        self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
-        self.SubWdwSO.setCurrentIndex(0)# donne le focus a l'onglet Texts
-        self.SOT1.tabBar().setTabToolTip(index, texts_widget.tab_title)
-
-    def del_tab_text_doubl(self, element):
-        """delete text tab if exists"""
-        for i in range(1, self.SOT1.count()):
-            tab_element = re.sub(" \(\d*\)$", "", self.SOT1.tabText(i))
-            if (tab_element == element):
-                self.SOT1.removeTab(i)
-
-    def show_texts(self, lvl):
-        """Show texts containing a selected item"""
-#TODO sorting by date/score, filter
-
-        self.deselectText()
-
+    def show_texts_from_list(self, lvl):
         if (self.lexicon_or_concepts() == "lexicon"):
             sem, element = self.recup_element_lexicon(lvl)
         elif (self.lexicon_or_concepts() == "concepts"):
             sem, element = self.recup_element_concepts(lvl)
 
-        txts_semantique = "%s.txt[0:]" % (sem)
-        result = self.client.eval_var(txts_semantique)
-
+        result = self.client.eval_var("%s.txt[0:]" % (sem))
         if  (result == ""):
-            self.activity(u"No text to displaying for %s" % (element))
+            self.activity(u"No text to display for %s" % (element))
         else:
             liste_textes = re.split(", ", result) 
-            self.activity(u"Displaying %d texts for %s" % (len(liste_textes), element))
-            
-            liste_textes = map(lambda k: self.preCompute.dicTxtSem[k], liste_textes)
-            liste_textes_valued = {}
+            #transform txt filename to sem
+            list_sems = map(lambda k: self.preCompute.dicTxtSem[k], liste_textes)
             #get element occurences in texts
-            for i in range(len(liste_textes)):
+            lt_valued = {}
+            for i, t in enumerate(list_sems):
                 ask = "%s.txt%s.val"%(sem, i)
-                liste_textes_valued[liste_textes[i]] = self.client.eval_var(ask)
-
-            texts_widget = Viewer.Liste_texte(element, liste_textes)
-            self.dic_widget_list_txt[ texts_widget.tab_title ] =  [ [], [] ]
-            for sem, tri in self.ord_liste_txt(self.listeObjetsTextes.keys()):
-                txt =  self.listeObjetsTextes[sem]
-                if sem in liste_textes: 
-                    new_resume = ("%s (%s)"%(txt.getResume()[0],liste_textes_valued[sem]) , txt.getResume()[1], txt.getResume()[2])
-                    WI = Viewer.TexteWidgetItem(new_resume)
-                    texts_widget.show_texts_corpus.addItem(WI)
-                    texts_widget.show_texts_corpus.setItemWidget(WI, WI.label)
-                    self.dic_widget_list_txt[texts_widget.tab_title][0].append(txt)
-                else :
-                    WI = Viewer.TexteWidgetItem(txt.getResume())
-                    texts_widget.show_texts_anticorpus.addItem(WI)
-                    texts_widget.show_texts_anticorpus.setItemWidget(WI, WI.label)
-                    self.dic_widget_list_txt[texts_widget.tab_title][1].append(txt)
-
-        
-            texts_widget.show_texts_corpus.itemSelectionChanged.connect(self.onSelectText) 
-            texts_widget.show_texts_anticorpus.itemSelectionChanged.connect(self.onSelectText)  
-
-
-            self.del_tab_text_doubl(element)
-            index = self.SOT1.addTab(texts_widget.show_texts_widget, texts_widget.tab_title)
-            self.SOT1.setCurrentIndex(index)# donne le focus a l'onglet
-            self.SubWdwSO.setCurrentIndex(0)# donne le focus a l'onglet Texts
-            self.SOT1.tabBar().setTabToolTip(index, texts_widget.tab_title)
+                lt_valued[t] = int(self.client.eval_var(ask))
+            #send to display
+            self.show_texts(element, lt_valued)
 
     def lexicon_or_concepts(self):
         i = self.SubWdwNO.currentIndex()
@@ -1859,6 +1757,38 @@ class Principal(QtGui.QMainWindow):
             return "concepts"
         else:
             return False
+
+    def show_texts(self, element, lvalued):
+        """Show texts containing a selected item"""
+#TODO remove deselect and select the text in the new tab
+        self.deselectText()
+        self.activity(u"Displaying %d texts for %s" % (len(lvalued), element))
+        
+        #display
+        texts_widget = Viewer.ListTexts(element, lvalued, 
+            self.listeObjetsTextes)
+#TODO sorting by date/score, filter
+        for sem, tri in texts_widget.sort():
+            txt =  self.listeObjetsTextes[sem]
+            texts_widget.add(sem, txt.getResume())
+
+        texts_widget.corpus.itemSelectionChanged.connect(self.onSelectText) 
+        texts_widget.anticorpus.itemSelectionChanged.connect(self.onSelectText)  
+
+        #insert tab and give focus
+        self.del_tab_text_doubl(element)
+        index = self.SOT1.addTab(texts_widget, texts_widget.title)
+        self.SOT1.setCurrentIndex(index)
+        self.SubWdwSO.setCurrentIndex(0)
+        self.SOT1.tabBar().setTabToolTip(index, texts_widget.title)
+
+    def del_tab_text_doubl(self, element):
+        """delete text tab if exists"""
+        for i in range(1, self.SOT1.count()):
+            tab_element = re.sub(" \(\d*\)$", "", self.SOT1.tabText(i))
+            if (tab_element == element):
+                self.SOT1.removeTab(i)
+
             
     def teste_wording(self):
         if (self.SubWdwNO.currentIndex() == 0) : # si l'onglet lexicon

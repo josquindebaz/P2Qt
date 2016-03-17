@@ -412,6 +412,8 @@ class preCompute(object):
 def sp_el(element):
     return element.split(' ', 1)
 
+    
+
 semantiques = {'collections': '$col', 'fictions': '$ef', 'entity categories':
 '$cat_ent', 'verb categories': '$cat_epr', 'marker categories': '$cat_mar',
 'quality categories': '$cat_qua', 'entities': '$ent_sf', 'qualities': '$qualite',

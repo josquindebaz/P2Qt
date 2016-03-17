@@ -54,12 +54,22 @@ class MyListWidgetTexts(QtGui.QListWidget):
         QtGui.QListWidget.__init__(self)
         self.setAlternatingRowColors(True)
         self.itemSelectionChanged.connect(self.changeColor)
-    
+#TODO directly ask children without list
+        self.widget_list = []
+        self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+
     def changeColor(self):
         currentRow = self.currentRow()
         for r in range(self.count()):
-            self.item(r).label.setStyleSheet("color: white;") if (r ==
-            currentRow) else self.item(r).label.setStyleSheet("color: black;")
+            if (r == currentRow):
+                self.item(r).label.setStyleSheet("color: white;")  
+            else:
+                 self.item(r).label.setStyleSheet("color: black;")
+
+    def deselect_all(self):
+        self.clearSelection()
+        for r in range(self.count()):
+             self.item(r).label.setStyleSheet("color: black;")
 
 class TexteWidgetItem(QtGui.QListWidgetItem):
     def __init__(self, text, parent=None):
@@ -74,26 +84,98 @@ class TexteWidgetItem(QtGui.QListWidgetItem):
     def formeResume(self):
         return u"%s <span style=\"font: bold\">%s</span> %s" % self.resume 
 
-class Liste_texte(object):
-    def __init__(self, element, liste_textes):
-        self.tab_title = "%s (%d)" % (element, len(liste_textes))
+class ListTexts(QtGui.QWidget):
+    """Display texts corpus and anticorpus for an element"""
+    def __init__(self, element, lsems, ltxts):
+        QtGui.QWidget.__init__(self)
 
-        self.show_texts_widget = QtGui.QWidget()
-        HBox_texts = QtGui.QHBoxLayout()
-        HBox_texts.setContentsMargins(0,0,0,0) 
-        HBox_texts.setSpacing(0) 
-        self.show_texts_widget.setLayout(HBox_texts)
-        self.show_texts_corpus = MyListWidgetTexts()
-        HBox_texts.addWidget(self.show_texts_corpus)
-        self.show_texts_anticorpus = MyListWidgetTexts()
-#REMOVEME
-        #self.show_texts_corpus = QtGui.QListWidget()
-        #self.show_texts_corpus.setAlternatingRowColors(True)
-        #self.show_texts_anticorpus = QtGui.QListWidget()
-        #self.show_texts_anticorpus.setAlternatingRowColors(True)
-#REMOVEME
-        HBox_texts.addWidget(self.show_texts_anticorpus)
+        self.lsems = lsems
+        #print "C31471", lsems
+        self.ltxts = ltxts
+        HBox = QtGui.QHBoxLayout()
+        HBox.setContentsMargins(0,0,0,0) 
+        HBox.setSpacing(0) 
+        self.setLayout(HBox)
 
+#TODO sorting
+        #self.orderdt = QtGui.QAction("order by date", self, triggered=lambda: self.sortby("dt")) 
+        #self.orderoc = QtGui.QAction("order by occurence", self, triggered=lambda: self.sortby("oc")) 
+
+        if (element):
+            self.title = "%s (%d)" % (element, len(self.lsems))
+            self.corpus = MyListWidgetTexts()
+            HBox.addWidget(self.corpus)
+            self.anticorpus = MyListWidgetTexts()
+            HBox.addWidget(self.anticorpus)
+            #self.corpus.addAction(self.orderoc)
+        else:
+            self.corpus = MyListWidgetTexts()
+            HBox.addWidget(self.corpus)
+            for sem, tri in self.sort():
+                txt = self.ltxts[sem]
+                WI = TexteWidgetItem(txt.getResume())
+                self.corpus.addItem(WI)
+                self.corpus.setItemWidget(WI, WI.label)
+                self.corpus.widget_list.append(txt) 
+
+    def add(self, sem, resume):
+        if sem in self.lsems.keys(): 
+        #add to corpus list
+            resume = ("%s [%s]"%(resume[0], self.lsems[sem]) , resume[1], resume[2])
+            WI = TexteWidgetItem(resume)
+            self.corpus.addItem(WI)
+            self.corpus.setItemWidget(WI, WI.label)
+            self.corpus.widget_list.append(self.ltxts[sem])
+        else:
+        #add to anticorpus list
+            WI = TexteWidgetItem(resume)
+            self.anticorpus.addItem(WI)
+            self.anticorpus.setItemWidget(WI, WI.label)
+            self.anticorpus.widget_list.append(self.ltxts[sem]) 
+
+#    def sortby(self, order):
+#        self.corpus.setSortingEnabled(True)
+#        if (order == "oc"):
+#            self.corpus.removeAction(self.orderoc)
+#            self.corpus.addAction(self.orderdt)
+#            self.corpus.sortItems(QtCore.Qt.DescendingOrder)
+#        else:
+#            self.corpus.removeAction(self.orderdt)
+#            self.corpus.addAction(self.orderoc)
+#            self.corpus.sortItems(QtCore.Qt.AscendingOrder)
+
+    def sort(self):
+        l = self.ltxts.keys()
+        liste = {}
+        for e in l:
+            liste[e] = self.get_date(self.ltxts[e])
+        return sorted(liste.items(), key=lambda (k, v): v) 
+
+    def OLDsort(self, order="chrono", l=False):
+        if not l:
+            l = self.ltxts.keys()
+        liste = {}
+        if (order == "chrono"):
+            for e in l:
+                liste[e] = self.get_date(self.ltxts[e])
+        elif (order == "occurence"):
+            for e in l:
+                if e in self.lsems:
+                #sort corpus by value
+                    liste[e] = self.lsems[e]
+                else:
+                #sort anticorpus by date
+                    liste[e] = self.get_date(self.ltxts[e])
+        return sorted(liste.items(), key=lambda (k, v): v) 
+
+    def get_date(self, txt):
+        date = txt.getCTX("date")
+        date = re.split(" ", date) #split date and time
+        if (len(date) > 1):
+            date, heure = date
+        else:
+            date = date[0]
+        return "-".join(reversed(re.split("/", date)))
 
 class MyDelegate(QtGui.QStyledItemDelegate):
     
@@ -748,7 +830,6 @@ class Explorer(QtGui.QWidget):
                                          QtGui.QSizePolicy.Minimum)
         hbox1.addWidget(Explo_spacer1)
 
-#TODO add case sensitivity
         self.sensitivity = QtGui.QCheckBox("case sensitivity")
         hbox1.addWidget(self.sensitivity)
 
@@ -805,5 +886,3 @@ def hide_close_buttons(tabs_widget,index):
             tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).resize(0,0)
             tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).hide()
 
-def test():
-    print "blabla"
