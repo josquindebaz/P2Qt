@@ -48,6 +48,196 @@ class PrgBar(object):
     def reset(self):
         self.bar.reset()
 
+class LexiconTab(QtGui.QWidget):
+    """Widget displaying lexicon lists"""
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self)
+        V = QtGui.QVBoxLayout()
+        self.setLayout(V)
+        V.setContentsMargins(0,0,0,0) 
+        V.setSpacing(0) 
+        VHC = QtGui.QHBoxLayout()
+        V.addLayout(VHC)
+        self.select = QtGui.QComboBox()
+        self.select.addItems([u"entities&fictions", u'entities',
+            u"qualities", u"markers",
+            u"verbs", "undefined", "persons", u"expressions",  u"numbers",
+            u"function words", ])
+#TODO add those
+        for i in range(8,10):
+            self.select.model().item(i).setEnabled(False)
+        VHC.addWidget(self.select)
+
+    # un spacer pour mettre les commandes sur la droite
+        spacer3 = QtGui.QLabel()
+        spacer3.setSizePolicy(
+            QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        VHC.addWidget(spacer3)
+
+    #sorting command
+        self.sort_command = QtGui.QComboBox()
+        self.sort_command.addItems(sorting_command_list)
+        VHC.addWidget(self.sort_command)
+
+    #une box horizontale pour liste, score et deploiement
+        VH = QtGui.QHBoxLayout()
+        V.addLayout(VH) 
+    #lexicon liste
+        self.dep0 = MyListWidget()
+        VH.addWidget(self.dep0)
+    #I deployment
+        self.depI = MyListWidget()
+        VH.addWidget(self.depI)
+    #II deployment 
+        self.depII = MyListWidget()
+        VH.addWidget(self.depII)
+
+class ConceptTab(QtGui.QWidget):
+    """Widget displaying concept lists"""
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self)
+        V = QtGui.QVBoxLayout()
+        self.setLayout(V)
+        V.setContentsMargins(0,0,0,0) 
+        V.setSpacing(0) 
+
+        VHC = QtGui.QHBoxLayout()
+        V.addLayout(VHC)
+        self.select = QtGui.QComboBox()
+        self.select.addItems([u"collections", u"entity categories",
+            u"verb categories", u"marker categories", u"quality categories",
+            u"fictions", u'actants' ])
+#TODO find a place for actants. with authors?
+        VHC.addWidget(self.select)
+
+        spacer = QtGui.QLabel()
+        spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        VHC.addWidget(spacer)
+
+    #sorting command
+        self.sort_command = QtGui.QComboBox()
+        self.sort_command.addItems(sorting_command_list)
+        VHC.addWidget(self.sort_command)
+
+        VH = QtGui.QHBoxLayout()
+        V.addLayout(VH) 
+
+    #concept list 
+        self.dep0 = MyListWidget()
+        VH.addWidget(self.dep0)
+    #I deployment
+        self.depI = MyListWidget()
+        VH.addWidget(self.depI)
+    #II deployment 
+        self.depII = MyListWidget()
+        VH.addWidget(self.depII)
+
+class Contexts(QtGui.QWidget):
+    """Widget displaying corpus text contexts"""
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self)
+        V = QtGui.QVBoxLayout()
+        self.setLayout(V)
+        V.setContentsMargins(0,0,0,0) 
+        V.setSpacing(0) 
+        VHC = QtGui.QHBoxLayout()
+        V.addLayout(VHC)
+
+#TODO add CTX commands
+#        spacer_CTX_1 = QtGui.QLabel()
+#        spacer_CTX_1.setSizePolicy(QtGui.QSizePolicy.Expanding, 
+#                                        QtGui.QSizePolicy.Minimum)
+#        VHC.addWidget(spacer_CTX_1)
+    
+#        self.NOT5Commands1 = QtGui.QPushButton()
+#        self.NOT5Commands1.setIcon(QtGui.QIcon("images/gear.png"))
+##desactivé au lancement, tant qu'on a pas de liste
+#        self.NOT5Commands1.setEnabled(False) 
+#        VHC.addWidget(self.NOT5Commands1)
+
+    #une box horizontale pour liste et deploiement
+        VH = QtGui.QHBoxLayout()
+        V.addLayout(VH) 
+        self.l = QtGui.QListWidget()
+        self.l.setAlternatingRowColors(True)
+        self.l.setSizePolicy(QtGui.QSizePolicy.Minimum,
+                                     QtGui.QSizePolicy.Preferred)
+        VH.addWidget(self.l)
+        self.cont = QtGui.QListWidget()
+        self.cont.setAlternatingRowColors(True)
+        VH.addWidget(self.cont)
+        self.cont.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Preferred)
+
+class SaillantesProperties(QtGui.QWidget):
+    """Widget displaying text saillant properties"""
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self)
+#TODO use QTreeView and model
+
+    #Vbox des actants du texte
+        VAct = QtGui.QVBoxLayout()
+        saillantesActTitle = QtGui.QLabel()
+        #saillantesActTitle.setText("Actants")
+        saillantesActTitle.setText(self.tr("Entities"))
+        VAct.addWidget(saillantesActTitle)
+        self.Act = QtGui.QListWidget()
+        VAct.addWidget(self.Act)
+
+    #Vbox des categories du texte
+        VCat = QtGui.QVBoxLayout()
+        saillantesCatTitle = QtGui.QLabel()
+        saillantesCatTitle.setText(self.tr("Categories"))
+        VCat.addWidget(saillantesCatTitle)
+        self.Cat = QtGui.QListWidget()
+        VCat.addWidget(self.Cat)
+
+    #Vbox des collections du texte
+        VCol = QtGui.QVBoxLayout()
+        saillantesColTitle = QtGui.QLabel()
+        saillantesColTitle.setText(self.tr("Collections"))
+        VCol.addWidget(saillantesColTitle)
+        self.Col = QtGui.QListWidget()
+        VCol.addWidget(self.Col)
+
+        H = QtGui.QHBoxLayout()
+        H.setContentsMargins(0,0,0,0) 
+        H.setSpacing(0) 
+        self.setLayout(H)
+        H.addLayout(VAct)
+        H.addLayout(VCat)
+        H.addLayout(VCol)
+
+class textCTX(QtGui.QWidget):
+    """Widget displaying context for a text"""
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self)
+        V = QtGui.QVBoxLayout()
+        V.setContentsMargins(0,0,0,0) 
+        V.setSpacing(0) 
+        self.setLayout(V)
+
+        self.T = QtGui.QTableWidget()
+        self.T.verticalHeader().setVisible(False)
+        self.T.setColumnCount(2)
+        self.T.setHorizontalHeaderLabels([u'field', u'value'])
+        self.T.horizontalHeader().setStretchLastSection(True)     
+        V.addWidget(self.T)
+    
+        commands = QtGui.QHBoxLayout()
+        self.valid = QtGui.QPushButton("save")
+        commands.addWidget(self.valid)
+        self.reset = QtGui.QPushButton("reset")
+        commands.addWidget(self.reset)
+        spacer = QtGui.QLabel()
+        spacer.setSizePolicy(
+            QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        commands.addWidget(spacer) 
+#TOTO add, delete
+        B = QtGui.QPushButton(u"\u25cb")
+        commands.addWidget(B)
+        B.setEnabled(False)
+        V.addLayout(commands)
+
 class MyListWidgetTexts(QtGui.QListWidget):
     """a specific widget for textslists""" 
     def __init__(self, parent=None):
@@ -94,7 +284,7 @@ class ListTexts(QtGui.QWidget):
         self.ltxts = ltxts
         HBox = QtGui.QHBoxLayout()
         HBox.setContentsMargins(0,0,0,0) 
-        HBox.setSpacing(0) 
+        HBox.setSpacing(5) 
         self.setLayout(HBox)
 
 #TODO sorting
@@ -151,22 +341,22 @@ class ListTexts(QtGui.QWidget):
             liste[e] = self.get_date(self.ltxts[e])
         return sorted(liste.items(), key=lambda (k, v): v) 
 
-    def OLDsort(self, order="chrono", l=False):
-        if not l:
-            l = self.ltxts.keys()
-        liste = {}
-        if (order == "chrono"):
-            for e in l:
-                liste[e] = self.get_date(self.ltxts[e])
-        elif (order == "occurence"):
-            for e in l:
-                if e in self.lsems:
-                #sort corpus by value
-                    liste[e] = self.lsems[e]
-                else:
-                #sort anticorpus by date
-                    liste[e] = self.get_date(self.ltxts[e])
-        return sorted(liste.items(), key=lambda (k, v): v) 
+#    def OLDsort(self, order="chrono", l=False):
+#        if not l:
+#            l = self.ltxts.keys()
+#        liste = {}
+#        if (order == "chrono"):
+#            for e in l:
+#                liste[e] = self.get_date(self.ltxts[e])
+#        elif (order == "occurence"):
+#            for e in l:
+#                if e in self.lsems:
+#                #sort corpus by value
+#                    liste[e] = self.lsems[e]
+#                else:
+#                #sort anticorpus by date
+#                    liste[e] = self.get_date(self.ltxts[e])
+#        return sorted(liste.items(), key=lambda (k, v): v) 
 
     def get_date(self, txt):
         date = txt.getCTX("date")
@@ -885,4 +1075,9 @@ def hide_close_buttons(tabs_widget,index):
         elif tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide):
             tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).resize(0,0)
             tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).hide()
+
+sorting_command_list = [u"occurences", u"deployment", u"alphabetically",
+    "number of texts", "first apparition", "last apparition", "weigthed", 
+    "autors number", "day present number", "relatif nb jours", "representant number",
+    "network element number"]
 

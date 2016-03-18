@@ -4,6 +4,63 @@ from xml.dom import minidom
 import os
 import re
 import datetime
+import interface_prospero
+
+class client(object):
+    def __init__(self, h, p):
+        self.c = interface_prospero.ConnecteurPII() 
+        self.c.set(h, p)
+        self.etat = self.c.connect_x(5)
+#REMOVEME>
+#        if not (self.etat):
+#            msgBox = QtGui.QMessageBox()
+#            msgBox.setText("connection failed")
+#            msgBox.setIcon(QtGui.QMessageBox.Critical)
+#            msgBox.exec_()
+#<REMOVEME
+
+    def disconnect(self):
+        self.c.disconnect()
+
+    def recup_liste_concept(self, sem):
+        var = "%s[0:]" % sem
+        return re.split(", ", self.c.eval_variable(var))
+    
+    def eval_vector(self, type, type_calc):
+        return self.c.eval_vect_values(type, type_calc)
+
+    def eval_var(self, var):
+        return self.c.eval_variable(var)
+        
+    def eval_var_ctx(self, props, ctx_range):
+        return self.c.eval_ctx(props, ctx_range)
+
+    def eval_get_sem(self, exp, sem):
+        """jp : pour retrouver la sémantique d'un élément : 
+        getsem 'nucléaire' $ent
+        """
+        return self.c.eval_fonct(u"getsem", exp, sem)
+
+    def add_cache_var(self, cle, val):
+        self.c.add_cache_var(cle, val)
+
+    def add_cache_fonct(self, cle, val):
+    # pour anticiper les getsem /corpus/texte $txt
+        self.c.add_cache_fonc(cle, val)
+    
+    def creer_msg_search(self, fonc, element, pelement='', txt=False, 
+                                    ptxt='', ph=False, pph='', val=False):
+        return self.c.creer_msg_search(fonc, element, 
+                        pelement, txt, ptxt, ph, pph, val)
+
+    def eval(self, l):
+        return self.c.eval(l)
+
+    def eval_set_ctx(self, sem_txt, field, val):
+        return self.c.eval_set_ctx(sem_txt, field, val)
+
+    def eval_index(self, exp):
+        return self.c.eval_index(exp)
 
 class Texte(object):
     def __init__(self, sem, path):
@@ -411,8 +468,6 @@ class preCompute(object):
     
 def sp_el(element):
     return element.split(' ', 1)
-
-    
 
 semantiques = {'collections': '$col', 'fictions': '$ef', 'entity categories':
 '$cat_ent', 'verb categories': '$cat_epr', 'marker categories': '$cat_mar',
