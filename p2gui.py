@@ -437,7 +437,7 @@ class Principal(QtGui.QMainWindow):
         #grid.setContentsMargins(2,2,2,2)
 
         self.setWindowTitle(u'P-II interface')
-        self.setWindowIcon(QtGui.QIcon("images/Prospero-II.icns"))
+        self.setWindowIcon(QtGui.QIcon("images/Prospero-II.png"))
         self.show() 
 
 ################################################
