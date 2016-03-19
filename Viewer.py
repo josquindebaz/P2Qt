@@ -48,8 +48,61 @@ class PrgBar(object):
     def reset(self):
         self.bar.reset()
 
+class actantsTab(QtGui.QWidget):
+    """Widget actants lists"""
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self)
+        H = QtGui.QHBoxLayout()
+        self.setLayout(H)
+        H.setContentsMargins(0,0,0,0) 
+        self.L = QtGui.QListWidget()
+        H.addWidget(self.L)
+#        self.T = QtGui.QTreeWidget()
+#        H.addWidget(self.T)
+#FIXME ecrase cadrans bas
+#        V = QtGui.QVBoxLayout()
+#        H.addLayout(V)
+#        H1 = QtGui.QLabel('emerging configurations')
+#        V.addWidget(H1)
+#        L1 = QtGui.QListWidget()
+#        V.addWidget(L1)
+#        H2 = QtGui.QLabel("incompatibilities")
+#        V.addWidget(H2)
+#        L2 = QtGui.QListWidget()
+#        V.addWidget(L2)
+        
+class authorsTab(QtGui.QWidget):
+    """Widget authors lists"""
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self)
+        H = QtGui.QHBoxLayout()
+        self.setLayout(H)
+        H.setContentsMargins(0,0,0,0) 
+        self.L = QtGui.QListWidget()
+        H.addWidget(self.L)
+#FIXME ecrase cadrans bas
+#        V1 = QtGui.QVBoxLayout()
+#        H.addLayout(V1)
+#        H0 = QtGui.QLabel('first\nlast\nnbpg\nnbtxt')
+#        V1.addWidget(H0)
+#        S = QtGui.QComboBox()
+#        V1.addWidget(S)
+#        L2 = QtGui.QListWidget()
+#        V1.addWidget(L2)
+#        V2 = QtGui.QVBoxLayout()
+#        H.addLayout(V2)
+#        H1 = QtGui.QLabel('specific')
+#        V2.addWidget(H1)
+#        L3 = QtGui.QListWidget()
+#        V2.addWidget(L3)
+#        H2 = QtGui.QLabel('absent')
+#        V2.addWidget(H2)
+#        L4 = QtGui.QListWidget()
+#        V2.addWidget(L4)
+        
 class LexiconTab(QtGui.QWidget):
     """Widget displaying lexicon lists"""
+#TODO abandonner 3 colonnes
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
         V = QtGui.QVBoxLayout()
@@ -59,12 +112,12 @@ class LexiconTab(QtGui.QWidget):
         VHC = QtGui.QHBoxLayout()
         V.addLayout(VHC)
         self.select = QtGui.QComboBox()
-        self.select.addItems([u"entities&fictions", u'entities',
-            u"qualities", u"markers",
+#send persons to a dedicated tab
+        self.select.addItems([ u'entities', u"qualities", u"markers",
             u"verbs", "undefined", "persons", u"expressions",  u"numbers",
             u"function words", ])
 #TODO add those
-        for i in range(8,10):
+        for i in range(7,9):
             self.select.model().item(i).setEnabled(False)
         VHC.addWidget(self.select)
 
@@ -93,6 +146,7 @@ class LexiconTab(QtGui.QWidget):
         VH.addWidget(self.depII)
 
 class ConceptTab(QtGui.QWidget):
+#TODO systématiser 3 colonnes ou passer à deux ?
     """Widget displaying concept lists"""
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
@@ -104,9 +158,9 @@ class ConceptTab(QtGui.QWidget):
         VHC = QtGui.QHBoxLayout()
         V.addLayout(VHC)
         self.select = QtGui.QComboBox()
-        self.select.addItems([u"collections", u"entity categories",
-            u"verb categories", u"marker categories", u"quality categories",
-            u"fictions", u'actants' ])
+        self.select.addItems([u"entities&fictions",  u"entity categories",
+            u"quality categories", u"marker categories", u"verb categories",
+            u"collections", u"fictions" ])
 #TODO find a place for actants. with authors?
         VHC.addWidget(self.select)
 

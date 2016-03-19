@@ -12,8 +12,9 @@ import time
 import functools
 import subprocess
 import threading
-#import socket 
 import atexit
+import webbrowser
+#import socket 
 
 #from fonctions import translate
 import xml_info
@@ -23,32 +24,7 @@ import Controller
 class Principal(QtGui.QMainWindow):
     def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self, parent)
-        self.initUI()
-        
-    def pre_calcule(self):
-        self.activity("pre-computing : texts")
-        self.preCompute = Controller.preCompute(self)
-        self.listeObjetsTextes = self.preCompute.listeObjetsTextes
 
-        self.NOT5.l.clear()
-        self.NOT5.l.addItems(self.preCompute.liste_champs_ctx)
-
-        self.PrgBar.setv(50)
-
-        # associated values
-        self.activity("pre-computing : values")
-        compteur = 0
-        max_compteur = len(self.preCompute.type_var) * len(self.preCompute.type_calcul)
-        for typ in self.preCompute.type_var :
-            for calc in self.preCompute.type_calcul:
-#FIXME freq et nbaut ne marche pas ?
-                self.preCompute.cacheAssocValue(typ, calc)
-                compteur += 1
-                self.PrgBar.setv(50 + (int(float(compteur) * 50 / max_compteur)))
-        self.PrgBar.reset()
-#TODO get concepts for search engine
-    
-    def initUI(self):
 ##################################################
         # create the menu bar
 ##################################################
@@ -62,11 +38,11 @@ class Principal(QtGui.QMainWindow):
         Menu_distant.setStatusTip(self.tr('Connect to prosperologie.org\
             servers'))
 
-#TODO not enabled if cannot reach port 60000
         get_remote_corpus = xml_info.myxml()
         if get_remote_corpus.get():
             if get_remote_corpus.parse():
                 for corpus in get_remote_corpus.getDataCorpus(): 
+#TODO not enabled if cannot reach port 60000
                     t = QtGui.QAction(corpus[0], self)
                     t.triggered.connect(functools.partial(self.connect_server,
                                  "prosperologie.org", corpus[1]))
@@ -91,38 +67,57 @@ class Principal(QtGui.QMainWindow):
                                                  for ctx generation")
         Menu_codex.triggered.connect(self.codex_window)
         Menu_Corpus.addAction(Menu_codex)
-#TODO recup corpus, fusion, generer sous corpus
+
+        menu_server_vars = QtGui.QAction("&Variables testing", self)
+        menu_server_vars.setStatusTip("Directly interact with server variables")
+        menu_server_vars.triggered.connect(self.display_server_vars)
+        Menu_Corpus.addAction(menu_server_vars)
+
 #TODO transform corpus p1<->p2
+        menu_convert_corpus = QtGui.QAction("&Convert P1 and P2 corpus", self)
+        Menu_Corpus.addAction(menu_convert_corpus)
+        menu_convert_corpus.setEnabled(False) 
+
+#TODO recup corpus, fusion, generer sous corpus
 #TODO Constellations and corpus comparisons
 
 ##################################################
         #Concepts and lexics
-        Menubar.addMenu('&Concepts and lexics')
-#TODO access concept, lexics, sycorax, sycorax web
-#TODO edit concepts
-
+        menu_concepts = Menubar.addMenu('&Concepts')
+        menu_concepts_edition = QtGui.QAction("&Edition", self)
+        menu_concepts.addAction(menu_concepts_edition)
+        menu_concepts_edition.setEnabled(False)
+        menu_sycorax =  QtGui.QAction("&Sycorax", self)
+        menu_sycorax.setStatusTip("Advanced concepts edition")
+        menu_concepts.addAction(menu_sycorax)
+        menu_sycorax.setEnabled(False)
+        
 ##################################################
         #Texts
-        Menu_Texts = Menubar.addMenu('&Texts')
-#        Menu_AddTex = QtGui.QAction('&Add a new text', self)    
-#        Menu_Texts.addAction(Menu_AddTex)
-#        Menu_AddTex.setEnabled(False)
-#        Menu_ModTex = QtGui.QAction('&Action on selected texts', self)    
-#        Menu_Texts.addAction(Menu_ModTex)
-#        Menu_ModTex.setEnabled(False)
+        Menu_Texts = Menubar.addMenu('&Texts and Contexts')
+        menu_contexts = QtGui.QAction('&Contexts', self)    
+        Menu_Texts.addAction(menu_contexts)
+        menu_contexts.setStatusTip("Work with contexts")
+        menu_contexts.triggered.connect(self.display_contexts)
+        Menu_AddTex = QtGui.QAction('&Add a new text', self)    
+        Menu_Texts.addAction(Menu_AddTex)
+        Menu_AddTex.setEnabled(False)
+        Menu_ModTex = QtGui.QAction('&Action on selected texts', self)    
+        Menu_Texts.addAction(Menu_ModTex)
+        Menu_ModTex.setEnabled(False)
 
 ##################################################
         #Viz and computations
-        Menubar.addMenu('&Viz and computations')
+        menu_comput = Menubar.addMenu('&Computations')
+        menu_pers =  QtGui.QAction("&Persons", self)
+        menu_pers.setStatusTip("Detect people")
+        menu_comput.addAction(menu_pers)
+        menu_pers.triggered.connect(self.display_pers)
+        menu_pers.setEnabled(False)
 #TODO viz
 #TODO author signatures, grappes, periodisations
 #TODO corpus indicators and properties
 #TODO list evolutions
-
-##################################################
-        #Parameters&sHelp
-        Menubar.addMenu('&Parameters and help')
-#reduire le poids seulement si expr englobante de meme type
 
 ##################################################
         #Marlowe
@@ -135,17 +130,32 @@ class Principal(QtGui.QMainWindow):
         Menu_Marlowe.addAction(Menu_Marlowe_remote)
 
 ##################################################
+        #Parameters&sHelp
+        menu_param = Menubar.addMenu('&Parameters and help')
+        menu_parameters = QtGui.QAction('&Parameters', self)
+        menu_param.addAction(menu_parameters)
+        menu_parameters.setEnabled(False)
+#reduire le poids seulement si expr englobante de meme type
+        menu_help = QtGui.QAction('&Manual', self)
+        menu_param.addAction(menu_help)
+        menu_param.triggered.connect(lambda: webbrowser.open('http://mypads.framapad.org/mypads/?/mypads/group/doxa-g71fm7ki/pad/view/interface-p2-manuel-de-l-utilisateur-hsa17wo'))
+
+
+##################################################
+##################################################
         # create the status bar
 ##################################################
         self.status = self.statusBar()
         self.status.showMessage(u"Ready")
 
 ##################################################
+##################################################
         #create the progressebar
 ##################################################
         self.PrgBar = Viewer.PrgBar(self)
         self.status.addPermanentWidget(self.PrgBar.bar)
         
+##################################################
 ##################################################
         # create the toolbar
 ##################################################
@@ -179,25 +189,19 @@ class Principal(QtGui.QMainWindow):
 #TODO start with principal concepts. Lexicon and concepts access via menu
 
 ##################################################
-##### Tab for syntax items (Lexicon) #############
-        self.NOT1 = Viewer.LexiconTab()
-        self.NOT1.select.currentIndexChanged.connect(self.select_liste)
-        self.NOT1.select.setEnabled(False) 
-        self.NOT1.sort_command.setEnabled(False) 
-        self.NOT1.sort_command.currentIndexChanged.connect(self.affiche_liste_scores)
-        self.NOT1.dep0.listw.currentItemChanged.connect(self.ldep0_changed) 
-        self.NOT1.depI.listw.currentItemChanged.connect(self.ldepI_changed)
-        self.NOT1.depII.listw.currentItemChanged.connect(self.ldepII_changed)
-        self.NOT1.depI.deselected.connect(lambda: self.NOT1.depII.listw.clear())
-        self.NOT1.dep0.deselected.connect(lambda: [self.NOT1.depI.listw.clear(), self.NOT1.depII.listw.clear()])
+##### Tab for actants                #############
+
+        self.actantsTab = Viewer.actantsTab()
+
+##################################################
+##### Tab for authors                #############
+
+        self.authorsTab = Viewer.authorsTab()
 
 ##################################################
 ##### Tab for concepts #############
         self.NOT2 = Viewer.ConceptTab()
         self.NOT2.select.currentIndexChanged.connect(self.select_concept)
-        #self.connect(self.NOT2.select, QtCore.SIGNAL("currentIndexChanged(const QString)"), self.select_concept)
-        self.NOT2.select.setEnabled(False) 
-        self.NOT2.sort_command.setEnabled(False) 
         self.NOT2.sort_command.currentIndexChanged.connect(self.affiche_concepts_scores)
         self.NOT2.dep0.listw.currentItemChanged.connect(self.cdep0_changed)
         self.NOT2.depI.listw.currentItemChanged.connect(self.cdepI_changed)
@@ -205,6 +209,84 @@ class Principal(QtGui.QMainWindow):
         self.NOT2.depI.deselected.connect(lambda: self.NOT2.depII.listw.clear())
         self.NOT2.dep0.deselected.connect(lambda: [self.NOT2.depI.listw.clear(), 
             self.NOT2.depII.listw.clear()])
+#TODO add those  below
+        for i in range(6,12):
+            self.NOT2.sort_command.model().item(i).setEnabled(False)
+
+##################################################
+##### Tab for syntax items (Lexicon) #############
+        self.NOT1 = Viewer.LexiconTab()
+        self.NOT1.select.currentIndexChanged.connect(self.select_liste)
+        self.NOT1.sort_command.currentIndexChanged.connect(self.affiche_liste_scores)
+        self.NOT1.dep0.listw.currentItemChanged.connect(self.ldep0_changed) 
+        self.NOT1.depI.listw.currentItemChanged.connect(self.ldepI_changed)
+        self.NOT1.depII.listw.currentItemChanged.connect(self.ldepII_changed)
+        self.NOT1.depI.deselected.connect(lambda: self.NOT1.depII.listw.clear())
+        self.NOT1.dep0.deselected.connect(lambda: [self.NOT1.depI.listw.clear(), self.NOT1.depII.listw.clear()])
+#TODO add those below
+        for i in range(6,12):
+            self.NOT1.sort_command.model().item(i).setEnabled(False)
+
+#TODO activate all context menus via the Controller
+        #context menu activation
+
+        self.NOT1.dep0.listw.addAction(QtGui.QAction('texts', self,
+            triggered=lambda: self.show_texts_from_list(0)))
+        self.NOT1.dep0.listw.addAction(QtGui.QAction('network', self,
+            triggered=lambda: self.show_network(0)))
+        self.NOT1.dep0.listw.addAction(QtGui.QAction('copy list', self,
+            triggered=self.copy_to_cb))
+        self.NOT1.depI.listw.addAction(QtGui.QAction('texts', self,
+            triggered=lambda: self.show_texts_from_list(1)))
+        self.NOT1.depI.listw.addAction(QtGui.QAction('network', self,
+            triggered=lambda: self.show_network(1)))
+        self.NOT1.depII.listw.addAction(QtGui.QAction('texts', self,
+            triggered=lambda: self.show_texts_from_list(2)))
+#TODO send to texts list
+        self.NOT1.depII.listw.addAction(QtGui.QAction('sentences', self,
+            triggered=self.teste_wording))
+        self.NOT1.depII.listw.addAction(QtGui.QAction('network', self,
+            triggered=lambda: self.show_network(2)))
+
+        self.NOT2.dep0.listw.addAction(QtGui.QAction('texts', self,
+            triggered=lambda: self.show_texts_from_list(0)))
+        self.NOT2.dep0.listw.addAction(QtGui.QAction('network', self,
+            triggered=lambda: self.show_network(0)))
+#TODO #self.NOT2.dep0.addAction(QtGui.QAction('copy list', self, triggered=self.copy_to_cb))
+        self.NOT2.depI.listw.addAction(QtGui.QAction('texts', self,
+            triggered=lambda: self.show_texts_from_list(1)))
+        self.NOT2.depI.listw.addAction(QtGui.QAction('network', self,
+            triggered=lambda: self.show_network(1)))
+        self.NOT2.depII.listw.addAction(QtGui.QAction('texts', self,
+            triggered=lambda: self.show_texts_from_list(2)))
+#TODO send to texts list
+        self.NOT2.depII.listw.addAction(QtGui.QAction('sentences', self,
+            triggered=self.teste_wording))
+        self.NOT2.depII.listw.addAction(QtGui.QAction('network', self,
+            triggered=lambda: self.show_network(2)))
+
+##################################################
+##### Tab for persons                #############
+
+        self.show_persons = QtGui.QWidget()
+#TODO make it closable
+
+################################################
+#NO QTabWidget
+        self.NOTs = QtGui.QTabWidget()
+        self.NOTs.addTab(self.actantsTab, self.tr("Actants"))
+        self.NOTs.addTab(self.authorsTab, self.tr("Authors"))
+        self.NOTs.addTab(self.NOT2, "Concepts")
+        self.NOTs.addTab(self.NOT1, self.tr("Lexicon"))
+        self.NOTs.currentChanged.connect(self.change_NOTab)
+
+##################################################
+        #cadran NE
+##################################################
+
+##################################################
+# Journal
+        self.journal = Viewer.Journal()
 
 ################################################
 #Explorer Tab
@@ -214,29 +296,16 @@ class Principal(QtGui.QMainWindow):
         self.explorer_widget.liste.listw.currentItemChanged.connect(self.explo_item_selected)
         self.explorer_widget.liste.listw.addAction(QtGui.QAction('texts', self,
             triggered=self.explo_show_text))
+##################################################
+##### Tab for formulae                #############
+
+        formulaeTab = QtGui.QWidget()
 
 ################################################
 #Access by context CTX
-        self.NOT5 = Viewer.Contexts()
-        self.NOT5.l.currentItemChanged.connect(self.contexts_contents) 
+        self.CTXs = Viewer.Contexts()
+        self.CTXs.l.currentItemChanged.connect(self.contexts_contents) 
 
-################################################
-#NO QTabWidget
-        self.SubWdwNO =  QtGui.QTabWidget()
-        self.SubWdwNO.addTab(self.NOT1, self.tr("Lexicon"))
-        self.SubWdwNO.addTab(self.NOT2, "Concepts")
-        self.SubWdwNO.addTab(self.explorer_widget, "Search")
-        self.SubWdwNO.addTab(self.NOT5, "Contexts")
-        self.SubWdwNO.currentChanged.connect(self.change_NOTab)
-
-##################################################
-        #cadran NE
-##################################################
-
-##################################################
-# Journal
-        self.journal = Viewer.Journal()
-        
 ##################################################
 #evaluer directement les variables du serveur
         self.server_vars = Viewer.ServerVars()
@@ -247,13 +316,15 @@ class Principal(QtGui.QMainWindow):
 
 ##################################################
 #NE QTabWidget
-        self.SubWdwNE = QtGui.QTabWidget()
-        self.SubWdwNE.setTabsClosable(True)
-        self.SubWdwNE.tabCloseRequested.connect(self.SubWdwNE.removeTab)
-        self.journal_index = self.SubWdwNE.addTab(self.journal.journal, "Journal")
-        Viewer.hide_close_buttons(self.SubWdwNE,0)
-        self.SubWdwNE.addTab(self.server_vars, "Server vars")
-        Viewer.hide_close_buttons(self.SubWdwNE,1)
+        self.NETs = QtGui.QTabWidget()
+        self.NETs.setTabsClosable(True)
+        self.NETs.tabCloseRequested.connect(self.NETs.removeTab)
+        self.journal_index = self.NETs.addTab(self.journal.journal, "Journal")
+        Viewer.hide_close_buttons(self.NETs,0)
+        self.NETs.addTab(self.explorer_widget, "Search")
+        Viewer.hide_close_buttons(self.NETs,1)
+        self.NETs.addTab(formulaeTab, "Formulae")
+        Viewer.hide_close_buttons(self.NETs,2)
 
 ##################################################
         #cadran SO
@@ -272,21 +343,15 @@ class Principal(QtGui.QMainWindow):
         self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
 
 ##################################################
-#sentences tab
-        self.tab_sentences = QtGui.QTabWidget()
-        self.tab_sentences.setTabsClosable(True)
-        self.tab_sentences.tabCloseRequested.connect(self.tab_sentences.removeTab)
-
-##################################################
 #TODO les expression englobantes
 
 ##################################################
 #SO QTabWidget
-        self.SubWdwSO = QtGui.QTabWidget()
-        self.SubWdwSO.setTabsClosable(True)
-        self.SubWdwSO.tabCloseRequested.connect(self.SubWdwSO.removeTab)
-        self.SubWdwSO.addTab(self.SOT1, self.tr("Texts"))
-        Viewer.hide_close_buttons(self.SubWdwSO,0)
+        self.SOTs = QtGui.QTabWidget()
+        self.SOTs.setTabsClosable(True)
+        self.SOTs.tabCloseRequested.connect(self.SOTs.removeTab)
+        self.SOTs.addTab(self.SOT1, self.tr("Texts"))
+        Viewer.hide_close_buttons(self.SOTs,0)
 
 ##################################################
 #cadran SE
@@ -331,13 +396,19 @@ class Principal(QtGui.QMainWindow):
         self.textContent = QtGui.QTextEdit() 
 
 ##################################################
-#SE QTabWidget
-        self.SubWdwSETabs = QtGui.QTabWidget()
-        self.SubWdwSETabs.addTab(self.textProperties, "Properties")
-        self.SubWdwSETabs.addTab(self.SET2, "Context")
-        self.SubWdwSETabs.addTab(self.textContent, "Text")
+#sentences tab
+        self.tab_sentences = QtGui.QTabWidget()
+        self.tab_sentences.setTabsClosable(True)
+        self.tab_sentences.tabCloseRequested.connect(self.tab_sentences.removeTab)
 
-        self.SubWdwSETabs.currentChanged.connect(self.change_SETab)
+##################################################
+#SE QTabWidget
+        self.SETs = QtGui.QTabWidget()
+        self.SETs.addTab(self.textProperties, "Properties")
+        self.SETs.addTab(self.SET2, "Context")
+        self.SETs.addTab(self.textContent, "Text")
+
+        self.SETs.currentChanged.connect(self.change_SETab)
         self.textProperties.currentChanged.connect(self.change_text_prop_tab)
         self.text_elements.selector.currentIndexChanged.connect(self.show_text_elements)
 
@@ -350,20 +421,23 @@ class Principal(QtGui.QMainWindow):
 #TODO allow cadran to resize to the whole window 
         main = QtGui.QWidget()
         grid = QtGui.QGridLayout()
-        grid.addWidget(self.SubWdwNO,0, 0)
-        grid.addWidget(self.SubWdwNE, 0, 1)
-        grid.addWidget(self.SubWdwSO, 1, 0)
-        grid.addWidget(self.SubWdwSETabs, 1, 1)
+        grid.addWidget(self.NOTs,0, 0)
+        grid.addWidget(self.NETs, 0, 1)
+        grid.addWidget(self.SOTs, 1, 0)
+        grid.addWidget(self.SETs, 1, 1)
+        grid.setContentsMargins(5,10,5,5)
+        grid.setSpacing(10)
         main.setLayout(grid)
         self.setCentralWidget(main)
 
         #grid.setRowMinimumHeight(0,1000))
         #testeur = QtGui.QPushButton('+')
-        #self.SubWdwNO.setCornerWidget(testeur)
+        #self.NOTs.setCornerWidget(testeur)
         
         #grid.setContentsMargins(2,2,2,2)
 
         self.setWindowTitle(u'P-II interface')
+        self.setWindowIcon(QtGui.QIcon("images/Prospero-II.icns"))
         self.show() 
 
 ################################################
@@ -372,6 +446,29 @@ class Principal(QtGui.QMainWindow):
 #début des fonctions
 ################################################
 ################################################
+
+    def pre_calcule(self):
+        self.activity("pre-computing : texts")
+        self.preCompute = Controller.preCompute(self)
+        self.listeObjetsTextes = self.preCompute.listeObjetsTextes
+
+        self.CTXs.l.clear()
+        self.CTXs.l.addItems(self.preCompute.liste_champs_ctx)
+
+        self.PrgBar.setv(50)
+
+        # associated values
+        self.activity("pre-computing : values")
+        compteur = 0
+        max_compteur = len(self.preCompute.type_var) * len(self.preCompute.type_calcul)
+        for typ in self.preCompute.type_var :
+            for calc in self.preCompute.type_calcul:
+#FIXME freq et nbaut ne marche pas ?
+                self.preCompute.cacheAssocValue(typ, calc)
+                compteur += 1
+                self.PrgBar.setv(50 + (int(float(compteur) * 50 / max_compteur)))
+        self.PrgBar.reset()
+#TODO get concepts for search engine
 
     def activity(self, message):
         """Add message to the journal"""
@@ -434,11 +531,11 @@ class Principal(QtGui.QMainWindow):
                 l.itemSelectionChanged.connect(self.onSelectText)
 
         #display properties in selected tab
-        if (self.SubWdwSETabs.currentIndex() == 0):
+        if (self.SETs.currentIndex() == 0):
             self.show_textProperties(self.semantique_txt_item)
-        elif (self.SubWdwSETabs.currentIndex() == 1):
+        elif (self.SETs.currentIndex() == 1):
             self.show_textCTX(self.semantique_txt_item) 
-        elif (self.SubWdwSETabs.currentIndex() == 2):
+        elif (self.SETs.currentIndex() == 2):
             self.show_textContent(self.semantique_txt_item)
                 
 #REMOVEME>
@@ -466,11 +563,11 @@ class Principal(QtGui.QMainWindow):
             listwidget.itemSelectionChanged.connect(self.onSelectText)
 
     def change_NOTab(self):
-        if (self.SubWdwNO.currentIndex() == 1): # si l'onglet des Concepts est sélectionné
+        if (self.NOTs.currentIndex() == 1): # si l'onglet des Concepts est sélectionné
             if  hasattr(self, "client"): # si connecte
                 if not hasattr(self, "sem_concept"): #si pas de concept selectionné
                     self.select_concept(self.NOT2.select.currentText())
-        elif (self.SubWdwNO.currentIndex() == 0): 
+        elif (self.NOTs.currentIndex() == 0): 
             if  hasattr(self, "client"): 
                 if not hasattr(self, "sem_liste_concept"): #si pas de concept selectionné
                     self.select_liste(self.NOT1.select.currentText()) 
@@ -478,15 +575,15 @@ class Principal(QtGui.QMainWindow):
     def change_SETab(self):
         if  hasattr(self, "semantique_txt_item"):
             sem_txt = self.semantique_txt_item
-            if (self.SubWdwSETabs.currentIndex () == 0):
+            if (self.SETs.currentIndex () == 0):
                 self.saillantes.Act.clear()
                 self.saillantes.Cat.clear()
                 self.saillantes.Col.clear()
                 self.show_textProperties(sem_txt)
-            elif (self.SubWdwSETabs.currentIndex () == 1):
+            elif (self.SETs.currentIndex () == 1):
                 self.efface_textCTX()
                 self.show_textCTX(sem_txt) 
-            elif (self.SubWdwSETabs.currentIndex () == 2):
+            elif (self.SETs.currentIndex () == 2):
                 self.textContent.clear()
                 self.show_textContent(sem_txt)
             self.resetCTX() 
@@ -578,7 +675,7 @@ class Principal(QtGui.QMainWindow):
         for r in range(len(content)):
             i = QtGui.QListWidgetItem(content[r])
             self.NOT1.dep0.listw.addItem(i)
-            i.setToolTip('rank:%d'%(r+1))
+            #i.setToolTip('rank:%d'%(r+1))
             
     def change_liste_concepts(self, content):
         self.NOT2.dep0.listw.clear()
@@ -712,10 +809,10 @@ class Principal(QtGui.QMainWindow):
             self.NOT1.dep0.listw.setCurrentItem(itemT)
         if (itemT):
             value, item = re.split(" ",itemT.text(),1)
-            row = self.NOT1.dep0.listw.currentRow() 
 #TODO clarify the rules for exaequos in rank
+            #row = self.NOT1.dep0.listw.currentRow() 
             #self.activity("%s selected, rank %d" % (item, row+1))
-            self.activity("%s selected, rank %d, value %s" % (item, row+1, value))
+            self.activity("%s selected, value %s" % (item, value))
             self.NOT1.depI.listw.clear() # on efface la liste
             self.NOT1.depII.listw.clear()
             sem = self.sem_liste_concept
@@ -817,9 +914,10 @@ class Principal(QtGui.QMainWindow):
         if (not len(self.NOT2.dep0.listw.selectedItems())):
             self.NOT2.dep0.listw.setCurrentItem(itemT)
         if (itemT):
-            item = re.sub("^\d* ", "", itemT.text())
-            row = self.NOT2.dep0.listw.currentRow() 
-            self.activity("%s selected, rank %d" % (item, row+1))
+            value, item = re.split(" ",itemT.text(),1)
+            #item = re.sub("^\d* ", "", itemT.text())
+            #row = self.NOT2.dep0.listw.currentRow() 
+            self.activity("%s selected, value %s" % (item, value))
             self.NOT2.depI.listw.clear() # on efface la liste
             self.NOT2.depII.listw.clear()
             sem = self.sem_concept # recupere la designation semantique de l'element
@@ -990,86 +1088,50 @@ class Principal(QtGui.QMainWindow):
 
     def connect_server(self, h = 'prosperologie.org', p = '60000'):
         self.activity("Connecting to server")
-        #self.client=client(self.Param_Server_val_host.text(), self.Param_Server_val_port.text())
-
-        #self.client=client("prosperologie.org", "60000")
-        #self.client=client("192.168.1.99", "4000")
-
         self.client=Controller.client(h, p)
-        #self.client=client("prosperologie.org", "60000")
-        #self.client=client("localhost", "60000")
-
-        #self.client.teste_connect()
         
         if (self.client.etat):
             # donne le focus a l'onglet journal
-            self.SubWdwNE.setCurrentIndex(self.journal_index)
-
+            self.NETs.setCurrentIndex(self.journal_index)
             # calcule en avance
             self.pre_calcule()
-
             #display info in the toolbar
-            self.toolbar_descr_corpus.setText("%s pages %s texts" %\
-                (self.preCompute.nbpg, self.preCompute.nbtxt))
-#TODO recup corpus name, volume
+            self.toolbar_descr_corpus.setText("Corpus name? %s texts %s pages\
+... volume" % (self.preCompute.nbtxt, self.preCompute.nbpg))
+#TODO display corpus name, volume
 
             #display list for the current selected tab
-            if (self.lexicon_or_concepts() == "lexicon"):
-                self.select_liste(self.NOT1.select.currentText())
-            elif (self.lexicon_or_concepts() == "concepts"):
-                self.select_concept(self.NOT2.select.currentText())
+#            if (self.lexicon_or_concepts() == "lexicon"):
+#                self.select_liste(self.NOT1.select.currentText())
+#            elif (self.lexicon_or_concepts() == "concepts"):
+#                self.select_concept(self.NOT2.select.currentText())
 
-            self.NOT1.sort_command.setEnabled(True) 
-#TODO add those below
-            for i in range(6,12):
-                self.NOT1.sort_command.model().item(i).setEnabled(False)
 
-            self.NOT1.select.setEnabled(True) 
+#FIXME first
+            self.activity("calculating actants")
+            ask = u"$act[0:]" 
+            result = self.client.eval_var(ask)
+            list_results = re.split(", ", result)
+            self.actantsTab.L.clear()
+            for i, act in enumerate(list_results):
+                ask = u"$act%d.txt[0:]" % i 
+                result = self.client.eval_var(ask)
+                n = len(re.split(", ", result))
+                self.actantsTab.L.addItem("%d %s" % (n, act))
 
-            self.NOT2.sort_command.setEnabled(True) 
-#TODO add those  below
-            for i in range(6,12):
-                self.NOT2.sort_command.model().item(i).setEnabled(False)
+            self.activity("calculating authors")
+            ask = u"$aut[0:]" 
+            result = self.client.eval_var(ask)
+            list_results = re.split(", ", result)
+            self.authorsTab.L.clear()
+            for i, aut in enumerate(list_results):
+                ask = u"$aut%d.txt[0:]" % i 
+                result = self.client.eval_var(ask)
+                n = len(re.split(", ", result))
+                self.authorsTab.L.addItem("%d %s" % (n, aut))
 
-            self.NOT2.select.setEnabled(True) 
 
-#TODO activate all context menus via the Controller
-            #context menu activation
 
-            self.NOT1.dep0.listw.addAction(QtGui.QAction('texts', self,
-                triggered=lambda: self.show_texts_from_list(0)))
-#TODO #self.NOT1.dep0.listw.addAction(QtGui.QAction('sentences', self, triggered=self.teste_wording))
-            self.NOT1.dep0.listw.addAction(QtGui.QAction('network', self,
-                triggered=lambda: self.show_network(0)))
-            self.NOT1.dep0.listw.addAction(QtGui.QAction('copy list', self,
-                triggered=self.copy_to_cb))
-            self.NOT1.depI.listw.addAction(QtGui.QAction('texts', self,
-                triggered=lambda: self.show_texts_from_list(1)))
-            self.NOT1.depI.listw.addAction(QtGui.QAction('network', self,
-                triggered=lambda: self.show_network(1)))
-            self.NOT1.depII.listw.addAction(QtGui.QAction('texts', self,
-                triggered=lambda: self.show_texts_from_list(2)))
-            self.NOT1.depII.listw.addAction(QtGui.QAction('sentences', self,
-                triggered=self.teste_wording))
-            self.NOT1.depII.listw.addAction(QtGui.QAction('network', self,
-                triggered=lambda: self.show_network(2)))
-
-            self.NOT2.dep0.listw.addAction(QtGui.QAction('texts', self,
-                triggered=lambda: self.show_texts_from_list(0)))
-#TODO #self.NOT2.dep0.addAction(QtGui.QAction('sentences', self, triggered=self.teste_wording))
-            self.NOT2.dep0.listw.addAction(QtGui.QAction('network', self,
-                triggered=lambda: self.show_network(0)))
-#TODO #self.NOT2.dep0.addAction(QtGui.QAction('copy list', self, triggered=self.copy_to_cb))
-            self.NOT2.depI.listw.addAction(QtGui.QAction('texts', self,
-                triggered=lambda: self.show_texts_from_list(1)))
-            self.NOT2.depI.listw.addAction(QtGui.QAction('network', self,
-                triggered=lambda: self.show_network(1)))
-            self.NOT2.depII.listw.addAction(QtGui.QAction('texts', self,
-                triggered=lambda: self.show_texts_from_list(2)))
-            self.NOT2.depII.listw.addAction(QtGui.QAction('sentences', self,
-                triggered=self.teste_wording))
-            self.NOT2.depII.listw.addAction(QtGui.QAction('network', self,
-                triggered=lambda: self.show_network(2)))
 
             #Show corpus texts list on its own tab
             self.create_corpus_texts_tab()
@@ -1086,8 +1148,20 @@ class Principal(QtGui.QMainWindow):
         QtCore.QObject.connect(self.param_corpus.send_codex_ViewListeTextes,
                  QtCore.SIGNAL("triggered()"), self.send_codex_ViewListeTextes)
         self.param_corpus.launchPRC_button.clicked.connect(self.launchPRC)
-        self.param_corpus_tab_index = self.SubWdwNE.addTab(self.param_corpus, "Corpus")
-        self.SubWdwNE.setCurrentIndex(self.param_corpus_tab_index)
+        self.param_corpus_tab_index = self.NETs.addTab(self.param_corpus, "Corpus")
+        self.NETs.setCurrentIndex(self.param_corpus_tab_index)
+
+    def display_contexts(self):
+        i = self.NETs.addTab(self.CTXs, "Contexts")
+        self.NETs.setCurrentIndex(i)
+
+    def display_server_vars(self):
+        i = self.NETs.addTab(self.server_vars, "Server vars")
+        self.NETs.setCurrentIndex(i)
+
+    def display_pers(self):
+        i = self.NOTs.addTab(self.show_persons, "Persons")
+        self.NOTs.setCurrentIndex(i)
 
     def codex_window(self):
         codex_w = codex_window(self)
@@ -1095,14 +1169,14 @@ class Principal(QtGui.QMainWindow):
 
     def add_gen_mrlw_tab(self):
         self.gen_mrlw = Viewer.MrlwVarGenerator()
-        self.gen_mrlw_tab_index = self.SubWdwNE.addTab(self.gen_mrlw.gen_mrlw, 
+        self.gen_mrlw_tab_index = self.NETs.addTab(self.gen_mrlw.gen_mrlw, 
                                                     self.tr("Variant generation"))
-        self.SubWdwNE.setCurrentIndex(self.gen_mrlw_tab_index)
+        self.NETs.setCurrentIndex(self.gen_mrlw_tab_index)
 
     def MarloweViewer(self):
         MarloweView = QtWebKit.QWebView()
-        tabindex = self.SubWdwNE.addTab(MarloweView, "Marlowe")
-        self.SubWdwNE.setCurrentIndex(tabindex)
+        tabindex = self.NETs.addTab(MarloweView, "Marlowe")
+        self.NETs.setCurrentIndex(tabindex)
         url = "http://tiresias.xyz:8080/accueil"
         MarloweView.load(QtCore.QUrl(url))
 
@@ -1416,7 +1490,6 @@ class Principal(QtGui.QMainWindow):
                         i.setBackground(QtGui.QColor(237, 243, 254)) # cyan
                         self.saillantes.Act.addItem(i)
                     
-                
     def recup_element_lexicon(self, lvl):
         """get semantic and name of item pointed in lexicon list"""
         if (self.sem_liste_concept in ['$ent']):
@@ -1461,7 +1534,7 @@ class Principal(QtGui.QMainWindow):
 
     def add_networks_tab(self):
         """display tab network in the SO cadran"""
-        self.networks_tab_index = self.SubWdwSO.addTab(self.tabNetworks, self.tr("Networks"))
+        self.networks_tab_index = self.SOTs.addTab(self.tabNetworks, self.tr("Networks"))
 
     def show_network(self, lvl):
         """Show the network of a selected item"""
@@ -1470,10 +1543,12 @@ class Principal(QtGui.QMainWindow):
         #create the networks tab if not exists
         if (not hasattr(self, "networks_tab_index")):
             self.add_networks_tab()
-        if (self.SubWdwNO.currentIndex() == 0) : # si l'onglet lexicon
+
+        if (self.lexicon_or_concepts() == "lexicon"):
             sem, element = self.recup_element_lexicon(lvl)
-        if (self.SubWdwNO.currentIndex() == 1) : # si l'onglet concepts
+        elif (self.lexicon_or_concepts() == "concepts"):
             sem, element = self.recup_element_concepts(lvl)
+
         for i in range(0, self.tabNetworks.count()):
             if (self.tabNetworks.tabText(i) == element):
                 self.tabNetworks.removeTab(i)
@@ -1488,7 +1563,7 @@ class Principal(QtGui.QMainWindow):
         self.tabNetworks.setTabToolTip(index, element)
         # give focus
         self.tabNetworks.setCurrentIndex(index)
-        self.SubWdwSO.setCurrentIndex(self.networks_tab_index)
+        self.SOTs.setCurrentIndex(self.networks_tab_index)
 
     def explo_item_selected(self):
         self.explorer_widget.explo_lexi.clear()
@@ -1548,10 +1623,11 @@ class Principal(QtGui.QMainWindow):
             self.show_texts(element, lt_valued)
 
     def lexicon_or_concepts(self):
-        i = self.SubWdwNO.currentIndex()
-        if (i == 0):
+#FIXME pas par index
+        i = self.NOTs.currentIndex()
+        if (i == 1):
             return "lexicon"
-        elif (i == 1):
+        elif (i == 0):
             return "concepts"
         else:
             return False
@@ -1577,7 +1653,7 @@ class Principal(QtGui.QMainWindow):
         self.del_tab_text_doubl(element)
         index = self.SOT1.addTab(texts_widget, texts_widget.title)
         self.SOT1.setCurrentIndex(index)
-        self.SubWdwSO.setCurrentIndex(0)
+        self.SOTs.setCurrentIndex(0)
         self.SOT1.tabBar().setTabToolTip(index, texts_widget.title)
 
     def del_tab_text_doubl(self, element):
@@ -1587,11 +1663,10 @@ class Principal(QtGui.QMainWindow):
             if (tab_element == element):
                 self.SOT1.removeTab(i)
 
-            
     def teste_wording(self):
-        if (self.SubWdwNO.currentIndex() == 0) : # si l'onglet lexicon
+        if (self.NOTs.currentIndex() == 0) : # si l'onglet lexicon
             item = self.NOT1.depII.listw.currentItem().text()
-        if (self.SubWdwNO.currentIndex() == 1) : # si l'onglet concepts
+        if (self.NOTs.currentIndex() == 1) : # si l'onglet concepts
             item = self.NOT2.depII.listw.currentItem().text()
 
         score, item = re.search("^(\d*) (.*)", item).group(1, 2)
@@ -1601,7 +1676,8 @@ class Principal(QtGui.QMainWindow):
             result = self.client.eval_var(ask)
             
             if (not hasattr(self, "tab_sentences_index")):
-                self.tab_sentences_index = self.SubWdwSO.addTab(self.tab_sentences, "Sentences")
+#FIXME make it closable, only the sentences of the text selected
+                self.tab_sentences_index = self.SETs.addTab(self.tab_sentences, "Sentences")
             
             for i in range(0, self.tab_sentences.count()):
                 if (self.tab_sentences.tabText(i) == item):
@@ -1622,7 +1698,7 @@ class Principal(QtGui.QMainWindow):
 
             #give focus
             self.tab_sentences.setCurrentIndex(index)
-            self.SubWdwSO.setCurrentIndex(self.tab_sentences_index)
+            self.SOTs.setCurrentIndex(self.tab_sentences_index)
 
     def easter1(self):
         self.explorer_widget.explo_easter.setPixmap(QtGui.QPixmap("images/Prospero-II.png"))
@@ -1656,9 +1732,9 @@ class Principal(QtGui.QMainWindow):
                     self.activity("searching for {%s}: 0 result" % (motif) )
     
     def contexts_contents(self):
-        self.NOT5.cont.clear()
-        if (self.NOT5.l.currentItem()):
-            champ = self.NOT5.l.currentItem().text()
+        self.CTXs.cont.clear()
+        if (self.CTXs.l.currentItem()):
+            champ = self.CTXs.l.currentItem().text()
             #print [champ]
             result = self.client.eval_var(u"$ctx.%s[0:]" % champ)
             result = re.split("(?<!\\\), ", result)#negative lookbehind assertion
@@ -1670,15 +1746,15 @@ class Principal(QtGui.QMainWindow):
                 else:
                     dic_CTX[r] = 1
             for el in sorted(dic_CTX.items(), key= lambda (k, v) : (-v, k)):
-                self.NOT5.cont.addItem(u"%d %s"%(el[1], re.sub("\\\,", ",", el[0])))
+                self.CTXs.cont.addItem(u"%d %s"%(el[1], re.sub("\\\,", ",", el[0])))
 
     def maj_metadatas(self):
         string_ctx =    self.client.eval_var("$ctx")
         #self.client.add_cache_var(sem_txt +".ctx."+field, val)
-        current  =  self.NOT5.l.currentItem() 
-        self.NOT5.cont.clear()
+        current  =  self.CTXs.l.currentItem() 
+        self.CTXs.cont.clear()
         if (current):
-            self.NOT5.l.setCurrentItem(current)
+            self.CTXs.l.setCurrentItem(current)
             self.contexts_contents()
     
     def copy_to_cb(self):
