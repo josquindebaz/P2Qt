@@ -39,6 +39,7 @@ class PrgBar(object):
 
     def percAdd(self, i):
         self.inc += i
+#FIXME ZeroDivisionError: integer division or modulo by zero
         self.setv(self.inc*100/self.total)
         if self.inc == self.total:
             self.inc = 0
@@ -102,7 +103,6 @@ class authorsTab(QtGui.QWidget):
         
 class LexiconTab(QtGui.QWidget):
     """Widget displaying lexicon lists"""
-#TODO abandonner 3 colonnes
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
         V = QtGui.QVBoxLayout()
@@ -113,9 +113,17 @@ class LexiconTab(QtGui.QWidget):
         V.addLayout(VHC)
         self.select = QtGui.QComboBox()
 #send persons to a dedicated tab
-        self.select.addItems([ u'entities', u"qualities", u"markers",
-            u"verbs", "undefined", "persons", u"expressions",  u"numbers",
-            u"function words", ])
+        self.select.addItems([ 
+            u'entities', 
+            u"qualities", 
+            u"markers",
+            u"verbs", 
+            "undefined", 
+            "persons", 
+            u"expressions",  
+            u"numbers",
+            u"function words",
+        ])
 #TODO add those
         for i in range(7,9):
             self.select.model().item(i).setEnabled(False)
@@ -129,7 +137,7 @@ class LexiconTab(QtGui.QWidget):
 
     #sorting command
         self.sort_command = QtGui.QComboBox()
-        self.sort_command.addItems(sorting_command_list)
+        self.sort_command.addItems(Controller.sorting_lexicon_list)
         VHC.addWidget(self.sort_command)
 
     #une box horizontale pour liste, score et deploiement
@@ -138,12 +146,12 @@ class LexiconTab(QtGui.QWidget):
     #lexicon liste
         self.dep0 = MyListWidget()
         VH.addWidget(self.dep0)
-    #I deployment
-        self.depI = MyListWidget()
-        VH.addWidget(self.depI)
-    #II deployment 
-        self.depII = MyListWidget()
-        VH.addWidget(self.depII)
+#    #I deployment
+#        self.depI = MyListWidget()
+#        VH.addWidget(self.depI)
+#    #II deployment 
+#        self.depII = MyListWidget()
+#        VH.addWidget(self.depII)
 
 class ConceptTab(QtGui.QWidget):
 #TODO systématiser 3 colonnes ou passer à deux ?
@@ -170,7 +178,7 @@ class ConceptTab(QtGui.QWidget):
 
     #sorting command
         self.sort_command = QtGui.QComboBox()
-        self.sort_command.addItems(sorting_command_list)
+        self.sort_command.addItems(Controller.sorting_concepts_list)
         VHC.addWidget(self.sort_command)
 
         VH = QtGui.QHBoxLayout()
@@ -935,7 +943,7 @@ class NetworksViewer(object):
 
         #selecteur de concept
         net_sel_concept = QtGui.QComboBox()
-        net_sel_concept.addItems([u"Entities"])
+        net_sel_concept.addItems([u"entities&fictions"])
         show_network_box.addWidget(net_sel_concept)
 
         Network_list =  QtGui.QListWidget()
@@ -1129,9 +1137,4 @@ def hide_close_buttons(tabs_widget,index):
         elif tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide):
             tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).resize(0,0)
             tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).hide()
-
-sorting_command_list = [u"occurences", u"deployment", u"alphabetically",
-    "number of texts", "first apparition", "last apparition", "weigthed", 
-    "autors number", "day present number", "relatif nb jours", "representant number",
-    "network element number"]
 

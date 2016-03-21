@@ -11,13 +11,6 @@ class client(object):
         self.c = interface_prospero.ConnecteurPII() 
         self.c.set(h, p)
         self.etat = self.c.connect_x(5)
-#REMOVEME>
-#        if not (self.etat):
-#            msgBox = QtGui.QMessageBox()
-#            msgBox.setText("connection failed")
-#            msgBox.setIcon(QtGui.QMessageBox.Critical)
-#            msgBox.exec_()
-#<REMOVEME
 
     def disconnect(self):
         self.c.disconnect()
@@ -39,14 +32,14 @@ class client(object):
         """jp : pour retrouver la sémantique d'un élément : 
         getsem 'nucléaire' $ent
         """
-        return self.c.eval_fonct(u"getsem", exp, sem)
+        return self.c.eval_fonct(u"getsem", u"%s"%exp, sem)
 
     def add_cache_var(self, cle, val):
         self.c.add_cache_var(cle, val)
 
-    def add_cache_fonct(self, cle, val):
-    # pour anticiper les getsem /corpus/texte $txt
-        self.c.add_cache_fonc(cle, val)
+#    def add_cache_fonct(self, cle, val):
+#    # pour anticiper les getsem /corpus/texte $txt
+#        self.c.add_cache_fonc(cle, val)
     
     def creer_msg_search(self, fonc, element, pelement='', txt=False, 
                                     ptxt='', ph=False, pph='', val=False):
@@ -397,11 +390,25 @@ class preCompute(object):
         
         self.recup_texts() #texts
         self.recup_ctx() #ctx
-        self.type_var =  [ "$ent", "$ef", "$col", "$qualite", '$marqueur',
-            '$epr', '$pers', '$undef', '$act', '$expr', '$cat_ent', '$cat_epr',
-            '$cat_qua', '$cat_mar'] 
-        self.type_calcul = ["freq", "dep", "nbaut", "nbtxt", "lapp", "fapp"]
-    
+        self.type_var =  [ 
+            "$ent",
+            "$ef",
+            "$ent_sf",
+            "$col",
+            "$qualite",
+            '$marqueur',
+            '$epr',
+            '$pers',
+            '$undef',
+            '$act',
+            '$expr',
+            '$cat_ent',
+            '$cat_epr',
+            '$cat_qua',
+            '$cat_mar',
+            '$aut'
+        ] 
+        self.type_calcul = hash_sort_concept.values()
         self.nbpg = self.parent.client.eval_var("$nbpg")
         self.nbtxt = self.parent.client.eval_var("$nbtxt")
 
@@ -411,13 +418,6 @@ class preCompute(object):
         self.listeTextes  = re.split(", ", txts)
         self.listeObjetsTextes = {}
         self.dicTxtSem = {}
-#REMOVEME
-#        for t in range(len(self.listeTextes)):
-#            sem_texte = u"$txt%d"%(t)
-#            self.listeObjetsTextes[sem_texte] =  Texte(sem_texte, 
-#                                                self.listeTextes[t])
-#            self.dicTxtSem[self.listeTextes[t]] = sem_texte
-#REMOVEME
         for i, t in enumerate(self.listeTextes):
             sem_texte = u"$txt%d"%(i)
             self.listeObjetsTextes[sem_texte] =  Texte(sem_texte, t)
@@ -458,26 +458,139 @@ class preCompute(object):
     
     def cacheAssocValue(self, type_var, type_calcul):    
         ask = self.parent.client.eval_vector(type_var, type_calcul)
-
-        if (type_calcul == "freq"):
-            type_calcul = "val"
-
         for indice, val in enumerate(ask.split(', ')):
             m = "%s%s.%s"%(type_var, str(indice), type_calcul)
-            self.parent.client.add_cache_var (m, val)
+            self.parent.client.add_cache_var(m, val)
     
 def sp_el(element):
     return element.split(' ', 1)
 
-semantiques = {'collections': '$col', 'fictions': '$ef', 'entity categories':
-'$cat_ent', 'verb categories': '$cat_epr', 'marker categories': '$cat_mar',
-'quality categories': '$cat_qua', 'entities': '$ent_sf', 'qualities': '$qualite',
-'markers': '$marqueur', 'verbs': '$epr', 'persons': '$pers', 'undefined':
-'$undef', 'actants': '$act', 'expressions': '$expr', 'entities&fictions': '$ent'}
+semantiques = {
+        'collections': '$col',
+	'fictions': '$ef',
+	'entity categories': '$cat_ent',
+	'verb categories': '$cat_epr',
+	'marker categories': '$cat_mar',
+	'quality categories': '$cat_qua',
+	'entities': '$ent_sf',
+	'qualities': '$qualite',
+	'markers': '$marqueur',
+	'verbs': '$epr',
+	'persons': '$pers',
+	'undefined': '$undef',
+        'actants': '$act',
+	'expressions': '$expr',
+	'entities&fictions': '$ent'
+}
+
+def recup_scores(which, typ, parent):
+    sem = semantiques[typ]
+    #print "C4052", sem
+    content = parent.client.recup_liste_concept(sem)
+    liste_final = []
+    if (content == ['']):
+        parent.activity(u"Nothing to Display for %s" % (typ))
+    else:
+        parent.activity(u"Displaying %s list (%d items) ordered by %s" % (typ, 
+                len(content), which))
+
+        liste_valued =[]
+        parent.PrgBar.perc(len(content))
+
+        sort = hash_sort_list[which]
+
+        for row, concept in enumerate(content):
+            ask = "%s%d.%s" % (sem, row, sort)
+            result  = parent.client.eval_var(ask)
+            try :
+                if (which  in ["first apparition", 
+                                             "last apparition"]):
+                    val = re.sub(u"^\s*", "", result)
+                else :
+                    val = int(result)
+            except:
+                val = 0
+            liste_valued.append([val, content[row]])
+            parent.PrgBar.percAdd(1)
+
+        #self.content_liste_concept = [] #REMOVEME
+        if (which == "alphabetically"):
+            for i in sorted(liste_valued, key=lambda x: x[1], reverse = 0):
+                item_resume = u"%s %s" % (i[0], i[1])
+                liste_final.append(item_resume) 
+                #self.content_liste_concept.append(i[1]) #REMOVEME
+        elif (which in ["first apparition", "last apparition"]):
+            for i in sorted(liste_valued, 
+                    key=lambda x: ''.join(sorted(x[0].split('/'), reverse=1)),
+                     reverse = 0):
+                item_resume = u"%s %s" % (i[0], i[1])
+                liste_final.append(item_resume) 
+                #self.content_liste_concept.append(i[1]) #REMOVEME
+        else :
+            for i in sorted(liste_valued, key=lambda x: x[0], reverse = 1):
+                item_resume = u"%s %s" % (i[0], i[1])
+                liste_final.append(item_resume) 
+                #self.content_liste_concept.append(i[1]) #REMOVEME
+    return liste_final
 
 #For eval_index result
-explo_lexic = {'$ent_sf': 'entity', '$qual': 'quality', '$marqueur': 'marker',
-'$epreuve': 'verbs', '$mo': 'function word' }
+explo_lexic = {
+        '$ent_sf': 'entity',
+	'$qual': 'quality',
+	'$marqueur': 'marker',
+	'$epreuve': 'verbs',
+	'$mo': 'function word' 
+}
+#NB $entef = entite out of fictions + fictions + entities in fictions
 
-#$entef = entite out of fictions + fictions + entities in fictions
+#For affiche_concepts_scores
+hash_sort_concept = {
+    "occurences": "freq",
+    "alphabetically": "freq",
+    "deployment": "dep",
+    "number of texts": "nbtxt",
+    "number of authors": "nbaut",
+    "first apparition": "fapp",
+    "last apparition": "lapp",
+}
+
+hash_sort_list = {
+    "occurences": "freq",
+    "alphabetically": "freq",
+#    "deployment": "dep",
+    "number of texts": "nbtxt",
+    "number of authors": "nbaut",
+    "first apparition": "fapp",
+    "last apparition": "lapp",
+}
+
+sorting_concepts_list = [
+        u"occurences",
+	u"deployment",
+	u"alphabetically",
+	"number of texts",
+	"number of authors",
+	"first apparition",
+	"last apparition",
+	"weigthed",
+	"day present number",
+	"relatif nb jours",
+	"representant number",
+	"network element number"
+] 
+
+sorting_lexicon_list = [
+        u"occurences",
+#	u"deployment",
+	u"alphabetically",
+	"number of texts",
+	"number of authors",
+	"first apparition",
+	"last apparition",
+	"weigthed",
+	"day present number",
+	"relatif nb jours",
+	"representant number",
+	"network element number"
+]
 
