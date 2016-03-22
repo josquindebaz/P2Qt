@@ -95,7 +95,7 @@ class Principal(QtGui.QMainWindow):
         self.NOT2.dep0.deselected.connect(lambda: [self.NOT2.depI.listw.clear(), 
             self.NOT2.depII.listw.clear()])
         #TODO add those  below
-        for i in range(6,12):
+        for i in range(7,12):
             self.NOT2.sort_command.model().item(i).setEnabled(False)
 
         ##### Tab for syntax items (Lexicon) #############
@@ -110,7 +110,7 @@ class Principal(QtGui.QMainWindow):
         self.NOT1.dep0.deselected.connect(lambda: [self.NOT1.depI.listw.clear(),
              self.NOT1.depII.listw.clear()])
         #TODO add those below
-        for i in range(6,12):
+        for i in range(7,12):
             self.NOT1.sort_command.model().item(i).setEnabled(False)
 
         #context menu activation
@@ -217,8 +217,8 @@ class Principal(QtGui.QMainWindow):
         Viewer.hide_close_buttons(self.NETs,0)
         self.NETs.addTab(self.explorer_widget, self.tr("Search"))
         Viewer.hide_close_buttons(self.NETs,1)
-        self.NETs.addTab(formulaeTab, self.tr("Formulae"))
-        Viewer.hide_close_buttons(self.NETs,2)
+        #self.NETs.addTab(formulaeTab, self.tr("Formulae"))
+        #Viewer.hide_close_buttons(self.NETs,2)
 
         ##################################################
         #cadran SO
@@ -423,13 +423,13 @@ class Principal(QtGui.QMainWindow):
             listwidget.itemSelectionChanged.connect(self.onSelectText)
 
     def change_NOTab(self):
-        if (self.NOTs.currentIndex() == 1): # si l'onglet des Concepts est sélectionné
+        if (self.NOTs.currentIndex() == 2): #Concepts
             if  hasattr(self, "client"): # si connecte
-                if not hasattr(self, "sem_concept"): #si pas de concept selectionné
+                if not hasattr(self, "sem_concept"): 
                     self.select_concept(self.NOT2.select.currentText())
-        elif (self.NOTs.currentIndex() == 0): 
+        elif (self.NOTs.currentIndex() == 3):#Lexicon
             if  hasattr(self, "client"): 
-                if not hasattr(self, "sem_liste_concept"): #si pas de concept selectionné
+                if not hasattr(self, "sem_liste_concept"): 
                     self.select_liste(self.NOT1.select.currentText()) 
 
     def change_SETab(self):
@@ -563,10 +563,13 @@ class Principal(QtGui.QMainWindow):
                 ask = "%s%d.%s"% (self.sem_concept, row, order)
             elif (which_concepts == "first apparition"):
                 order = "fapp"
-                ask = "%s%d.%s"% (self.sem_liste_concept, row, order)
+                ask = "%s%d.%s"% (self.sem_concept, row, order)
             elif (which_concepts == "last apparition"):
                 order = "lapp"
-                ask = "%s%d.%s"% (self.sem_liste_concept, row, order)
+                ask = "%s%d.%s"% (self.sem_concept, row, order)
+            elif (which_concepts == "number of authors"):
+                order = "nbaut"
+                ask = "%s%d.%s"% (self.sem_concept, row, order)
 
             result  = self.client.eval_var(ask)
 
@@ -580,6 +583,9 @@ class Principal(QtGui.QMainWindow):
                 #en cas de non reponse
                 print "C5518 pb with", [ask]
                 val = 0
+            if (self.sem_concept == "$ent" 
+                    and which_concepts == "deployment" and val == 0):
+                val = 1
             liste_valued.append([val, content[row]])
 
             self.PrgBar.percAdd(1)
@@ -620,22 +626,25 @@ class Principal(QtGui.QMainWindow):
                 order = "nbtxt"
                 ask = "%s%d.%s"% (self.sem_liste_concept, row, order)
             elif (which == "first apparition"):
+                #FIXME does not work with $ent_sf
                 order = "fapp"
                 ask = "%s%d.%s"% (self.sem_liste_concept, row, order)
             elif (which == "last apparition"):
+                #FIXME does not work with $ent_sf
                 order = "lapp"
+                ask = "%s%d.%s"% (self.sem_liste_concept, row, order)
+            elif (which == "number of authors"):
+                #FIXME does not work with $ent_sf
+                order = "nbaut"
                 ask = "%s%d.%s"% (self.sem_liste_concept, row, order)
 
             result = self.client.eval_var(ask)
 
             try :
-                if which  in ["first apparition",  "last apparition"]:
+                if which in ["first apparition",  "last apparition"]:
                     val = re.sub(u"^\s*", "", result)
                 else :
                     val = int(result)
-                if (self.sem_liste_concept == "$ent" and which == "deployment"
-                                                                    and val == 0):
-                    val = 1
             except:
                 #en cas de non reponse
                 print "C26358 No answer from the server to: ", [ask]
@@ -791,9 +800,9 @@ class Principal(QtGui.QMainWindow):
                         if (which_concepts == "number of texts"):
                             #FIXME corriger, il donne la valeur de la categorie entiere
                             ask = "%s.rep%d.nbtxt"% (self.semantique_concept_item, r)
+                            print "C1976: %s" % ask
                         else :
                             ask = "%s.rep%d.val"% (self.semantique_concept_item, r)
-                        print "C1976: %s" % ask
                         val = int(self.client.eval_var(ask))
                         
                         liste_scoree.append([ result[r], val ])
@@ -811,7 +820,13 @@ class Principal(QtGui.QMainWindow):
                             ask = "%s.rep%d.dep"% (self.semantique_concept_item, r)
                         elif (which_concepts == "number of texts"):
                             ask = "%s.rep%d.nbtxt"% (self.semantique_concept_item, r)
-                        val = int(self.client.eval_var(ask))
+                        elif (which_concepts == "number of authors"):
+                            #FIXME does not return anything
+                            ask = "%s.rep%d.nbaut"% (self.semantique_concept_item, r)
+                        try:
+                            val = int(self.client.eval_var(ask))
+                        except:
+                            print "C19584", ask, self.client.eval_var(ask)
                         
                         to_add = "%d %s"%(val, result[r])
                         #quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
@@ -1010,7 +1025,7 @@ class Principal(QtGui.QMainWindow):
         self.NETs.setCurrentIndex(i)
 
     def display_server_vars(self):
-        i = self.NETs.addTab(self.server_vars, self.fr("Server vars"))
+        i = self.NETs.addTab(self.server_vars, self.tr("Server vars"))
         self.NETs.setCurrentIndex(i)
 
     def display_pers(self):
@@ -1393,11 +1408,10 @@ class Principal(QtGui.QMainWindow):
 
     def show_network(self, lvl):
         """Show the network of a selected item"""
-        #TODO scorer
-        #TODO supprimer tab generale quand derniere sous-tab supprimee
         #create the networks tab if not exists
         if (not hasattr(self, "networks_tab_index")):
             self.add_networks_tab()
+        #TODO supprimer tab generale quand derniere sous-tab supprimee
 
         if (self.lexicon_or_concepts() == "lexicon"):
             sem, element = self.recup_element_lexicon(lvl)
@@ -1410,15 +1424,22 @@ class Principal(QtGui.QMainWindow):
         
         res_semantique = "%s.res[0:]" % (sem)
         result_network =   re.split(", ", self.client.eval_var(res_semantique))
-        network_view = Viewer.NetworksViewer(result_network)
+        
+        if (len(result_network)):
+            valued = []
+            for i, el in enumerate(result_network):
+                #TODO vérifier les scores
+                ask = "%s.res%d.val"%(sem, i)
+                val = self.client.eval_var(ask)
+                valued.append("%s %s"%(val, el))
+            network_view = Viewer.NetworksViewer(valued)
 
         self.activity(self.tr("Displaying network for %s (%d items)")% (element,
                                                              len(result_network)))
         index = self.tabNetworks.addTab(network_view.show_network_widget, element)
         self.tabNetworks.setTabToolTip(index, element)
-        # give focus
         self.tabNetworks.setCurrentIndex(index)
-        self.SOTs.setCurrentIndex(self.networks_tab_index)
+        self.NETs.setCurrentIndex(self.networks_tab_index)
 
     def explo_item_selected(self):
         self.explorer_widget.explo_lexi.clear()
@@ -1478,11 +1499,10 @@ class Principal(QtGui.QMainWindow):
             self.show_texts(element, lt_valued)
 
     def lexicon_or_concepts(self):
-        #FIXME pas par index
         i = self.NOTs.currentIndex()
-        if (i == 1):
+        if (i == 3):
             return "lexicon"
-        elif (i == 0):
+        elif (i == 2):
             return "concepts"
         else:
             return False

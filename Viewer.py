@@ -158,17 +158,18 @@ class actantsTab(QtGui.QWidget):
         H.addWidget(self.L)
         #self.T = QtGui.QTreeWidget()
         #H.addWidget(self.T)
-        #FIXME ecrase cadrans bas
-        #V = QtGui.QVBoxLayout()
-        #H.addLayout(V)
-        #H1 = QtGui.QLabel('emerging configurations')
-        #V.addWidget(H1)
-        #L1 = QtGui.QListWidget()
-        #V.addWidget(L1)
-        #H2 = QtGui.QLabel("incompatibilities")
-        #V.addWidget(H2)
-        #L2 = QtGui.QListWidget()
-        #V.addWidget(L2)
+        V1 = QtGui.QVBoxLayout()
+        H.addLayout(V1)
+        H1 = QtGui.QLabel('emerging configurations')
+        V1.addWidget(H1)
+        L1 = QtGui.QListWidget()
+        V1.addWidget(L1)
+        V2 = QtGui.QVBoxLayout()
+        H.addLayout(V2)
+        H2 = QtGui.QLabel("incompatibilities")
+        V2.addWidget(H2)
+        L2 = QtGui.QListWidget()
+        V2.addWidget(L2)
         
 class authorsTab(QtGui.QWidget):
     """Widget authors lists"""
@@ -179,25 +180,27 @@ class authorsTab(QtGui.QWidget):
         H.setContentsMargins(0,0,0,0) 
         self.L = QtGui.QListWidget()
         H.addWidget(self.L)
-        #FIXME ecrase cadrans bas
-        #V1 = QtGui.QVBoxLayout()
-        #H.addLayout(V1)
-        #H0 = QtGui.QLabel('first\nlast\nnbpg\nnbtxt')
-        #V1.addWidget(H0)
-        #S = QtGui.QComboBox()
-        #V1.addWidget(S)
-        #L2 = QtGui.QListWidget()
-        #V1.addWidget(L2)
-        #V2 = QtGui.QVBoxLayout()
-        #H.addLayout(V2)
-        #H1 = QtGui.QLabel('specific')
-        #V2.addWidget(H1)
-        #L3 = QtGui.QListWidget()
-        #V2.addWidget(L3)
-        #H2 = QtGui.QLabel('absent')
-        #V2.addWidget(H2)
-        #L4 = QtGui.QListWidget()
-        #V2.addWidget(L4)
+        #FIXME ecrase cadrans 
+        V1 = QtGui.QVBoxLayout()
+        H.addLayout(V1)
+        H0 = QtGui.QLabel('first\nlast\nnbpg\nnbtxt')
+        V1.addWidget(H0)
+        S = QtGui.QComboBox()
+        V1.addWidget(S)
+        L2 = QtGui.QListWidget()
+        H.addWidget(L2)
+        V2 = QtGui.QVBoxLayout()
+        H.addLayout(V2)
+        H1 = QtGui.QLabel('specific')
+        V2.addWidget(H1)
+        L3 = QtGui.QListWidget()
+        V2.addWidget(L3)
+        V3 = QtGui.QVBoxLayout()
+        H.addLayout(V3)
+        H2 = QtGui.QLabel('absent')
+        V3.addWidget(H2)
+        L4 = QtGui.QListWidget()
+        V3.addWidget(L4)
         
 class LexiconTab(QtGui.QWidget):
     """Widget displaying lexicon lists"""
@@ -212,9 +215,18 @@ class LexiconTab(QtGui.QWidget):
         V.addLayout(VHC)
         self.select = QtGui.QComboBox()
         #send persons to a dedicated tab
-        self.select.addItems([ u'entities', u"qualities", u"markers",
-            u"verbs", "undefined", "persons", u"expressions",  u"numbers",
-            u"function words", ])
+        self.select.addItems([ 
+            u'entities',
+            u"qualities",
+            u"markers", 
+            u"verbs", 
+            "undefined", 
+            "persons", 
+            u"expressions",  
+            u"numbers",
+            u"function words"
+        ])
+        #TODO add a special tab for indef in NE tab
         #TODO add those
         for i in range(7,9):
             self.select.model().item(i).setEnabled(False)
@@ -257,10 +269,15 @@ class ConceptTab(QtGui.QWidget):
         VHC = QtGui.QHBoxLayout()
         V.addLayout(VHC)
         self.select = QtGui.QComboBox()
-        self.select.addItems([u"entities&fictions",  u"entity categories",
-            u"quality categories", u"marker categories", u"verb categories",
-            u"collections", u"fictions" ])
-        #TODO find a place for actants. with authors?
+        self.select.addItems([
+            u"entities&fictions",  
+            u"entity categories",
+            u"quality categories", 
+            u"marker categories", 
+            u"verb categories",
+            u"collections",
+            u"fictions"
+            ])
         VHC.addWidget(self.select)
 
         spacer = QtGui.QLabel()
@@ -330,8 +347,7 @@ class SaillantesProperties(QtGui.QWidget):
         #Vbox des actants du texte
         VAct = QtGui.QVBoxLayout()
         saillantesActTitle = QtGui.QLabel()
-        #saillantesActTitle.setText("Actants")
-        saillantesActTitle.setText(self.tr("Entities"))
+        saillantesActTitle.setText(self.tr("Actants"))
         VAct.addWidget(saillantesActTitle)
         self.Act = QtGui.QListWidget()
         VAct.addWidget(self.Act)
@@ -1197,8 +1213,18 @@ def hide_close_buttons(tabs_widget,index):
             tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).resize(0,0)
             tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).hide()
 
-sorting_command_list = [u"occurences", u"deployment", u"alphabetically",
-    "number of texts", "first apparition", "last apparition", "weigthed", 
-    "autors number", "day present number", "relatif nb jours", "representant number",
-    "network element number"]
+sorting_command_list = [
+    u"occurences",
+    u"deployment",
+    u"alphabetically",
+    "number of texts",
+    "first apparition",
+    "last apparition",
+    "number of authors",
+    "weigthed",
+    "day present number",
+    "relatif nb jours",
+    "representant number",
+    "network element number"
+    ]
 

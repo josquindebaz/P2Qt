@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1" language="fr_FR">
+<!DOCTYPE TS>
+<TS version="2.0" language="fr_FR">
 <context>
     <name>Corpus_tab</name>
     <message>
@@ -142,7 +143,7 @@
     <message>
         <location filename="../Viewer.py" line="100"/>
         <source>Remote</source>
-        <translation type="unfinished">Local</translation>
+        <translation>Distant</translation>
     </message>
     <message>
         <location filename="../Viewer.py" line="36"/>
@@ -275,7 +276,7 @@
     <message>
         <location filename="../p2gui.py" line="166"/>
         <source>Lexicon</source>
-        <translation type="unfinished"></translation>
+        <translation>Lexique</translation>
     </message>
     <message>
         <location filename="../p2gui.py" line="183"/>
