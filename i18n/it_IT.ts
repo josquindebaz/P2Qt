@@ -468,6 +468,16 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../p2gui.py" line="1062"/>
+        <source>field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../p2gui.py" line="1063"/>
+        <source>value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../p2gui.py" line="1392"/>
         <source>Networks</source>
         <translation type="unfinished"></translation>
@@ -495,16 +505,6 @@
     <message>
         <location filename="../p2gui.py" line="1588"/>
         <source>searching for {%s}: 0 result</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../p2gui.py" line="1062"/>
-        <source>field</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../p2gui.py" line="1063"/>
-        <source>value</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

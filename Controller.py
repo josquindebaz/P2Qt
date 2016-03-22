@@ -5,19 +5,13 @@ import os
 import re
 import datetime
 import interface_prospero
+import urllib
 
 class client(object):
     def __init__(self, h, p):
         self.c = interface_prospero.ConnecteurPII() 
         self.c.set(h, p)
         self.etat = self.c.connect_x(5)
-#REMOVEME>
-#        if not (self.etat):
-#            msgBox = QtGui.QMessageBox()
-#            msgBox.setText("connection failed")
-#            msgBox.setIcon(QtGui.QMessageBox.Critical)
-#            msgBox.exec_()
-#<REMOVEME
 
     def disconnect(self):
         self.c.disconnect()
@@ -103,7 +97,7 @@ class parseCorpus(object):
         self.corpus = 0
 
     def open(self, path):
-#FIXME use with open
+        #FIXME use with open
         F = open(path, "rU")
         B = F.readlines()
         if re.search("<Projet-Prospéro-II", B[1]):
@@ -180,7 +174,7 @@ class parseCorpus(object):
             textes.appendChild(texte)
             texte.setAttribute(u"nom", t)
             texte.setAttribute(u"date-insertion-projet", u"%s" % text_dic[t])
-#FIXME use with open
+        #FIXME use with open
         file_handle = open(fname, "wb")
         file_handle.write(content.toprettyxml(encoding="utf-8"))
         file_handle.close()
@@ -202,7 +196,7 @@ class parseCTX(object):
     def parsefile(self):
         if self.testefile():
             print 'a'
-#FIXME use with open
+            #FIXME use with open
             F = open(self.path, "rU")
             return minidom.parse(F)
 
@@ -229,7 +223,7 @@ class parseCTX(object):
                     x.setAttribute(u"type", "CHAR")
                 x.setAttribute(u"value", v)
 
-#FIXME use with open
+            #FIXME use with open
             file_handle = open(self.path, "wb")
             file_handle.write(content.toprettyxml(encoding="utf-8"))
             file_handle.close()
@@ -285,7 +279,7 @@ class edit_codex(object):
                     dico[dic['ABREV']] = {key:value for key, 
                         value in dic.items() if key != 'ABREV'}
                 else:
-                    print "pb parse codex with", dic
+                    print "C19500 pb parse codex with", dic
         self.dico = dico
 
     def cherche_supports(self):
@@ -303,7 +297,7 @@ class edit_codex(object):
                     dico[A[3]] = {u'medium':u"%s"%A[1], u'author':u"%s"%A[1], 
                                                     u'media-type': u"%s"%A[2]}
                 else :
-                    print "pb parse supports with", item
+                    print "C22168 pb parse supports with", item
         self.dico = dico
 
     def fusionne(self, dic1, dic2):
@@ -352,7 +346,7 @@ class edit_codex(object):
         elif test_date_YYMDD.match(namefile): # P-1 FORM: YYMDD
             radical, year, month , day = test_date_YYMDD.search(namefile).groups()
             if radical in self.dico.keys():
-#TODO verify retro-compatibility with p1 (1935?)
+            #TODO verify retro-compatibility with p1 (1935?)
                 if int(year) > 50:
                     year = "19%s" % year
                 else:
@@ -389,7 +383,6 @@ class edit_codex(object):
         file_handle.write(content.toprettyxml(encoding="utf-8"))
         file_handle.close()
 
-
 class preCompute(object):
     """cache values"""
     def __init__(self, parent):
@@ -397,10 +390,30 @@ class preCompute(object):
         
         self.recup_texts() #texts
         self.recup_ctx() #ctx
-        self.type_var =  [ "$ent", "$ef", "$col", "$qualite", '$marqueur',
-            '$epr', '$pers', '$undef', '$act', '$expr', '$cat_ent', '$cat_epr',
-            '$cat_qua', '$cat_mar'] 
-        self.type_calcul = ["freq", "dep", "nbaut", "nbtxt", "lapp", "fapp"]
+        self.type_var =  [ 
+                        "$ent",
+                        "$ef",
+			"$col",
+			"$qualite",
+			'$marqueur',
+                        '$epr',
+			'$pers',
+			'$undef',
+			'$act',
+			'$expr',
+			'$cat_ent',
+			'$cat_epr',
+                        '$cat_qua',
+                        '$cat_mar'
+                        ] 
+        self.type_calcul = [
+                        "freq",
+			"dep",
+			"nbaut",
+			"nbtxt",
+			"lapp",
+			"fapp"
+                        ]
     
         self.nbpg = self.parent.client.eval_var("$nbpg")
         self.nbtxt = self.parent.client.eval_var("$nbtxt")
@@ -411,13 +424,6 @@ class preCompute(object):
         self.listeTextes  = re.split(", ", txts)
         self.listeObjetsTextes = {}
         self.dicTxtSem = {}
-#REMOVEME
-#        for t in range(len(self.listeTextes)):
-#            sem_texte = u"$txt%d"%(t)
-#            self.listeObjetsTextes[sem_texte] =  Texte(sem_texte, 
-#                                                self.listeTextes[t])
-#            self.dicTxtSem[self.listeTextes[t]] = sem_texte
-#REMOVEME
         for i, t in enumerate(self.listeTextes):
             sem_texte = u"$txt%d"%(i)
             self.listeObjetsTextes[sem_texte] =  Texte(sem_texte, t)
@@ -439,7 +445,7 @@ class preCompute(object):
             liste_data_ok_ctx = map(self.delAntiSlash, liste_data_ok_ctx)
 
             if len (liste_data_ok_ctx) != len (self.listeTextes):
-                print "problemo qq part les listes doivent avoir \
+                print "C10008 problemo qq part les listes doivent avoir \
                                             le même nbre d'éléments"
                 print liste_data_ok_ctx 
             #else : print liste_data_ok_ctx
@@ -469,15 +475,59 @@ class preCompute(object):
 def sp_el(element):
     return element.split(' ', 1)
 
-semantiques = {'collections': '$col', 'fictions': '$ef', 'entity categories':
-'$cat_ent', 'verb categories': '$cat_epr', 'marker categories': '$cat_mar',
-'quality categories': '$cat_qua', 'entities': '$ent_sf', 'qualities': '$qualite',
-'markers': '$marqueur', 'verbs': '$epr', 'persons': '$pers', 'undefined':
-'$undef', 'actants': '$act', 'expressions': '$expr', 'entities&fictions': '$ent'}
+class myxml(object):
+    def __init__(self,url ="http://prosperologie.org/P-II/info.xml"):
+        self.url = url
+
+    def get(self): 
+        try :
+            self.buf = urllib.urlopen(self.url)
+            return 1
+        except:
+            return 0
+
+    def parse(self):
+        try :
+            self.xmlbuf = minidom.parse(self.buf)
+            return 1
+        except:
+            return 0
+
+    def getDataCorpus(self):
+        items = self.xmlbuf.getElementsByTagName('projet')
+        liste = []
+        for item in items:
+            liste.append([item.attributes['nom'].value, 
+                            item.attributes['port'].value])
+        return liste
+
+
+semantiques = {
+    'collections':'$col',
+    'fictions': '$ef',
+    'entity categories': '$cat_ent',
+    'verb categories': '$cat_epr',
+    'marker categories': '$cat_mar',
+    'quality categories': '$cat_qua',
+    'entities': '$ent_sf',
+    'qualities': '$qualite',
+    'markers':'$marqueur',
+    'verbs': '$epr',
+    'persons': '$pers',
+    'undefined': '$undef',
+    'actants': '$act',
+    'expressions': '$expr',
+    'entities&fictions': '$ent'
+    }
 
 #For eval_index result
-explo_lexic = {'$ent_sf': 'entity', '$qual': 'quality', '$marqueur': 'marker',
-'$epreuve': 'verbs', '$mo': 'function word' }
-
+explo_lexic = {
+    '$ent_sf': 'entity',
+    '$qual': 'quality',
+    '$marqueur': 'marker', 
+    '$epreuve': 'verbs',
+    '$mo': 'function word'
+    }
 #$entef = entite out of fictions + fictions + entities in fictions
+
 
