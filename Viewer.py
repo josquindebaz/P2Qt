@@ -253,6 +253,7 @@ class LexiconTab(QtGui.QWidget):
             QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         VHC.addWidget(spacer3)
 
+        #FIXME nbpg send the page number for the whole corpus
         #sorting command
         self.sort_command = QtGui.QComboBox()
         self.sort_command.addItems(Controller.sorting_lexicon_list)
@@ -1050,11 +1051,24 @@ class TextElements(object):
         self.widget.setLayout(box)
 
         self.selector = QtGui.QComboBox()
-        self.selector.addItems([u'entities', 'collections', u"entity categories",
-            'verb categories', 'marker categories', 'quality categories',
-            'fictions', 'expressions', 'undefined'])
+        self.selector.addItems([
+            u'entities',
+            'collections',
+            u"entity categories",
+            'verb categories',
+            'marker categories',
+            'quality categories',
+            'fictions',
+            'qualities',
+            'markers',
+            'verbs',
+            'expressions',
+            'persons',
+            'undefined'
+            ])
         box.addWidget(self.selector)
-        self.selector.model().item(8).setEnabled(False)
+        for i in range(11, 13):
+            self.selector.model().item(i).setEnabled(False)
 
         self.element_list =  QtGui.QListWidget()
         box.addWidget(self.element_list)
