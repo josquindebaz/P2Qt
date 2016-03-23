@@ -609,22 +609,32 @@ class ConnecteurPII (threading.Thread):
 		
 		lexpr = []
 		# E:search.rac.chaine recherchée
-		# la signature étant : "search.rac.chaine recherchée"
+		# la signature étant : "search.rac.chaine recherchée" + indice , txt etc...
 		fonc = fonc.encode('utf-8')
 		fonc = fonc[1:] # vire le $
 		
 		element =  element.encode('utf-8')
-		signature = fonc + '.' + element
+		#signature = fonc + '.' + element
+		# la signature doit integre ttes les specifications (pour se distinguer entre elles (utilisee comme cle pour les acces aux objets))
+		signature = fonc + '.' + element + "." + pelement
+		if txt :
+			signature += ".txt" + ptxt	#   .txt0 .txt[0] etc
+		if ph :
+			signature += ".ph" + pph
+		if val:
+			signature += ".val"	
 		cle = signature
 		
 		lexpr.append("E:" +signature)
 		''' 	search
-		ou searchcs
+				ou searchcs
 		'''
 		
 		f =  fonc.split('.')[0]
 		#lexpr.append("V:search:" +signature + "." +  pelement )
-		lexpr.append("V:" + f +":" +signature + "." +  pelement )
+		# 
+		#lexpr.append("V:" + f +":" +signature + "." +  pelement )
+		lexpr.append("V:" + f +":" + fonc + "." + element + "." +  pelement )
 		# le premier ARG indiquera rac pre ou suf
 		if signature.find('.rac.') != -1:
 			lexpr.append("ARG:rac" )
@@ -635,8 +645,7 @@ class ConnecteurPII (threading.Thread):
 		lexpr.append("ARG:" +element)
 		lexpr.append("FARG:")	# ajouté pour signaler la fin des arg sur WSearch
 		
-		if pelement:
-			L = self.get_token_tranche(pelement)
+		if pelement:  
 			lexpr += L
 			cle += pelement
 			

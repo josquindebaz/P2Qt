@@ -391,9 +391,12 @@ class preCompute(object):
         self.recup_texts() #texts
         self.recup_ctx() #ctx
         self.type_var =  [ 
+                        "$act",
+                        "$aut",
                         "$ent",
                         "$ef",
 			"$col",
+                        "$ent_sf",
 			"$qualite",
 			'$marqueur',
                         '$epr',
@@ -407,12 +410,15 @@ class preCompute(object):
                         '$cat_mar'
                         ] 
         self.type_calcul = [
+                        "val",
                         "freq",
 			"dep",
 			"nbaut",
 			"nbtxt",
 			"lapp",
-			"fapp"
+			"fapp",
+                        "res"
+                        "txt",
                         ]
     
         self.nbpg = self.parent.client.eval_var("$nbpg")
@@ -465,8 +471,8 @@ class preCompute(object):
     def cacheAssocValue(self, type_var, type_calcul):    
         ask = self.parent.client.eval_vector(type_var, type_calcul)
 
-        if (type_calcul == "freq"):
-            type_calcul = "val"
+        #if (type_calcul == "freq"):
+            #type_calcul = "val"
 
         for indice, val in enumerate(ask.split(', ')):
             m = "%s%s.%s"%(type_var, str(indice), type_calcul)
@@ -474,6 +480,56 @@ class preCompute(object):
     
 def sp_el(element):
     return element.split(' ', 1)
+
+def recup_scores(which, typ, parent):
+    sem = semantiques[typ]
+    #print "C4052", sem
+    content = parent.client.recup_liste_concept(sem)
+    liste_final = []
+    if (content == ['']):
+        parent.activity(u"Nothing to Display for %s" % (typ))
+    else:
+        parent.activity(u"Displaying %s list (%d items) ordered by %s" % (typ, 
+                len(content), which))
+
+        liste_valued =[]
+        parent.PrgBar.perc(len(content))
+
+        sort = hash_sort[which]
+
+        for row, concept in enumerate(content):
+            ask = "%s%d.%s" % (sem, row, sort)
+            result  = parent.client.eval_var(ask)
+            try :
+                if (which  in ["first apparition", 
+                                             "last apparition"]):
+                    val = re.sub(u"^\s*", "", result)
+                else :
+                    val = int(result)
+            except:
+                val = 0
+            liste_valued.append([val, content[row]])
+            parent.PrgBar.percAdd(1)
+
+        #self.content_liste_concept = [] #REMOVEME
+        if (which == "alphabetically"):
+            for i in sorted(liste_valued, key=lambda x: x[1], reverse = 0):
+                item_resume = u"%s %s" % (i[0], i[1])
+                liste_final.append(item_resume) 
+                #self.content_liste_concept.append(i[1]) #REMOVEME
+        elif (which in ["first apparition", "last apparition"]):
+            for i in sorted(liste_valued, 
+                    key=lambda x: ''.join(sorted(x[0].split('/'), reverse=1)),
+                     reverse = 0):
+                item_resume = u"%s %s" % (i[0], i[1])
+                liste_final.append(item_resume) 
+                #self.content_liste_concept.append(i[1]) #REMOVEME
+        else :
+            for i in sorted(liste_valued, key=lambda x: x[0], reverse = 1):
+                item_resume = u"%s %s" % (i[0], i[1])
+                liste_final.append(item_resume) 
+                #self.content_liste_concept.append(i[1]) #REMOVEME
+    return liste_final
 
 class myxml(object):
     def __init__(self,url ="http://prosperologie.org/P-II/info.xml"):
@@ -528,6 +584,47 @@ explo_lexic = {
     '$epreuve': 'verbs',
     '$mo': 'function word'
     }
-#$entef = entite out of fictions + fictions + entities in fictions
+#NB $entef = entite out of fictions + fictions + entities in fictions
+
+#For affiche_concepts_scores
+hash_sort = {
+    "occurences": "freq",
+    "alphabetically": "freq",
+    "deployment": "dep",
+    "number of texts": "nbtxt",
+    "number of authors": "nbaut",
+    "first apparition": "fapp",
+    "last apparition": "lapp",
+}
+
+sorting_concepts_list = [
+        u"occurences",
+       u"deployment",
+       u"alphabetically",
+       "number of texts",
+       "number of authors",
+       "first apparition",
+       "last apparition",
+       "weigthed",
+       "day present number",
+       "relatif nb jours",
+       "representant number",
+       "network element number"
+] 
+
+sorting_lexicon_list = [
+       u"occurences",
+#      u"deployment",
+       u"alphabetically",
+       "number of texts",
+       "number of authors",
+       "first apparition",
+       "last apparition",
+       "weigthed",
+       "day present number",
+       "relatif nb jours",
+       "representant number",
+       "network element number"
+]
 
 

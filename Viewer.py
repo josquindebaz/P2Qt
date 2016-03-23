@@ -123,19 +123,24 @@ class PrgBar(object):
 
     def perc(self, total):
         self.total = total
-        self.inc = 0
+        self.inc = float(0)
         self.setv(0)
+        QtGui.QApplication.processEvents()
 
     def percAdd(self, i):
         self.inc += i
-        self.setv(self.inc*100/self.total)
-        if self.inc == self.total:
-            self.inc = 0
-            self.total = 0
-            self.setv(0)
+        if self.inc >= self.total:
+            self.reset()
+        else:
+            evalue = self.inc*100/self.total
+            self.setv(evalue)
 
     def reset(self):
         self.bar.reset()
+        self.inc = 0
+        self.total = 0
+        self.setv(0)
+        QtGui.QApplication.processEvents()
 
 class actantsTab(QtGui.QWidget):
     """Widget actants lists"""
@@ -251,7 +256,7 @@ class LexiconTab(QtGui.QWidget):
 
         #sorting command
         self.sort_command = QtGui.QComboBox()
-        self.sort_command.addItems(sorting_command_list)
+        self.sort_command.addItems(Controller.sorting_lexicon_list)
         VHC.addWidget(self.sort_command)
 
         #une box horizontale pour liste, score et deploiement
@@ -261,11 +266,11 @@ class LexiconTab(QtGui.QWidget):
         self.dep0 = MyListWidget()
         VH.addWidget(self.dep0)
         #I deployment
-        self.depI = MyListWidget()
-        VH.addWidget(self.depI)
-        #II deployment 
-        self.depII = MyListWidget()
-        VH.addWidget(self.depII)
+        #self.depI = MyListWidget()
+        #VH.addWidget(self.depI)
+        ##II deployment 
+        #self.depII = MyListWidget()
+        #VH.addWidget(self.depII)
 
 class ConceptTab(QtGui.QWidget):
     #TODO systématiser 3 colonnes ou passer à deux ?
@@ -297,7 +302,7 @@ class ConceptTab(QtGui.QWidget):
 
         #sorting command
         self.sort_command = QtGui.QComboBox()
-        self.sort_command.addItems(sorting_command_list)
+        self.sort_command.addItems(Controller.sorting_concepts_list)
         VHC.addWidget(self.sort_command)
 
         VH = QtGui.QHBoxLayout()
@@ -884,7 +889,7 @@ class MrlwVarGenerator(object):
             QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
         self.gen_mrlw_phrase.setFixedHeight(70) 
         gen_mrlw_Vbox_left.addWidget(self.gen_mrlw_phrase)
-        gen_mrlw_Button_varifie = QtGui.QPushButton(self.tr("Identify"))
+        gen_mrlw_Button_varifie = QtGui.QPushButton("Identify")
         width = gen_mrlw_Button_varifie.fontMetrics().boundingRect(
                         gen_mrlw_Button_varifie.text()).width() + 30
         gen_mrlw_Button_varifie.setMaximumWidth(width)
@@ -899,7 +904,7 @@ class MrlwVarGenerator(object):
         gen_mrlw_Vbox_left.addWidget(self.gen_mrlw_vars)
         gen_mrlw_genere_Hbox =   QtGui.QHBoxLayout() 
         gen_mrlw_Vbox_left.addLayout(gen_mrlw_genere_Hbox)
-        gen_mrlw_Button_genere = QtGui.QPushButton(self.tr("Generate"))
+        gen_mrlw_Button_genere = QtGui.QPushButton("Generate")
         width = gen_mrlw_Button_genere.fontMetrics().boundingRect(
                         gen_mrlw_Button_genere.text()).width() + 30
         gen_mrlw_Button_genere.setMaximumWidth(width)
@@ -1224,18 +1229,4 @@ def hide_close_buttons(tabs_widget,index):
             tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).resize(0,0)
             tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).hide()
 
-sorting_command_list = [
-    u"occurences",
-    u"deployment",
-    u"alphabetically",
-    "number of texts",
-    "first apparition",
-    "last apparition",
-    "number of authors",
-    "weigthed",
-    "day present number",
-    "relatif nb jours",
-    "representant number",
-    "network element number"
-    ]
 
