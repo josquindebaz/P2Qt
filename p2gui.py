@@ -9,11 +9,11 @@ import re
 import datetime
 import os
 import time
-import functools
 import subprocess
 import threading
 import atexit
 import webbrowser
+import functools
 #import socket 
 
 #from fonctions import translate
@@ -28,6 +28,18 @@ class Principal(QtGui.QMainWindow):
         ##################################################
         menu = Viewer.MyMenu()
         self.setMenuBar(menu)
+
+        #TODO not enabled if cannot reach port 60000
+        get_remote_corpus = Controller.myxml()
+        if get_remote_corpus.get():
+            if get_remote_corpus.parse():
+                for corpus in get_remote_corpus.getDataCorpus(): 
+                    t = QtGui.QAction(corpus[0], self)
+                    t.triggered.connect(functools.partial(self.connect_server,
+                                 "prosperologie.org", corpus[1]))
+                    menu.distant.addAction(t)
+
+
         menu.local_connect.triggered.connect(self.connect_server_localhost)
         menu.local_edit.triggered.connect(self.add_edit_corpus_tab)
         menu.codex.triggered.connect(self.codex_window)

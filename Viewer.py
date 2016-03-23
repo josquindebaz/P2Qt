@@ -19,18 +19,8 @@ class MyMenu(QtGui.QMenuBar):
         #Corpus and Server
         #TODO avec ou sans &?
         Menu_Corpus = self.addMenu(self.tr('Corpus and Server'))
-        Menu_distant = Menu_Corpus.addMenu(QtGui.QIcon('images/distant.png'),
+        self.distant = Menu_Corpus.addMenu(QtGui.QIcon('images/distant.png'),
                                                              self.tr('Remote'))
-
-        get_remote_corpus = Controller.myxml()
-        if get_remote_corpus.get():
-            if get_remote_corpus.parse():
-                for corpus in get_remote_corpus.getDataCorpus(): 
-                    #TODO not enabled if cannot reach port 60000
-                    t = QtGui.QAction(corpus[0], self)
-                    t.triggered.connect(functools.partial(self.connect_server,
-                                 "prosperologie.org", corpus[1]))
-                    Menu_distant.addAction(t)
         
         menu_local = Menu_Corpus.addMenu(QtGui.QIcon('images/home.png'),
              self.tr('Local')) 
@@ -156,20 +146,22 @@ class actantsTab(QtGui.QWidget):
         H.setContentsMargins(0,0,0,0) 
         self.L = QtGui.QListWidget()
         H.addWidget(self.L)
+        #TODO TreeView
         #self.T = QtGui.QTreeWidget()
         #H.addWidget(self.T)
-        V1 = QtGui.QVBoxLayout()
-        H.addLayout(V1)
-        H1 = QtGui.QLabel('emerging configurations')
-        V1.addWidget(H1)
-        L1 = QtGui.QListWidget()
-        V1.addWidget(L1)
-        V2 = QtGui.QVBoxLayout()
-        H.addLayout(V2)
-        H2 = QtGui.QLabel("incompatibilities")
-        V2.addWidget(H2)
-        L2 = QtGui.QListWidget()
-        V2.addWidget(L2)
+        #V1 = QtGui.QVBoxLayout()
+        #H.addLayout(V1)
+        #TODO add those
+        #H1 = QtGui.QLabel('emerging configurations')
+        #V1.addWidget(H1)
+        #L1 = QtGui.QListWidget()
+        #V1.addWidget(L1)
+        #V2 = QtGui.QVBoxLayout()
+        #H.addLayout(V2)
+        #H2 = QtGui.QLabel("incompatibilities")
+        #V2.addWidget(H2)
+        #L2 = QtGui.QListWidget()
+        #V2.addWidget(L2)
         
 class authorsTab(QtGui.QWidget):
     """Widget authors lists"""
@@ -178,29 +170,48 @@ class authorsTab(QtGui.QWidget):
         H = QtGui.QHBoxLayout()
         self.setLayout(H)
         H.setContentsMargins(0,0,0,0) 
+        #TODO ListView
         self.L = QtGui.QListWidget()
         H.addWidget(self.L)
         #FIXME ecrase cadrans 
         V1 = QtGui.QVBoxLayout()
         H.addLayout(V1)
-        H0 = QtGui.QLabel('first\nlast\nnbpg\nnbtxt')
-        V1.addWidget(H0)
+        #H0 = QtGui.QLabel('first\nlast\nnbpg\nnbtxt')
+        #V1.addWidget(H0)
         S = QtGui.QComboBox()
+        S.addItems([ 
+            u"entities&fictions",  
+            u"entity categories",
+            u"quality categories", 
+            u"marker categories", 
+            u"verb categories",
+            u"collections",
+            u"fictions"
+            u'entities',
+            u"qualities",
+            u"markers", 
+            u"verbs", 
+            "undefined", 
+            "persons", 
+            u"expressions",  
+            u"numbers",
+            u"function words"
+        ])
         V1.addWidget(S)
         L2 = QtGui.QListWidget()
-        H.addWidget(L2)
-        V2 = QtGui.QVBoxLayout()
-        H.addLayout(V2)
-        H1 = QtGui.QLabel('specific')
-        V2.addWidget(H1)
-        L3 = QtGui.QListWidget()
-        V2.addWidget(L3)
-        V3 = QtGui.QVBoxLayout()
-        H.addLayout(V3)
-        H2 = QtGui.QLabel('absent')
-        V3.addWidget(H2)
-        L4 = QtGui.QListWidget()
-        V3.addWidget(L4)
+        V1.addWidget(L2)
+        #V2 = QtGui.QVBoxLayout()
+        #H.addLayout(V2)
+        #H1 = QtGui.QLabel('specific')
+        #V2.addWidget(H1)
+        #L3 = QtGui.QListWidget()
+        #V2.addWidget(L3)
+        #V3 = QtGui.QVBoxLayout()
+        #H.addLayout(V3)
+        #H2 = QtGui.QLabel('absent')
+        #V3.addWidget(H2)
+        #L4 = QtGui.QListWidget()
+        #V3.addWidget(L4)
         
 class LexiconTab(QtGui.QWidget):
     """Widget displaying lexicon lists"""
