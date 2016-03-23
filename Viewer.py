@@ -10,6 +10,95 @@ import datetime
 import Controller
 import generator_mrlw
 
+class MyMenu(QtGui.QMenuBar):
+    """the menu"""
+    def __init__(self, parent=None): 
+        QtGui.QMenuBar.__init__(self)
+
+        ##################################################
+        #Corpus and Server
+        #TODO avec ou sans &?
+        Menu_Corpus = self.addMenu(self.tr('Corpus and Server'))
+        self.distant = Menu_Corpus.addMenu(QtGui.QIcon('images/distant.png'),
+                                                             self.tr('Remote'))
+        
+        menu_local = Menu_Corpus.addMenu(QtGui.QIcon('images/home.png'),
+             self.tr('Local')) 
+        self.local_connect = QtGui.QAction(self.tr("Connect"), self)
+        menu_local.addAction(self.local_connect)
+        self.local_edit = QtGui.QAction(self.tr("Edit project"), self)
+        menu_local.addAction(self.local_edit)
+        #TODO edit local server parameters: path, port
+        menu_local_param = QtGui.QAction(self.tr("Local server parameters"), self)
+        menu_local.addAction(menu_local_param)
+        menu_local_param.setEnabled(False)
+
+        Menu_Corpus.addSeparator()
+
+        self.codex = QtGui.QAction(self.tr("Codex"), self)
+        Menu_Corpus.addAction(self.codex)
+
+        self.server_vars = QtGui.QAction(self.tr("Variables testing"), self)
+        Menu_Corpus.addAction(self.server_vars)
+
+        #TODO transform corpus p1<->p2
+        menu_convert_corpus = QtGui.QAction(self.tr("Convert P1 and P2 corpus"), self)
+        Menu_Corpus.addAction(menu_convert_corpus)
+        menu_convert_corpus.setEnabled(False) 
+
+        #TODO recup corpus, fusion, generer sous corpus
+        #TODO Constellations and corpus comparisons
+
+        ##################################################
+        #Concepts and lexics
+        menu_concepts = self.addMenu(self.tr('Concepts'))
+        menu_concepts_edition = QtGui.QAction(self.tr("Edition"), self)
+        menu_concepts.addAction(menu_concepts_edition)
+        menu_concepts_edition.setEnabled(False)
+        menu_sycorax =  QtGui.QAction(self.tr("Sycorax"), self)
+        menu_concepts.addAction(menu_sycorax)
+        menu_sycorax.setEnabled(False)
+        
+        ##################################################
+        #Texts
+        Menu_Texts = self.addMenu(self.tr('Texts and Contexts'))
+        self.contexts = QtGui.QAction(self.tr('Contexts'), self)
+        Menu_Texts.addAction(self.contexts)
+        Menu_AddTex = QtGui.QAction(self.tr('Add a new text'), self)
+        Menu_Texts.addAction(Menu_AddTex)
+        Menu_AddTex.setEnabled(False)
+        Menu_ModTex = QtGui.QAction(self.tr('Action on selected texts'), self)
+        Menu_Texts.addAction(Menu_ModTex)
+        Menu_ModTex.setEnabled(False)
+
+        ##################################################
+        #Viz and computations
+        menu_comput = self.addMenu(self.tr('Computations'))
+        self.pers =  QtGui.QAction(self.tr("Persons"), self)
+        menu_comput.addAction(self.pers)
+        self.pers.setEnabled(False)
+        #TODO viz
+        #TODO author signatures, grappes, periodisations
+        #TODO corpus indicators and properties
+        #TODO list evolutions
+
+        ##################################################
+        #Marlowe
+        Menu_Marlowe = self.addMenu(self.tr('Marlowe'))
+        self.marlowe_gen = QtGui.QAction(self.tr("Variant generation"), self)
+        Menu_Marlowe.addAction(self.marlowe_gen)
+        self.Marlowe_remote = QtGui.QAction(self.tr("Remote"), self)
+        Menu_Marlowe.addAction(self.Marlowe_remote)
+
+        ##################################################
+        #Parameters&sHelp
+        menu_param = self.addMenu(self.tr('Parameters and help'))
+        menu_parameters = QtGui.QAction(self.tr('Parameters'), self)
+        menu_param.addAction(menu_parameters)
+        menu_parameters.setEnabled(False)
+        #ex reduire le poids seulement si expr englobante de meme type
+        self.manual = QtGui.QAction(self.tr('Manual'), self)
+        menu_param.addAction(self.manual)
 
 class PrgBar(object):
     """a progress bar"""
@@ -34,20 +123,24 @@ class PrgBar(object):
 
     def perc(self, total):
         self.total = total
-        self.inc = 0
+        self.inc = float(0)
         self.setv(0)
+        QtGui.QApplication.processEvents()
 
     def percAdd(self, i):
         self.inc += i
-#FIXME ZeroDivisionError: integer division or modulo by zero
-        self.setv(self.inc*100/self.total)
-        if self.inc == self.total:
-            self.inc = 0
-            self.total = 0
-            self.setv(0)
+        if self.inc >= self.total:
+            self.reset()
+        else:
+            evalue = self.inc*100/self.total
+            self.setv(evalue)
 
     def reset(self):
         self.bar.reset()
+        self.inc = 0
+        self.total = 0
+        self.setv(0)
+        QtGui.QApplication.processEvents()
 
 class actantsTab(QtGui.QWidget):
     """Widget actants lists"""
@@ -58,19 +151,22 @@ class actantsTab(QtGui.QWidget):
         H.setContentsMargins(0,0,0,0) 
         self.L = QtGui.QListWidget()
         H.addWidget(self.L)
-#        self.T = QtGui.QTreeWidget()
-#        H.addWidget(self.T)
-#FIXME ecrase cadrans bas
-#        V = QtGui.QVBoxLayout()
-#        H.addLayout(V)
-#        H1 = QtGui.QLabel('emerging configurations')
-#        V.addWidget(H1)
-#        L1 = QtGui.QListWidget()
-#        V.addWidget(L1)
-#        H2 = QtGui.QLabel("incompatibilities")
-#        V.addWidget(H2)
-#        L2 = QtGui.QListWidget()
-#        V.addWidget(L2)
+        #TODO TreeView
+        #self.T = QtGui.QTreeWidget()
+        #H.addWidget(self.T)
+        #V1 = QtGui.QVBoxLayout()
+        #H.addLayout(V1)
+        #TODO add those
+        #H1 = QtGui.QLabel('emerging configurations')
+        #V1.addWidget(H1)
+        #L1 = QtGui.QListWidget()
+        #V1.addWidget(L1)
+        #V2 = QtGui.QVBoxLayout()
+        #H.addLayout(V2)
+        #H2 = QtGui.QLabel("incompatibilities")
+        #V2.addWidget(H2)
+        #L2 = QtGui.QListWidget()
+        #V2.addWidget(L2)
         
 class authorsTab(QtGui.QWidget):
     """Widget authors lists"""
@@ -79,27 +175,48 @@ class authorsTab(QtGui.QWidget):
         H = QtGui.QHBoxLayout()
         self.setLayout(H)
         H.setContentsMargins(0,0,0,0) 
+        #TODO ListView
         self.L = QtGui.QListWidget()
         H.addWidget(self.L)
-#FIXME ecrase cadrans bas
-#        V1 = QtGui.QVBoxLayout()
-#        H.addLayout(V1)
-#        H0 = QtGui.QLabel('first\nlast\nnbpg\nnbtxt')
-#        V1.addWidget(H0)
-#        S = QtGui.QComboBox()
-#        V1.addWidget(S)
-#        L2 = QtGui.QListWidget()
-#        V1.addWidget(L2)
-#        V2 = QtGui.QVBoxLayout()
-#        H.addLayout(V2)
-#        H1 = QtGui.QLabel('specific')
-#        V2.addWidget(H1)
-#        L3 = QtGui.QListWidget()
-#        V2.addWidget(L3)
-#        H2 = QtGui.QLabel('absent')
-#        V2.addWidget(H2)
-#        L4 = QtGui.QListWidget()
-#        V2.addWidget(L4)
+        #FIXME ecrase cadrans 
+        V1 = QtGui.QVBoxLayout()
+        H.addLayout(V1)
+        #H0 = QtGui.QLabel('first\nlast\nnbpg\nnbtxt')
+        #V1.addWidget(H0)
+        S = QtGui.QComboBox()
+        S.addItems([ 
+            u"entities&fictions",  
+            u"entity categories",
+            u"quality categories", 
+            u"marker categories", 
+            u"verb categories",
+            u"collections",
+            u"fictions"
+            u'entities',
+            u"qualities",
+            u"markers", 
+            u"verbs", 
+            "undefined", 
+            "persons", 
+            u"expressions",  
+            u"numbers",
+            u"function words"
+        ])
+        V1.addWidget(S)
+        L2 = QtGui.QListWidget()
+        V1.addWidget(L2)
+        #V2 = QtGui.QVBoxLayout()
+        #H.addLayout(V2)
+        #H1 = QtGui.QLabel('specific')
+        #V2.addWidget(H1)
+        #L3 = QtGui.QListWidget()
+        #V2.addWidget(L3)
+        #V3 = QtGui.QVBoxLayout()
+        #H.addLayout(V3)
+        #H2 = QtGui.QLabel('absent')
+        #V3.addWidget(H2)
+        #L4 = QtGui.QListWidget()
+        #V3.addWidget(L4)
         
 class LexiconTab(QtGui.QWidget):
     """Widget displaying lexicon lists"""
@@ -112,49 +229,50 @@ class LexiconTab(QtGui.QWidget):
         VHC = QtGui.QHBoxLayout()
         V.addLayout(VHC)
         self.select = QtGui.QComboBox()
-#send persons to a dedicated tab
+        #send persons to a dedicated tab
         self.select.addItems([ 
-            u'entities', 
-            u"qualities", 
-            u"markers",
+            u'entities',
+            u"qualities",
+            u"markers", 
             u"verbs", 
             "undefined", 
             "persons", 
             u"expressions",  
             u"numbers",
-            u"function words",
+            u"function words"
         ])
-#TODO add those
+        #TODO add a special tab for indef in NE tab
+        #TODO add those
         for i in range(7,9):
             self.select.model().item(i).setEnabled(False)
         VHC.addWidget(self.select)
 
-    # un spacer pour mettre les commandes sur la droite
+        # un spacer pour mettre les commandes sur la droite
         spacer3 = QtGui.QLabel()
         spacer3.setSizePolicy(
             QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         VHC.addWidget(spacer3)
 
-    #sorting command
+        #sorting command
         self.sort_command = QtGui.QComboBox()
         self.sort_command.addItems(Controller.sorting_lexicon_list)
         VHC.addWidget(self.sort_command)
 
-    #une box horizontale pour liste, score et deploiement
+        #une box horizontale pour liste, score et deploiement
         VH = QtGui.QHBoxLayout()
         V.addLayout(VH) 
-    #lexicon liste
+        #lexicon liste
         self.dep0 = MyListWidget()
         VH.addWidget(self.dep0)
-#    #I deployment
-#        self.depI = MyListWidget()
-#        VH.addWidget(self.depI)
-#    #II deployment 
-#        self.depII = MyListWidget()
-#        VH.addWidget(self.depII)
+        #I deployment
+        #self.depI = MyListWidget()
+        #VH.addWidget(self.depI)
+        ##II deployment 
+        #self.depII = MyListWidget()
+        #VH.addWidget(self.depII)
 
 class ConceptTab(QtGui.QWidget):
-#TODO systématiser 3 colonnes ou passer à deux ?
+    #TODO systématiser 3 colonnes ou passer à deux ?
     """Widget displaying concept lists"""
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
@@ -166,17 +284,22 @@ class ConceptTab(QtGui.QWidget):
         VHC = QtGui.QHBoxLayout()
         V.addLayout(VHC)
         self.select = QtGui.QComboBox()
-        self.select.addItems([u"entities&fictions",  u"entity categories",
-            u"quality categories", u"marker categories", u"verb categories",
-            u"collections", u"fictions" ])
-#TODO find a place for actants. with authors?
+        self.select.addItems([
+            u"entities&fictions",  
+            u"entity categories",
+            u"quality categories", 
+            u"marker categories", 
+            u"verb categories",
+            u"collections",
+            u"fictions"
+            ])
         VHC.addWidget(self.select)
 
         spacer = QtGui.QLabel()
         spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         VHC.addWidget(spacer)
 
-    #sorting command
+        #sorting command
         self.sort_command = QtGui.QComboBox()
         self.sort_command.addItems(Controller.sorting_concepts_list)
         VHC.addWidget(self.sort_command)
@@ -184,13 +307,13 @@ class ConceptTab(QtGui.QWidget):
         VH = QtGui.QHBoxLayout()
         V.addLayout(VH) 
 
-    #concept list 
+        #concept list 
         self.dep0 = MyListWidget()
         VH.addWidget(self.dep0)
-    #I deployment
+        #I deployment
         self.depI = MyListWidget()
         VH.addWidget(self.depI)
-    #II deployment 
+        #II deployment 
         self.depII = MyListWidget()
         VH.addWidget(self.depII)
 
@@ -205,19 +328,19 @@ class Contexts(QtGui.QWidget):
         VHC = QtGui.QHBoxLayout()
         V.addLayout(VHC)
 
-#TODO add CTX commands
-#        spacer_CTX_1 = QtGui.QLabel()
-#        spacer_CTX_1.setSizePolicy(QtGui.QSizePolicy.Expanding, 
-#                                        QtGui.QSizePolicy.Minimum)
-#        VHC.addWidget(spacer_CTX_1)
+        #TODO add CTX commands
+        #spacer_CTX_1 = QtGui.QLabel()
+        #spacer_CTX_1.setSizePolicy(QtGui.QSizePolicy.Expanding, 
+                                        #QtGui.QSizePolicy.Minimum)
+        #VHC.addWidget(spacer_CTX_1)
     
-#        self.NOT5Commands1 = QtGui.QPushButton()
-#        self.NOT5Commands1.setIcon(QtGui.QIcon("images/gear.png"))
-##desactivé au lancement, tant qu'on a pas de liste
-#        self.NOT5Commands1.setEnabled(False) 
-#        VHC.addWidget(self.NOT5Commands1)
+        #self.NOT5Commands1 = QtGui.QPushButton()
+        #self.NOT5Commands1.setIcon(QtGui.QIcon("images/gear.png"))
+        ##desactivé au lancement, tant qu'on a pas de liste
+        #self.NOT5Commands1.setEnabled(False) 
+        #VHC.addWidget(self.NOT5Commands1)
 
-    #une box horizontale pour liste et deploiement
+        #une box horizontale pour liste et deploiement
         VH = QtGui.QHBoxLayout()
         V.addLayout(VH) 
         self.l = QtGui.QListWidget()
@@ -234,18 +357,17 @@ class SaillantesProperties(QtGui.QWidget):
     """Widget displaying text saillant properties"""
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
-#TODO use QTreeView and model
+        #TODO use QTreeView and model
 
-    #Vbox des actants du texte
+        #Vbox des actants du texte
         VAct = QtGui.QVBoxLayout()
         saillantesActTitle = QtGui.QLabel()
-        #saillantesActTitle.setText("Actants")
-        saillantesActTitle.setText(self.tr("Entities"))
+        saillantesActTitle.setText(self.tr("Actants"))
         VAct.addWidget(saillantesActTitle)
         self.Act = QtGui.QListWidget()
         VAct.addWidget(self.Act)
 
-    #Vbox des categories du texte
+        #Vbox des categories du texte
         VCat = QtGui.QVBoxLayout()
         saillantesCatTitle = QtGui.QLabel()
         saillantesCatTitle.setText(self.tr("Categories"))
@@ -253,7 +375,7 @@ class SaillantesProperties(QtGui.QWidget):
         self.Cat = QtGui.QListWidget()
         VCat.addWidget(self.Cat)
 
-    #Vbox des collections du texte
+        #Vbox des collections du texte
         VCol = QtGui.QVBoxLayout()
         saillantesColTitle = QtGui.QLabel()
         saillantesColTitle.setText(self.tr("Collections"))
@@ -281,20 +403,20 @@ class textCTX(QtGui.QWidget):
         self.T = QtGui.QTableWidget()
         self.T.verticalHeader().setVisible(False)
         self.T.setColumnCount(2)
-        self.T.setHorizontalHeaderLabels([u'field', u'value'])
+        self.T.setHorizontalHeaderLabels([self.tr('field'), self.tr('value')])
         self.T.horizontalHeader().setStretchLastSection(True)     
         V.addWidget(self.T)
     
         commands = QtGui.QHBoxLayout()
-        self.valid = QtGui.QPushButton("save")
+        self.valid = QtGui.QPushButton(self.tr("save"))
         commands.addWidget(self.valid)
-        self.reset = QtGui.QPushButton("reset")
+        self.reset = QtGui.QPushButton(self.tr("reset"))
         commands.addWidget(self.reset)
         spacer = QtGui.QLabel()
         spacer.setSizePolicy(
             QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         commands.addWidget(spacer) 
-#TOTO add, delete
+        #TOTO add, delete
         B = QtGui.QPushButton(u"\u25cb")
         commands.addWidget(B)
         B.setEnabled(False)
@@ -306,7 +428,7 @@ class MyListWidgetTexts(QtGui.QListWidget):
         QtGui.QListWidget.__init__(self)
         self.setAlternatingRowColors(True)
         self.itemSelectionChanged.connect(self.changeColor)
-#TODO directly ask children without list
+        #TODO directly ask children without list
         self.widget_list = []
         self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 
@@ -349,7 +471,7 @@ class ListTexts(QtGui.QWidget):
         HBox.setSpacing(5) 
         self.setLayout(HBox)
 
-#TODO sorting
+        #TODO sorting
         #self.orderdt = QtGui.QAction("order by date", self, triggered=lambda: self.sortby("dt")) 
         #self.orderoc = QtGui.QAction("order by occurence", self, triggered=lambda: self.sortby("oc")) 
 
@@ -385,40 +507,12 @@ class ListTexts(QtGui.QWidget):
             self.anticorpus.setItemWidget(WI, WI.label)
             self.anticorpus.widget_list.append(self.ltxts[sem]) 
 
-#    def sortby(self, order):
-#        self.corpus.setSortingEnabled(True)
-#        if (order == "oc"):
-#            self.corpus.removeAction(self.orderoc)
-#            self.corpus.addAction(self.orderdt)
-#            self.corpus.sortItems(QtCore.Qt.DescendingOrder)
-#        else:
-#            self.corpus.removeAction(self.orderdt)
-#            self.corpus.addAction(self.orderoc)
-#            self.corpus.sortItems(QtCore.Qt.AscendingOrder)
-
     def sort(self):
         l = self.ltxts.keys()
         liste = {}
         for e in l:
             liste[e] = self.get_date(self.ltxts[e])
         return sorted(liste.items(), key=lambda (k, v): v) 
-
-#    def OLDsort(self, order="chrono", l=False):
-#        if not l:
-#            l = self.ltxts.keys()
-#        liste = {}
-#        if (order == "chrono"):
-#            for e in l:
-#                liste[e] = self.get_date(self.ltxts[e])
-#        elif (order == "occurence"):
-#            for e in l:
-#                if e in self.lsems:
-#                #sort corpus by value
-#                    liste[e] = self.lsems[e]
-#                else:
-#                #sort anticorpus by date
-#                    liste[e] = self.get_date(self.ltxts[e])
-#        return sorted(liste.items(), key=lambda (k, v): v) 
 
     def get_date(self, txt):
         date = txt.getCTX("date")
@@ -467,7 +561,7 @@ class ListViewDrop(QtGui.QListWidget):
             event.setDropAction(QtCore.Qt.CopyAction)
             event.accept()
             links = []
-#FIXME bug Qt et MAC ne donne pas path complet
+            #FIXME bug Qt et MAC ne donne pas path complet
             for url in event.mimeData().urls():
                 #print str(NSURL.URLWithString_(str(url.toString())))
                 #links.append(str(url.toLocalFile())) #pb encodage
@@ -475,7 +569,6 @@ class ListViewDrop(QtGui.QListWidget):
             self.fileDropped.emit(links)
         else:
             event.ignore()
-
 
 class Corpus_tab(QtGui.QListWidget):
     def __init__(self, type, parent=None):
@@ -492,18 +585,18 @@ class Corpus_tab(QtGui.QListWidget):
         self.nameCorpus = QtGui.QLineEdit()
         self.nameCorpus.setAcceptDrops(True)
         H1.addWidget(self.nameCorpus)
-        openPRC_button = QtGui.QPushButton("Open")
-        openPRC_button.setToolTip("Open a .prc file")
+        openPRC_button = QtGui.QPushButton(self.tr("Open"))
+        openPRC_button.setToolTip(self.tr("Open a .prc file"))
         openPRC_button.clicked.connect(self.openPRC)
         H1.addWidget(openPRC_button)
-        mergePRC_button= QtGui.QPushButton("Merge")
-        mergePRC_button.setToolTip("Merge text list with a .prc file")
+        mergePRC_button= QtGui.QPushButton(self.tr("Merge"))
+        mergePRC_button.setToolTip(self.tr("Merge text list with a .prc file"))
         H1.addWidget(mergePRC_button)
         mergePRC_button.clicked.connect(self.mergePRC)
-        savePRC_button= QtGui.QPushButton("Save")
+        savePRC_button= QtGui.QPushButton(self.tr("Save"))
         H1.addWidget(savePRC_button)
         savePRC_button.clicked.connect(self.savePRC)
-        self.launchPRC_button= QtGui.QPushButton("Read")
+        self.launchPRC_button= QtGui.QPushButton(self.tr("Read"))
         H1.addWidget(self.launchPRC_button)
         self.launchPRC_button.setEnabled(False)
 
@@ -519,7 +612,7 @@ class Corpus_tab(QtGui.QListWidget):
         spacer_1.setSizePolicy(QtGui.QSizePolicy.Expanding, 
                                     QtGui.QSizePolicy.Minimum)
         H2LV1B.addWidget(spacer_1)
-        self.checkTexts = QtGui.QCheckBox("file existence")
+        self.checkTexts = QtGui.QCheckBox(self.tr("file existence"))
         H2LV1B.addWidget(self.checkTexts)
         self.checkTexts.stateChanged.connect(self.checkFileExistence)
     
@@ -532,19 +625,19 @@ class Corpus_tab(QtGui.QListWidget):
         H2LV1.addWidget(self.ViewListeTextes)
 
         self.ViewListeTextes.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-        addItem_ViewListeTextes = QtGui.QAction('add text', self)
+        addItem_ViewListeTextes = QtGui.QAction(self.tr('add text'), self)
         self.ViewListeTextes.addAction(addItem_ViewListeTextes)
         QtCore.QObject.connect(addItem_ViewListeTextes, 
             QtCore.SIGNAL("triggered()"), self.addItem_ViewListeTextes)
-        efface_ViewListeTextesItem = QtGui.QAction('delete item', self)
+        efface_ViewListeTextesItem = QtGui.QAction(self.tr('delete item'), self)
         self.ViewListeTextes.addAction(efface_ViewListeTextesItem)
         QtCore.QObject.connect(efface_ViewListeTextesItem, 
             QtCore.SIGNAL("triggered()"), self.efface_ViewListeTextesItem)
-        efface_ViewListeTextes = QtGui.QAction('clear list', self)
+        efface_ViewListeTextes = QtGui.QAction(self.tr('clear list'), self)
         self.ViewListeTextes.addAction(efface_ViewListeTextes)
         QtCore.QObject.connect(efface_ViewListeTextes, 
             QtCore.SIGNAL("triggered()"), self.efface_ViewListeTextes)
-        self.send_codex_ViewListeTextes = QtGui.QAction('send to codex', self)
+        self.send_codex_ViewListeTextes = QtGui.QAction(self.tr('send to codex'), self)
         self.ViewListeTextes.addAction(self.send_codex_ViewListeTextes)
         #QtCore.QObject.connect(send_codex_ViewListeTextes, 
         #   QtCore.SIGNAL("triggered()"), self.send_codex_ViewListeTextes)
@@ -552,7 +645,7 @@ class Corpus_tab(QtGui.QListWidget):
         H22Tab = QtGui.QTabWidget()
         H2.addWidget(H22Tab)
         H22TabDic = QtGui.QWidget()
-        H22Tab.addTab(H22TabDic, "Dictionaries")
+        H22Tab.addTab(H22TabDic, self.tr("Dictionaries"))
         H2L = QtGui.QVBoxLayout()
         H22TabDic.setLayout(H2L)
         H2L.setContentsMargins(0,0,0,0) 
@@ -567,16 +660,16 @@ class Corpus_tab(QtGui.QListWidget):
                             QtCore.Qt.ActionsContextMenu)
 
         self.ViewListeConcepts.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-        addItem_ViewListeConcepts = QtGui.QAction('add concept file', self)
+        addItem_ViewListeConcepts = QtGui.QAction(self.tr('add concept file'), self)
         self.ViewListeConcepts.addAction(addItem_ViewListeConcepts)
         QtCore.QObject.connect(addItem_ViewListeConcepts, 
             QtCore.SIGNAL("triggered()"), self.addItem_ViewListeConcepts)
 
-        efface_ViewListeConceptsItem = QtGui.QAction('delete item', self)
+        efface_ViewListeConceptsItem = QtGui.QAction(self.tr('delete item'), self)
         self.ViewListeConcepts.addAction(efface_ViewListeConceptsItem)
         QtCore.QObject.connect(efface_ViewListeConceptsItem, 
             QtCore.SIGNAL("triggered()"), self.efface_ViewListeConceptsItem)
-        efface_ViewListeConcepts = QtGui.QAction('clear list', self)
+        efface_ViewListeConcepts = QtGui.QAction(self.tr('clear list'), self)
         self.ViewListeConcepts.addAction(efface_ViewListeConcepts)
         QtCore.QObject.connect(efface_ViewListeConcepts, 
             QtCore.SIGNAL("triggered()"), self.efface_ViewListeConcepts)
@@ -589,22 +682,22 @@ class Corpus_tab(QtGui.QListWidget):
         self.ViewListeLexicons.setContextMenuPolicy(
                         QtCore.Qt.ActionsContextMenu)
 
-        addItem_ViewListeLexicons = QtGui.QAction('add lexicon file', self)
+        addItem_ViewListeLexicons = QtGui.QAction(self.tr('add lexicon file'), self)
         self.ViewListeLexicons.addAction(addItem_ViewListeLexicons)
         QtCore.QObject.connect(addItem_ViewListeLexicons, 
             QtCore.SIGNAL("triggered()"), self.addItem_ViewListeLexicons)
 
-        efface_ViewListeLexiconsItem = QtGui.QAction('delete item', self)
+        efface_ViewListeLexiconsItem = QtGui.QAction(self.tr('delete item'), self)
         self.ViewListeLexicons.addAction(efface_ViewListeLexiconsItem)
         QtCore.QObject.connect(efface_ViewListeLexiconsItem, 
             QtCore.SIGNAL("triggered()"), self.efface_ViewListeLexiconsItem)
-        efface_ViewListeLexicons = QtGui.QAction('clear list', self)
+        efface_ViewListeLexicons = QtGui.QAction(self.tr('clear list'), self)
         self.ViewListeLexicons.addAction(efface_ViewListeLexicons)
         QtCore.QObject.connect(efface_ViewListeLexicons, 
             QtCore.SIGNAL("triggered()"), self.efface_ViewListeLexicons)
 
         H22TabPar = QtGui.QWidget()
-        H22Tab.addTab(H22TabPar, "Parameters")
+        H22Tab.addTab(H22TabPar, self.tr("Parameters"))
           
     def TxtFilesDropped(self, l):
         existing = [] 
@@ -617,18 +710,17 @@ class Corpus_tab(QtGui.QListWidget):
                     item.setStatusTip(url)
                     self.TextFilesDates[url] = u"%s" %\
                         datetime.datetime.now().strftime("%Y-%m-%d")
-                    item.setToolTip("insertion\
-                         date %s" % self.TextFilesDates[url])
-        self.numTexts.setText(u"%d texts"%self.ViewListeTextes.count())
+                    item.setToolTip(self.tr("insertion date %s") % self.TextFilesDates[url])
+        self.numTexts.setText(self.tr("%d texts")%self.ViewListeTextes.count())
 
     def efface_ViewListeTextes(self):
         self.ViewListeTextes.clear()
-        self.numTexts.setText(u"%d texts"%self.ViewListeTextes.count())
+        self.numTexts.setText(self.tr("%d texts")%self.ViewListeTextes.count())
         self.TextFilesDates = {}
 
     def addItem_ViewListeTextes(self):
-        fnames, filt = QtGui.QFileDialog.getOpenFileNames(self, 'Add file',
-                                                         '.', '*.txt;*.TXT')
+        fnames, filt = QtGui.QFileDialog.getOpenFileNames(self,
+         self.tr('Add file'), '.', '*.txt;*.TXT')
         if (fnames):
             self.TxtFilesDropped(fnames)
 
@@ -638,14 +730,14 @@ class Corpus_tab(QtGui.QListWidget):
             for item in Items:
                 del(self.TextFilesDates[item.text()])
                 self.ViewListeTextes.takeItem(self.ViewListeTextes.row(item))
-        self.numTexts.setText(u"%d texts"%self.ViewListeTextes.count())
+        self.numTexts.setText(self.tr("%d texts")%self.ViewListeTextes.count())
     
     def efface_ViewListeConcepts(self):
         self.ViewListeConcepts.clear()
 
     def addItem_ViewListeConcepts(self):
-        fnames, filt = QtGui.QFileDialog.getOpenFileNames(self, 'Add file',
-                                                         '.', '*.fic;*.cat;*.col')
+        fnames, filt = QtGui.QFileDialog.getOpenFileNames(self,
+            self.tr('Add file'), '.', '*.fic;*.cat;*.col')
         if (fnames):
             self.ccfFilesDropped(fnames)
 
@@ -671,8 +763,8 @@ class Corpus_tab(QtGui.QListWidget):
         self.ViewListeLexicons.clear()
 
     def addItem_ViewListeLexicons(self):
-        fnames, filt = QtGui.QFileDialog.getOpenFileNames(self, 'Add file',
-                                                         '.', '*.dic')
+        fnames, filt = QtGui.QFileDialog.getOpenFileNames(self, 
+            self.tr('Add file'), '.', '*.dic')
         if (fnames):
             self.dicFilesDropped(fnames)
 
@@ -699,8 +791,8 @@ class Corpus_tab(QtGui.QListWidget):
             rep = "/Users/gspr/corpus"
         else:
             rep = "."
-        fname, filt = QtGui.QFileDialog.getOpenFileName(self, 'Open file', 
-                                                    rep, 'Corpus (*.prc *.PRC)')
+        fname, filt = QtGui.QFileDialog.getOpenFileName(self, 
+            self.tr('Open file'), rep, 'Corpus (*.prc *.PRC)')
         return fname
       
     def openPRC(self):
@@ -715,10 +807,10 @@ class Corpus_tab(QtGui.QListWidget):
             self.ViewListeTextes.clear()
             for f in corpus.textFileList(): 
                 item = QtGui.QListWidgetItem(f[0])
-                item.setToolTip("insertion date %s" % f[1])
+                item.setToolTip(self.tr("insertion date %s") % f[1])
                 self.ViewListeTextes.addItem(item)
                 self.TextFilesDates[f[0]] = f[1]
-            self.numTexts.setText(u"%d texts"%self.ViewListeTextes.count())
+            self.numTexts.setText(self.tr("%d texts")%self.ViewListeTextes.count())
             self.ViewListeTextes.sortItems()
             if self.checkTexts.checkState() :
                 self.checkFileExistence()
@@ -756,16 +848,16 @@ class Corpus_tab(QtGui.QListWidget):
                 if f[0] not in self.TextFilesDates.keys():
                     self.TextFilesDates[f[0]] = f[1]
                     item = QtGui.QListWidgetItem(f[0])
-                    item.setToolTip("insertion date %s" % f[1])
+                    item.setToolTip(self.tr("insertion date %s") % f[1])
                     self.ViewListeTextes.addItem(item)
             self.ViewListeTextes.sortItems()
-            self.numTexts.setText(u"%d texts"%self.ViewListeTextes.count())
+            self.numTexts.setText(self.tr("%d texts")%self.ViewListeTextes.count())
             if self.checkTexts.checkState() :
                 self.checkFileExistence()
 
     def savePRC(self):
         fileName, ext = QtGui.QFileDialog.getSaveFileName(self,
-                                    "Save prc file", '', '*.prc') 
+                                    self.tr("Save prc file"), '', '*.prc') 
         corpusS = Controller.parseCorpus()    
         concepts = []
         for r in range(self.ViewListeConcepts.count()):
@@ -854,7 +946,6 @@ class MrlwVarGenerator(object):
         self.genere_mrlw = generator_mrlw.mrlw_variables()
         for F in self.genere_mrlw.files:
             self.gen_mrlw_files.addItem(F)
-
     
     def genere_identify(self):
         phrase = self.gen_mrlw_phrase.toPlainText()
@@ -881,7 +972,6 @@ class MrlwVarGenerator(object):
                 for i in recup:
                     self.gen_mrlw_test_result.addItem("/%s"%i[1])
                 
-
     def genere_generate(self):
         phrase = self.gen_mrlw_vars.toPlainText()
         if  (phrase != u''):
@@ -914,7 +1004,7 @@ class Journal(object):
                                          QtGui.QSizePolicy.Minimum)
         journal_hobx.addWidget(spacer1)
 
-#TODO remove this button
+        #TODO remove this button, translate
         journal_button_save = QtGui.QPushButton('Save journal')
         width = journal_button_save.fontMetrics().boundingRect(
                         journal_button_save.text()).width() + 30
@@ -926,7 +1016,7 @@ class Journal(object):
     def journal_save(self):
 	dte = str(datetime.date.today())
 	fname, filt = QtGui.QFileDialog.getSaveFileName(self.journal,
-                             'Save file','journal_%s.txt'%dte,'*.txt')
+                             self.tr('Save file'),'journal_%s.txt'%dte,'*.txt')
 	if (fname):
 		with open(fname, 'w') as journal_file:
 			journal_file.write(self.history.toPlainText().encode('utf-8'))
@@ -1082,7 +1172,7 @@ class Explorer(QtGui.QWidget):
                                          QtGui.QSizePolicy.Minimum)
         hbox1.addWidget(Explo_spacer1)
 
-        self.sensitivity = QtGui.QCheckBox("case sensitivity")
+        self.sensitivity = QtGui.QCheckBox(self.tr("case sensitivity"))
         hbox1.addWidget(self.sensitivity)
 
         hbox2 = QtGui.QHBoxLayout()
@@ -1090,16 +1180,16 @@ class Explorer(QtGui.QWidget):
         self.liste = MyListWidget()
         hbox2.addWidget(self.liste)
 
-#TODO display item presence in concepts
+        #TODO display item presence in concepts
         vbox2 = QtGui.QVBoxLayout()
         hbox2.addLayout(vbox2)
-#TODO clic -> to the list, typer-retyper
+        #TODO clic -> to the list, typer-retyper
         self.explo_lexi = QtGui.QListWidget()
         vbox2.addWidget(self.explo_lexi)
         self.explo_easter = QtGui.QLabel()
         vbox2.addWidget(self.explo_easter)
-#        self.explo_concepts = QtGui.QListWidget()
-#        vbox2.addWidget(self.explo_concepts)
+        #self.explo_concepts = QtGui.QListWidget()
+        #vbox2.addWidget(self.explo_concepts)
 
 class ServerVars(QtGui.QListWidget):
     """Asking directly the server vars"""

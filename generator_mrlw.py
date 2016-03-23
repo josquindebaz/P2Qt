@@ -5,7 +5,6 @@ import re
 import random
 import os
 
-
 class mrlw_variables(object):
     def __init__(self):
         self.mrlw_vars  = {}
@@ -21,7 +20,7 @@ class mrlw_variables(object):
             B = open(path).read()
             return B.decode('latin1')
         else :
-            print "pb path", path
+            print "C3166 pb path", path
             return ""
 
     def add_vars(self, file_content):
@@ -77,8 +76,7 @@ if __name__ == '__main__':
     t  = u"mot"
     print main.teste_var(t)
 
-    p = u"Une phrase informatique de test accentuée, pour avoir un avis\
-        partisan d'une myopie informatique, une causerie à l'EHESS, hein"
+    p = u"Une phrase informatique de test accentuée, pour avoir un avis partisan d'une myopie informatique, une causerie à l'EHESS, hein"
     print p
 
     v = main.get_vars_sentence(p)       
