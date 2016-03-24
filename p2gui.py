@@ -126,13 +126,6 @@ class Principal(QtGui.QMainWindow):
         self.NOT1.select.currentIndexChanged.connect(self.select_liste)
         self.NOT1.sort_command.currentIndexChanged.connect(self.affiche_liste_scores)
         self.NOT1.dep0.listw.currentItemChanged.connect(self.ldep0_changed) 
-        #REMOVEME>
-        #self.NOT1.depI.listw.currentItemChanged.connect(self.ldepI_changed)
-        #self.NOT1.depII.listw.currentItemChanged.connect(self.ldepII_changed)
-        #self.NOT1.depI.deselected.connect(lambda: self.NOT1.depII.listw.clear())
-        #self.NOT1.dep0.deselected.connect(lambda: [self.NOT1.depI.listw.clear(),
-        #     self.NOT1.depII.listw.clear()])
-        #>REMOVEME
         #TODO add those below
         for i in range(6,11):
             self.NOT1.sort_command.model().item(i).setEnabled(False)
@@ -159,9 +152,6 @@ class Principal(QtGui.QMainWindow):
             triggered=lambda: self.copy_to_cb(self.NOT2.depI.listw)))
         self.NOT2.depII.listw.addAction(QtGui.QAction('texts', self,
             triggered=lambda: self.show_texts_from_list(2)))
-        #TODO send to texts list
-        #self.NOT2.depII.listw.addAction(QtGui.QAction('sentences', self,
-        #    triggered=self.teste_wording))
         self.NOT2.depII.listw.addAction(QtGui.QAction('network', self,
             triggered=lambda: self.show_network(2)))
         self.NOT2.depII.listw.addAction(QtGui.QAction('copy list', self,
@@ -233,8 +223,9 @@ class Principal(QtGui.QMainWindow):
         Viewer.hide_close_buttons(self.NETs,0)
         self.NETs.addTab(self.explorer_widget, self.tr("Search"))
         Viewer.hide_close_buttons(self.NETs,1)
-        #self.NETs.addTab(formulaeTab, self.tr("Formulae"))
-        #Viewer.hide_close_buttons(self.NETs,2)
+        self.NETs.addTab(formulaeTab, self.tr("Formulae"))
+        Viewer.hide_close_buttons(self.NETs,2)
+        self.NETs.setTabEnabled(2, False)
 
         ##################################################
         #cadran SO
@@ -246,10 +237,11 @@ class Principal(QtGui.QMainWindow):
         self.SOT1.setTabsClosable(True)
         self.SOT1.tabCloseRequested.connect(self.SOT1.removeTab)
 
-
         #SO QTabWidget
         ##################################################
+
         #TODO les expression englobantes
+
         self.SOTs = QtGui.QTabWidget()
         self.SOTs.setTabsClosable(True)
         self.SOTs.tabCloseRequested.connect(self.SOTs.removeTab)
@@ -311,6 +303,7 @@ class Principal(QtGui.QMainWindow):
         self.SETs.addTab(self.textProperties, self.tr("Properties"))
         self.SETs.addTab(self.SET2, self.tr("Context"))
         self.SETs.addTab(self.textContent, self.tr("Text"))
+        self.SETs.addTab(self.tab_sentences, self.tr("Sentences"))
 
         self.SETs.currentChanged.connect(self.change_SETab)
         self.textProperties.currentChanged.connect(self.change_text_prop_tab)
@@ -426,7 +419,7 @@ class Principal(QtGui.QMainWindow):
         n = len(self.preCompute.listeTextes)
         self.activity(self.tr("Displaying text list (%d items)") % n)
         self.CorpusTexts = Viewer.ListTexts(False,
-            self.preCompute.dicTxtSem.values(), self.listeObjetsTextes)
+            self.preCompute.dicTxtSem.values(), self.listeObjetsTextes, self)
         self.CorpusTexts.corpus.itemSelectionChanged.connect(self.onSelectText)
         self.SOT1.addTab(self.CorpusTexts, self.tr("corpus (%d)")%n)
         Viewer.hide_close_buttons(self.SOT1,0) #corpus text tab permanent
@@ -1597,7 +1590,7 @@ class Principal(QtGui.QMainWindow):
         
         #display
         texts_widget = Viewer.ListTexts(element, lvalued, 
-            self.listeObjetsTextes)
+            self.listeObjetsTextes, self)
         #TODO sorting by date/score, filter
         for sem, tri in texts_widget.sort():
             txt =  self.listeObjetsTextes[sem]
@@ -1714,6 +1707,11 @@ class Principal(QtGui.QMainWindow):
             self.CTXs.l.setCurrentItem(current)
             self.contexts_contents()
     
+    def copy_temp(self, l):
+        clipboard = QtGui.QApplication.clipboard()
+        clipboard.setText("\n".join(l))
+        self.activity(u"%d elements copied to clipboard" % (len(l)))
+
     def copy_to_cb(self, listw):
         n  = listw.count()
         liste = []

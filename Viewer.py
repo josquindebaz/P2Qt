@@ -5,7 +5,6 @@ from PySide import QtGui
 import re
 import os
 import datetime
-#from Foundation import NSURL
 
 import Controller
 import generator_mrlw
@@ -77,8 +76,11 @@ class MyMenu(QtGui.QMenuBar):
         self.pers =  QtGui.QAction(self.tr("Persons"), self)
         menu_comput.addAction(self.pers)
         self.pers.setEnabled(False)
+        self.grappes =  QtGui.QAction(self.tr("Clusters"), self)
+        menu_comput.addAction(self.grappes)
+        self.grappes.setEnabled(False)
         #TODO viz
-        #TODO author signatures, grappes, periodisations
+        #TODO author signatures, periodisations
         #TODO corpus indicators and properties
         #TODO list evolutions
 
@@ -261,12 +263,6 @@ class LexiconTab(QtGui.QWidget):
         #lexicon liste
         self.dep0 = MyListWidget()
         VH.addWidget(self.dep0)
-        #I deployment
-        #self.depI = MyListWidget()
-        #VH.addWidget(self.depI)
-        ##II deployment 
-        #self.depII = MyListWidget()
-        #VH.addWidget(self.depII)
 
 class ConceptTab(QtGui.QWidget):
     #TODO systématiser 3 colonnes ou passer à deux ?
@@ -423,11 +419,22 @@ class MyListWidgetTexts(QtGui.QListWidget):
     """a specific widget for textslists""" 
     def __init__(self, parent=None):
         QtGui.QListWidget.__init__(self)
+        self.parent = parent
         self.setAlternatingRowColors(True)
         self.itemSelectionChanged.connect(self.changeColor)
         #TODO directly ask children without list
         self.widget_list = []
         self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        self.addAction(QtGui.QAction('copy temporal distribution', self,
+            triggered=self.copy))
+
+        #TODO sorting
+        #self.orderdt = QtGui.QAction("order by date", self, triggered=lambda: self.sortby("dt")) 
+        #self.orderoc = QtGui.QAction("order by occurence", self, triggered=lambda: self.sortby("oc")) 
+        #self.corpus.addAction(self.orderoc)
+
+    def copy(self):
+        self.parent.copy_temp(self)
 
     def changeColor(self):
         currentRow = self.currentRow()
@@ -445,20 +452,19 @@ class MyListWidgetTexts(QtGui.QListWidget):
 class TexteWidgetItem(QtGui.QListWidgetItem):
     def __init__(self, text, parent=None):
         QtGui.QListWidgetItem.__init__(self)
-        #self.setText(text)
         self.resume = text
         txt_resume = self.formeResume()
         self.label = QtGui.QLabel(txt_resume)
         self.setToolTip(txt_resume)
-        #self.setData(QtCore.Qt.UserRole, text)
 
     def formeResume(self):
         return u"%s <span style=\"font: bold\">%s</span> %s" % self.resume 
 
 class ListTexts(QtGui.QWidget):
     """Display texts corpus and anticorpus for an element"""
-    def __init__(self, element, lsems, ltxts):
+    def __init__(self, element, lsems, ltxts, parent):
         QtGui.QWidget.__init__(self)
+        self.parent = parent
 
         self.lsems = lsems
         #print "C31471", lsems
@@ -468,19 +474,14 @@ class ListTexts(QtGui.QWidget):
         HBox.setSpacing(5) 
         self.setLayout(HBox)
 
-        #TODO sorting
-        #self.orderdt = QtGui.QAction("order by date", self, triggered=lambda: self.sortby("dt")) 
-        #self.orderoc = QtGui.QAction("order by occurence", self, triggered=lambda: self.sortby("oc")) 
-
         if (element):
             self.title = "%s (%d)" % (element, len(self.lsems))
-            self.corpus = MyListWidgetTexts()
+            self.corpus = MyListWidgetTexts(self)
             HBox.addWidget(self.corpus)
-            self.anticorpus = MyListWidgetTexts()
+            self.anticorpus = MyListWidgetTexts(self)
             HBox.addWidget(self.anticorpus)
-            #self.corpus.addAction(self.orderoc)
         else:
-            self.corpus = MyListWidgetTexts()
+            self.corpus = MyListWidgetTexts(self)
             HBox.addWidget(self.corpus)
             for sem, tri in self.sort():
                 txt = self.ltxts[sem]
@@ -519,6 +520,12 @@ class ListTexts(QtGui.QWidget):
         else:
             date = date[0]
         return "-".join(reversed(re.split("/", date)))
+
+    def copy_temp(self, l):
+        ld = []
+        for w in l.widget_list:
+            ld.append(self.get_date(w))
+        self.parent.copy_temp(ld)
 
 class MyDelegate(QtGui.QStyledItemDelegate):
     
