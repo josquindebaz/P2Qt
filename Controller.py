@@ -30,18 +30,12 @@ class client(object):
         return self.c.eval_ctx(props, ctx_range)
 
     def eval_get_sem(self, exp, sem):
-        """jp : pour retrouver la sémantique d'un élément : 
-        getsem 'nucléaire' $ent
-        """
+        """get element semantic getsem 'nucléaire' $ent -> $ent10"""
         return self.c.eval_fonct(u"getsem", u"%s"%exp, sem)
 
     def add_cache_var(self, cle, val):
         self.c.add_cache_var(cle, val)
 
-#    def add_cache_fonct(self, cle, val):
-#    # pour anticiper les getsem /corpus/texte $txt
-#        self.c.add_cache_fonc(cle, val)
-    
     def creer_msg_search(self, fonc, element, pelement='', txt=False, 
                                     ptxt='', ph=False, pph='', val=False):
         return self.c.creer_msg_search(fonc, element, 

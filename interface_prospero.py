@@ -614,6 +614,9 @@ class ConnecteurPII (threading.Thread):
 		fonc = fonc[1:] # vire le $
 		
 		element =  element.encode('utf-8')
+
+		if verbose : print [fonc, element]
+
 		#signature = fonc + '.' + element
 		# la signature doit integre ttes les specifications (pour se distinguer entre elles (utilisee comme cle pour les acces aux objets))
 		signature = fonc + '.' + element + "." + pelement
@@ -646,6 +649,7 @@ class ConnecteurPII (threading.Thread):
 		lexpr.append("FARG:")	# ajouté pour signaler la fin des arg sur WSearch
 		
 		if pelement:  
+                        L = self.get_token_tranche(pelement)
 			lexpr += L
 			cle += pelement
 			

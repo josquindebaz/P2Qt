@@ -102,6 +102,8 @@ class Principal(QtGui.QMainWindow):
         ##################################################
 
         self.authorsTab = Viewer.authorsTab()
+        self.authorsTab.L.currentItemChanged.connect(self.authLchanged)
+        self.authorsTab.S.currentIndexChanged.connect(self.authLchanged)
 
         ##### Tab for concepts #############
         ##################################################
@@ -374,6 +376,49 @@ class Principal(QtGui.QMainWindow):
         for i in reversed(range(self.SOT1.tabBar().count())):
             self.SOT1.tabBar().removeTab(i)
 
+    def display_authors(self):
+        #TODO sort by number of pages, get texts
+        ask = u"$aut[0:]" 
+        result = self.client.eval_var(ask)
+        list_results = re.split(", ", result)
+        self.activity(self.tr("Displaying %d authors")%len(list_results))
+        self.authorsTab.L.clear()
+        self.PrgBar.perc(len(list_results))
+
+        for i, aut in enumerate(list_results):
+            ask = u"$aut%d.txt[0:]" % i 
+            result = self.client.eval_var(ask)
+            txts = re.split(", ", result)
+            n = len(txts)
+            item = QtGui.QListWidgetItem()
+            item.setText("%d %s" % (n, aut))
+            ask = "$aut%d.nbpg" % i 
+            nbpg = self.client.eval_var(ask)
+            firstTxt = txts[0]
+            firstTxt = self.listeObjetsTextes[self.preCompute.dicTxtSem[firstTxt]]
+            firstDate = firstTxt.getCTX("date")
+            firstDate = firstDate[0:10]
+            lastTxt = txts[-1]
+            lastTxt = self.listeObjetsTextes[self.preCompute.dicTxtSem[lastTxt]]
+            lastDate = lastTxt.getCTX("date")
+            lastDate = lastDate[0:10]
+            item.setToolTip("<table><tr><th colspan=\"2\">%s</th></tr><tr><td>number of texts</td><td align=\"right\">%d</td><tr><td>number of pages</td><td align=\"right\">%s</td></tr><tr><td>first text date</td><td align=\"right\">%s</td></tr><tr><td>last text date</td><td align=\"right\">%s</td></tr></table>"%(aut, n, nbpg, firstDate, lastDate))
+            self.authorsTab.L.addItem(item)
+            self.PrgBar.percAdd(1)
+
+        self.PrgBar.reset()
+
+    def authLchanged(self):
+        #TODO score, deploiement, acces aux textes et aux enonces
+        if hasattr(self, "client"):
+            self.authorsTab.L2.clear()
+            row = self.authorsTab.L.currentRow()
+            which = Controller.semantiques[self.authorsTab.S.currentText()]
+            ask = "$aut%s.%s[0:]" % (row, which)
+            result = self.client.eval_var(ask)
+            for el in re.split(", ", result):
+                self.authorsTab.L2.addItem(el)
+
     def create_corpus_texts_tab(self):
         """create a tab for corpus texts"""
         #FIXME reset if open a new corpus
@@ -431,7 +476,10 @@ class Principal(QtGui.QMainWindow):
             listwidget.itemSelectionChanged.connect(self.onSelectText)
 
     def change_NOTab(self):
-        if (self.NOTs.currentIndex() == 2): #Concepts
+        if (self.NOTs.currentIndex() == 1): #Authors
+            if  hasattr(self, "client"): # si connecte
+                self.display_authors()
+        elif (self.NOTs.currentIndex() == 2): #Concepts
             if  hasattr(self, "client"): # si connecte
                 if not hasattr(self, "sem_concept"): 
                     self.select_concept(self.NOT2.select.currentText())
@@ -1017,29 +1065,10 @@ class Principal(QtGui.QMainWindow):
 
             self.PrgBar.reset()
 
-            ask = u"$aut[0:]" 
-            result = self.client.eval_var(ask)
-            list_results = re.split(", ", result)
-            self.activity(self.tr("Displaying %d authors")%len(list_results))
-            self.authorsTab.L.clear()
-            self.PrgBar.perc(len(list_results))
-            for i, aut in enumerate(list_results):
-                ask = u"$aut%d.txt[0:]" % i 
-                result = self.client.eval_var(ask)
-                n = len(re.split(", ", result))
-                item = QtGui.QListWidgetItem()
-                ask2 = "$aut%d.nbpg" % i 
-                result2 = self.client.eval_var(ask2)
-                item.setText("%s %s texts, %s pages" % (aut, n, result2))
-                #item.setToolTip(result2)
-                self.authorsTab.L.addItem(item)
-                self.PrgBar.percAdd(1)
-
-            self.PrgBar.reset()
-
             #Show corpus texts list on its own tab
             self.create_corpus_texts_tab()
 
+        
     def disconnect_server(self):
         """Disconnect"""
         self.activity(self.tr("Disconnecting"))
@@ -1443,7 +1472,6 @@ class Principal(QtGui.QMainWindow):
             val, elementI = Controller.sp_el(elementI)
             element = u"%s:%s" % (element0, elementI)
             return (self.semantique_concept_item_I, element)
-        else :
             element = self.NOT2.dep0.listw.currentItem().text() 
             val, element = Controller.sp_el(element)
             return  (self.semantique_concept_item, element)
@@ -1473,7 +1501,7 @@ class Principal(QtGui.QMainWindow):
         result_network =   re.split(", ", self.client.eval_var(res_semantique))
         
         self.activity(self.tr("Displaying network for %s (%d items)")% (element,
-                                                             len(result_network)))
+                 len(result_network)))
 
         if (len(result_network)):
             valued = []
@@ -1504,10 +1532,9 @@ class Principal(QtGui.QMainWindow):
                     print "C17249 %s" % r
             #TODO check concept
 
-
     def explo_show_text(self):
         """Show texts containing a pattern"""
-        motif = self.explorer_widget.saisie.text()
+        motif = self.motif #recup from self.explorer
         row =  self.explorer_widget.liste.listw.currentRow()
         element = self.explorer_widget.liste.listw.currentItem().text()
         val, element = Controller.sp_el(element)
@@ -1516,9 +1543,10 @@ class Principal(QtGui.QMainWindow):
         types = [u"$search.pre", u"$search.suf", u"$search.rac"]
         type_search = types[select_search]
         
-        ask = self.client.creer_msg_search(type_search, motif,
-            pelement="%d"%row, txt=True, ptxt="[0:]", val=True)
+        #ask = self.client.creer_msg_search(type_search, motif, pelement="%d"%row, txt=True, ptxt="[0:]", val=True)
+        ask = self.client.creer_msg_search(type_search, motif, pelement="%d"%row, txt=True )
         result = self.client.eval(ask)
+        print "C17307", ask, result
         liste_textes = re.split(", ", result)
         lt_valued = {}
         list_sems = map(lambda k: self.preCompute.dicTxtSem[k], liste_textes)
@@ -1635,32 +1663,33 @@ class Principal(QtGui.QMainWindow):
 
     def explorer(self):
         self.explorer_widget.liste.listw.clear()
-        motif = self.explorer_widget.saisie.text()
-        if (motif != ""):
+        self.motif = self.explorer_widget.saisie.text()
+        if (self.motif != ""):
             types = [u"$search.pre", u"$search.suf", u"$search.rac"]
             type_search = types[self.explorer_widget.select_fix.currentIndex()]
             if (self.explorer_widget.sensitivity.isChecked()):
                 type_search = re.sub("search", "searchcs", type_search)
-            if (motif == "abracadabri"): self.easter1()
-            if (motif != "" and hasattr(self, "client")):
-                ask = self.client.creer_msg_search(type_search, motif, "[0:]") 
+            if (self.motif == "abracadabri"): self.easter1()
+            if (self.motif != "" and hasattr(self, "client")):
+                ask = self.client.creer_msg_search(type_search, self.motif, "[0:]") 
                 result = self.client.eval(ask)
+                print "C25712", ask, result
                 if (result != u''):
                     liste_result = re.split(", ", result)
-                    self.activity("searching for {%s}: %d results"%(motif,
+                    self.activity(self.tr("Displaying search for {%s}: %d results")%(self.motif,
                         len(liste_result)))
                     self.PrgBar.perc(len(liste_result))
                     for i in range(len(liste_result)):
-                        ask = self.client.creer_msg_search(type_search, motif,
-                                            "%d"%i, val=True) #match value
-                        #TODO sentences
+                        ask = self.client.creer_msg_search(type_search, 
+                            self.motif, "%d"%i, val=True) #match value
                         r = self.client.eval(ask)
+                        print "C25713", ask, r 
                         self.PrgBar.percAdd(1)
                         self.explorer_widget.liste.listw.addItem("%s %s"% (r,
                             liste_result[i]))
                 else :
-                    self.activity(self.tr("searching for {%s}: 0 result") % (motif) )
-    
+                    self.activity(self.tr("Searching for {%s}: no result") % (self.motif)) 
+
     def contexts_contents(self):
         self.CTXs.cont.clear()
         if (self.CTXs.l.currentItem()):

@@ -172,6 +172,7 @@ class authorsTab(QtGui.QWidget):
     """Widget authors lists"""
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
+        self.setStyleSheet("QToolTip {background-color: white;}")
         H = QtGui.QHBoxLayout()
         self.setLayout(H)
         H.setContentsMargins(0,0,0,0) 
@@ -181,17 +182,16 @@ class authorsTab(QtGui.QWidget):
         #FIXME ecrase cadrans 
         V1 = QtGui.QVBoxLayout()
         H.addLayout(V1)
-        #H0 = QtGui.QLabel('first\nlast\nnbpg\nnbtxt')
-        #V1.addWidget(H0)
-        S = QtGui.QComboBox()
-        S.addItems([ 
+        self.S = QtGui.QComboBox()
+        self.S.addItems([ 
+            u"actants",
             u"entities&fictions",  
             u"entity categories",
             u"quality categories", 
             u"marker categories", 
             u"verb categories",
             u"collections",
-            u"fictions"
+            u"fictions",
             u'entities',
             u"qualities",
             u"markers", 
@@ -199,24 +199,20 @@ class authorsTab(QtGui.QWidget):
             "undefined", 
             "persons", 
             u"expressions",  
-            u"numbers",
-            u"function words"
+            #u"numbers",
+            #u"function words"
         ])
-        V1.addWidget(S)
-        L2 = QtGui.QListWidget()
-        V1.addWidget(L2)
-        #V2 = QtGui.QVBoxLayout()
-        #H.addLayout(V2)
-        #H1 = QtGui.QLabel('specific')
-        #V2.addWidget(H1)
-        #L3 = QtGui.QListWidget()
-        #V2.addWidget(L3)
-        #V3 = QtGui.QVBoxLayout()
-        #H.addLayout(V3)
-        #H2 = QtGui.QLabel('absent')
-        #V3.addWidget(H2)
-        #L4 = QtGui.QListWidget()
-        #V3.addWidget(L4)
+        V1.addWidget(self.S)
+        self.L2 = QtGui.QListWidget()
+        V1.addWidget(self.L2)
+        V2 = QtGui.QVBoxLayout()
+        H.addLayout(V2)
+        S2 = QtGui.QComboBox()
+        S2.addItems(['specific', 'absent'])
+        V2.addWidget(S2)
+        L3 = QtGui.QListWidget()
+        L3.setEnabled(False)
+        V2.addWidget(L3)
         
 class LexiconTab(QtGui.QWidget):
     """Widget displaying lexicon lists"""
@@ -577,7 +573,7 @@ class Corpus_tab(QtGui.QListWidget):
         L = QtGui.QVBoxLayout()
         self.setLayout(L)
         L.setContentsMargins(0,0,0,0) 
-        L.setSpacing(0) 
+        #L.setSpacing(0) 
 
         H1 = QtGui.QHBoxLayout()
         H1.setContentsMargins(0,0,0,0) 
@@ -1086,6 +1082,10 @@ class MyListWidget(QtGui.QWidget):
         self.listw.itemClicked.connect(self.deselect)
         self.listw.installEventFilter(self)
 
+        #self.listw.setDragEnabled(True)
+        #self.listw.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
+        #self.listw.setAcceptDrops(True)
+
         vbox = QtGui.QVBoxLayout()
         self.setLayout(vbox)
         vbox.setContentsMargins(0, 0, 0, 0)
@@ -1097,6 +1097,17 @@ class MyListWidget(QtGui.QWidget):
             text-transform: lowercase;}")
         vbox.addWidget(self.label)
         vbox.addWidget(self.listw)
+
+    #def dragEnterEvent(self, event):
+        #if event.mimeData().hasFormat('text/plain'):
+            #event.accept()
+            #print event.mimeData().text()
+        #else:
+            ##event.ignore() 
+            #event.accept()
+
+    #def dropEvent(self, e):
+        #print e.mimeData()
 
     def deselect(self, item):
         if (self.previousItem): 
@@ -1169,25 +1180,18 @@ class Explorer(QtGui.QWidget):
         vbox = QtGui.QVBoxLayout()
         self.setLayout(vbox)
         vbox.setContentsMargins(0,0,0,0) 
-        vbox.setSpacing(0) 
-
-        self.saisie = QtGui.QLineEdit()
-        vbox.addWidget(self.saisie)
-        #self.saisie.setEnabled(False)
+        #vbox.setSpacing(0) 
 
         hbox1 = QtGui.QHBoxLayout()
         vbox.addLayout(hbox1)
         self.select_fix = QtGui.QComboBox()
         self.select_fix.addItems(["prefix", "suffix", "infix"])
         hbox1.addWidget(self.select_fix)
-
-        Explo_spacer1 = QtGui.QLabel()
-        Explo_spacer1.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                                         QtGui.QSizePolicy.Minimum)
-        hbox1.addWidget(Explo_spacer1)
-
         self.sensitivity = QtGui.QCheckBox(self.tr("case sensitivity"))
         hbox1.addWidget(self.sensitivity)
+
+        self.saisie = QtGui.QLineEdit()
+        vbox.addWidget(self.saisie)
 
         hbox2 = QtGui.QHBoxLayout()
         vbox.addLayout(hbox2)

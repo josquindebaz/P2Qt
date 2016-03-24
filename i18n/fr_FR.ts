@@ -3,102 +3,102 @@
 <context>
     <name>Corpus_tab</name>
     <message>
-        <location filename="../Viewer.py" line="589"/>
+        <location filename="../Viewer.py" line="585"/>
         <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="590"/>
+        <location filename="../Viewer.py" line="586"/>
         <source>Open a .prc file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="593"/>
+        <location filename="../Viewer.py" line="589"/>
         <source>Merge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="594"/>
+        <location filename="../Viewer.py" line="590"/>
         <source>Merge text list with a .prc file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="597"/>
+        <location filename="../Viewer.py" line="593"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="600"/>
+        <location filename="../Viewer.py" line="596"/>
         <source>Read</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="616"/>
+        <location filename="../Viewer.py" line="612"/>
         <source>file existence</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="629"/>
+        <location filename="../Viewer.py" line="625"/>
         <source>add text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="691"/>
+        <location filename="../Viewer.py" line="687"/>
         <source>delete item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="695"/>
+        <location filename="../Viewer.py" line="691"/>
         <source>clear list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="641"/>
+        <location filename="../Viewer.py" line="637"/>
         <source>send to codex</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="649"/>
+        <location filename="../Viewer.py" line="645"/>
         <source>Dictionaries</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="664"/>
+        <location filename="../Viewer.py" line="660"/>
         <source>add concept file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="686"/>
+        <location filename="../Viewer.py" line="682"/>
         <source>add lexicon file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="701"/>
+        <location filename="../Viewer.py" line="697"/>
         <source>Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="852"/>
+        <location filename="../Viewer.py" line="848"/>
         <source>insertion date %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="855"/>
+        <location filename="../Viewer.py" line="851"/>
         <source>%d texts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="768"/>
+        <location filename="../Viewer.py" line="764"/>
         <source>Add file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="796"/>
+        <location filename="../Viewer.py" line="792"/>
         <source>Open file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="861"/>
+        <location filename="../Viewer.py" line="857"/>
         <source>Save prc file</source>
         <translation type="unfinished"></translation>
     </message>
@@ -106,7 +106,7 @@
 <context>
     <name>Explorer</name>
     <message>
-        <location filename="../Viewer.py" line="1176"/>
+        <location filename="../Viewer.py" line="1190"/>
         <source>case sensitivity</source>
         <translation type="unfinished"></translation>
     </message>
@@ -114,7 +114,7 @@
 <context>
     <name>Journal</name>
     <message>
-        <location filename="../Viewer.py" line="1020"/>
+        <location filename="../Viewer.py" line="1016"/>
         <source>Save file</source>
         <translation type="unfinished"></translation>
     </message>
@@ -240,270 +240,280 @@
 <context>
     <name>Principal</name>
     <message>
-        <location filename="../p2gui.py" line="56"/>
+        <location filename="../p2gui.py" line="54"/>
         <source>Ready</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="185"/>
+        <location filename="../p2gui.py" line="179"/>
         <source>Actants</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="186"/>
+        <location filename="../p2gui.py" line="180"/>
         <source>Authors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="187"/>
+        <location filename="../p2gui.py" line="181"/>
         <source>Concepts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="188"/>
+        <location filename="../p2gui.py" line="182"/>
         <source>Lexicon</source>
         <translation>Lexique</translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="205"/>
+        <location filename="../p2gui.py" line="199"/>
         <source>texts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="238"/>
+        <location filename="../p2gui.py" line="232"/>
         <source>Journal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="240"/>
+        <location filename="../p2gui.py" line="234"/>
         <source>Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="262"/>
+        <location filename="../p2gui.py" line="256"/>
         <source>Texts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="283"/>
+        <location filename="../p2gui.py" line="277"/>
         <source>Text elements</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="287"/>
+        <location filename="../p2gui.py" line="281"/>
         <source>Contributions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="288"/>
+        <location filename="../p2gui.py" line="282"/>
         <source>Apports et reprises</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="291"/>
+        <location filename="../p2gui.py" line="285"/>
         <source>Analogous</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="292"/>
+        <location filename="../p2gui.py" line="286"/>
         <source>Textes proches</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="317"/>
+        <location filename="../p2gui.py" line="311"/>
         <source>Properties</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="318"/>
+        <location filename="../p2gui.py" line="312"/>
         <source>Context</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="319"/>
+        <location filename="../p2gui.py" line="313"/>
         <source>Text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="347"/>
+        <location filename="../p2gui.py" line="341"/>
         <source>P-II interface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="391"/>
+        <location filename="../p2gui.py" line="427"/>
         <source>Displaying text list (%d items)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="395"/>
+        <location filename="../p2gui.py" line="431"/>
         <source>corpus (%d)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="403"/>
+        <location filename="../p2gui.py" line="439"/>
         <source>Displaying %s %s %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="278"/>
+        <location filename="../p2gui.py" line="272"/>
         <source>Salient structures</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="357"/>
+        <location filename="../p2gui.py" line="351"/>
         <source>Caching text values</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="368"/>
+        <location filename="../p2gui.py" line="361"/>
         <source>Caching values for %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="819"/>
+        <location filename="../p2gui.py" line="834"/>
         <source>%s selected, value %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="925"/>
+        <location filename="../p2gui.py" line="962"/>
         <source>%s selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="965"/>
+        <location filename="../p2gui.py" line="1002"/>
         <source>Starting local server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="968"/>
+        <location filename="../p2gui.py" line="1005"/>
         <source>Stop server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="979"/>
+        <location filename="../p2gui.py" line="1016"/>
         <source>Loading %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="983"/>
+        <location filename="../p2gui.py" line="1020"/>
         <source>Stopping local server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="986"/>
+        <location filename="../p2gui.py" line="1023"/>
         <source>Start server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="995"/>
+        <location filename="../p2gui.py" line="1032"/>
         <source>Connecting to server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1012"/>
+        <location filename="../p2gui.py" line="1049"/>
         <source>Displaying %d actants</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1034"/>
+        <location filename="../p2gui.py" line="384"/>
         <source>Displaying %d authors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1051"/>
+        <location filename="../p2gui.py" line="1074"/>
         <source>Disconnecting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1053"/>
+        <location filename="../p2gui.py" line="1076"/>
         <source>Connect to server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1062"/>
+        <location filename="../p2gui.py" line="1085"/>
         <source>Corpus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1066"/>
+        <location filename="../p2gui.py" line="1089"/>
         <source>Contexts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1070"/>
+        <location filename="../p2gui.py" line="1093"/>
         <source>Server vars</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1074"/>
+        <location filename="../p2gui.py" line="1097"/>
         <source>Persons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1084"/>
+        <location filename="../p2gui.py" line="1107"/>
         <source>Variant generation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1089"/>
+        <location filename="../p2gui.py" line="1112"/>
         <source>Marlowe</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1119"/>
+        <location filename="../p2gui.py" line="1142"/>
         <source>field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1120"/>
+        <location filename="../p2gui.py" line="1143"/>
         <source>value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1453"/>
+        <location filename="../p2gui.py" line="1481"/>
         <source>Networks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1474"/>
+        <location filename="../p2gui.py" line="1503"/>
         <source>Displaying network for %s (%d items)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1541"/>
+        <location filename="../p2gui.py" line="1568"/>
         <source>No text to display for %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1544"/>
+        <location filename="../p2gui.py" line="1571"/>
         <source>Displaying %d texts for %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1611"/>
+        <location filename="../p2gui.py" line="1638"/>
         <source>Sentences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1663"/>
-        <source>searching for {%s}: 0 result</source>
+        <location filename="../p2gui.py" line="608"/>
+        <source>Displaying %s list (%d items) ordered by %s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../p2gui.py" line="1679"/>
+        <source>Displaying search for {%s}: %d results</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../p2gui.py" line="1691"/>
+        <source>Searching for {%s}: no result</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>SaillantesProperties</name>
     <message>
-        <location filename="../Viewer.py" line="374"/>
+        <location filename="../Viewer.py" line="370"/>
         <source>Categories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="382"/>
+        <location filename="../Viewer.py" line="378"/>
         <source>Collections</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="366"/>
+        <location filename="../Viewer.py" line="362"/>
         <source>Actants</source>
         <translation type="unfinished"></translation>
     </message>
@@ -511,127 +521,127 @@
 <context>
     <name>codex_window</name>
     <message>
-        <location filename="../p2gui.py" line="1993"/>
+        <location filename="../p2gui.py" line="2020"/>
         <source>Text file list: drag and drop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1753"/>
+        <location filename="../p2gui.py" line="1780"/>
         <source>test file names</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1839"/>
+        <location filename="../p2gui.py" line="1866"/>
         <source>delete item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1767"/>
+        <location filename="../p2gui.py" line="1794"/>
         <source>clear list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1782"/>
+        <location filename="../p2gui.py" line="1809"/>
         <source>get titles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1786"/>
+        <location filename="../p2gui.py" line="1813"/>
         <source>replace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1788"/>
+        <location filename="../p2gui.py" line="1815"/>
         <source>save CTX</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1829"/>
+        <location filename="../p2gui.py" line="1856"/>
         <source>save codex</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1842"/>
+        <location filename="../p2gui.py" line="1869"/>
         <source>add item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="2004"/>
+        <location filename="../p2gui.py" line="2031"/>
         <source>field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="2005"/>
+        <location filename="../p2gui.py" line="2032"/>
         <source>value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1864"/>
+        <location filename="../p2gui.py" line="1891"/>
         <source>add line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1867"/>
+        <location filename="../p2gui.py" line="1894"/>
         <source>copy line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1870"/>
+        <location filename="../p2gui.py" line="1897"/>
         <source>paste line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1880"/>
+        <location filename="../p2gui.py" line="1907"/>
         <source>merge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1902"/>
+        <location filename="../p2gui.py" line="1929"/>
         <source>%d entries</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="2081"/>
+        <location filename="../p2gui.py" line="2108"/>
         <source>%s texts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="2110"/>
+        <location filename="../p2gui.py" line="2137"/>
         <source>path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="2108"/>
+        <location filename="../p2gui.py" line="2135"/>
         <source>key,  date and title</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="2111"/>
+        <location filename="../p2gui.py" line="2138"/>
         <source>key and date</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="2125"/>
+        <location filename="../p2gui.py" line="2152"/>
         <source>%d matches, %d fails</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="2173"/>
+        <location filename="../p2gui.py" line="2200"/>
         <source>u00A0 no match</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="2177"/>
+        <location filename="../p2gui.py" line="2204"/>
         <source>no match</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="2181"/>
+        <location filename="../p2gui.py" line="2208"/>
         <source>Open file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="2195"/>
+        <location filename="../p2gui.py" line="2222"/>
         <source>%d fails</source>
         <translation type="unfinished"></translation>
     </message>
@@ -639,22 +649,22 @@
 <context>
     <name>textCTX</name>
     <message>
-        <location filename="../Viewer.py" line="407"/>
+        <location filename="../Viewer.py" line="403"/>
         <source>field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="407"/>
+        <location filename="../Viewer.py" line="403"/>
         <source>value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="412"/>
+        <location filename="../Viewer.py" line="408"/>
         <source>save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../Viewer.py" line="414"/>
+        <location filename="../Viewer.py" line="410"/>
         <source>reset</source>
         <translation type="unfinished"></translation>
     </message>
