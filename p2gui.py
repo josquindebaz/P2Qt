@@ -14,9 +14,7 @@ import threading
 import atexit
 import webbrowser
 import functools
-#import socket 
 
-#from fonctions import translate
 import Viewer
 import Controller
 
@@ -126,53 +124,46 @@ class Principal(QtGui.QMainWindow):
         self.NOT1.select.currentIndexChanged.connect(self.select_liste)
         self.NOT1.sort_command.currentIndexChanged.connect(self.affiche_liste_scores)
         self.NOT1.dep0.listw.currentItemChanged.connect(self.ldep0_changed) 
+        #REMOVEME>
         #self.NOT1.depI.listw.currentItemChanged.connect(self.ldepI_changed)
         #self.NOT1.depII.listw.currentItemChanged.connect(self.ldepII_changed)
         #self.NOT1.depI.deselected.connect(lambda: self.NOT1.depII.listw.clear())
         #self.NOT1.dep0.deselected.connect(lambda: [self.NOT1.depI.listw.clear(),
         #     self.NOT1.depII.listw.clear()])
+        #>REMOVEME
         #TODO add those below
         for i in range(6,11):
             self.NOT1.sort_command.model().item(i).setEnabled(False)
 
-        #context menu activation
-        #TODO activate all context menus via the Controller
+        #context menus activation
         self.NOT1.dep0.listw.addAction(QtGui.QAction('texts', self,
             triggered=lambda: self.show_texts_from_list(0)))
         self.NOT1.dep0.listw.addAction(QtGui.QAction('network', self,
             triggered=lambda: self.show_network(0)))
         self.NOT1.dep0.listw.addAction(QtGui.QAction('copy list', self,
-            triggered=self.copy_to_cb))
-
-        #self.NOT1.depI.listw.addAction(QtGui.QAction('texts', self,
-        #    triggered=lambda: self.show_texts_from_list(1)))
-        #self.NOT1.depI.listw.addAction(QtGui.QAction('network', self,
-        #    triggered=lambda: self.show_network(1)))
-        #self.NOT1.depII.listw.addAction(QtGui.QAction('texts', self,
-        #    triggered=lambda: self.show_texts_from_list(2)))
-        #TODO send to texts list
-        #self.NOT1.depII.listw.addAction(QtGui.QAction('sentences', self,
-        #    triggered=self.teste_wording))
-        #self.NOT1.depII.listw.addAction(QtGui.QAction('network', self,
-        #    triggered=lambda: self.show_network(2)))
+            triggered=lambda: self.copy_to_cb(self.NOT1.dep0.listw)))
 
         self.NOT2.dep0.listw.addAction(QtGui.QAction('texts', self,
             triggered=lambda: self.show_texts_from_list(0)))
         self.NOT2.dep0.listw.addAction(QtGui.QAction('network', self,
             triggered=lambda: self.show_network(0)))
-        #TODO #self.NOT2.dep0.addAction(QtGui.QAction('copy list', self,
-        #    triggered=self.copy_to_cb))
+        self.NOT2.dep0.listw.addAction(QtGui.QAction('copy list', self,
+            triggered=lambda: self.copy_to_cb(self.NOT2.dep0.listw)))
         self.NOT2.depI.listw.addAction(QtGui.QAction('texts', self,
             triggered=lambda: self.show_texts_from_list(1)))
         self.NOT2.depI.listw.addAction(QtGui.QAction('network', self,
             triggered=lambda: self.show_network(1)))
+        self.NOT2.depI.listw.addAction(QtGui.QAction('copy list', self,
+            triggered=lambda: self.copy_to_cb(self.NOT2.depI.listw)))
         self.NOT2.depII.listw.addAction(QtGui.QAction('texts', self,
             triggered=lambda: self.show_texts_from_list(2)))
         #TODO send to texts list
-        self.NOT2.depII.listw.addAction(QtGui.QAction('sentences', self,
-            triggered=self.teste_wording))
+        #self.NOT2.depII.listw.addAction(QtGui.QAction('sentences', self,
+        #    triggered=self.teste_wording))
         self.NOT2.depII.listw.addAction(QtGui.QAction('network', self,
             triggered=lambda: self.show_network(2)))
+        self.NOT2.depII.listw.addAction(QtGui.QAction('copy list', self,
+            triggered=lambda: self.copy_to_cb(self.NOT2.depII.listw)))
 
         ##### Tab for persons                #############
         ##################################################
@@ -558,140 +549,118 @@ class Principal(QtGui.QMainWindow):
         self.NOT2.dep0.listw.addItems(content)
 
     def affiche_concepts_scores(self):
-        #which_concepts = self.NOT2.sort_command.currentText()
         which = self.NOT2.sort_command.currentText()
         typ = self.NOT2.select.currentText()
         if hasattr(self, "client"):
-            scored = Controller.recup_scores(which, typ, self)
-            self.change_liste_concepts(scored)
+            sem = Controller.semantiques[typ]
+            content = self.client.recup_liste_concept(sem)
+            if (content == ['']):
+                parent.activity(u"Nothing to Display for %s" % (typ))
+            else:
+                self.activity(self.tr("Displaying %s list (%d items) ordered by %s") % (typ, 
+                    len(content), which))
+                liste_valued =[]
+                self.PrgBar.perc(len(content))
 
-        #self.sem_concept = Controller.semantiques[typ]
-        #content = self.client.recup_liste_concept(self.sem_concept)
-        #self.activity(self.tr("Displaying %s list (%d items) ordered by %s") % (typ, 
-                #len(content), which_concepts))
-        #liste_valued =[]
+                sort = Controller.hash_sort[which]
+                for row, concept in enumerate(content):
+                    ask = "%s%d.%s" % (sem, row, sort)
+                    result  = self.client.eval_var(ask)
 
-        #self.PrgBar.perc(len(content))
+                    if (which  in ["first apparition", 
+                                                 "last apparition"]):
+                        val = re.sub(u"^\s*", "", result)
+                    else :
+                        val = int(result)
 
-        #for row  in range(len(content)):
-            #if (which_concepts == "occurences" or which_concepts == "alphabetically"):
-                #order = "val"
-                #ask = "%s%d.%s"% (self.sem_concept, row, order)
-            #elif (which_concepts == "deployment"):
-                #order = "dep"
-                #ask = "%s%d.%s"% (self.sem_concept, row, order)
-            #elif (which_concepts == "number of texts"):
-                #order = "nbtxt"
-                #ask = "%s%d.%s"% (self.sem_concept, row, order)
-            #elif (which_concepts == "first apparition"):
-                #order = "fapp"
-                #ask = "%s%d.%s"% (self.sem_concept, row, order)
-            #elif (which_concepts == "last apparition"):
-                #order = "lapp"
-                #ask = "%s%d.%s"% (self.sem_concept, row, order)
-            #elif (which_concepts == "number of authors"):
-                #order = "nbaut"
-                #ask = "%s%d.%s"% (self.sem_concept, row, order)
+                    if ((val == 1) and not (sem == "$ent" and which == "deployment")):
+                        list_resume = map(lambda x: [1, x], content[row:])
+                        liste_valued.extend(list_resume)
+                        break
+                    else: 
+                        liste_valued.append([val, content[row]])
+                        self.PrgBar.percAdd(1)
 
-            #result  = self.client.eval_var(ask)
+                    #if (self.sem_concept == "$ent" 
+                            #and which_concepts == "deployment" and val == 0):
+                        #val = 1
 
-            #try :
-                #if (which_concepts  in ["first apparition", 
-                                             #"last apparition"]):
-                    #val = re.sub(u"^\s*", "", result)
-                #else :
-                    #val = int(result)
-            #except:
-                ##en cas de non reponse
-                #print "C5518 pb with", [ask]
-                #val = 0
-            #if (self.sem_concept == "$ent" 
-                    #and which_concepts == "deployment" and val == 0):
-                #val = 1
-            #liste_valued.append([val, content[row]])
+                self.PrgBar.reset()
 
-            #self.PrgBar.percAdd(1)
+                liste_final = []
+                if (which == "alphabetically"):
+                    for i in sorted(liste_valued, key=lambda x: x[1], reverse = 0):
+                        item_resume = u"%s %s" % (i[0], i[1])
+                        liste_final.append(item_resume) 
+                elif (which in ["first apparition", "last apparition"]):
+                    for i in sorted(liste_valued, 
+                            key=lambda x: ''.join(sorted(x[0].split('/'), reverse=1)),
+                             reverse = 0):
+                        item_resume = u"%s %s" % (i[0], i[1])
+                        liste_final.append(item_resume) 
+                else :
+                    for i in sorted(liste_valued, key=lambda x: x[0], reverse=1):
+                        item_resume = u"%s %s" % (i[0], i[1])
+                        liste_final.append(item_resume) 
 
-        #liste_final =[]
-        #self.content_liste_concept = []
-        #if (which_concepts == "alphabetically"):
-            #for i in sorted(liste_valued, key=lambda x : x[1], reverse = 0):
-                #item_resume = u"%s %s" % (i[0], i[1])
-                #liste_final.append(item_resume) 
-                #self.content_liste_concept.append(i[1])
-        #else :
-            #for i in sorted(liste_valued, key=lambda x : x[0], reverse = 1):
-                #item_resume = u"%s %s" % (i[0], i[1])
-                #liste_final.append(item_resume) 
-                #self.content_liste_concept.append(i[1])
-        #self.change_liste_concepts(liste_final)
+                self.change_liste_concepts(liste_final)
 
     def affiche_liste_scores(self):
         which = self.NOT1.sort_command.currentText()
         typ = self.NOT1.select.currentText()
         if hasattr(self, "client"):
-            scored = Controller.recup_scores(which, typ, self)
-            self.change_liste(scored)
+            #scored = Controller.recup_scores(which, typ, self)
+            #self.change_liste(scored)
 
-        #self.sem_liste_concept = Controller.semantiques[typ]
-        #content = self.client.recup_liste_concept(self.sem_liste_concept)
-        #if (self.sem_liste_concept not in ['ent']):
-            #self.lexicon_list_semantique = content
-        #self.activity(self.tr("Displaying %s list (%d items) ordered by %s") % (typ,
-            #len(content), which))
-        #liste_valued =[]
-        #self.PrgBar.perc(len(content))
-        #for row  in range(len(content)):
-            #if (which == "occurences" or which == "alphabetically"):
-                #order = "val"
-                #ask = "%s%d.%s"% (self.sem_liste_concept, row, order)
-            #elif (which == "deployment"):
-                #order = "dep"
-                #ask = "%s%d.%s"% (self.sem_liste_concept, row, order)
-            #elif (which == "number of texts"):
-                #order = "nbtxt"
-                #ask = "%s%d.%s"% (self.sem_liste_concept, row, order)
-            #elif (which == "first apparition"):
-                ##FIXME does not work with $ent_sf
-                #order = "fapp"
-                #ask = "%s%d.%s"% (self.sem_liste_concept, row, order)
-            #elif (which == "last apparition"):
-                ##FIXME does not work with $ent_sf
-                #order = "lapp"
-                #ask = "%s%d.%s"% (self.sem_liste_concept, row, order)
-            #elif (which == "number of authors"):
-                ##FIXME does not work with $ent_sf
-                #order = "nbaut"
-                #ask = "%s%d.%s"% (self.sem_liste_concept, row, order)
+            sem = Controller.semantiques[typ]
+            content = self.client.recup_liste_concept(self.sem_liste_concept)
+            liste_final = []
+            if (content == ['']):
+                self.activity(u"Nothing to Display for %s" % (typ))
+            else:
+                self.activity(u"Displaying %s list (%d items) ordered by %s" % (typ, 
+                    len(content), which))
+                liste_valued =[]
+                self.PrgBar.perc(len(content))
 
-            #result = self.client.eval_var(ask)
+                sort = Controller.hash_sort[which]
+                for row, concept in enumerate(content):
+                    ask = "%s%d.%s" % (sem, row, sort)
+                    result  = self.client.eval_var(ask)
 
-            #try :
-                #if which in ["first apparition",  "last apparition"]:
-                    #val = re.sub(u"^\s*", "", result)
-                #else :
-                    #val = int(result)
-            #except:
-                ##en cas de non reponse
-                #print "C26358 No answer from the server to: ", [ask]
-                #val = 0
-            #liste_valued.append([val, content[row]])
-    
-            #self.PrgBar.percAdd(1)
+                    if (which  in ["first apparition", 
+                                                 "last apparition"]):
+                        val = re.sub(u"^\s*", "", result)
+                    else :
+                        val = int(result)
 
-        #liste_final =[]
-        #self.content_liste_lexicon = []
-        #if (which == "alphabetically"):
-            #for i in sorted(liste_valued, key=lambda x : x[1], reverse = 0):
-                #item_resume = u"%s %s" % (i[0], i[1])
-                #liste_final.append(item_resume) 
-                #self.content_liste_lexicon.append(i[1])
-        #else :
-            #for i in sorted(liste_valued, key=lambda x : x[0], reverse = 1):
-                #item_resume = u"%s %s" % (i[0], i[1])
-                #liste_final.append(item_resume) 
-                #self.content_liste_lexicon.append(i[1])
-        #self.change_liste(liste_final)
+                    if val == 1:
+                        list_resume = map(lambda x: [1, x], content[row:])
+                        liste_valued.extend(list_resume)
+                        break
+                    else: 
+                        liste_valued.append([val, content[row]])
+                        self.PrgBar.percAdd(1)
+
+                self.PrgBar.reset()
+
+                liste_final = []
+                if (which == "alphabetically"):
+                    for i in sorted(liste_valued, key=lambda x: x[1], reverse = 0):
+                        item_resume = u"%s %s" % (i[0], i[1])
+                        liste_final.append(item_resume) 
+                elif (which in ["first apparition", "last apparition"]):
+                    for i in sorted(liste_valued, 
+                            key=lambda x: ''.join(sorted(x[0].split('/'), reverse=1)),
+                             reverse = 0):
+                        item_resume = u"%s %s" % (i[0], i[1])
+                        liste_final.append(item_resume) 
+                else :
+                    for i in sorted(liste_valued, key=lambda x: x[0], reverse=1):
+                        item_resume = u"%s %s" % (i[0], i[1])
+                        liste_final.append(item_resume) 
+
+                self.change_liste(liste_final)
 
     def ldep0_changed(self):
         itemT = self.NOT1.dep0.listw.currentItem()
@@ -808,18 +777,18 @@ class Principal(QtGui.QMainWindow):
         """ suite au changement de sélection, mettre à jour les vues dépendantes """ 
         which_concepts = self.NOT2.sort_command.currentText()
         itemT = self.NOT2.dep0.listw.currentItem()
+
         if (not len(self.NOT2.dep0.listw.selectedItems())):
             self.NOT2.dep0.listw.setCurrentItem(itemT)
+
         if (itemT):
             value, item = re.split(" ",itemT.text(),1)
-            #item = re.sub("^\d* ", "", itemT.text())
-            #row = self.NOT2.dep0.listw.currentRow() 
             self.activity(self.tr("%s selected, value %s") % (item, value))
-            self.NOT2.depI.listw.clear() # on efface la liste
+            self.NOT2.depI.listw.clear()
             self.NOT2.depII.listw.clear()
-            sem = self.sem_concept # recupere la designation semantique de l'element
+
+            sem = self.sem_concept 
             self.semantique_concept_item = self.client.eval_get_sem(item, sem) 
-            #liste les representants
             result = re.split(", ", 
                 self.client.eval_var("%s.rep[0:]"% self.semantique_concept_item))
             
@@ -833,6 +802,18 @@ class Principal(QtGui.QMainWindow):
                             #FIXME corriger, il donne la valeur de la categorie entiere
                             ask = "%s.rep%d.nbtxt"% (self.semantique_concept_item, r)
                             print "C1976: %s" % ask
+                        elif(which_concepts == "number of authors"):
+                            #FIXME il ne renvoie rien
+                            ask = "%s.rep%d.nbaut"% (self.semantique_concept_item, r)
+                            print "C1977: %s" % ask
+                        elif(which_concepts == "first apparition"):
+                            #FIXME il ne renvoie rien
+                            ask = "%s.rep%d.fapp"% (self.semantique_concept_item, r)
+                            print "C1978: %s" % ask
+                        elif(which_concepts == "last apparition"):
+                            #FIXME il ne renvoie rien
+                            ask = "%s.rep%d.lapp"% (self.semantique_concept_item, r)
+                            print "C1979: %s" % ask
                         else :
                             ask = "%s.rep%d.val"% (self.semantique_concept_item, r)
                         val = int(self.client.eval_var(ask))
@@ -842,7 +823,6 @@ class Principal(QtGui.QMainWindow):
                     if (which_concepts == "alphabetically"):
                         liste_scoree.sort()
                     self.NOT2.depII.listw.addItems(map(lambda x : "%d %s"% (x[1], x[0]), liste_scoree))   
-
                 else:
                     self.cdepI_unsorted = []
                     for r in range(len(result)):
@@ -851,7 +831,14 @@ class Principal(QtGui.QMainWindow):
                         elif (which_concepts  == "deployment"):
                             ask = "%s.rep%d.dep"% (self.semantique_concept_item, r)
                         elif (which_concepts == "number of texts"):
+                            #FIXME does not return anything
                             ask = "%s.rep%d.nbtxt"% (self.semantique_concept_item, r)
+                        elif (which_concepts == "first apparition"):
+                            #FIXME does not return anything
+                            ask = "%s.rep%d.fapp"% (self.semantique_concept_item, r)
+                        elif (which_concepts == "last apparition"):
+                            #FIXME does not return anything
+                            ask = "%s.rep%d.lapp"% (self.semantique_concept_item, r)
                         elif (which_concepts == "number of authors"):
                             #FIXME does not return anything
                             ask = "%s.rep%d.nbaut"% (self.semantique_concept_item, r)
@@ -869,9 +856,11 @@ class Principal(QtGui.QMainWindow):
                         
                     if (sem not in ["$cat_ent", "$cat_epr", "$cat_mar", "$cat_qua"]):
                         if (which_concepts == "alphabetically"):
-                            ldepI_sorted = sorted(self.cdepI_unsorted, key = lambda x : re.split(" ", x)[1], reverse =  0)
+                            ldepI_sorted = sorted(self.cdepI_unsorted,
+                                key=lambda x: re.split(" ", x)[1], reverse=0)
                         else :
-                            ldepI_sorted = sorted(self.cdepI_unsorted, key = lambda x : int(re.split(" ", x)[0]), reverse =  1)
+                            ldepI_sorted = sorted(self.cdepI_unsorted,
+                                key=lambda x: int(re.split(" ", x)[0]), reverse=1)
                     self.NOT2.depI.listw.addItems(ldepI_sorted)
 
                     # afficher directement II du premier item de I 
@@ -901,7 +890,8 @@ class Principal(QtGui.QMainWindow):
                         
                         liste_scoree.append([result[r], val])
                         self.PrgBar.percAdd(1)
-                    self.NOT2.depII.listw.addItems(map(lambda x : "%d %s"% (x[1], x[0]), sorted(liste_scoree)))
+                    self.NOT2.depII.listw.addItems(map(lambda x: "%d %s"% (x[1], x[0]), 
+                        sorted(liste_scoree)))
                 else :
                     self.PrgBar.perc(len(result))
                     for r in range(len(result)):
@@ -1037,7 +1027,12 @@ class Principal(QtGui.QMainWindow):
                 ask = u"$aut%d.txt[0:]" % i 
                 result = self.client.eval_var(ask)
                 n = len(re.split(", ", result))
-                self.authorsTab.L.addItem("%d %s" % (n, aut))
+                item = QtGui.QListWidgetItem()
+                ask2 = "$aut%d.nbpg" % i 
+                result2 = self.client.eval_var(ask2)
+                item.setText("%s %s texts, %s pages" % (aut, n, result2))
+                #item.setToolTip(result2)
+                self.authorsTab.L.addItem(item)
                 self.PrgBar.percAdd(1)
 
             self.PrgBar.reset()
@@ -1147,11 +1142,17 @@ class Principal(QtGui.QMainWindow):
             if (list_element != u''):
                 self.list_element_items = re.split(", ", list_element)
                 self.list_elements_valued = {}
+                val = False 
                 for i, item in enumerate(self.list_element_items):
                     ask = u"%s.%s%d.val"%(self.semantique_txt_item, sem_concept, i)
                     val = int(self.client.eval_var(ask))
-                    self.list_elements_valued[self.list_element_items[i]] = val
-                    self.text_elements.element_list.addItem("%d %s"%(val, item))
+                    if (val == 1):
+                        list_resume = map(lambda x: "1 %s"%x, self.list_element_items[i:])
+                        self.text_elements.element_list.addItems(list_resume)
+                        break
+                    else:
+                        self.list_elements_valued[self.list_element_items[i]] = val
+                        self.text_elements.element_list.addItem("%d %s"%(val, item))
 
     def deploie_text_elements(self):
         #TODO add indef
@@ -1684,14 +1685,13 @@ class Principal(QtGui.QMainWindow):
             self.CTXs.l.setCurrentItem(current)
             self.contexts_contents()
     
-    def copy_to_cb(self):
-        debut  =  self.NOT1.dep0.listw.currentRow()
-        fin  = self.NOT1.dep0.listw.count()
+    def copy_to_cb(self, listw):
+        n  = listw.count()
         liste = []
-        if (fin):
-            for row in range(0, fin):
+        if (n):
+            for row in range(n):
                 element = re.sub("^(\d{1,}) (.*)$", "\\2\t\\1",
-                    self.NOT1.dep0.listw.item(row).text(), 1) #on inverse pour excel
+                    listw.item(row).text(), 1) #on inverse pour excel
                 liste.append(element)
             clipboard = QtGui.QApplication.clipboard()
             clipboard.setText("\n".join(liste))
