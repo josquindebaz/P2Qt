@@ -721,6 +721,8 @@ class Principal(QtGui.QMainWindow):
 
     def cdep0_changed(self,level):
         """ suite au changement de sélection, mettre à jour les vues dépendantes """ 
+        #FIXME pb avec certains éléments des catégories
+        #FIXME et quand les valeurs du niveau 0 sont nulles, il n'affiche pas du tout le dico ?
         which_concepts = self.NOT2.sort_command.currentText()
         itemT = self.NOT2.dep0.listw.currentItem()
 
@@ -817,7 +819,7 @@ class Principal(QtGui.QMainWindow):
 
                     # afficher directement II du premier item de I 
                     self.NOT2.depI.listw.setCurrentItem(self.NOT2.depI.listw.item(0))
-                    self.cdepI_changed()
+                    #self.cdepI_changed()
 
     def cdepI_changed(self):
         """quand un item de D est sélectionné, afficher représentants dans E"""
