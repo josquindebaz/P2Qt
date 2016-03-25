@@ -435,7 +435,9 @@ class MyListWidgetTexts(QtGui.QListWidget):
 
     def context_menu(self, pos):
         menu = QtGui.QMenu()
-        temp = menu.addMenu('temporal distribution')
+        self.action_sentences = QtGui.QAction('Sentences', self) 
+        menu.addAction(self.action_sentences)
+        temp = menu.addMenu('Temporal distribution')
         temp.addAction(QtGui.QAction('days', self, 
             triggered=self.copy))
         temp.addAction(QtGui.QAction('months', self, 
@@ -486,11 +488,24 @@ class ListTexts(QtGui.QWidget):
         self.setLayout(HBox)
 
         if (element):
+
             self.title = "%s (%d)" % (element, len(self.lsems))
             self.corpus = MyListWidgetTexts(self)
-            HBox.addWidget(self.corpus)
+            Gcorpus = QtGui.QGroupBox("corpus")
+            HBox.addWidget(Gcorpus)
+            Gcorpusbox = QtGui.QHBoxLayout()
+            Gcorpusbox.setContentsMargins(0,0,0,0)
+            Gcorpus.setLayout(Gcorpusbox)
+            Gcorpusbox.addWidget(self.corpus)
+            #HBox.addWidget(self.corpus)
             self.anticorpus = MyListWidgetTexts(self)
-            HBox.addWidget(self.anticorpus)
+            Gacorpus = QtGui.QGroupBox("anti-corpus")
+            HBox.addWidget(Gacorpus)
+            Gacorpusbox = QtGui.QHBoxLayout()
+            Gacorpusbox.setContentsMargins(0,0,0,0)
+            Gacorpus.setLayout(Gacorpusbox)
+            Gacorpusbox.addWidget(self.anticorpus)
+            #HBox.addWidget(self.anticorpus)
         else:
             self.corpus = MyListWidgetTexts(self)
             HBox.addWidget(self.corpus)
@@ -1044,20 +1059,62 @@ class NetworksViewer(object):
     """Display co-occurence network"""
     def __init__(self, items, parent=None):
         self.show_network_widget = QtGui.QWidget()
+        H = QtGui.QHBoxLayout()
+        H.setContentsMargins(0,0,0,0) 
+        H.setSpacing(0)
+        self.show_network_widget.setLayout(H)
         show_network_box = QtGui.QVBoxLayout()
-        # on prend toute la place
         show_network_box.setContentsMargins(0,0,0,0) 
         show_network_box.setSpacing(0) 
-        self.show_network_widget.setLayout(show_network_box)
+        H.addLayout(show_network_box)
 
-        #selecteur de concept
         net_sel_concept = QtGui.QComboBox()
         net_sel_concept.addItems([u"entities&fictions"])
         show_network_box.addWidget(net_sel_concept)
+        net_sel_concept.setEnabled(False)
 
         Network_list =  QtGui.QListWidget()
         Network_list.addItems(items)
         show_network_box.addWidget(Network_list)
+
+        G = QtGui.QGroupBox("Export")
+        H.addWidget(G)
+        V = QtGui.QVBoxLayout()
+        V.setContentsMargins(0,0,0,0) 
+        V.setSpacing(0) 
+        G.setLayout(V)
+
+        G2 = QtGui.QGroupBox("elements")
+        V.addWidget(G2)
+        elementsbox = QtGui.QHBoxLayout()
+        elementsbox.setContentsMargins(0,0,0,0) 
+        elementsbox.setSpacing(0) 
+        G2.setLayout(elementsbox)
+        self.elements = QtGui.QSpinBox()
+        self.elements.setMaximum(999)
+        elementsbox.addWidget(self.elements)
+        labelspin2 = QtGui.QLabel("min")
+        elementsbox.addWidget(labelspin2)
+        spin2 = QtGui.QSpinBox()
+        elementsbox.addWidget(spin2)
+
+        G3 = QtGui.QGroupBox("depth")
+        V.addWidget(G3)
+        depthbox = QtGui.QHBoxLayout()
+        depthbox.setContentsMargins(0,0,0,0) 
+        depthbox.setSpacing(0) 
+        G3.setLayout(depthbox)
+        depth = QtGui.QSpinBox()
+        depth.setValue(1)
+        depthbox.addWidget(depth)
+        labelspin4 = QtGui.QLabel("min")
+        depthbox.addWidget(labelspin4)
+        spin4 = QtGui.QSpinBox()
+        depthbox.addWidget(spin4)
+
+        typefile = QtGui.QComboBox()
+        typefile.addItems(["Pajek .net", "Gephi .gexf"])
+        V.addWidget(typefile)
 
 class TextElements(object):
     """Display text elements"""

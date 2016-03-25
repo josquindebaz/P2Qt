@@ -163,6 +163,12 @@ class Principal(QtGui.QMainWindow):
         #TODO make it closable
         self.show_persons = QtGui.QWidget()
 
+        #Networks tab
+        ##################################################
+        self.tabNetworks = QtGui.QTabWidget()
+        self.tabNetworks.setTabsClosable(True)
+        self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
+
         #NO QTabWidget
         ################################################
         self.NOTs = QtGui.QTabWidget()
@@ -206,12 +212,6 @@ class Principal(QtGui.QMainWindow):
         self.server_vars.button_eval.clicked.connect(self.server_vars_Evalue)
         self.server_vars.button_getsem.clicked.connect(self.server_getsem_Evalue)
         self.server_vars.button_eval_index.clicked.connect(self.server_index_Evalue)
-
-        #Networks tab
-        ##################################################
-        self.tabNetworks = QtGui.QTabWidget()
-        self.tabNetworks.setTabsClosable(True)
-        self.tabNetworks.tabCloseRequested.connect(self.tabNetworks.removeTab)
 
         #NE QTabWidget
         ##################################################
@@ -1386,11 +1386,13 @@ class Principal(QtGui.QMainWindow):
                     result = re.split(", ", result)
                     for sub_n in range(len(result)) :
                         if (result[sub_n] not in self.list_cat_valued.keys()):
-                            ask = "%s.%s%d.rep_present%d.val"%(self.semantique_txt_item, sem[0], sem[1], sub_n)
+                            ask = "%s.%s%d.rep_present%d.val"%(self.semantique_txt_item, 
+                                sem[0], sem[1], sub_n)
                             res = self.client.eval_var(ask)
                             self.list_cat_valued[result[sub_n]] = res
                         i = QtGui.QListWidgetItem()
-                        i.setText(u"  %s %s"%(self.list_cat_valued[result[sub_n]][0], result[sub_n]))
+                        i.setText(u"  %s %s"%(self.list_cat_valued[result[sub_n]][0], 
+                            result[sub_n]))
                         #i.setBackground(QtGui.QColor(245,245,245))
                         i.setBackground(QtGui.QColor(237,243,254)) # cyan
                         self.saillantes.Cat.addItem(i)
@@ -1408,18 +1410,21 @@ class Principal(QtGui.QMainWindow):
                 self.saillantesAct_deployes.append(item)
                 
             if (r in self.saillantesAct_deployes):             
-                ask = "%s.act%d.rep_present[0:]"%(self.semantique_txt_item, self.list_act.index(r))
+                ask = "%s.act%d.rep_present[0:]"%(self.semantique_txt_item, 
+                    self.list_act.index(r))
                 result = self.client.eval_var(ask)
                 if (result != u''):
                     result = re.split(", ", result)
                     for sub_n in range(len(result)) :
                         if (result[sub_n] not in self.liste_act_valued.keys()):
-                            ask = "%s.act%d.rep_present%d.val"%(self.semantique_txt_item, self.list_act.index(r), sub_n)
+                            ask = "%s.act%d.rep_present%d.val"%(self.semantique_txt_item, 
+                                self.list_act.index(r), sub_n)
                             res = self.client.eval_var(ask)
                             
                             self.liste_act_valued[result[sub_n]] = [res, 2]
                         i = QtGui.QListWidgetItem()
-                        i.setText(u"  %s %s"%(self.liste_act_valued[result[sub_n]][0], result[sub_n]))
+                        i.setText(u"  %s %s"%(self.liste_act_valued[result[sub_n]][0], 
+                            result[sub_n]))
                         #i.setBackground(QtGui.QColor(245,245,245))
                         i.setBackground(QtGui.QColor(237, 243, 254)) # cyan
                         self.saillantes.Act.addItem(i)
@@ -1429,29 +1434,7 @@ class Principal(QtGui.QMainWindow):
         element = self.NOT1.dep0.listw.currentItem().text() 
         val, element = Controller.sp_el(element)
         return (self.semantique_lexicon_item_0, element)
-
-        #if (self.sem_liste_concept in ['$ent']):
-            #if (lvl == 2):
-                #element = self.NOT1.depII.listw.currentItem().text() 
-                #val, element = Controller.sp_el(element)
-                #return  (self.semantique_lexicon_item_II, element)
-            #elif (lvl == 1):
-                #element0 = self.NOT1.dep0.listw.currentItem().text() 
-                #val, element0 = Controller.sp_el(element0)
-                #elementI = self.NOT1.depI.listw.currentItem().text() 
-                #val, elementI = Controller.sp_el(elementI)
-                #element = u"%s:%s" % (element0, elementI)
-                #return (self.semantique_lexicon_item_I, element)
-            #else :
-                #element = self.NOT1.dep0.listw.currentItem().text() 
-                #val, element = Controller.sp_el(element)
-                #return  (self.semantique_lexicon_item_0, element)
-        #else :
-            #element = self.NOT1.dep0.listw.currentItem().text() 
-            #val, element = Controller.sp_el(element)
-            #return (u"%s%d" % (self.semantique_lexicon_item_0,
-                #self.lexicon_list_semantique.index(element)), element)
-        
+         
     def recup_element_concepts(self, lvl):
         """get semantic and name of concept pointed in concept list"""
         if (lvl == 2):
@@ -1472,7 +1455,7 @@ class Principal(QtGui.QMainWindow):
 
     def add_networks_tab(self):
         """display tab network in the NE cadran"""
-        self.networks_tab_index = self.NETs.addTab(self.tabNetworks, self.tr("Networks"))
+        self.networks_tab_index = self.NOTs.addTab(self.tabNetworks, self.tr("Networks"))
 
     def show_network(self, lvl):
         """Show the network of a selected item"""
@@ -1507,11 +1490,12 @@ class Principal(QtGui.QMainWindow):
                 valued.append("%s %s"%(val, el))
                 self.PrgBar.percAdd(1)
             network_view = Viewer.NetworksViewer(valued)
+            network_view.elements.setValue(len(result_network))
 
         index = self.tabNetworks.addTab(network_view.show_network_widget, element)
         self.tabNetworks.setTabToolTip(index, element)
         self.tabNetworks.setCurrentIndex(index)
-        self.NETs.setCurrentIndex(self.networks_tab_index)
+        self.NOTs.setCurrentIndex(self.networks_tab_index)
 
     def explo_item_selected(self):
         self.explorer_widget.explo_lexi.clear()
