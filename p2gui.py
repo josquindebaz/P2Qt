@@ -1465,6 +1465,7 @@ class Principal(QtGui.QMainWindow):
             val, elementI = Controller.sp_el(elementI)
             element = u"%s:%s" % (element0, elementI)
             return (self.semantique_concept_item_I, element)
+        else:
             element = self.NOT2.dep0.listw.currentItem().text() 
             val, element = Controller.sp_el(element)
             return  (self.semantique_concept_item, element)

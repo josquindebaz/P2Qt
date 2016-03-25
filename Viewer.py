@@ -536,10 +536,11 @@ class ListTexts(QtGui.QWidget):
         ld = []
         for w in l.widget_list:
             ld.append(self.get_date(w))
-        ld = Controller.cumul_days(ld)
-        if delta in ["years", "months"]:
-            ld = Controller.cumul_dates(ld, delta) 
-        self.parent.to_clipboard(ld)
+        if len(ld):
+            ld = Controller.cumul_days(ld)
+            if delta in ["years", "months"]:
+                ld = Controller.cumul_dates(ld, delta) 
+            self.parent.to_clipboard(ld)
 
 class MyDelegate(QtGui.QStyledItemDelegate):
     
