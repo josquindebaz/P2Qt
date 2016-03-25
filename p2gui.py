@@ -719,101 +719,6 @@ class Principal(QtGui.QMainWindow):
             #FIXME serveur does answer get_sem for $qualities, $marqueur, $epr, $undef, $expr . not always for $ent_sf
             print "C122743", item, sem, self.semantique_lexicon_item_0
 
-            #self.activity(self.tr("%s selected, value %s") % (item, value))
-            #self.NOT1.depI.listw.clear() # on efface la liste
-            #self.NOT1.depII.listw.clear()
-            #sem = self.sem_liste_concept
-            #if (sem  in ["$ent"])  :
-                ## recupere la designation semantique de l'element
-                #self.semantique_lexicon_item_0 = self.client.eval_get_sem(item, sem)
-                ##liste les representants
-                #result = re.split(", ", self.client.eval_var("%s.rep[0:]"%
-                    #self.semantique_lexicon_item_0))
-                #
-                #if (result != [u'']):
-                    #self.ldepI_unsorted = []
-                    #for r in range(len(result)):
-                        #if (which  == "occurences" or which == "alphabetically"):
-                            #ask = "%s.rep%d.val"% (self.semantique_lexicon_item_0, r)
-                        #elif (which  == "deployment"):
-                            #ask = "%s.rep%d.dep"% (self.semantique_lexicon_item_0, r)
-                        #elif (which  == "number of texts"):
-                            ##FIXME corriger : il donne la valeur de l'EF entier
-                            #ask = "%s.rep%d.nbtxt"% (self.semantique_lexicon_item_0, r)
-                            #print "C26624: %s" %ask
-
-                        #val = int(self.client.eval_var(ask))
-                        #
-                        #to_add = "%d %s"%(val, result[r])
-                        ##quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
-                        #if (val == 0):
-                            #self.ldepI_unsorted.extend(map(lambda x : "0 %s" %x, result[r:]))
-                            #break
-                        #self.ldepI_unsorted.append(to_add)
-                            #
-                    #if (which == "alphabetically"):
-                        #ldepI_sorted = sorted(self.ldepI_unsorted, key = lambda x : re.split(" ", x)[1], reverse =  0)
-                    #else :
-                        #ldepI_sorted = sorted(self.ldepI_unsorted, key = lambda x : int(re.split(" ", x)[0]), reverse =  1)
-                    #self.NOT1.depI.listw.addItems(ldepI_sorted)
-                    ## afficher directement E du premier element de D 
-                    #self.NOT1.depI.listw.setCurrentItem(self.NOT1.depI.listw.item(0))
-                    #self.ldepI_changed()
-            #else :
-                #self.semantique_lexicon_item_0 =  sem 
-
-    #def ldepI_changed(self):
-        #"""quand un item de D est sélectionné, afficher représentants dans E"""
-        #which = self.NOT1.sort_command.currentText()
-        #itemT = self.NOT1.depI.listw.currentItem()
-        #if (itemT):
-            #row = self.ldepI_unsorted.index(itemT.text())
-            #self.NOT1.depII.listw.clear() # on efface la liste
-            #ask = "%s.rep%d.rep[0:]" % (self.semantique_lexicon_item_0, row)
-            #self.semantique_lexicon_item_I = u"%s.rep%d" %\
-                #(self.semantique_lexicon_item_0,  row)
-            #result =self.client.eval_var(ask)
-             #
-            #if (result != "") :
-                #result = re.split(", ", result)
-                #if (which == "alphabetically"):
-                    #liste_scoree = []
-
-                    #self.PrgBar.perc(len(result))
-
-                    #for r in range(len(result)):
-                        #ask = "%s.rep%d.rep%d.val"% (self.semantique_lexicon_item_0, row, r)
-                        #val = int(self.client.eval_var(ask))
-                        #
-                        #liste_scoree.append([result[r], val])
-                        #self.PrgBar.percAdd(1)
-
-                    #self.NOT1.depII.listw.addItems(map(lambda x : "%d %s"% (x[1], x[0]), sorted(liste_scoree)))
-                #else :
-                    #self.PrgBar.perc(len(result))
-                    #for r in range(len(result)):
-                        #ask = "%s.rep%d.rep%d.val"% (self.semantique_lexicon_item_0, row, r)
-                        #val = int(self.client.eval_var(ask))
-                        #
-                        ##quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
-                        #if (val == 0):
-                            #self.NOT1.depII.listw.addItems(map(lambda x : "0 %s" %x, result[r:]))
-                            #break
-                        #self.NOT1.depII.listw.addItem("%d %s"%(val, result[r])) 
-                        #self.PrgBar.percAdd(1)
-        #self.PrgBar.reset()
-
-    #def ldepII_changed(self):
-        #itemT = self.NOT1.depII.listw.currentItem()
-        #if (itemT):
-            #item = re.sub("^\d* ", "", itemT.text())
-            ##item = itemT.text() # l'element selectionné
-            #row = self.NOT1.depII.listw.currentRow() 
-            #self.activity(self.tr("%s selected") % item)
-            #sem = self.sem_liste_concept
-            #self.semantique_lexicon_item_II = u"%s.rep%d" %\
-                #(self.semantique_lexicon_item_I,  row)
-
     def cdep0_changed(self,level):
         """ suite au changement de sélection, mettre à jour les vues dépendantes """ 
         which_concepts = self.NOT2.sort_command.currentText()
@@ -838,6 +743,7 @@ class Principal(QtGui.QMainWindow):
                     #display directly on II list
                     liste_scoree = []
                     self.PrgBar.perc(len(result))
+
                     for r in range(len(result)):
                         if (which_concepts == "number of texts"):
                             #FIXME corriger, il donne la valeur de la categorie entiere
@@ -858,12 +764,18 @@ class Principal(QtGui.QMainWindow):
                         else :
                             ask = "%s.rep%d.val"% (self.semantique_concept_item, r)
                         val = int(self.client.eval_var(ask))
-                        
-                        liste_scoree.append([ result[r], val ])
+
+                        if val == 0:
+                            liste_scoree.extend(map(lambda x: [x, 0],
+                                result[r:]))
+                            break
+
+                        liste_scoree.append([result[r], val ])
                         self.PrgBar.percAdd(1)
                     if (which_concepts == "alphabetically"):
                         liste_scoree.sort()
                     self.NOT2.depII.listw.addItems(map(lambda x : "%d %s"% (x[1], x[0]), liste_scoree))   
+                    self.PrgBar.reset()
                 else:
                     self.cdepI_unsorted = []
                     for r in range(len(result)):
@@ -895,13 +807,12 @@ class Principal(QtGui.QMainWindow):
                             break
                         self.cdepI_unsorted.append(to_add)
                         
-                    if (sem not in ["$cat_ent", "$cat_epr", "$cat_mar", "$cat_qua"]):
-                        if (which_concepts == "alphabetically"):
-                            ldepI_sorted = sorted(self.cdepI_unsorted,
-                                key=lambda x: re.split(" ", x)[1], reverse=0)
-                        else :
-                            ldepI_sorted = sorted(self.cdepI_unsorted,
-                                key=lambda x: int(re.split(" ", x)[0]), reverse=1)
+                    if (which_concepts == "alphabetically"):
+                        ldepI_sorted = sorted(self.cdepI_unsorted,
+                            key=lambda x: re.split(" ", x)[1], reverse=0)
+                    else :
+                        ldepI_sorted = sorted(self.cdepI_unsorted,
+                            key=lambda x: int(re.split(" ", x)[0]), reverse=1)
                     self.NOT2.depI.listw.addItems(ldepI_sorted)
 
                     # afficher directement II du premier item de I 
@@ -919,6 +830,9 @@ class Principal(QtGui.QMainWindow):
             self.semantique_concept_item_I = u"%s.rep%d" %\
                 (self.semantique_concept_item,  row)
             result = self.client.eval_var(ask)
+            ask2 = "%s.rep%d.rep_present[0:]" % (self.semantique_concept_item, row)
+            result2 = self.client.eval_var(ask2)
+            presents = re.split(", ", result2)
             
             if (result != "") :
                 result = re.split(", ", result)
@@ -934,15 +848,26 @@ class Principal(QtGui.QMainWindow):
                     self.NOT2.depII.listw.addItems(map(lambda x: "%d %s"% (x[1], x[0]), 
                         sorted(liste_scoree)))
                 else :
+                    ask2 = "%s.rep%d.rep_present[0:]" % (self.semantique_concept_item, row)
+                    result2 = self.client.eval_var(ask2)
+                    presents = re.split(", ", result2)
                     self.PrgBar.perc(len(result))
                     for r in range(len(result)):
                         ask = "%s.rep%d.rep%d.val"% (self.semantique_concept_item, row, r)
                         val = int(self.client.eval_var(ask))
-                        
-                        #quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
-                        if (val == 0):
-                            self.NOT2.depII.listw.addItems(map(lambda x : "0 %s" %x, result[r:]))
+
+                        if (val == 1 and result[r] in presents):
+                        #quand on atteint 1, on arrête la boucle
+                            self.NOT2.depII.listw.addItems(map(lambda x: "1 %s" %x,
+                                presents[r:]))
+                            absents = list(set(result[r:]) - set(presents[r:]))
+                            self.NOT2.depII.listw.addItems(map(lambda x: "0 %s" %x, 
+                                absents))
                             break
+                        #quand on atteint 0, on arrête la boucle et on affecte 0 à toutes les valeurs suivantes
+                        #if (val == 0):
+                            #self.NOT2.depII.listw.addItems(map(lambda x: "0 %s" %x, result[r:]))
+                            #break
                         self.NOT2.depII.listw.addItem("%d %s"%(val, result[r])) 
                         self.PrgBar.percAdd(1)
         self.PrgBar.reset()
