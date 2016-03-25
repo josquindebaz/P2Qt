@@ -422,19 +422,30 @@ class MyListWidgetTexts(QtGui.QListWidget):
         self.parent = parent
         self.setAlternatingRowColors(True)
         self.itemSelectionChanged.connect(self.changeColor)
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.context_menu)
+
         #TODO directly ask children without list
         self.widget_list = []
-        self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-        self.addAction(QtGui.QAction('copy temporal distribution', self,
-            triggered=self.copy))
 
         #TODO sorting
         #self.orderdt = QtGui.QAction("order by date", self, triggered=lambda: self.sortby("dt")) 
         #self.orderoc = QtGui.QAction("order by occurence", self, triggered=lambda: self.sortby("oc")) 
         #self.corpus.addAction(self.orderoc)
 
+    def context_menu(self, pos):
+        menu = QtGui.QMenu()
+        temp = menu.addMenu('temporal distribution')
+        temp.addAction(QtGui.QAction('days', self, 
+            triggered=self.copy))
+        #temp.addAction(QtGui.QAction('months', self, 
+            #triggered=lambda: self.copy('months')))
+        #temp.addAction(QtGui.QAction('years', self, 
+            #triggered=lambda: self.copy('years')))
+        menu.exec_(QtGui.QCursor.pos())
+
     def copy(self):
-        self.parent.copy_temp(self)
+        self.parent.cumul_temp(self)
 
     def changeColor(self):
         currentRow = self.currentRow()
@@ -521,11 +532,11 @@ class ListTexts(QtGui.QWidget):
             date = date[0]
         return "-".join(reversed(re.split("/", date)))
 
-    def copy_temp(self, l):
+    def cumul_temp(self, l):
         ld = []
         for w in l.widget_list:
             ld.append(self.get_date(w))
-        self.parent.copy_temp(ld)
+        self.parent.copy_temp(Controller.cumul_dates(ld))
 
 class MyDelegate(QtGui.QStyledItemDelegate):
     

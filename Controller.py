@@ -472,8 +472,6 @@ class preCompute(object):
             m = "%s%s.%s"%(type_var, str(indice), type_calcul)
             self.parent.client.add_cache_var(m, val)
     
-def sp_el(element):
-    return element.split(' ', 1)
 
 class myxml(object):
     def __init__(self,url ="http://prosperologie.org/P-II/info.xml"):
@@ -501,7 +499,33 @@ class myxml(object):
                             item.attributes['port'].value])
         return liste
 
+def sp_el(element):
+    return element.split(' ', 1)
 
+def iterdays(start, end):
+    incr = start
+    while incr  <= end:
+        yield incr 
+        incr += datetime.timedelta(days=1)
+
+def cumul_dates(l):
+    f = {}
+    for d in l:
+        if d in f.keys():
+            f[d] += 1
+        else:
+            f[d] = 1
+    l.sort()
+    d0 = datetime.date(*map(lambda x: int(x), re.split("-", l[0])))
+    dn = datetime.date(*map(lambda x: int(x), re.split("-", l[-1])))
+    lf = []
+    for d in iterdays(d0, dn):
+        ds = d.strftime("%Y-%m-%d")
+        if ds in f.keys():
+            lf.append("%s\t%s" %(ds, f[ds]))
+        else:
+            lf.append("%s\t%s" %(ds, 0))
+    return lf    
 
 #For eval_index result
 explo_lexic = {
