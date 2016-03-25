@@ -136,26 +136,26 @@ class Principal(QtGui.QMainWindow):
         self.NOT1.dep0.listw.addAction(QtGui.QAction('network', self,
             triggered=lambda: self.show_network(0)))
         self.NOT1.dep0.listw.addAction(QtGui.QAction('copy list', self,
-            triggered=lambda: self.copy_to_cb(self.NOT1.dep0.listw)))
+            triggered=lambda: self.copy_lw(self.NOT1.dep0.listw)))
 
         self.NOT2.dep0.listw.addAction(QtGui.QAction('texts', self,
             triggered=lambda: self.show_texts_from_list(0)))
         self.NOT2.dep0.listw.addAction(QtGui.QAction('network', self,
             triggered=lambda: self.show_network(0)))
         self.NOT2.dep0.listw.addAction(QtGui.QAction('copy list', self,
-            triggered=lambda: self.copy_to_cb(self.NOT2.dep0.listw)))
+            triggered=lambda: self.copy_lw(self.NOT2.dep0.listw)))
         self.NOT2.depI.listw.addAction(QtGui.QAction('texts', self,
             triggered=lambda: self.show_texts_from_list(1)))
         self.NOT2.depI.listw.addAction(QtGui.QAction('network', self,
             triggered=lambda: self.show_network(1)))
         self.NOT2.depI.listw.addAction(QtGui.QAction('copy list', self,
-            triggered=lambda: self.copy_to_cb(self.NOT2.depI.listw)))
+            triggered=lambda: self.copy_lw(self.NOT2.depI.listw)))
         self.NOT2.depII.listw.addAction(QtGui.QAction('texts', self,
             triggered=lambda: self.show_texts_from_list(2)))
         self.NOT2.depII.listw.addAction(QtGui.QAction('network', self,
             triggered=lambda: self.show_network(2)))
         self.NOT2.depII.listw.addAction(QtGui.QAction('copy list', self,
-            triggered=lambda: self.copy_to_cb(self.NOT2.depII.listw)))
+            triggered=lambda: self.copy_lw(self.NOT2.depII.listw)))
 
         ##### Tab for persons                #############
         ##################################################
@@ -1707,12 +1707,12 @@ class Principal(QtGui.QMainWindow):
             self.CTXs.l.setCurrentItem(current)
             self.contexts_contents()
     
-    def copy_temp(self, l):
+    def to_clipboard(self, l):
         clipboard = QtGui.QApplication.clipboard()
         clipboard.setText("\n".join(l))
         self.activity(u"%d elements copied to clipboard" % (len(l)))
 
-    def copy_to_cb(self, listw):
+    def copy_lw(self, listw):
         n  = listw.count()
         liste = []
         if (n):
@@ -1720,9 +1720,7 @@ class Principal(QtGui.QMainWindow):
                 element = re.sub("^(\d{1,}) (.*)$", "\\2\t\\1",
                     listw.item(row).text(), 1) #on inverse pour excel
                 liste.append(element)
-            clipboard = QtGui.QApplication.clipboard()
-            clipboard.setText("\n".join(liste))
-            self.activity(u"%d elements copied to clipboard" % (len(liste)))
+        self.to_clipboard(liste)
 
     def send_codex_ViewListeTextes(self):
         Items = self.param_corpus.ViewListeTextes.selectedItems()

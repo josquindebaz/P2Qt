@@ -508,7 +508,7 @@ def iterdays(start, end):
         yield incr 
         incr += datetime.timedelta(days=1)
 
-def cumul_dates(l):
+def cumul_days(l):
     f = {}
     for d in l:
         if d in f.keys():
@@ -522,10 +522,28 @@ def cumul_dates(l):
     for d in iterdays(d0, dn):
         ds = d.strftime("%Y-%m-%d")
         if ds in f.keys():
-            lf.append("%s\t%s" %(ds, f[ds]))
+            lf.append('"%s"\t%s'%(ds, f[ds]))
         else:
-            lf.append("%s\t%s" %(ds, 0))
+            lf.append('"%s"\t%s'%(ds, 0))
     return lf    
+
+def cumul_dates(l, delta):
+    if delta == "years":
+        cut = 5
+    elif delta == "months":
+        cut = 8
+    nd = {} 
+    for e in l:
+        d, v = re.split("\t", e)
+        d = d[0:cut]
+        if d in nd.keys():
+            nd['%s"'%d] += int(v)
+        else:
+            nd['%s"'%d] = int(v)
+    lf = []
+    for ds in sorted(nd.keys()):
+        lf.append('%s\t%s' %(ds, nd[ds]))
+    return lf
 
 #For eval_index result
 explo_lexic = {

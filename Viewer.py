@@ -438,14 +438,14 @@ class MyListWidgetTexts(QtGui.QListWidget):
         temp = menu.addMenu('temporal distribution')
         temp.addAction(QtGui.QAction('days', self, 
             triggered=self.copy))
-        #temp.addAction(QtGui.QAction('months', self, 
-            #triggered=lambda: self.copy('months')))
-        #temp.addAction(QtGui.QAction('years', self, 
-            #triggered=lambda: self.copy('years')))
+        temp.addAction(QtGui.QAction('months', self, 
+            triggered=lambda: self.copy('months')))
+        temp.addAction(QtGui.QAction('years', self, 
+            triggered=lambda: self.copy('years')))
         menu.exec_(QtGui.QCursor.pos())
 
-    def copy(self):
-        self.parent.cumul_temp(self)
+    def copy(self, delta="days"):
+        self.parent.cumul_temp(self, delta)
 
     def changeColor(self):
         currentRow = self.currentRow()
@@ -532,11 +532,14 @@ class ListTexts(QtGui.QWidget):
             date = date[0]
         return "-".join(reversed(re.split("/", date)))
 
-    def cumul_temp(self, l):
+    def cumul_temp(self, l, delta):
         ld = []
         for w in l.widget_list:
             ld.append(self.get_date(w))
-        self.parent.copy_temp(Controller.cumul_dates(ld))
+        ld = Controller.cumul_days(ld)
+        if delta in ["years", "months"]:
+            ld = Controller.cumul_dates(ld, delta) 
+        self.parent.to_clipboard(ld)
 
 class MyDelegate(QtGui.QStyledItemDelegate):
     
