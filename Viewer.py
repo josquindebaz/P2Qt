@@ -17,11 +17,11 @@ class MyMenu(QtGui.QMenuBar):
         ##################################################
         #Corpus and Server
         #TODO avec ou sans &?
-        Menu_Corpus = self.addMenu(self.tr('Corpus and Server'))
-        self.distant = Menu_Corpus.addMenu(QtGui.QIcon('images/distant.png'),
+        menu_server = self.addMenu(self.tr('Server and projects'))
+        self.distant = menu_server.addMenu(QtGui.QIcon('images/distant.png'),
                                                              self.tr('Remote'))
         
-        menu_local = Menu_Corpus.addMenu(QtGui.QIcon('images/home.png'),
+        menu_local = menu_server.addMenu(QtGui.QIcon('images/home.png'),
              self.tr('Local')) 
         self.local_connect = QtGui.QAction(self.tr("Connect"), self)
         menu_local.addAction(self.local_connect)
@@ -32,17 +32,17 @@ class MyMenu(QtGui.QMenuBar):
         menu_local.addAction(menu_local_param)
         menu_local_param.setEnabled(False)
 
-        Menu_Corpus.addSeparator()
+        menu_server.addSeparator()
 
         self.codex = QtGui.QAction(self.tr("Codex"), self)
-        Menu_Corpus.addAction(self.codex)
+        menu_server.addAction(self.codex)
 
         self.server_vars = QtGui.QAction(self.tr("Variables testing"), self)
-        Menu_Corpus.addAction(self.server_vars)
+        menu_server.addAction(self.server_vars)
 
         #TODO transform corpus p1<->p2
         menu_convert_corpus = QtGui.QAction(self.tr("Convert P1 and P2 corpus"), self)
-        Menu_Corpus.addAction(menu_convert_corpus)
+        menu_server.addAction(menu_convert_corpus)
         menu_convert_corpus.setEnabled(False) 
 
         #TODO recup corpus, fusion, generer sous corpus
@@ -69,6 +69,13 @@ class MyMenu(QtGui.QMenuBar):
         Menu_ModTex = QtGui.QAction(self.tr('Action on selected texts'), self)
         Menu_Texts.addAction(Menu_ModTex)
         Menu_ModTex.setEnabled(False)
+
+        ##################################################
+        #Corpus
+        menu_corpus = self.addMenu(self.tr('Corpus'))
+        menu_corpus_compare =  QtGui.QAction(self.tr("Corpus comparison"), self)
+        menu_corpus.addAction(menu_corpus_compare)
+        menu_corpus_compare.setEnabled(False)
 
         ##################################################
         #Viz and computations
@@ -151,24 +158,27 @@ class actantsTab(QtGui.QWidget):
         H = QtGui.QHBoxLayout()
         self.setLayout(H)
         H.setContentsMargins(0,0,0,0) 
+        H.setSpacing(5) 
         self.L = QtGui.QListWidget()
         H.addWidget(self.L)
         #TODO TreeView
         #self.T = QtGui.QTreeWidget()
         #H.addWidget(self.T)
-        #V1 = QtGui.QVBoxLayout()
-        #H.addLayout(V1)
         #TODO add those
-        #H1 = QtGui.QLabel('emerging configurations')
-        #V1.addWidget(H1)
-        #L1 = QtGui.QListWidget()
-        #V1.addWidget(L1)
-        #V2 = QtGui.QVBoxLayout()
-        #H.addLayout(V2)
-        #H2 = QtGui.QLabel("incompatibilities")
-        #V2.addWidget(H2)
-        #L2 = QtGui.QListWidget()
-        #V2.addWidget(L2)
+        econf = QtGui.QGroupBox("emerging configurations")
+        H.addWidget(econf)
+        econfBox = QtGui.QVBoxLayout()
+        econfBox.setContentsMargins(0,0,0,0) 
+        econf.setLayout(econfBox)
+        L1 = QtGui.QListWidget()
+        econfBox.addWidget(L1)
+        incomp = QtGui.QGroupBox("incompatibilities")
+        H.addWidget(incomp)
+        incompBox = QtGui.QVBoxLayout()
+        incompBox.setContentsMargins(0,0,0,0) 
+        incomp.setLayout(incompBox) 
+        self.L2 = QtGui.QListWidget()
+        incompBox.addWidget(self.L2)
         
 class authorsTab(QtGui.QWidget):
     """Widget authors lists"""

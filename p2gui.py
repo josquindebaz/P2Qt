@@ -97,6 +97,7 @@ class Principal(QtGui.QMainWindow):
         ##################################################
 
         self.actantsTab = Viewer.actantsTab()
+        self.actantsTab.L.currentItemChanged.connect(self.actsLchanged)
 
         ##### Tab for authors                #############
         ##################################################
@@ -401,6 +402,21 @@ class Principal(QtGui.QMainWindow):
 
         self.PrgBar.reset()
 
+    def actsLchanged(self):
+        if hasattr(self, "client"):
+            self.actantsTab.L2.clear()
+            row = self.actantsTab.L.currentRow()
+            cur = self.actantsTab.L.currentItem().text()
+            ask = "$act%s.res[0:]" % (row)
+            result = self.client.eval_var(ask)
+            network = re.split(", ", result)
+            if len(network):
+                for r in range(self.actantsTab.L.count()):
+                    element = self.actantsTab.L.item(r).text()
+                    val, el = Controller.sp_el(element)
+                    if (el not in network and element != cur):
+                        self.actantsTab.L2.addItem(element)
+
     def authLchanged(self):
         #TODO score, deploiement, acces aux textes et aux enonces
         if hasattr(self, "client"):
@@ -412,6 +428,7 @@ class Principal(QtGui.QMainWindow):
             for i, el in enumerate(re.split(", ", result)):
                 ask = "$aut%s.%s%d.val" % (row, which, i)
                 val = self.client.eval_var(ask)
+                #FIXME always 1 for $actX.val
                 #print "C19143", el, ask, val
                 self.authorsTab.L2.addItem("%s %s"%(val, el))
 
