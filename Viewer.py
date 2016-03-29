@@ -160,6 +160,7 @@ class actantsTab(QtGui.QWidget):
         H.setContentsMargins(0,0,0,0) 
         H.setSpacing(5) 
         self.L = QtGui.QListWidget()
+        self.L.setAlternatingRowColors(True)
         H.addWidget(self.L)
         #TODO TreeView
         #self.T = QtGui.QTreeWidget()
@@ -171,6 +172,7 @@ class actantsTab(QtGui.QWidget):
         econfBox.setContentsMargins(0,0,0,0) 
         econf.setLayout(econfBox)
         self.L1 = QtGui.QListWidget()
+        self.L1.setAlternatingRowColors(True)
         econfBox.addWidget(self.L1)
         incomp = QtGui.QGroupBox("incompatibilities")
         H.addWidget(incomp)
@@ -178,8 +180,9 @@ class actantsTab(QtGui.QWidget):
         incompBox.setContentsMargins(0,0,0,0) 
         incomp.setLayout(incompBox) 
         self.L2 = QtGui.QListWidget()
+        self.L2.setAlternatingRowColors(True)
         incompBox.addWidget(self.L2)
-        
+
 class authorsTab(QtGui.QWidget):
     """Widget authors lists"""
     def __init__(self, parent=None):
@@ -188,10 +191,9 @@ class authorsTab(QtGui.QWidget):
         H = QtGui.QHBoxLayout()
         self.setLayout(H)
         H.setContentsMargins(0,0,0,0) 
-        #TODO ListView
         self.L = QtGui.QListWidget()
+        self.L.setAlternatingRowColors(True)
         H.addWidget(self.L)
-        #FIXME ecrase cadrans 
         V1 = QtGui.QVBoxLayout()
         H.addLayout(V1)
         self.S = QtGui.QComboBox()
@@ -216,6 +218,7 @@ class authorsTab(QtGui.QWidget):
         ])
         V1.addWidget(self.S)
         self.L2 = QtGui.QListWidget()
+        self.L2.setAlternatingRowColors(True)
         V1.addWidget(self.L2)
         V2 = QtGui.QVBoxLayout()
         H.addLayout(V2)
