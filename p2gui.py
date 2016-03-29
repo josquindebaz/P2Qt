@@ -404,6 +404,7 @@ class Principal(QtGui.QMainWindow):
 
     def actsLchanged(self):
         if hasattr(self, "client"):
+            self.actantsTab.L1.clear()
             self.actantsTab.L2.clear()
             row = self.actantsTab.L.currentRow()
             cur = self.actantsTab.L.currentItem().text()
@@ -413,9 +414,16 @@ class Principal(QtGui.QMainWindow):
             if len(network):
                 for r in range(self.actantsTab.L.count()):
                     element = self.actantsTab.L.item(r).text()
-                    val, el = Controller.sp_el(element)
-                    if (el not in network and element != cur):
-                        self.actantsTab.L2.addItem(element)
+                    if (element != cur):
+                        val, el = Controller.sp_el(element)
+                        if (el not in network):
+                            self.actantsTab.L2.addItem(element)
+                        else:
+                            #ask = "$act%s.res%d.val" % (row, r)
+                            #result = self.client.eval_var(ask)
+                            #FIXME give always the same result
+                            #print "C4186", [ask, result]
+                            self.actantsTab.L1.addItem(el)
 
     def authLchanged(self):
         #TODO score, deploiement, acces aux textes et aux enonces
