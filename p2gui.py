@@ -409,8 +409,11 @@ class Principal(QtGui.QMainWindow):
             which = Controller.semantiques[self.authorsTab.S.currentText()]
             ask = "$aut%s.%s[0:]" % (row, which)
             result = self.client.eval_var(ask)
-            for el in re.split(", ", result):
-                self.authorsTab.L2.addItem(el)
+            for i, el in enumerate(re.split(", ", result)):
+                ask = "$aut%s.%s%d.val" % (row, which, i)
+                val = self.client.eval_var(ask)
+                #print "C19143", el, ask, val
+                self.authorsTab.L2.addItem("%s %s"%(val, el))
 
     def create_corpus_texts_tab(self):
         """create a tab for corpus texts"""
