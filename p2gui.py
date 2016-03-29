@@ -62,7 +62,7 @@ class Principal(QtGui.QMainWindow):
         ##################################################
         self.toolbar = self.addToolBar("")    
         #self.toolbar.setIconSize(QtCore.QSize(16, 16))
-        #self.toolbar.setMovable(0)
+        self.toolbar.setMovable(0)
 
         self.toolbar_descr_corpus = QtGui.QLabel()
         self.toolbar.addWidget(self.toolbar_descr_corpus)
