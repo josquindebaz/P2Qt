@@ -1,0 +1,2892 @@
+[$]
+VarRéponseAffirmative
+/VAR=VarCEstExact
+/VAR=VarTotalement
+à l'évidence
+absolument
+affirmatif
+affirmativement
+allez
+allons-y
+andiamo
+avec joie
+avec plaisir
+bien entendu
+bien sûr
+bonne idée
+Buena idea
+ça colle
+ça le fait
+Ca marche
+ça marche
+ça me branche
+ça me va
+c'est le cas en effet
+ça m'intéresse
+ça s'impose
+ça tombe bien
+ça tombe plutôt bien
+ça va de soi
+ce ne sera pas inutile
+ce n'est pas inutile
+cela se peut
+cela s'impose
+certainement
+c'est déjà fait
+c'est entendu
+c'est évident
+c'est exact
+c'est inévitable
+c'est intéressant
+c'est nécessaire
+c'est parti
+c'est parti !
+c'est souhaitable
+c'est toi le /VAR=VarPatron
+c'est toi qui décides
+c'est vraisemblable
+chouette idée
+comme tu veux
+dac
+d'accord
+D'accord !
+en avant !
+en effet
+entendu
+essaye toujours
+essayons
+et comment !
+évidemment
+excellente idée
+faisons le point en effet
+fais donc
+fais-le
+fais pour le mieux
+faisons comme ça
+faisons l'expérience
+go
+il y a de quoi
+il n'y a pas à hésiter
+ja
+ja wohl
+j'allais t'en prier
+j'approuve
+j'accepte
+j'aimerais bien
+je l'accepte
+je le prescris
+je le souhaite
+je le veux
+je marche
+je n'ai rien à y opposer
+je n'ai rien contre
+je ne dis pas non
+je ne suis pas contre
+je ne peux pas te contredire
+je n'osais pas te le
+je n'y suis pas hostile
+je suis aussi de cet avis
+je suis partant
+je suis pour
+je te fais confiance
+je te l'accorde
+je te suis
+je t'approuve
+je t'écoute
+je t'en prie
+je veux bien
+feu vert
+mon aval
+j'en ai envie
+j'y compte bien
+j'y suis favorable
+la moindre des choses
+let us go
+let's go
+listo
+Listo
+ma foi
+naturellement
+ok
+Ok
+OK
+okay
+on avance
+on enchaîne
+on essaye
+on fait comme ça
+on fait l'expérience
+on peut y aller
+on s'y colle
+on s'y met
+on y va
+ouais
+oui
+Oui
+OUI
+paraît indispensable
+paraît nécessaire
+paraît inévitable
+pourquoi pas
+poursuivons
+refuse pas
+regardons-y
+si !
+soit !
+super
+tentons le coup
+tente le coup
+test
+teste
+teste-le
+testons
+testons-le
+tout à fait
+tu as mon accord
+tu peux
+va !
+vamos
+Vamos
+vas-y
+voilà
+volontiers
+voyons
+y a de quoi
+yes
+[$]
+VarAffirmatifRed
+oui
+Oui
+ok
+yes
+je veux bien
+naturellement
+absolument
+affirmatif
+ça marche
+avec plaisir
+bien entendu
+bien sûr
+bonne idée
+[$]
+VarCEstExact
+à l'évidence
+bien vu
+c'est cela
+c'est évident
+c'est évident
+c'est exact
+c'est juste
+c'est vrai
+c'est exactement
+c'est très exactement
+effectivement
+exact
+exactement
+il y a apparence
+ma foi oui
+on peut dire ça
+on peut le dire
+parfaitement
+pour ainsi dire
+tout à fait
+tu as raison
+voilà
+why not ?
+[$]
+VarRéponseNégative
+à côté de la plaque
+abandonne
+absolument pas
+ah non !
+basta
+bien sûr que non
+bof
+ça n'a pas de sens
+ça ne m'intéresse pas
+ça n'existe pas
+ce n'est pas
+ce n'est pas utile
+ce n'est pas le moment
+certainement pas
+il ne faut pas
+inutile
+je n'en veux pas
+je ne le pense pas
+je n'y tiens pas
+laissons tomber
+laisse béton
+laisse tomber
+négatif
+nein
+niet
+no
+non
+non, parle-moi d'autre chose
+non plus
+nullement
+on a autre chose à faire
+on peut s'en passer
+on s'en passera
+pas ça
+pas cette fois
+pas ce coup-ci
+pas du tout
+pas encore
+pas la peine
+pas le moins du monde
+pas le temps
+pas maintenant
+pas pour le moment
+pas pour l'instant
+pas question
+pas spécialement
+jamais !
+pas vraiment
+que nenni
+rien de tout /VAR=VarCeciCela2
+sans intérêt
+surtout pas
+[$]
+VarPasLaPeine
+surtout pas
+ce n'est pas la peine
+pas la peine
+c'est inutile
+inutile
+laisse béton
+laisse tomber
+on a autre chose à faire
+sans intérêt
+passons
+pas le moment
+tu t'en fous
+[$]
+VarUnNormandRépond
+à toi de voir
+à toi de décider
+à ton avis ?
+as you like
+as you like it
+bof
+ce que tu veux
+ce qui te fait plaisir
+ce qui te plaît
+ce qui te semble
+c'est possible
+c'est toi qui vois
+chais pas
+choisis
+comme bon te semble
+comme bon te semblera
+comme il te plaira
+comme tu le veux
+comme tu le sens
+comme tu le souhaites
+comme tu l'entends
+comme tu veux
+éventuellement
+je n'ai rien contre
+je ne sais pas
+je n'en sais rien
+je n'y suis pas hostile
+je te laisse choisir
+j'hésite
+may be
+perhaps
+peut-être
+peut-être bien que oui
+pourquoi pas
+sans opinion
+selon ton bon loisir
+selon ton désir
+si tu veux
+tu es libre
+[$]
+VarMaisEncore
+avançons
+à part ça
+cad
+c'est tout ?
+c'est un peu court
+c'est-à-dire
+continue
+continuer
+comment ça ?
+davantage
+dis en un peu plus
+enchaîne
+enchaîner
+enchaînons
+ensuite
+peux-tu détailler
+et alors ?
+t'en tirer comme ça
+et après
+en savoir plus
+en savoir un peu plus
+et puis
+que sais-tu d'autre
+et donc ?
+hum
+ben quo
+je ne comprends pas
+je te pose la question
+la question se pose
+la suite
+ce n'est pas suffisant
+ce n'est pas original
+ce n'est pas très original
+c'est insuffisant
+suivant
+suivante
+tu m'en diras tant
+la suite
+approfondis
+approfondir
+mais encore
+mais encore ?
+où veux-tu en venir ?
+oui mais encore ?
+en savoir plus
+ah bon ?
+peux-tu en dire un peu plus
+poursuis
+fais un effort
+poursuivons
+on poursuit
+pardon ?
+poursuivre
+que peux-tu dire d'autre
+que peux-tu me dire d'autre
+que sais-tu d'autre
+quoi d'autre
+quoi d'autre sur
+quoi d'autre ?
+rien d'autre
+rien d'autre ?
+sois plus précis
+sois plus explicite
+tu peux préciser
+tu n'oublies rien
+und ?
+what else
+[$]
+VarMaisEncoreBis
+avançons
+à part ça
+continue
+continuer
+davantage
+dis en un peu plus
+enchaîne
+enchaîner
+enchaînons
+ensuite
+peux-tu détailler
+et alors ?
+et après
+en savoir plus
+en savoir un peu plus
+et puis
+et donc ?
+hum
+je ne comprends pas
+la suite
+suivant
+suivante
+la suite
+approfondis
+approfondir
+mais encore
+mais encore ?
+où veux-tu en venir ?
+oui mais encore ?
+en savoir plus
+ah bon ?
+passons à la suite
+peux-tu en dire un peu plus
+poursuis
+fais un effort
+poursuivons
+on poursuit
+pardon ?
+poursuivre
+sois plus précis
+sois plus explicite
+tu peux préciser
+what else
+[$]
+VarAPartCa2
+à part ça
+mais encore
+autre chose
+[$]
+VarSiEnEffet
+si
+en effet
+sans doute
+on peut le dire
+il y a apparence
+effectivement
+on peut le dire
+/VAR=VarCEstExact
+[$]
+VarFinalementSi
+finalement si
+ok ok
+allez ok
+non vas-y
+si tu y tiens
+j'ai un remords
+bon fais le
+bon ok
+en arrière
+c'est irréversible
+vas-y quand même
+[$]
+VarAhBon
+ah bon
+tiens donc
+ah oui ?
+ça alors
+tu crois
+ouais ?
+oh
+certes
+depuis quand
+hum
+pff
+incroyable
+[$]
+VarPourquoiChaîne
+pourquoi ?
+pourquoi
+porquê ?
+pourquoi au juste ?
+pourquoi donc ?
+pour quelle raison ?
+pour quelles raisons ?
+pour quoi faire
+explique-toi
+en quel sens dis-tu
+en quel sens ?
+warum ?
+que veux-tu dire
+ça /VAR=VarSignifie quoi
+je ne comprends pas
+je ne pige pas
+je n'ai pas pigé
+je n'ai pas compris
+what ?
+why ?
+quel est le sens
+quid
+pour quelle raison ?
+quoi ?
+qu'est-ce à dire ?
+qu'est-ce que /VAR=VarCeciCela2 /VAR=VarSignifie
+c'est-à-dire ?
+explique
+expliquer
+[$]
+VarProuveLe
+prouve-le
+le prouver
+une preuve
+la preuve
+démontre-le
+le démontrer
+tu le démontres
+tu le prouves
+qu'est-ce qui te fait dire
+comment ça ?
+l'établir
+c'est à voir
+vérifier
+explique
+démonstration
+poursuis ton raisonnement
+des preuves
+un exemple
+par exemple
+à démontrer
+comment le sais-tu
+[$]
+VarExpliqueToi
+explique-toi
+explique-moi
+explique-nous
+comment as-tu fait
+comment as-tu calculé
+comment as-tu trouvé
+comment as-tu procédé
+comment as-tu calculé
+comment as-tu fait /VAR=VarMOSPEC calcul
+explique
+expliquer ce que tu
+peux-tu expliciter /VAR=VarCeciCela1
+peux-tu m'expliquer /VAR=VarCeciCela1
+peux-tu nous expliquer /VAR=VarCeciCela1
+rendre compte de /VAR=VarCeciCela1
+peux-tu expliquer
+peux-tu donner des explications
+explications sur ce que tu
+décrire la procédure
+décris la procédure
+décris la méthode
+décrire la méthode
+tu t'y es pris
+tu as utilisé quel
+tu as utilisé quelle
+[$]
+VarMOSPEC
+ce
+ton
+le
+notre
+[$]
+VarCeNEstPasClair
+ce n'est pas clair
+pas clair
+pas très clair
+compliqué
+tordu
+pas évident
+alambiqué
+[$]
+VarOneMoreTime
+autre chose
+bis repetita
+ce n'est pas ce que je
+c'est déjà fini
+c'est presque ça
+c'est tout ce que
+cela ne répond pas
+continue
+continuer
+continuons
+encore
+encore une fois
+ensuite
+go on
+il faut poursuivre
+fais des variations
+varier
+intéressant !
+j'insiste
+la suite
+next
+on a fini ?
+on a fait le tour
+on a rien oublié ?
+tu n'as rien oublié ?
+tu n'oublies rien ?
+on peut poursuivre
+on poursuit
+on remet ça
+one more time
+on s'y croirait
+peux faire mieux
+peux mieux faire
+peux-tu préciser
+poursuis
+poursuivons
+qu'as-tu d'autre
+recommence
+recommencer
+refais
+refais le une fois
+refais-le
+remets ça
+répéter
+sois plus précis
+suivant
+sur la voie
+tu brûles
+tu es sur la voie
+tu peux poursuivre
+un autre
+un coup de plus
+une autre
+une autre fois
+une dernière fois
+une fois de plus
+[$]
+VarBonneIdéeChaîne
+bonne idée
+excellente idée
+c'est une idée
+voilà une idée
+[$]
+VarCaVaStop
+c'est bon
+c'est ok
+ça va
+on arrête
+on peut arrêter
+merci
+stop
+j'en ai assez vu
+ça suffit
+[$]
+VarLesquelsChaîne
+lequel
+lesquels
+laquelle
+quoi
+qui
+quelle
+quel
+quels
+quelles
+quels sujets
+quel sujet
+lesquelles
+par exemple
+des exemples
+un exemple
+quel genre
+du genre ?
+de quel genre ?
+de quels
+de quel
+de quelle
+de quelles
+plus précisément
+suggestions
+que suggères-tu
+which one
+last one
+[$]
+VarQueFaire
+que faire
+que faut-il faire
+qu'est-ce qu'il faut faire
+que peut-on faire
+[$]
+QuiEstCe
+qui est-ce
+qui est-il
+c'est qui
+qui c'est
+qui est-elle
+je ne connais pas
+de qui s'agit-il
+je ne le connais pas
+je ne la connais pas
+parle-moi de lui
+parle-moi d'elle
+who is he
+who is she
+[$]
+VarInsultes1
+abject
+aboyeur
+abruti
+alcoolo
+alcolo
+andouille
+avorton
+bafouilleur
+banane
+barbeur
+basta
+bâtard
+bavard
+beau merle
+boxon
+bordel
+beauf
+bêcheur
+caca
+empafé
+empaffé
+pédale
+tantouse
+malotru
+feignant
+flic
+raté
+bête
+chenapan
+saligaud
+méchant
+bastard
+bique
+blaireau
+bon à rien
+bonimenteur
+charogne
+bordel
+bouffi
+boudin
+bourin
+bouseux
+boutonneux
+branleur
+foireux
+supercherie
+branquignol
+brute
+cabot
+cabotin
+charlatan
+charogne
+chien
+chienlit
+chierie
+chiottes
+cinglé
+cancre
+cancrelat
+cafard
+chieur
+clone
+clown
+cochon
+cocu
+con
+conasse
+connard
+connasse
+conne
+connerie
+conneries
+connes
+corniaud
+cornichon
+couillon
+crapule
+crétin
+débiles
+déchet
+dégénéré
+dégueulasse
+ducon
+sacripan
+sacripant
+emmerde
+emmerdeur
+emmerdeuse
+merdeuse
+emplâtre
+enculé
+enculeur
+enflure
+enfoiré
+engodé
+étron
+excrément
+facho
+fainéant
+fanfaron
+fantoche
+faquin
+farfelu
+fasciste
+ferme la
+fort-en-gueule
+fou
+fous
+foutaises
+fouteur
+foutre
+frimeur
+fripouille
+fuck
+fucking
+fumeron
+fumier
+garce
+gâteux
+gigolo
+glandeur
+glaviot
+godiche
+gonzesse
+goujat
+grossier
+grave
+grincheux
+gringalet
+groulasse
+gueule
+hypocrite
+hystérique
+idiot
+idiote
+idiotes
+imbécile
+imbécile heureux
+grossier personnage
+imposteur
+imposture
+impotent
+incapable
+indigent
+indigentes
+indigents
+insolent
+invertébré
+jargoneur
+lard
+lardon
+logiciel de mes deux
+fesses
+loufoque
+loft story
+macho
+maniériste
+maquereau
+margoulin
+margoulin
+marteau
+maniaque
+mastuvu
+menteur
+merdaillon
+merde
+merdier
+merdeux
+merdique
+minable
+muffe
+muffle
+mufle
+nabot
+nase
+nigaud
+nique
+nique ta mère
+nouille
+NTM
+nul
+odieux personnage
+ordure
+pantin
+patate
+pédé
+peigne-cul
+perroquet
+pétasse
+pétasse
+péteux
+phraseur
+flagorneur
+pièce de musée
+pignouf
+pitre
+plouc
+poivrot
+porc
+postiche
+pouilleux
+pourri
+pourriture
+prétentieux
+putain
+pute
+rabat-joie
+râleur
+raseur
+remerde
+ridicule
+ridicules
+rigolo
+ringard
+ringard
+roublard
+salades
+salaud
+salopard
+salope
+salopiau
+salopiaud
+schnok
+chiant
+mensonge
+mensonges
+soupe au lait
+stupide
+ta gueule
+taré
+tas
+teigne
+têtard
+tête à claques
+tocard
+travelo
+tricheur
+triple buse
+tronche de cake
+trou du cul
+troufignard
+truand
+truqueur
+vache
+vaurien
+vermine
+vicieux
+vicelard
+vipère
+[$]
+VarInsultes2
+énorme
+fameux
+grand
+gros
+grosse
+petit
+petite
+sacré
+sacrée
+sale
+vieux
+vieille
+tête de
+[$]
+VarInsultes3
+chier
+suer
+déconner
+merder
+disjoncter
+dériver
+[$]
+VarInsultes4
+barbes
+emmerdes
+ennuies
+embêtes
+horripiles
+agaces
+énerves
+enquiquines
+[$]
+VarInsultes5
+tête
+chou
+citron
+[$]
+VarInsultes6
+foutre
+voir
+enculer
+mettre
+debuger
+déboguer
+debugger
+[$]
+VarInsultes7
+fais
+bafouilles
+racontes
+dis
+sors
+produis
+écris
+[$]
+VarInsultes8
+char
+arnaque
+couillonnade
+singerie
+flan
+bêtises
+insanités
+délire
+fadaises
+leurre
+foutaises
+cirque
+pipeau
+charabia
+charlatanisme
+frime
+vantardise
+baratin
+truquage
+trucage
+illusionnisme
+manipulation
+balivernes
+provocations
+esbrouffe
+irrationalisme
+[$]
+VarInsultes9
+agacer
+barber
+énerver
+gonfler
+irriter
+emmerder
+courir
+embêter
+ennuyer
+chauffer
+horripiler
+[$]
+VarInsultes10
+tête
+boule
+face
+raison
+nord
+Nord
+fil
+[$]
+VarInsultes11
+malin
+intelligent
+subtil
+[$]
+VarInsultes12
+illusion
+machine
+fantasmagorie
+machination
+fantaisie
+[$]
+VarInsultes13
+déconnes
+dérailles
+divagues
+pètes les plombs
+délires
+débloques
+te fous de moi
+te fous de ma
+amuses la galerie
+[$]
+VarInsultes14
+tes paroles sont
+tes propos sont
+tu tiens des propos
+tu dis des choses
+tu dis des
+tu ne dis que des
+[$]
+VarPasser-Subir
+passer
+subir
+soumettre
+[$]
+VarMéthode1
+démarche
+épistémologie
+épistémologique
+épistémologiques
+méthode
+méthodo
+méthodologique
+méthodologiques
+méthologie
+pratique
+pratiques
+procédural
+procédure
+raisonnement
+stratégie
+stratégique
+tactique
+technique
+techniques
+[$]
+VarMéthode2
+méthodiquement
+rationnellement
+logiquement
+méticuleusement
+systématiquement
+empiriquement
+concrètement
+efficacement
+[$]
+VarVerbes1
+adopter
+appliquer
+choisir
+employer
+pratiquer
+préférer
+retenir
+sélectionner
+suivre
+utiliser
+[$]
+VarVerbes2
+agir
+faire
+fonctionner
+procéder
+travailler
+[$]
+VarBiblio1
+biblio
+bibliographie
+lecture
+lectures
+bibliographique
+bibliographiques
+livres
+livre
+bouquins
+bouquin
+[$]
+Varfonction1
+fonction
+commande
+fonctions
+commandes
+fonctionnalité
+fonctionnalités
+formule
+formules
+instance
+instances
+méthode
+méthodes
+primitives
+primitive
+procédure
+procédures
+[$]
+VarTerme1
+mot
+substantif
+syntagme
+nom
+terme
+[$]
+VarTermes1
+mots
+substantifs
+syntagmes
+noms
+termes
+[$]
+VarParadoxe
+paradoxe
+paradoxes
+paradoxaux
+paradoxal
+paradoxales
+paradoxale
+contradiction
+contradictions
+contradictoire
+contradictoires
+[$]
+VarTricher
+tricher
+gruges
+gruger
+mentir
+triches
+mens
+[$]
+VarDiscuter
+bavardait
+bavarder
+causait
+causer
+conversait
+converser
+devisait
+deviser
+dialoguait
+dialoguer
+discutait
+discuter
+papotait
+papoter
+parlait
+parler
+[$]
+VarDiscussion
+discussion
+conversation
+dialogue
+échange
+entretien
+conciliabule
+causerie
+causette
+[$]
+VarIncompris1
+abscons
+abstrus
+embrouillé
+incompréhensible
+embrouillés
+embrouillées
+incompréhensibles
+indéchiffrable
+inintelligible
+indéchiffrables
+inintelligibles
+nébuleux
+obscur
+obscurs
+[$]
+VarVoler1
+voler
+plagier
+pomper
+copier
+emprunter
+emprunté
+pillé
+piller
+piquer
+volé
+pompé
+plagié
+copié
+recopier
+recopié
+piqué
+[$]
+VarParoles1
+argument
+arguments
+déclaration
+déclarations
+dires
+discours
+figure
+figures
+formule
+formules
+message
+messages
+paroles
+phrase
+phraséologie
+phrases
+propos
+répartie
+réplique
+répliques
+réponse
+réponses
+[$]
+VarTonTaTes
+tu
+ton
+ta
+te
+tes
+toi
+[$]
+VarLeLaLes
+le
+la
+les
+l'
+[$]
+VarExamen
+vérifications
+contrôles
+pointages
+contrôle
+test
+tests
+examen
+examination
+examinations
+examens
+révisions
+inspections
+inspection
+essais
+expérience
+expériences
+visites
+visite
+exercice
+exercices
+analyses
+analyse
+explorations
+exploration
+[$]
+VarDéfaut1
+bidon
+défaillant
+défaillante
+erroné
+erronées
+factice
+factices
+faible
+fausse
+fausses
+faux
+foireux
+incomplet
+incomplets
+incomplète
+incomplètes
+inexact
+inexacte
+inexactes
+insuffisant
+insuffisante
+limité
+limitée
+limitées
+limités
+nulle
+sommaire
+sommaires
+[$]
+VarProspéro
+Prospéro
+Caliban
+[$]
+VarDéfautLook1
+austère
+laid
+laide
+lugubre
+macabre
+moche
+mortel
+mortelle
+pauvre
+raté
+ratée
+sinistre
+triste
+[$]
+VarLook1
+look
+fenêtre
+interface
+écran
+[$]
+VarNase1
+abattu
+abattue
+angoissé
+angoissée
+déprimé
+déprimée
+désespéré
+désespérée
+énervé
+énervée
+épuisé
+épuisée
+fatigué
+fatiguée
+las
+lasse
+morose
+nase
+nerveux
+nerveuse
+paniqué
+paniquée
+paumé
+paumée
+perturbé
+perturbée
+sombre
+stressé
+stressée
+tendu
+tendue
+triste
+vanné
+vannée
+vidé
+vidée
+[$]
+VarIndélicat1
+impoli
+impolie
+impolis
+incorrect
+incorrecte
+indélicat
+indélicate
+indélicats
+insolent
+insolente
+insolentes
+insolents
+insultant
+insultantes
+insultants
+maladroit
+maladroite
+maladroites
+maladroits
+vexant
+vexante
+vexantes
+vexants
+[$]
+VarLangage1
+langage
+langue
+discours
+français
+style
+rhétorique
+conversation
+compréhension
+parole
+[$]
+VarSurprise1
+bizarre
+bizarres
+curieuse
+curieux
+déconcertant
+déconcertante
+déconcerté
+déconcertée
+étonnant
+étonnante
+étonnantes
+étonnants
+étonné
+étonnée
+étrange
+étranges
+hallucinant
+inattendu
+inattendue
+inattendus
+incroyable
+incroyables
+intrigant
+intrigante
+invraisemblable
+invraisemblables
+renversant
+renversante
+renversantes
+renversants
+sensationnel
+sensationnelle
+sensationnels
+sensationnelles
+stupéfiant
+stupéfiante
+stupéfiants
+surprenant
+surprenants
+surpris
+surprise
+[$]
+VarInfo1
+détails
+données
+éléments
+indications
+info
+information
+informations
+infos
+précision
+précisions
+renseignement
+renseignements
+tuyau
+tuyaux
+[$]
+VarChercher1
+attends
+attendais
+cherchais
+cherche
+chercher
+demande
+demander
+demandais
+désire
+désirer
+recherchais
+recherche
+rechercher
+souhaite
+souhaiter
+souhaiterais
+veux
+voudrais
+[$]
+VarHumour1
+amusant
+amusante
+bidonnant
+cocasse
+cocasses
+comique
+comiques
+drôle
+drôles
+hilarant
+rigolo
+hilarante
+marrant
+marrante
+marrantes
+marrants
+[$]
+VarHumour2
+amuseur
+blagueur
+clown
+farceur
+humoriste
+pitre
+plaisantin
+déconneur
+[$]
+VarNouveau1
+frais
+inédit
+inédite
+inhabituel
+insolite
+intéressant
+intéressante
+intéressants
+intéressantes
+neuf
+neuve
+nouveau
+nouvelle
+original
+originale
+originales
+originaux
+particulier
+particulière
+sensationnel
+singulier
+spécial
+spéciale
+[$]
+VarTemps1
+années
+ans
+demain
+heures
+journée
+jours
+longtemps
+mois
+nuit
+plombes
+réveillon
+temps
+[$]
+VarAutomate1
+automatismes
+automatisme
+automate
+automates
+robot
+artefact
+système
+machine
+dispositif
+mécanismes
+marionnette
+[$]
+VarConseils
+aide
+aides
+conseil
+conseils
+indications
+instructions
+précepte
+préceptes
+prescription
+prescriptions
+proposition
+propositions
+recommandation
+recommandations
+suggestion
+suggestions
+[$]
+VarAutomate2
+automatique
+automatiques
+mécanique
+mécaniques
+pré-agencées
+pré-agencés
+préagencés
+préagencées
+systématique
+systématiques
+machinal
+machinale
+machinales
+stéréotypé
+stéréotypés
+stéréotypée
+stéréotypées
+forcé
+forcée
+forcés
+forcées
+organisé
+organisées
+organisée
+organisés
+prévisible
+prévisibles
+standard
+standardisé
+standardisée
+standards
+standardisées
+standardisés
+[$]
+VarCulture
+culture
+culturel
+culturelle
+culturels
+culturelles
+références
+lettres
+littéraire
+littéraires
+lectures
+les citations
+épigraphe
+encyclopédie
+encyclopédique
+savant
+savante
+connaissances
+bibliothèque
+cultivé
+cultivée
+lettré
+[$]
+VarIncongru1
+aberrant
+aberrante
+aberrantes
+aberrants
+absurde
+absurdes
+décalé
+décalée
+décalées
+décalés
+incongru
+incongrue
+incongrus
+inopportun
+inopportune
+inopportunes
+inopportuns
+[$]
+VarInterpréter1
+interpréter
+réinterpréter
+transcoder
+déchiffrer
+piger
+décoder
+traduire
+décrypter
+retraduire
+lire
+comprendre
+saisir
+capter
+[$]
+VarDésordre1
+déconcerter
+décontenancer
+démonter
+désarçonner
+dérouter
+désappointer
+déséquilibrer
+désorienter
+déstabiliser
+égarer
+embêter
+embrouiller
+énerver
+intimider
+fourvoyer
+perdre
+perturber
+saper
+troubler
+[$]
+VarBeau1
+beau
+joli
+jolie
+jolis
+parfait
+parfaite
+parfaites
+parfaits
+jolies
+belle
+beaux
+belles
+brillant
+brillante
+brillants
+brillantes
+superbe
+superbes
+magnifique
+magnifiques
+splendide
+splendides
+magistral
+magistrales
+admirable
+admirables
+excellent
+merveilleux
+excellente
+excellents
+merveilleuse
+[$]
+VarRésultat1
+résultat
+résultats
+boulot
+trouvaille
+découverte
+découvertes
+trouvailles
+travail
+performance
+performances
+réussite
+exploit
+conclusion
+aboutissement
+succès
+prestation
+solution
+contribution
+avancée
+progrès
+progression
+[$]
+VarSexeA
+/VAR=VarSexeBrancheA
+/VAR=VarSexeBrancheB
+chatte
+chattes
+cuisses
+pénétration
+pipe
+sexe
+sexes
+sexualité
+sexuel
+sexuelle
+sexuelles
+sexuels
+préservatif
+[$]
+VarSexeBrancheA
+baise
+bite
+bites
+bitte
+cul
+cunilingus
+cybersex
+cyber-sex
+éjaculation
+érection
+érotique
+érotiques
+érotisme
+gang bang
+gonzesse à poil
+kamasutra
+libido
+masturbation
+nichons
+orgie
+partouze
+partouzes
+peep-show
+sex-shop
+slip
+sodomie
+soutien-gorge
+vagin
+vaginal
+viagra
+viol
+viols
+[$]
+VarSexeBrancheB
+à poil
+bondage
+branlette
+clitoris
+coït
+condom
+fellation
+femme nue
+femmes nues
+femme à poil
+femmes à poil
+fesses
+fornication
+pénis
+Pigalle
+pine
+chibre
+porno
+pornos
+pornographie
+pornographique
+pornographiques
+rue saint-Denis
+sado-masochisme
+sexologie
+sexologue
+[$]
+VarArrêter
+arrêter
+arrête
+arrêtes
+arrêtions
+cesser
+cessions
+clore
+reporter
+reporte
+reportions
+stoppe
+stoppes
+stopper
+stoppions
+interrompre
+interrompe
+interrompt
+interrompes
+interrompions
+fermer
+ferme
+fermions
+suspendre
+suspende
+suspendions
+suspends
+terminer
+termine
+termines
+terminions
+[$]
+VarSortir
+sortir
+sors
+pars
+quitter
+partir
+raccrocher
+raccroche
+redescendre
+déguerpir
+débrancher
+débranche
+abandonner
+[$]
+VarSession1
+réunion
+session
+séance
+séminaire
+[$]
+VarUtilisation
+utilisation
+usage
+maniement
+manipulation
+emploi
+fonctionnement
+organisation
+système
+accès
+[$]
+VarComplexe
+complexe
+complexes
+compliqué
+dur
+durs
+dure
+dures
+compliquée
+compliqués
+compliquées
+tordu
+obscur
+obscure
+obscures
+obscurs
+tordue
+difficile
+difficiles
+ardu
+ardue
+ardus
+ardues
+tordues
+tordus
+alambiqué
+alambiquées
+alambiquée
+alambiqués
+[$]
+VarDisputer
+accrocher
+accroche
+affronte
+affronter
+bagarrer
+disputait
+engueulait
+querellait
+battre
+batte
+défier
+défie
+disputer
+disputions
+engueuler
+engueule
+engueulions
+étriper
+étripe
+flinguer
+flingue
+quereller
+[$]
+VarDisputeUser
+affrontement
+algarade
+altercation
+anicroche
+bagarre
+bisbille
+brouille
+conflit
+controverse
+désaccord
+différend
+dispute
+dissension
+embrouille
+empoignade
+engueulade
+guerre
+polémique
+querelle
+scène
+[$]
+VarEnquêtes
+enquête
+enquêtes
+investigation
+investigations
+travaux
+travail
+fouilles
+recherche
+recherches
+inquisitions
+étude
+études
+exploration
+explorations
+tribulations
+[$]
+VarSports1
+ski
+cyclisme
+tennis
+ping-pong
+boxe
+athlétisme
+course
+Marathon
+judo
+natation
+équitation
+golf
+tir
+gymnastique
+javelot
+saut
+haltérophilie
+aviron
+patinage
+volley-ball
+hand-ball
+football
+rugby
+hockey
+cricket
+lutte
+catch
+[$]
+VarMusique1
+Bach
+baroque
+Beatles
+Beethoven
+bémol
+Boulez
+chant
+chanteur
+chorale
+clavecin
+concert
+concerto
+dièse
+flûte
+guitare
+harpe
+jazz
+mélodie
+musique
+opéra
+orchestration
+orchestre
+partition
+piano
+quatuor
+quatuors
+Ravel
+Rock
+saxophone
+saxophoniste
+sonate
+trombone
+trompette
+violoncelle
+[$]
+VarActualité
+actualité
+contexte
+conjoncture
+scène
+situation
+ambiance
+climat
+[$]
+VarMégalo1
+mégalo
+mégalomaniaque
+mégalomane
+ambitieux
+ambitieuse
+dangereux
+ambitieuses
+totalitaire
+totalitaires
+totalisant
+totalisante
+totalisants
+[$]
+VarPsychologie
+psycho
+psychologie
+psychologisme
+psychologique
+[$]
+VarPsychologie2
+psycho
+psychologie
+psychologisme
+psychologique
+psychologiques
+[$]
+VarMonMaMes
+mon
+ma
+mes
+[$]
+VarCeciCela1
+ceci
+ça
+cela
+ce
+ces
+cette
+[$]
+VarCeciCela2
+ceci
+ça
+cela
+[$]
+VarParles
+parles
+causes
+écris
+pérores
+bavardes
+converses
+dialogues
+[$]
+VarEmmerdant
+agaçant
+chiant
+contrariant
+désagréable
+embêtant
+emmerdant
+pénible
+ennuyeux
+enquiquinant
+impossible
+insupportable
+[$]
+VarDossier1
+dossier
+corpus
+matériel
+textes
+matériaux
+archives
+bases
+données
+séries
+affaire
+affaires
+dossiers
+[$]
+VarTravaillons-Nous
+travaillons-nous
+sommes-nous
+[$]
+VarFaireOuFais
+faire
+fais
+fasse
+produis
+produire
+sortir
+[$]
+VarWeb
+Internet
+Web
+internaute
+internautes
+net
+Toile
+[$]
+VarZodiaque
+zodiaque
+zodiacal
+astral
+astrologique
+astrologue
+astrologie
+stellaire
+sidéral
+zodiacale
+[$]
+VarAllonsVaisVa
+allons
+vais
+va
+partons
+pars
+part
+[$]
+VarAAu
+à
+à la
+à l'
+au
+à des
+à mes
+aux
+[$]
+VarEcouterVoir
+voir
+écouter
+assister
+entendre
+[$]
+VarSociologie1
+sociologie
+sociologies
+sociologues
+sociologue
+sociologique
+sociologiques
+socio-logique
+socio
+sociologiques
+[$]
+VarBogue
+bogue
+bug
+bogues
+bugs
+plantes
+erreurs
+[$]
+VarRéglages
+réglages
+corrections
+réglage
+débogage
+débugage
+déboguer
+débuguer
+rectifications
+[$]
+VarGars
+gars
+copain
+ami
+garçon
+type
+collègue
+mec
+[$]
+VarFille
+fille
+amie
+copine
+nana
+collègue
+[$]
+VarSous-entends
+sous-entends
+insinues
+suggères
+[$]
+VarVacances
+vacances
+congés
+repos
+voyage
+week-end
+[$]
+VarPolice
+flics
+police
+flic
+poulet
+PJ
+bleus
+cognes
+condés
+indic
+indics
+poulets
+préfecture
+préfet
+SRPJ
+FBI
+CIA
+DST
+DGSE
+KGB
+Piscine
+Interpol
+RG
+[$]
+VarCommercial
+commercial
+commerciaux
+commerciale
+commerciales
+clients
+clientèle
+client
+marketing
+économique
+économiques
+marchand
+marchande
+marchands
+marchandes
+[$]
+VarEpistémo
+épistémologie
+épistémo
+épistémologique
+épistémologies
+épistémologiquement
+épistémologiques
+réfutabilité
+scientificité
+Popper
+épistémologue
+épistémologues
+[$]
+VarDiantreUser
+Diantre
+Fichtre
+Diable
+Bigre
+Ciel
+Parbleu
+Pardieu
+Pardi
+Taratata
+crénom
+Morbleu
+Sapristi
+Ventrebleu
+[$]
+VarSurMaPersonne
+sur ma personne
+ma personne
+sur moi
+de moi
+à mon propos
+me concernant
+à mon sujet
+[$]
+VarRhumeUser
+rhume
+grippe
+fièvre
+crève
+toux
+bronchite
+angine
+mal de tête
+migraine
+[$]
+VarCarte
+carte
+liste
+table
+inventaire
+index
+menu
+ensemble
+répertoire
+sommaire
+[$]
+VarEnrhumé
+enrhumé
+grippé
+fiévreux
+enroué
+fébrile
+paludéen
+[$]
+VarParanoïa
+paranoïa
+parano
+paranoïaque
+délire de persécution
+[$]
+VarFormesNégatives1
+ce n'est pas
+c'est pas
+est pas
+n'es pas
+es pas
+sont pas
+ne sont pas
+n'est pas
+pas ça
+n'est /MARQUEUR pas
+pas du tout
+ne /EPREUVE pas
+[$]
+VarChronologie
+chronologie
+chrono
+chronologique
+chronologiquement
+succession
+[$]
+VarSurréalisme
+surréalisme
+surréaliste
+surréalistes
+[$]
+VarCalculées
+calculé
+calculées
+calculée
+calculé
+calcul
+calcule
+calculer
+calcules
+[$]
+VarAstronomieEntrée
+astronomie
+astrophysique
+physique céleste
+astronome
+astronomes
+astronomique
+l'univers
+planètes
+supernova
+étoiles
+téléscope
+stellaire
+stellaires
+système solaire
+galaxie
+galaxies
+[$]
+VarLaMort
+la mort
+la camarde
+la Faucheuse
+décès
+cimetière
+mortalité
+mortel
+mortels
+morts
+cessation de vie
+enterrement
+champ du repos
+le sommeil éternel
+la paix éternelle
+pompes funèbres
+nekros
+thanatos
+[$]
+VarBouquinOuArticle
+bouquin
+livre
+ouvrage
+article
+papier
+rapport
+compte-rendu
+compte rendu
+thèse
+mémoire
+[$]
+VarDeDuDesDeLa
+de
+du
+des
+de la
+d
+d'
+d '
+de l'
+de l '
+[$]
+VarCaptMachine
+machine
+ordinateur
+logiciel
+système
+écran
+automate
+robot
+[$]
+VarDossierCapt
+dossier
+affaire
+corpus
+histoire
+débat
+polémique
+matériel
+controverse
+procès
+[$]
+VarAucunAucune
+aucun
+aucune
+pas
+pas du tout
+[$]
+VarLesMois
+janvier
+février
+mars
+avril
+mai
+juin
+juillet
+août
+septembre
+octobre
+novembre
+décembre
+[$]
+VarLesJours
+dimanche
+lundi
+mardi
+mercredi
+jeudi
+vendredi
+samedi
+[$]
+VarFautIl
+faut-il
+doit-on
+il faut
+dois-je
+on doit
+devons-nous
+convient-il
+[$]
+VarNégationDiv
+pas
+pas du tout
+absolument pas
+jamais
+nullement
+[$]
+VarSansIntérêt
+sans intérêt
+sans aucun intérêt
+qui est sans intérêt
+qui est sans aucun intérêt
+qui n'a pas d'intérêt
+qui n'a aucun intérêt
+qui n'a aucune espèce d'intérêt
+[$]
+VarHabillementVaru
+habillement
+habit
+habits
+vêtements
+vêtement
+fringues
+costume
+costumes
+[$]
+VarAProposEnglobe
+au sujet /VAR=VarDeDuDesDeLa
+à propos /VAR=VarDeDuDesDeLa
+concernant
+concernant /VAR=VarLeLaLes
+sur /VAR=VarLeLaLes
+sur
+[$]
+VarParleTOn
+parle-t-on
+on parle
+est-ce qu'on parle
+quelqu'un parle
+il est question
+quelque chose sur
+[$]
+VarRappelleMoi
+rappelle-moi
+rappelle-nous
+je ne me souviens plus
+je ne me souviens pas
+j'ai oublié
+je n'ai pas en tête
+redis-moi
+dis-nous
+j'ai complètement oublié
+peux-tu me rappeler
+peux-tu nous rappeler
+peux-tu rappeler
+[$]
+VarCeQuEst
+ce qu'est
+qu'est-ce que c'est
+ce que sont
+ce qu'était
+ce qu'étaient
+[$]
+VarAQuoiCorrespond
+à quoi correspond
+ce qu'est
+ce qu'était
+ce qu'il y a eu
+[$]
+VarCeQuIlFautSavoir
+tout ce qu'il faut savoir
+ce qu'il faut savoir
+minimum de choses
+b-a-ba
+informations de base
+connaissances basiques
+[$]
+VarUnitésTemporelles
+minutes
+heures
+jours
+semaines
+mois
+années
+[$]
+VarMRLWTuVaria
+as-tu
+tu as
+tu es
+es-tu
+aurais-tu
+auras-tu
+fais-tu
+peux-tu
+tu fais
+connais-tu
+tu
+ta
+ton
+tes
+sais-tu
+[$]
+VarQueVeutDireCapt
+c'est quoi
+qu'est-ce que
+qu'est-ce que c'est
+que /VAR=VarSignifie
+qu' /VAR=VarSignifie
+qu'appelles-tu
+qu'appelle-t-on
+ce qu'est
+qu'entends-tu par
+quelle est la signification
+[$]
+VarOrganesDuCorps
+/VAR=VarMembresLocomoteurs
+/VAR=VarViscères
+/VAR=VarLaBouche
+/VAR=VarSquelette
+/VAR=VarOrganeVital
+/VAR=VarOrganesTête
+/VAR=VarOrganesexuels
+[$]
+VarMembresLocomoteurs
+pied
+pieds
+genou
+genoux
+coude
+mains
+main
+jambe
+jambes
+cuisse
+cuisses
+muscle
+muscles
+poignet
+poignets
+épaule
+bras
+tibia
+doigt
+doigts
+[$]
+VarViscères
+foie
+rein
+reins
+estomac
+pancréas
+intestin
+intestins
+rate
+vessie
+oesophage
+vésicule
+[$]
+VarLaBouche
+gorge
+dent
+dents
+gencive
+gencives
+langue
+bouche
+larynx
+[$]
+VarSquelette
+dos
+nuque
+cervicales
+cervicale
+squelette
+articulation
+articulations
+[$]
+VarOrganesTête
+tête
+menton
+yeux
+nez
+joue
+joues
+oreille
+oreilles
+[$]
+VarOrganeVital
+coeur
+poumon
+poumons
+artères
+[$]
+VarOrganesexuels
+testicules
+testicule
+ovaire
+ovaire
+pénis
+sexe
+vagin
+prostate
+[$]
+VarTuer
+tue
+assassine
+élimine
+a tué
+tuera
+éliminera
+détruit
+a détruit
+détruira
+va tuer
+peut tuer
+tuer
+assassiner
+éliminer
+[$]
+VarContenantCapt
+contenant
+avec
+avec un occurrence
+contenant au moins
+comprenant
+dans lequel figure
+dans laquelle figure
+dans lequel figurent
+dans laquelle figurent
+[$]
+VarQuelQuelles
+quel
+quels
+quelle
+quelles
+[$]
+VarJeVais
+je vais
+nous allons
+on va
+[$]
+VarJAiEté
+j'ai été
+je suis
+j'ai
+je viens d'être
+me voilà
+me voici
+[$]
+VarOuiNon
+oui
+non
+[$]
+VarLesMoisEnglish
+january
+february
+march
+april
+may
+june
+july
+august
+september
+october
+november
+december
+[$]
+VarEnConclusion
+en conclusion
+conclure
+en guise de conclusion
+pour conclure
+conclusion
+conclusions
+en conclure
+[$]
+VarSuperGénial
+super
+génial
+vachement bien
+bien
+top
+au top
+sublime
+magnifique
+premier choix
+fantastique
+bon
+très bon
+très bien
+trop bien
+[$]
+VarTousToutes
+tout
+tous
+toute
+toutes
+[$]
+VarTYPENGEG
+con
+type
+mec
+enfoiré
+enflure
+pétasse
+conne
+garce
+[$]
+VarTYPENGEGFEM
+pétasse
+conne
+garce
+pouffiasse
+grognasse
+connasse
+[$]
+VarTrèsPlus
+plus
+très
+trop
+beaucoup
+[$]
+VarSant-Environt
+santé-environnement
+santé et environnement
+santé environnement
+santé environnementale
+santé liée à l'environnement
+environnement et santé
+sanitaire et environnemental
+[$]
+VarESTSONT
+est
+sont

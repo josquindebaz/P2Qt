@@ -29,6 +29,9 @@ def is_random_var(var):
 	modif
 	
 	"""
+	
+	if var in ["$status"] :
+		return True
 	L = var.split('.')
 	
 

@@ -35,7 +35,7 @@ correctement la dernière composante phadt ... un énoncé aléatoire avec auteu
 """
 #from settings import hostPII , portPII , logger
 
-
+eval_status_done = 0
 verbose = 0
 
 import threading, socket, time , re
@@ -92,9 +92,11 @@ class ConnecteurPII (threading.Thread):
 		self.m_cache_var ={}
 		self.m_threadlock = threading.RLock() # verrou reentrant
 		self.data_to_eval=None
+
 	def set(self, ip, port):
 		self.host = ip
 		self.port = port 
+
 	def run (self):
 		if verbose : print "thread running"
 		if not self.connexion : 
@@ -117,14 +119,32 @@ class ConnecteurPII (threading.Thread):
 		self.connexion.setblocking(1)
 		while 1 :
 			try:			
-				#print "connexion au serveur ", self.host, " port : ", self.port
+				if (verbose): print "connexion au serveur ", self.host, " port : ", self.port
 				self.connexion.connect((self.host, int(self.port)))
 				time.sleep(0.5)
 				return True
 			except socket.error:			
-				print "Connexion : échec"
+				print "Connecton failed"
 				time.sleep(1)
+				return False
 				
+	def connect_x(self,x):
+		"""try to connect x times with 10 intervals then return True or False"""
+		i = 1
+		r = False
+		while ((i <= x) and (not r)):
+			if (verbose): print " attempt to connect %d on %d" % (i,x)
+			try:			
+				if (verbose): print "connexion au serveur ", self.host, " port : ", self.port
+				self.connexion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+				self.connexion.setblocking(1)
+				self.connexion.connect((self.host, int(self.port)))
+				r = True
+			except socket.error:			
+				print "Connection failed"
+				time.sleep(10)
+			i += 1
+		return r
 
 	def disconnect(self):
 		self.send_expression("CLOSE")
@@ -258,7 +278,8 @@ class ConnecteurPII (threading.Thread):
 				return ""
 		lexpr = self.creer_msg_set_ctx( (text,props,value) )
 		for exp in lexpr :
-			print exp
+			if (verbose) :
+				print "exp:%s" % exp
 			self.send_expression(exp)
 		#value = self.get_value()
 		# est-ce nécessaire ????
@@ -466,11 +487,14 @@ class ConnecteurPII (threading.Thread):
 
 		data = data.decode('utf-8')	
 		return data					
-		
+
+
+	
 	def eval_variable(self, var,user_env=None,corpus_env=None,env_dialogue=None):
 		""" 
 			
 		"""
+
 
 		if (verbose):
 			print var 
@@ -504,6 +528,27 @@ class ConnecteurPII (threading.Thread):
 	
 
 	
+	def stop(self):
+		self.m_threadlock.acquire()
+		if not self.connexion : 
+			if not self.connect():
+				self.m_threadlock.release()
+				return ""
+			
+		self.send_expression("STOP")
+		self.m_threadlock.release()
+		
+	def load(self, path):
+		self.m_threadlock.acquire()
+		if not self.connexion : 
+			if not self.connect():
+				self.m_threadlock.release()
+				return ""
+			
+		self.send_expression("LOAD:" + path)
+		self.m_threadlock.release()		
+		
+	
 
 
 	def send_expression(self, expression):
@@ -516,7 +561,10 @@ class ConnecteurPII (threading.Thread):
 			Si PB avec le serveur ... relancer la connexion 
 		"""
 		
-		expression = expression.encode('utf-8')
+		try:
+			expression = expression.encode('utf-8')
+		except:
+			pass
 		#data = chr(190) # ':' 0XBE 190
 		data = chr(16)  # DLE ? .. 0X10 16
 		try :
@@ -561,20 +609,32 @@ class ConnecteurPII (threading.Thread):
 		
 		lexpr = []
 		# E:search.rac.chaine recherchée
-		# la signature étant : "search.rac.chaine recherchée"
+		# la signature étant : "search.rac.chaine recherchée" + indice , txt etc...
 		fonc = fonc.encode('utf-8')
+		fonc = fonc[1:] # vire le $
+		
 		element =  element.encode('utf-8')
-		signature = fonc + '.' + element
+		#signature = fonc + '.' + element
+		# la signature doit integre ttes les specifications (pour se distinguer entre elles (utilisee comme cle pour les acces aux objets))
+		signature = fonc + '.' + element + "." + pelement
+		if txt :
+			signature += ".txt" + ptxt	#   .txt0 .txt[0] etc
+		if ph :
+			signature += ".ph" + pph
+		if val:
+			signature += ".val"	
 		cle = signature
 		
-  		lexpr.append("E:" +signature)
-  		'''
-		if pelement:
-			POS = "P:"+pelement
-		else:
-			POS=""
+		lexpr.append("E:" +signature)
+		''' 	search
+				ou searchcs
 		'''
-		lexpr.append("V:search:" +signature + "." +  pelement )
+		
+		f =  fonc.split('.')[0]
+		#lexpr.append("V:search:" +signature + "." +  pelement )
+		# 
+		#lexpr.append("V:" + f +":" +signature + "." +  pelement )
+		lexpr.append("V:" + f +":" + fonc + "." + element + "." +  pelement )
 		# le premier ARG indiquera rac pre ou suf
 		if signature.find('.rac.') != -1:
 			lexpr.append("ARG:rac" )
@@ -585,8 +645,7 @@ class ConnecteurPII (threading.Thread):
 		lexpr.append("ARG:" +element)
 		lexpr.append("FARG:")	# ajouté pour signaler la fin des arg sur WSearch
 		
-		if pelement:
-			L = self.get_token_tranche(pelement)
+		if pelement:  
 			lexpr += L
 			cle += pelement
 			
@@ -1446,9 +1505,46 @@ if __name__ == "__main__" :
 
 	c = ConnecteurPII()
 	#L= c.creer_msg_ctx("titre","[0:]")
-	c.set( '192.168.1.99','60000' )
-	x = c.eval_variable("$ctx" )
+	#c.set( '192.168.1.63','6000' )
+	
+	
+	c.set( '192.168.1.35','60000' )
+	path="C:\corpus\chronique\projet_chronique.prc"
+	#path="/home/jeanjean/monProjet.prc"
+	#c.load(path)
+	
+	i = 0
+	while 1:
+		status = c.eval_variable("$status")
+		print status , "   " , i
+		i+=1 
+		time.sleep(1)
+		if status == "1" :
+			break
+		time.sleep(1)
+	L = c.creer_msg_search ( u"$searchcs.rac" , u"La" , "0" )
+	for  x in L : print x
+	print c.eval(L)
+	L = c.creer_msg_search ( u"$searchcs.rac" , u"la" , "0" )
+	for  x in L : print x
+	print c.eval(L)
+	L = c.creer_msg_search ( u"$searchcs.rac" , u"la" , "[0:]" )
+	print c.eval(L)
+	
+	L = c.creer_msg_search ( u"$searchcs.rac" , u"me" , "[0:]" , txt=True, ptxt="[0:10]")
+	print c.eval(L)
+
+	
+	v = c.eval (c.creer_msg_search ( u"$search.rac" , u"le" , pelement="0" ,txt=True, ptxt="[0:10]", ph=True ,pph="[0:]",val=False))
+	print v
+	v = c.eval (c.creer_msg_search ( u"$searchcs.rac" , u"le" , pelement="0" ,txt=True, ptxt="[0:10]", ph=True ,pph="[0:]",val=False))
+	print v
+		
+	x = c.eval_variable("$col[O:]" )
 	print x
+	x = c.eval_variable("$col[O:99999].val" )
+	print x
+
 	x = c.eval_variable("$txt2.ctx.title" )
 	print x
 	x = c.eval_variable("$ctx.title[0:]" )
