@@ -6,4 +6,5 @@ TRANSLATIONS= fr_FR.ts \
 	pt_BR.ts \
 	es_ES.ts \
 	it_IT.ts \
+        fi_FI.ts
 

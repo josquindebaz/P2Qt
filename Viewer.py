@@ -16,7 +16,6 @@ class MyMenu(QtGui.QMenuBar):
 
         ##################################################
         #Corpus and Server
-        #TODO avec ou sans &?
         menu_server = self.addMenu(self.tr('Server and projects'))
         self.distant = menu_server.addMenu(QtGui.QIcon('images/distant.png'),
                                                              self.tr('Remote'))
@@ -76,6 +75,9 @@ class MyMenu(QtGui.QMenuBar):
         menu_corpus_compare =  QtGui.QAction(self.tr("Corpus comparison"), self)
         menu_corpus.addAction(menu_corpus_compare)
         menu_corpus_compare.setEnabled(False)
+        menu_corpus_comb =  QtGui.QAction(self.tr("Corpus combination"), self)
+        menu_corpus.addAction(menu_corpus_comb)
+        menu_corpus_comb.setEnabled(False)
 
         ##################################################
         #Viz and computations
@@ -86,6 +88,9 @@ class MyMenu(QtGui.QMenuBar):
         self.grappes =  QtGui.QAction(self.tr("Clusters"), self)
         menu_comput.addAction(self.grappes)
         self.grappes.setEnabled(False)
+        menu_auth_comp = QtGui.QAction(self.tr("Authors comparison"), self)
+        menu_comput.addAction(menu_auth_comp)
+        menu_auth_comp.setEnabled(False)
         #TODO viz
         #TODO author signatures, periodisations
         #TODO corpus indicators and properties
@@ -433,10 +438,12 @@ class MyListWidgetTexts(QtGui.QListWidget):
     def __init__(self, parent=None):
         QtGui.QListWidget.__init__(self)
         self.parent = parent
+        self.sentences_menu = False
         self.setAlternatingRowColors(True)
         self.itemSelectionChanged.connect(self.changeColor)
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.context_menu)
+        self.action_sentences = QtGui.QAction('Sentences', self) 
 
         #TODO directly ask children without list
         self.widget_list = []
@@ -448,8 +455,8 @@ class MyListWidgetTexts(QtGui.QListWidget):
 
     def context_menu(self, pos):
         menu = QtGui.QMenu()
-        self.action_sentences = QtGui.QAction('Sentences', self) 
-        menu.addAction(self.action_sentences)
+        if (self.sentences_menu):
+            menu.addAction(self.action_sentences)
         temp = menu.addMenu('Temporal distribution')
         temp.addAction(QtGui.QAction('days', self, 
             triggered=self.copy))
@@ -463,12 +470,13 @@ class MyListWidgetTexts(QtGui.QListWidget):
         self.parent.cumul_temp(self, delta)
 
     def changeColor(self):
+        #FIXME background color too light on windows
         currentRow = self.currentRow()
         for r in range(self.count()):
             if (r == currentRow):
                 self.item(r).label.setStyleSheet("color: white;")  
             else:
-                 self.item(r).label.setStyleSheet("color: black;")
+                self.item(r).label.setStyleSheet("color: black;")
 
     def deselect_all(self):
         self.clearSelection()
@@ -482,7 +490,7 @@ class TexteWidgetItem(QtGui.QListWidgetItem):
         txt_resume = self.formeResume()
         self.label = QtGui.QLabel(txt_resume)
         self.setToolTip(txt_resume)
-
+        
     def formeResume(self):
         return u"%s <span style=\"font: bold\">%s</span> %s" % self.resume 
 
@@ -501,16 +509,15 @@ class ListTexts(QtGui.QWidget):
         self.setLayout(HBox)
 
         if (element):
-
             self.title = "%s (%d)" % (element, len(self.lsems))
             self.corpus = MyListWidgetTexts(self)
+            self.corpus.sentences_menu = True
             Gcorpus = QtGui.QGroupBox("corpus")
             HBox.addWidget(Gcorpus)
             Gcorpusbox = QtGui.QHBoxLayout()
             Gcorpusbox.setContentsMargins(0,0,0,0)
             Gcorpus.setLayout(Gcorpusbox)
             Gcorpusbox.addWidget(self.corpus)
-            #HBox.addWidget(self.corpus)
             self.anticorpus = MyListWidgetTexts(self)
             Gacorpus = QtGui.QGroupBox("anti-corpus")
             HBox.addWidget(Gacorpus)
@@ -518,7 +525,6 @@ class ListTexts(QtGui.QWidget):
             Gacorpusbox.setContentsMargins(0,0,0,0)
             Gacorpus.setLayout(Gacorpusbox)
             Gacorpusbox.addWidget(self.anticorpus)
-            #HBox.addWidget(self.anticorpus)
         else:
             self.corpus = MyListWidgetTexts(self)
             HBox.addWidget(self.corpus)
@@ -1035,6 +1041,7 @@ class MrlwVarGenerator(object):
 class Journal(object):
     """Le journal d'enquête"""
     def __init__(self, parent=None): 
+        self.parent = parent
         self.journal = QtGui.QWidget()
         journal_vbox =  QtGui.QVBoxLayout() 
         self.journal.setLayout(journal_vbox)
@@ -1063,7 +1070,7 @@ class Journal(object):
     def journal_save(self):
 	dte = str(datetime.date.today())
 	fname, filt = QtGui.QFileDialog.getSaveFileName(self.journal,
-                             self.tr('Save file'),'journal_%s.txt'%dte,'*.txt')
+                             self.parent.tr('Save file'),'journal_%s.txt'%dte,'*.txt')
 	if (fname):
 		with open(fname, 'w') as journal_file:
 			journal_file.write(self.history.toPlainText().encode('utf-8'))

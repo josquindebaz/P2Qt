@@ -124,7 +124,7 @@ class ConnecteurPII (threading.Thread):
 				time.sleep(0.5)
 				return True
 			except socket.error:			
-				print "Connecton failed"
+				print "Connection failed"
 				time.sleep(1)
 				return False
 				

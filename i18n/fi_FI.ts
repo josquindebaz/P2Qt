@@ -114,6 +114,11 @@
 <context>
     <name>MyMenu</name>
     <message>
+        <location filename="../Viewer.py" line="20"/>
+        <source>Server and projects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../Viewer.py" line="105"/>
         <source>Remote</source>
         <translation type="unfinished"></translation>
@@ -189,6 +194,21 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../Viewer.py" line="75"/>
+        <source>Corpus</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../Viewer.py" line="76"/>
+        <source>Corpus comparison</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../Viewer.py" line="79"/>
+        <source>Corpus combination</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../Viewer.py" line="85"/>
         <source>Computations</source>
         <translation type="unfinished"></translation>
@@ -196,6 +216,16 @@
     <message>
         <location filename="../Viewer.py" line="86"/>
         <source>Persons</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../Viewer.py" line="89"/>
+        <source>Clusters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../Viewer.py" line="92"/>
+        <source>Authors comparison</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -221,36 +251,6 @@
     <message>
         <location filename="../Viewer.py" line="115"/>
         <source>Manual</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../Viewer.py" line="20"/>
-        <source>Server and projects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../Viewer.py" line="75"/>
-        <source>Corpus</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../Viewer.py" line="76"/>
-        <source>Corpus comparison</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../Viewer.py" line="79"/>
-        <source>Corpus combination</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../Viewer.py" line="89"/>
-        <source>Clusters</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../Viewer.py" line="92"/>
-        <source>Authors comparison</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -297,8 +297,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../p2gui.py" line="226"/>
+        <source>Formulae</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../p2gui.py" line="248"/>
         <source>Texts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../p2gui.py" line="264"/>
+        <source>Salient structures</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -342,8 +352,28 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../p2gui.py" line="1579"/>
+        <source>Sentences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../p2gui.py" line="334"/>
         <source>P-II interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../p2gui.py" line="344"/>
+        <source>Caching text values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../p2gui.py" line="354"/>
+        <source>Caching values for %s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../p2gui.py" line="377"/>
+        <source>Displaying %d authors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -362,18 +392,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="264"/>
-        <source>Salient structures</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../p2gui.py" line="344"/>
-        <source>Caching text values</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../p2gui.py" line="354"/>
-        <source>Caching values for %s</source>
+        <location filename="../p2gui.py" line="628"/>
+        <source>Displaying %s list (%d items) ordered by %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -419,11 +439,6 @@
     <message>
         <location filename="../p2gui.py" line="996"/>
         <source>Displaying %d actants</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../p2gui.py" line="377"/>
-        <source>Displaying %d authors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -497,13 +512,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../p2gui.py" line="1579"/>
-        <source>Sentences</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../p2gui.py" line="628"/>
-        <source>Displaying %s list (%d items) ordered by %s</source>
+        <location filename="../p2gui.py" line="1620"/>
+        <source>Searching for {%s}: %d results</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -511,19 +521,14 @@
         <source>Searching for {%s}: no result</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../p2gui.py" line="226"/>
-        <source>Formulae</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../p2gui.py" line="1620"/>
-        <source>Searching for {%s}: %d results</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>SaillantesProperties</name>
+    <message>
+        <location filename="../Viewer.py" line="377"/>
+        <source>Actants</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <location filename="../Viewer.py" line="385"/>
         <source>Categories</source>
@@ -532,11 +537,6 @@
     <message>
         <location filename="../Viewer.py" line="393"/>
         <source>Collections</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../Viewer.py" line="377"/>
-        <source>Actants</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

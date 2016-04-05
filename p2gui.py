@@ -34,7 +34,7 @@ class Principal(QtGui.QMainWindow):
                 for corpus in get_remote_corpus.getDataCorpus(): 
                     t = QtGui.QAction(corpus[0], self)
                     t.triggered.connect(functools.partial(self.connect_server,
-                                 "prosperologie.org", corpus[1]))
+                                 "prosperologie.org", corpus[1], corpus[0]))
                     menu.distant.addAction(t)
 
 
@@ -97,7 +97,6 @@ class Principal(QtGui.QMainWindow):
         ##################################################
 
         self.actantsTab = Viewer.actantsTab()
-        self.actantsTab.L.currentItemChanged.connect(self.actsLchanged)
 
         ##### Tab for authors                #############
         ##################################################
@@ -185,7 +184,7 @@ class Principal(QtGui.QMainWindow):
 
         # Journal
         ##################################################
-        self.journal = Viewer.Journal()
+        self.journal = Viewer.Journal(self)
 
         #Explorer Tab
         ################################################
@@ -436,8 +435,6 @@ class Principal(QtGui.QMainWindow):
             for i, el in enumerate(re.split(", ", result)):
                 ask = "$aut%s.%s%d.val" % (row, which, i)
                 val = self.client.eval_var(ask)
-                #FIXME always 1 for $actX.val
-                #print "C19143", el, ask, val
                 self.authorsTab.L2.addItem("%s %s"%(val, el))
 
     def create_corpus_texts_tab(self):
@@ -737,19 +734,20 @@ class Principal(QtGui.QMainWindow):
             self.NOT1.dep0.listw.setCurrentItem(itemT)
         if (itemT):
             value, item = re.split(" ",itemT.text(),1)
-            #TODO clarify the rules for exaequos in rank
-            #row = self.NOT1.dep0.listw.currentRow() 
-            #self.activity("%s selected, rank %d" % (item, row+1))
+            self.activity("%s selected" % (item))
 
             self.activity("%s selected, value %s" % (item, value))
             sem = Controller.semantiques[self.NOT1.select.currentText()]
-            self.semantique_lexicon_item_0 = self.client.eval_get_sem(item, sem) 
-            #FIXME serveur does answer get_sem for $qualities, $marqueur, $epr, $undef, $expr . not always for $ent_sf
-            print "C122743", item, sem, self.semantique_lexicon_item_0
+            #FIXME $qual whereas elsewhere $qualite
+            if (sem == '$qualite'):
+                self.semantique_lexicon_item_0 = re.sub('$qual', '$qualite',
+                    self.client.eval_get_sem(item, "$qual"))
+            else :
+                self.semantique_lexicon_item_0 = self.client.eval_get_sem(item, sem) 
+            #print "C122743", item, sem, self.semantique_lexicon_item_0
 
     def cdep0_changed(self,level):
         """ suite au changement de sélection, mettre à jour les vues dépendantes """ 
-        #FIXME pb avec certains éléments des catégories
         #FIXME et quand les valeurs du niveau 0 sont nulles, il n'affiche pas du tout le dico ?
         which_concepts = self.NOT2.sort_command.currentText()
         itemT = self.NOT2.dep0.listw.currentItem()
@@ -765,8 +763,14 @@ class Principal(QtGui.QMainWindow):
 
             sem = self.sem_concept 
             self.semantique_concept_item = self.client.eval_get_sem(item, sem) 
-            result = re.split(", ", 
-                self.client.eval_var("%s.rep[0:]"% self.semantique_concept_item))
+            
+            if self.semantique_concept_item == "":
+                #FIXME pb avec certains éléments des catégories
+                print "C990", [item, sem]
+
+            ask = "%s.rep[0:]"% self.semantique_concept_item
+            result = self.client.eval_var(ask)
+            result = re.split(", ", result)
             
             if (result != [u'']):
                 if (sem in ["$cat_ent", "$cat_epr", "$cat_mar", "$cat_qua"]):
@@ -976,7 +980,7 @@ class Principal(QtGui.QMainWindow):
         self.connect_server('localhost')
         #self.connect_server(h='192.168.1.99', p='60000')
 
-    def connect_server(self, h = 'prosperologie.org', p = '60000'):
+    def connect_server(self, h = 'prosperologie.org', p = '60000', name=""):
         self.activity(self.tr("Connecting to server"))
         self.client=Controller.client(h, p)
         
@@ -986,32 +990,11 @@ class Principal(QtGui.QMainWindow):
             # calcule en avance
             self.pre_calcule()
             #display info in the toolbar
-            self.toolbar_descr_corpus.setText("Corpus name? %s texts %s pages ... volume" % (self.preCompute.nbtxt, self.preCompute.nbpg))
-            #TODO display corpus name, volume
+            self.toolbar_descr_corpus.setText("Corpus \"%s\" %s texts %s pages ? volume" % (name, self.preCompute.nbtxt, self.preCompute.nbpg))
+            #TODO display volume
 
-
-            #FIXME first
-            ask = u"$act[0:]" 
-            result = self.client.eval_var(ask)
-            list_results = re.split(", ", result)
-            self.activity(self.tr("Displaying %d actants")%len(list_results))
-            self.NOTs.setCurrentIndex(0)
-            self.actantsTab.L.clear()
-            self.PrgBar.perc(len(list_results))
-            n = 0
-            for i, act in enumerate(list_results):
-                ask = u"$act%d.txt[0:]" % i 
-                result = self.client.eval_var(ask)
-                n = len(re.split(", ", result))
-                if n == 1:
-                    list_resume = map(lambda x: "1 %s"%x, list_results[i:])
-                    self.actantsTab.L.addItems(list_resume)
-                    break
-                else:
-                    self.actantsTab.L.addItem("%d %s" % (n, act))
-                    self.PrgBar.percAdd(1)
-
-            self.PrgBar.reset()
+            #show actants
+            self.display_actants()
 
             #Show corpus texts list on its own tab
             self.create_corpus_texts_tab()
@@ -1044,6 +1027,30 @@ class Principal(QtGui.QMainWindow):
     def display_pers(self):
         i = self.NOTs.addTab(self.show_persons, self.tr("Persons"))
         self.NOTs.setCurrentIndex(i)
+
+    def display_actants(self):
+        ask = u"$act[0:]" 
+        result = self.client.eval_var(ask)
+        list_results = re.split(", ", result)
+        self.activity(self.tr("Displaying %d actants")%len(list_results))
+        self.NOTs.setCurrentIndex(0)
+        self.actantsTab.L.clear()
+        self.PrgBar.perc(len(list_results))
+        n = 0
+        for i, act in enumerate(list_results):
+            ask = u"$act%d.txt[0:]" % i 
+            result = self.client.eval_var(ask)
+            n = len(re.split(", ", result))
+            if n == 1:
+                list_resume = map(lambda x: "1 %s"%x, list_results[i:])
+                self.actantsTab.L.addItems(list_resume)
+                break
+            else:
+                self.actantsTab.L.addItem("%d %s" % (n, act))
+                self.PrgBar.percAdd(1)
+
+        self.actantsTab.L.currentItemChanged.connect(self.actsLchanged)
+        self.PrgBar.reset()
 
     def codex_window(self):
         codex_w = codex_window(self)
@@ -1537,6 +1544,8 @@ class Principal(QtGui.QMainWindow):
             texts_widget.add(sem, txt.getResume())
 
         texts_widget.corpus.itemSelectionChanged.connect(self.onSelectText) 
+        QtCore.QObject.connect(texts_widget.corpus.action_sentences, 
+            QtCore.SIGNAL("triggered()"), self.teste_wording)
         texts_widget.anticorpus.itemSelectionChanged.connect(self.onSelectText)  
 
         #insert tab and give focus
@@ -1554,13 +1563,18 @@ class Principal(QtGui.QMainWindow):
                 self.SOT1.removeTab(i)
 
     def teste_wording(self):
-        if (self.NOTs.currentIndex() == 0) : # si l'onglet lexicon
-            item = self.NOT1.depII.listw.currentItem().text()
-        if (self.NOTs.currentIndex() == 1) : # si l'onglet concepts
-            item = self.NOT2.depII.listw.currentItem().text()
+        #FIXME info must come from text list
+        if (self.lexicon_or_concepts() == "lexicon"):
+            sem, item = self.recup_element_lexicon()
+        elif (self.lexicon_or_concepts() == "concepts"):
+            sem, item = self.recup_element_concepts(lvl)
 
-        score, item = re.search("^(\d*) (.*)", item).group(1, 2)
-        self.activity("%s double click" % (item))
+        print "C1690", sem, item
+        score, item = Controller.sp_el(item)
+        #score, item = re.search("^(\d*) (.*)", item).group(1, 2)
+        #self.activity("%s double click" % (item))
+        print "C1691", score, item
+
         if (int(score)):
             ask = "$ph.+%s"%(item)
             result = self.client.eval_var(ask)
@@ -1607,14 +1621,14 @@ class Principal(QtGui.QMainWindow):
                 ask = self.client.creer_msg_search(type_search, self.motif, "[0:]") 
                 result = self.client.eval(ask)
                 print "C25712", ask, result
-                if (result != u''):
+                if (result != ''):
                     liste_result = re.split(", ", result)
-                    self.activity(self.tr("Displaying search for {%s}: %d results")%(self.motif,
+                    self.activity(self.tr("Searching for {%s}: %d results")%(self.motif,
                         len(liste_result)))
                     self.PrgBar.perc(len(liste_result))
                     for i in range(len(liste_result)):
                         ask = self.client.creer_msg_search(type_search, 
-                            self.motif, "%d"%i, val=True) #match value
+                            self.motif, "%d"%i, val=True) 
                         r = self.client.eval(ask)
                         print "C25713", ask, r 
                         self.PrgBar.percAdd(1)
