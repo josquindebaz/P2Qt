@@ -84,7 +84,7 @@ class MyMenu(QtGui.QMenuBar):
         menu_comput = self.addMenu(self.tr('Computations'))
         self.pers =  QtGui.QAction(self.tr("Persons"), self)
         menu_comput.addAction(self.pers)
-        self.pers.setEnabled(False)
+        #self.pers.setEnabled(False)
         self.grappes =  QtGui.QAction(self.tr("Clusters"), self)
         menu_comput.addAction(self.grappes)
         self.grappes.setEnabled(False)
@@ -188,6 +188,17 @@ class actantsTab(QtGui.QWidget):
         self.L2.setAlternatingRowColors(True)
         incompBox.addWidget(self.L2)
 
+class personsTab(QtGui.QWidget):
+    """Person list display tab"""
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self)
+        H = QtGui.QHBoxLayout()
+        self.setLayout(H)
+        H.setContentsMargins(0,0,0,0) 
+        self.L = QtGui.QListWidget()
+        self.L.setAlternatingRowColors(True)
+        H.addWidget(self.L)
+
 class authorsTab(QtGui.QWidget):
     """Widget authors lists"""
     def __init__(self, parent=None):
@@ -252,14 +263,14 @@ class LexiconTab(QtGui.QWidget):
             u"markers", 
             u"verbs", 
             "undefined", 
-            "persons", 
+            #"persons", 
             u"expressions",  
             u"numbers",
             u"function words"
         ])
         #TODO add a special tab for indef in NE tab
         #TODO add those
-        for i in range(7,9):
+        for i in range(7,8):
             self.select.model().item(i).setEnabled(False)
         VHC.addWidget(self.select)
 

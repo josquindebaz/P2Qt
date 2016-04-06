@@ -158,9 +158,7 @@ class Principal(QtGui.QMainWindow):
 
         ##### Tab for persons                #############
         ##################################################
-
-        #TODO make it closable
-        self.show_persons = QtGui.QWidget()
+        self.show_persons = Viewer.personsTab()
 
         #Networks tab
         ##################################################
@@ -176,6 +174,12 @@ class Principal(QtGui.QMainWindow):
         self.NOTs.addTab(self.NOT2, self.tr("Concepts"))
         self.NOTs.addTab(self.NOT1, self.tr("Lexicon"))
         self.NOTs.currentChanged.connect(self.change_NOTab)
+        self.NOTs.setTabsClosable(True)
+        self.NOTs.tabCloseRequested.connect(self.NOTs.removeTab)
+        Viewer.hide_close_buttons(self.NOTs,0)
+        Viewer.hide_close_buttons(self.NOTs,1)
+        Viewer.hide_close_buttons(self.NOTs,2)
+        Viewer.hide_close_buttons(self.NOTs,3)
 
         ##################################################
         #cadran NE
@@ -1030,8 +1034,28 @@ class Principal(QtGui.QMainWindow):
         self.NETs.setCurrentIndex(i)
 
     def display_pers(self):
-        i = self.NOTs.addTab(self.show_persons, self.tr("Persons"))
-        self.NOTs.setCurrentIndex(i)
+        addTab = True
+        for t in range(3, self.NOTs.count()):
+            if (self.NOTs.tabText(t) == self.tr("Persons")):
+                addTab = False
+                
+        if (addTab):
+            self.persons_tab_index = self.NOTs.addTab(self.show_persons, self.tr("Persons"))
+            self.NOTs.setCurrentIndex(self.persons_tab_index)
+
+        self.show_persons.L.clear()
+
+        ask = "$pers[0:]" 
+        result = self.client.eval_var(ask)
+        list_results = re.split(", ", result)
+        self.activity(self.tr("Displaying %d persons")%len(list_results))
+
+        self.PrgBar.perc(len(list_results))
+
+        for i, p in enumerate(list_results):
+            ask = u"$pers%d.freq" % i 
+            r = self.client.eval_var(ask)
+            self.show_persons.L.addItem("%s %s"%(p, r))
 
     def display_actants(self):
         ask = u"$act[0:]" 
