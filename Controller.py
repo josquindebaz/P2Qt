@@ -6,6 +6,7 @@ import re
 import datetime
 import interface_prospero
 import urllib
+import socket
 
 class client(object):
     def __init__(self, h, p):
@@ -474,8 +475,10 @@ class preCompute(object):
     
 
 class myxml(object):
-    def __init__(self,url ="http://prosperologie.org/P-II/info.xml"):
+    def __init__(self, url="http://prosperologie.org/P-II/info.xml",
+            ip="prosperologie.org"):
         self.url = url
+        self.ip = ip
 
     def get(self): 
         try :
@@ -491,12 +494,22 @@ class myxml(object):
         except:
             return 0
 
+    def test_port(self, port):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try :
+            s.connect((self.ip, int(port)))
+            s.shutdown(2)
+            return True
+        except:
+            return False
+
     def getDataCorpus(self):
         items = self.xmlbuf.getElementsByTagName('projet')
         liste = []
         for item in items:
-            liste.append([item.attributes['nom'].value, 
-                            item.attributes['port'].value])
+            if self.test_port(int(item.attributes['port'].value)):
+                liste.append([item.attributes['nom'].value, 
+                                item.attributes['port'].value])
         return liste
 
 def sp_el(element):

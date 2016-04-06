@@ -27,7 +27,6 @@ class Principal(QtGui.QMainWindow):
         menu = Viewer.MyMenu()
         self.setMenuBar(menu)
 
-        #TODO not enabled if cannot reach port 60000
         get_remote_corpus = Controller.myxml()
         if get_remote_corpus.get():
             if get_remote_corpus.parse():
@@ -990,7 +989,13 @@ class Principal(QtGui.QMainWindow):
             # calcule en avance
             self.pre_calcule()
             #display info in the toolbar
-            self.toolbar_descr_corpus.setText("Corpus \"%s\" %s texts %s pages ? volume" % (name, self.preCompute.nbtxt, self.preCompute.nbpg))
+            if name != "":
+                message = "Corpus \"%s\" %s texts %s pages ? volume" % (name,
+                    self.preCompute.nbtxt, self.preCompute.nbpg)
+            else:
+                message = "%s texts %s pages ? volume" % (self.preCompute.nbtxt, 
+                    self.preCompute.nbpg)
+            self.toolbar_descr_corpus.setText(message)
             #TODO display volume
 
             #show actants
