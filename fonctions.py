@@ -25,9 +25,12 @@ list_exclusion = [ "ctx"]
 def is_random_var(var):
 	"""test si on a une variable aléatoire (non cachable !)
 	PB  : $txt0.ph.+$txt0.act4   ph semble aléatoire ! tirage au sort ds les énoncés contrains par la présence d'un élément
+	
+	modif
+	
 	"""
 	
-	if var in ["$status"] :
+	if var in ["$status" , "gestion_concept", "gestion_rep_concept"] :
 		return True
 	L = var.split('.')
 	
