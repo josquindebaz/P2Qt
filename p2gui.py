@@ -693,6 +693,8 @@ class Principal(QtGui.QMainWindow):
                 self.PrgBar.perc(len(content))
 
                 sort = Controller.hash_sort[which]
+                if (sem == "$mo" and sort == "freq"):
+                    sort = "val"
                 for row, concept in enumerate(content):
                     ask = "%s%d.%s" % (sem, row, sort)
                     result  = self.client.eval_var(ask)
@@ -701,7 +703,10 @@ class Principal(QtGui.QMainWindow):
                                                  "last apparition"]):
                         val = re.sub(u"^\s*", "", result)
                     else :
-                        val = int(result)
+                        try:
+                            val = int(result)
+                        except:
+                            print "C32607", result
 
                     if val == 1:
                         list_resume = map(lambda x: [1, x], content[row:])

@@ -402,7 +402,8 @@ class preCompute(object):
             '$cat_ent',
             '$cat_epr',
             '$cat_qua',
-            '$cat_mar'
+            '$cat_mar',
+            '$mo',
         ] 
         self.type_calcul = [
             "val",
@@ -631,6 +632,7 @@ semantiques = {
 	'undefined': '$undef',
         'actants': '$act',
 	'expressions': '$expr',
-	'entities&fictions': '$ent'
+	'entities&fictions': '$ent',
+        'function words': '$mo',
 }
 

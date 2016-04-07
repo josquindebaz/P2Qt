@@ -229,8 +229,8 @@ class authorsTab(QtGui.QWidget):
             "undefined", 
             "persons", 
             u"expressions",  
+            u"function words"
             #u"numbers",
-            #u"function words"
         ])
         V1.addWidget(self.S)
         self.L2 = QtGui.QListWidget()
@@ -256,22 +256,18 @@ class LexiconTab(QtGui.QWidget):
         VHC = QtGui.QHBoxLayout()
         V.addLayout(VHC)
         self.select = QtGui.QComboBox()
-        #send persons to a dedicated tab
         self.select.addItems([ 
             u'entities',
             u"qualities",
             u"markers", 
             u"verbs", 
             "undefined", 
-            #"persons", 
             u"expressions",  
-            u"numbers",
-            u"function words"
+            u"function words",
+            #u"numbers",
         ])
-        #TODO add a special tab for indef in NE tab
-        #TODO add those
-        for i in range(7,8):
-            self.select.model().item(i).setEnabled(False)
+        #TODO add a special tab for indef in NE tab ?
+        #TODO add numbers
         VHC.addWidget(self.select)
 
         # un spacer pour mettre les commandes sur la droite
@@ -1168,6 +1164,7 @@ class TextElements(object):
             'qualities',
             'markers',
             'verbs',
+            'function words',
             'expressions',
             'persons',
             'undefined'
