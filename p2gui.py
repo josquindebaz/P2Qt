@@ -1500,10 +1500,10 @@ class Principal(QtGui.QMainWindow):
                     else:
                         print "C17249 %s" % r
             else :
-                ask = "%s $undef" % motif
-                print ask
-                result = self.client.getsem(ask)
-                print result
+                result = self.client.eval_get_sem(motif, '$undef')
+                if result != ['']:
+                    self.explorer_widget.explo_lexi.addItem('undefined')
+                    
                 
             #TODO check concept
 

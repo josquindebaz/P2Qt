@@ -566,6 +566,9 @@ explo_lexic = {
     '$epreuve': 'verbs',
     '$mo': 'function word',
     '$majent': 'capitalised entity',
+    '$prenom': 'first name',
+    '$act': 'actant',
+    '$pers': 'person',
     }
 #NB $entef = entite out of fictions + fictions + entities in fictions
 
