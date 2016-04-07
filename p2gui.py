@@ -1493,11 +1493,18 @@ class Principal(QtGui.QMainWindow):
             motif = self.explorer_widget.liste.listw.currentItem().text()
             val, motif = Controller.sp_el(motif)
             result = self.client.eval_index(motif)
-            for r in result[0][1]:
-                if Controller.explo_lexic.has_key(r):
-                    self.explorer_widget.explo_lexi.addItem(Controller.explo_lexic[r])
-                else:
-                    print "C17249 %s" % r
+            if (len(result[0][1])):
+                for r in result[0][1]:
+                    if Controller.explo_lexic.has_key(r):
+                        self.explorer_widget.explo_lexi.addItem(Controller.explo_lexic[r])
+                    else:
+                        print "C17249 %s" % r
+            else :
+                ask = "%s $undef" % motif
+                print ask
+                result = self.client.getsem(ask)
+                print result
+                
             #TODO check concept
 
     def explo_show_text(self):

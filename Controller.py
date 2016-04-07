@@ -564,7 +564,8 @@ explo_lexic = {
     '$qual': 'quality',
     '$marqueur': 'marker', 
     '$epreuve': 'verbs',
-    '$mo': 'function word'
+    '$mo': 'function word',
+    '$majent': 'capitalised entity',
     }
 #NB $entef = entite out of fictions + fictions + entities in fictions
 
