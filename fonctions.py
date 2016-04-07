@@ -30,7 +30,7 @@ def is_random_var(var):
 	
 	"""
 	
-	if var in ["$status"] :
+	if var in ["$status" , "gestion_concept", "gestion_rep_concept"] :
 		return True
 	L = var.split('.')
 	
