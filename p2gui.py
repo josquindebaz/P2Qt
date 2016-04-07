@@ -1168,7 +1168,6 @@ class Principal(QtGui.QMainWindow):
                         self.text_elements.element_list.addItem("%d %s"%(val, item))
 
     def deploie_text_elements(self):
-        #TODO add indef
         item = self.text_elements.element_list.currentItem().text()
         val, item = Controller.sp_el(item)
         self.text_elements.element_list.clear()

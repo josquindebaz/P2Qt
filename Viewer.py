@@ -1173,8 +1173,6 @@ class TextElements(object):
             'undefined'
             ])
         box.addWidget(self.selector)
-        for i in range(11, 13):
-            self.selector.model().item(i).setEnabled(False)
 
         self.element_list =  QtGui.QListWidget()
         box.addWidget(self.element_list)
