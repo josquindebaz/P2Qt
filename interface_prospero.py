@@ -226,7 +226,23 @@ class ConnecteurPII (threading.Thread):
 	def add_cache_var(self,cle,val):
 		self.m_cache_var[cle] = val
 
-
+	def remove_from_cache(self , sem):
+		'''
+			on retire ttes les cles contenant sem
+			$entef sera retire si sem==ent ou sem=ef
+		'''
+		lkey = self.m_cache_fonc.keys()
+		for k in lkey:
+			if k.find(sem) != -1:
+				del self.m_cache_fonc[k]
+		lkey = self.m_cache_index.keys()
+		for k in lkey:
+			if k.find(sem) != -1:
+				del self.m_cache_index[k]
+		lkey = self.m_cache_var.keys()
+		for k in lkey:
+			if k.find(sem) != -1:
+				del self.m_cache_var[k]
 	def add_cache_fonc (self, data, value):
 		self.m_cache_fonc[data] = value
 
@@ -341,7 +357,12 @@ class ConnecteurPII (threading.Thread):
 		for exp in lexpr :
 			self.send_expression(exp)
 		value = self.get_value()
-		self.add_cache_fonc(cle, value)
+		
+		
+		# il faut tester la cle pour voir si on met en cache ou pas la valeur
+		if not is_random_var(cle):	
+			self.add_cache_fonc(cle, value)
+			
 		self.m_threadlock.release()
 		return value
 
@@ -695,7 +716,95 @@ class ConnecteurPII (threading.Thread):
 			lexpr.append("P:"+ data  )		
 		return lexpr
 	
-	
+	def eval_op_concept(self, concept_or_rep, op,type_concept,concept=u"",rep_or_new_name=u""):
+		'''
+			concept_or_rep est soit gestion_concept operations sur les concepts 
+			soit "gestion_rep_concept" operation (add remove), sur les rep d'un concept
+			
+			rep_or_new_name est soit un new_name ds le cas 1 avec rename, soit un rep dans le cas 2
+			
+			reseter le cache pour les cles contenant type_concept (ef col cat_ent)
+			et + encore . une modif sur un ef peut modifier la liste des $ent $entef etc..
+			
+			
+			
+		'''
+		if concept_or_rep == "gestion_concept":
+			L = self.creer_msg_concept(concept_or_rep , op, type_concept, concept, rep_or_new_name)
+		if concept_or_rep == "gestion_rep_concept":
+			L = self.creer_msg_rep_concept(concept_or_rep , op, type_concept, concept, rep_or_new_name)
+			
+		ev =  self.eval (  (concept_or_rep, L) )
+		self.remove_from_cache(type_concept)
+		if type_concept == 'ef':
+			self.remove_from_cache("ent")
+		
+		return ev
+		
+	def creer_msg_concept(self,concept_or_rep, op,type_concept,concept=u"",new_name=u""):
+		'''
+			FONC:gestion_concept
+			ARG:save add remove rename
+			ARG:type concept ( col ef cat_ent cat_mar cat_epr cat_qua )
+			ARG:le concept
+			ARG:le nouveau nom (si rename)
+			F:
+			
+			FONC:gestion_concept
+			ARG:save
+			ARG:type concept
+			F:
+			
+			FONC:gestion_concept
+			ARG:rename
+			ARG:type concept
+			ARG:ETAT@->ministère
+			ARG:ETAT@->Ministères
+			F:
+
+			FONC:gestion_concept
+			ARG:add
+			ARG:type concept
+			ARG:ETAT@->...
+			F:
+
+		'''
+		lexpr = []
+		lexpr.append("FONC:" + concept_or_rep.encode('utf-8'))
+		lexpr.append("ARG:" + op.encode('utf-8'))
+		lexpr.append("ARG:" + type_concept.encode('utf-8'))
+		if concept: 
+			lexpr.append("ARG:" + concept.encode('utf-8'))
+		if new_name: 
+			lexpr.append("ARG:" + new_name.encode('utf-8'))
+
+		lexpr.append('F')
+		if (verbose) :
+			print lexpr
+		return lexpr	
+	def creer_msg_rep_concept(self,concept_or_rep, op,type_concept,concept=u"",rep=u""):
+		'''
+			FONC:gestion_rep_concept
+			ARG:add remove
+			ARG:type concept (ef col cat_ent)
+			ARG:le concept
+			ARG:le rep
+			F:
+			
+		'''
+		lexpr = []
+		lexpr.append("FONC:" + concept_or_rep.encode('utf-8'))
+		lexpr.append("ARG:" + op.encode('utf-8'))
+		lexpr.append("ARG:" + type_concept.encode('utf-8'))
+		if concept: 
+			lexpr.append("ARG:" + concept.encode('utf-8'))
+		if rep: 
+			lexpr.append("ARG:" + rep.encode('utf-8'))
+
+		lexpr.append('F')
+		if (verbose) :
+			print lexpr
+		return lexpr			
 	def creer_msg_fonct(self,fonc,element,sem):
 		"""
 		
@@ -1526,6 +1635,54 @@ if __name__ == "__main__" :
 		if status == "1" :
 			break
 		time.sleep(1)
+	#eval_fonct (self, fonc, element,sem):
+	data = c.eval_variable("$ent[20:25]")
+	print data
+	c.eval_op_concept("gestion_concept",'remove', "ef", "TRUC@")
+	print c.eval_variable("$ef[0:]" )
+	
+	c.eval_op_concept("gestion_concept",'add', "ef", "TRUC@")
+	print c.eval_variable("$ef[0:]" )	
+	data = c.eval_variable("$ent[20:25]")
+	print data
+	
+	data = c.eval_variable("$ent[20:25]")
+	L = data.split(",")
+	for element in L:
+		element= element.strip()
+		if element[-1] == '@' : continue
+		c.eval_op_concept("gestion_rep_concept",'add', "ef", "TRUC@",element)
+		
+	print c.eval_variable("$ef[0:]" )
+	for element in L:
+		element= element.strip()
+		if element[-1] == '@' : continue
+		c.eval_op_concept("gestion_rep_concept",'remove', "ef", "TRUC@",element)
+	print c.eval_op_concept("gestion_concept",'save', "ef")
+	print c.eval_variable("$ef[0:]" )
+	
+	print c.eval_variable("$cat_ent[0:]" )
+
+	print c.eval_op_concept("gestion_concept",'add', "ef", "ZIGO@")
+
+	print c.eval_op_concept("gestion_concept",'remove', "ef", "ZIGO@")
+
+	print c.eval_op_concept("gestion_concept",'save', "ef")
+
+
+	x = c.eval_fonct("getsem","plusieurs","$qualite" )
+	print x	
+	x = c.eval_variable("$volume_corpus" )
+	print x
+	L = c.eval_variable("$cat_ent[0:]" )
+	print L
+	L = L.split(",")
+	for element in L :
+		element = element.strip()
+		sem = c.eval_fonct("getsem",element,"$cat_ent" )
+		print element , "   ", sem , " val = ", c.eval_variable(sem +".val")
+		
+			
 	L = c.creer_msg_search ( u"$searchcs.rac" , u"La" , "0" )
 	for  x in L : print x
 	print c.eval(L)
