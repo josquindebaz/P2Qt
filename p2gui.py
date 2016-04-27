@@ -432,13 +432,26 @@ class Principal(QtGui.QMainWindow):
         if hasattr(self, "client"):
             self.authorsTab.L2.clear()
             row = self.authorsTab.L.currentRow()
+            if (row == -1): #if no author selected, take first
+                self.authorsTab.L.setCurrentRow(0)
+                row = 0
             which = Controller.semantiques[self.authorsTab.S.currentText()]
             ask = "$aut%s.%s[0:]" % (row, which)
-            result = self.client.eval_var(ask)
-            for i, el in enumerate(re.split(", ", result)):
-                ask = "$aut%s.%s%d.val" % (row, which, i)
-                val = self.client.eval_var(ask)
-                self.authorsTab.L2.addItem("%s %s"%(val, el))
+            result1 = self.client.eval_var(ask)
+            concepts = re.split(", ", result1)
+            #FIXME pb with act, pers mo undef
+            if which in ['$act']:
+                for i, el in enumerate(concepts):
+                    ask = "$aut%s.%s%d.val" % (row, which, i)
+                    val = self.client.eval_var(ask)
+                    self.authorsTab.L2.addItem("%s %s"%(val, el))
+            else:
+                ask2 = "$aut%s.val_freq_%s[0:]" % (row, which[1:])
+                result2 = self.client.eval_var(ask2)
+                result2 = re.split(", ", result2)
+                liste_valued = ["%s %s"%(int(val), concepts[row]) for row, 
+                            val in enumerate(result2)]
+                self.authorsTab.L2.addItems(liste_valued)
 
     def create_corpus_texts_tab(self):
         """create a tab for corpus texts"""
@@ -692,9 +705,6 @@ class Principal(QtGui.QMainWindow):
         which = self.NOT1.sort_command.currentText()
         typ = self.NOT1.select.currentText()
         if hasattr(self, "client"):
-            #scored = Controller.recup_scores(which, typ, self)
-            #self.change_liste(scored)
-
             sem = Controller.semantiques[typ]
             content = self.client.recup_liste_concept(self.sem_liste_concept)
             liste_final = []
@@ -707,8 +717,11 @@ class Principal(QtGui.QMainWindow):
                 self.PrgBar.perc(len(content))
 
                 sort = Controller.hash_sort[which]
-                if (sem == "$mo" and sort == "freq"):
-                    sort = "val"
+
+                #REMOVEME>
+                #if (sem == "$mo" and sort == "freq"):
+                #    sort = "val"
+                #REMOVEME>
 
                 #TODO correct for undef and mo
                 if sem not in ['$mo' ]:
