@@ -632,29 +632,43 @@ class Principal(QtGui.QMainWindow):
                 self.PrgBar.perc(len(content))
 
                 sort = Controller.hash_sort[which]
-                for row, concept in enumerate(content):
-                    ask = "%s%d.%s" % (sem, row, sort)
-                    result  = self.client.eval_var(ask)
 
-                    if (which  in ["first apparition", 
-                                                 "last apparition"]):
-                        val = re.sub(u"^\s*", "", result)
-                    else :
-                        val = int(result)
+                ask = "val_%s_%s[0:]" % (sort, sem[1:])
+                result  = self.client.eval_var(ask)
+                if (which  in ["first apparition", "last apparition"]):
+                    liste_valued = [[val, content[row]] for row, 
+                        val in enumerate(re.split(", ", result))]
+                else:
+                    liste_valued = [[int(val), content[row]] for row, 
+                        val in enumerate(re.split(", ", result))]
 
-                    if ((val == 1) and not (sem == "$ent" and which == "deployment")):
-                        list_resume = map(lambda x: [1, x], content[row:])
-                        liste_valued.extend(list_resume)
-                        break
-                    else: 
-                        liste_valued.append([val, content[row]])
-                        self.PrgBar.percAdd(1)
+                    #TODO the same for I et II
 
-                    #if (self.sem_concept == "$ent" 
-                            #and which_concepts == "deployment" and val == 0):
-                        #val = 1
-
-                self.PrgBar.reset()
+                    #REMOVEME>
+###                for row, concept in enumerate(content):
+###                    ask = "%s%d.%s" % (sem, row, sort)
+###                    result  = self.client.eval_var(ask)
+###
+###                    if (which  in ["first apparition", 
+###                                                 "last apparition"]):
+###                        val = re.sub(u"^\s*", "", result)
+###                    else :
+###                        val = int(result)
+###
+###                    if ((val == 1) and not (sem == "$ent" and which == "deployment")):
+###                        list_resume = map(lambda x: [1, x], content[row:])
+###                        liste_valued.extend(list_resume)
+###                        break
+###                    else: 
+###                        liste_valued.append([val, content[row]])
+###                        self.PrgBar.percAdd(1)
+###
+###                    #if (self.sem_concept == "$ent" 
+###                            #and which_concepts == "deployment" and val == 0):
+###                        #val = 1
+###
+###                self.PrgBar.reset()
+                    #<REMOVEME
 
                 liste_final = []
                 if (which == "alphabetically"):
@@ -695,28 +709,42 @@ class Principal(QtGui.QMainWindow):
                 sort = Controller.hash_sort[which]
                 if (sem == "$mo" and sort == "freq"):
                     sort = "val"
-                for row, concept in enumerate(content):
-                    ask = "%s%d.%s" % (sem, row, sort)
-                    result  = self.client.eval_var(ask)
 
-                    if (which  in ["first apparition", 
-                                                 "last apparition"]):
-                        val = re.sub(u"^\s*", "", result)
-                    else :
-                        try:
-                            val = int(result)
-                        except:
-                            print "C32607", result
-
-                    if val == 1:
-                        list_resume = map(lambda x: [1, x], content[row:])
-                        liste_valued.extend(list_resume)
-                        break
-                    else: 
-                        liste_valued.append([val, content[row]])
-                        self.PrgBar.percAdd(1)
-
-                self.PrgBar.reset()
+                #TODO correct for undef and mo
+                if sem not in ['$mo' ]:
+                    ask = "val_%s_%s[0:]" % (sort, sem[1:])
+                    result  = re.split(', ', self.client.eval_var(ask))
+                    if sem in ['$undef']:
+                        print "C18389", len(result), len(content)
+                        result = result[:len(content)]
+                    if (which  in ["first apparition", "last apparition"]):
+                        liste_valued = [[val, content[row]] for row, 
+                            val in enumerate(result)]
+                    else:
+                        liste_valued = [[int(val), content[row]] for row, 
+                            val in enumerate(result)]
+                else:
+                    #REMOVEME>
+                    for row, concept in enumerate(content):
+                        ask = "%s%d.%s" % (sem, row, sort)
+                        result  = self.client.eval_var(ask)
+                        if (which  in ["first apparition", 
+                                                     "last apparition"]):
+                            val = re.sub(u"^\s*", "", result)
+                        else :
+                            try:
+                                val = int(result)
+                            except:
+                                print "C32607", result
+                        if val == 1:
+                            list_resume = map(lambda x: [1, x], content[row:])
+                            liste_valued.extend(list_resume)
+                            break
+                        else: 
+                            liste_valued.append([val, content[row]])
+                            self.PrgBar.percAdd(1)
+                    self.PrgBar.reset()
+                    #<REMOVEME
 
                 liste_final = []
                 if (which == "alphabetically"):
