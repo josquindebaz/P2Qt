@@ -1593,13 +1593,10 @@ class Principal(QtGui.QMainWindow):
                 #transform txt filename to sem
                 list_sems = map(lambda k: self.preCompute.dicTxtSem[k], liste_textes)
                 #get element occurences in texts
-                lt_valued = {}
-                self.PrgBar.perc(len(list_sems))
-                for i, t in enumerate(list_sems):
-                    ask = "%s.txt%s.val"%(sem, i)
-                    lt_valued[t] = int(self.client.eval_var(ask))
-                    self.PrgBar.percAdd(1)
-                #send to display
+                ask = "%s.txt[0:].val"%(sem)
+                r = self.client.eval_var(ask)
+                result = re.split(', ', r)
+                lt_valued = { list_sems[i]: int(val) for i, val in enumerate(result)}
                 self.show_texts(element, lt_valued)
 
     def lexicon_or_concepts(self):
