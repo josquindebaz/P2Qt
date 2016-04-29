@@ -411,8 +411,10 @@ class Principal(QtGui.QMainWindow):
             row = self.actantsTab.L.currentRow()
             cur = self.actantsTab.L.currentItem().text()
             ask = "$act%s.res[0:]" % (row)
+            print ask
             result = self.client.eval_var(ask)
             network = re.split(", ", result)
+            print network
             if len(network):
                 for r in range(self.actantsTab.L.count()):
                     element = self.actantsTab.L.item(r).text()
@@ -1110,22 +1112,16 @@ class Principal(QtGui.QMainWindow):
         self.activity(self.tr("Displaying %d actants")%len(list_results))
         self.NOTs.setCurrentIndex(0)
         self.actantsTab.L.clear()
-        self.PrgBar.perc(len(list_results))
-        n = 0
-        for i, act in enumerate(list_results):
-            ask = u"$act%d.txt[0:]" % i 
-            result = self.client.eval_var(ask)
-            n = len(re.split(", ", result))
-            if n == 1:
-                list_resume = map(lambda x: "1 %s"%x, list_results[i:])
-                self.actantsTab.L.addItems(list_resume)
-                break
-            else:
-                self.actantsTab.L.addItem("%d %s" % (n, act))
-                self.PrgBar.percAdd(1)
 
-        self.actantsTab.L.currentItemChanged.connect(self.actsLchanged)
-        self.PrgBar.reset()
+        if len(list_results) > 0:
+            ask2 = u"val_freq_act[0:]" 
+            result2 = self.client.eval_var(ask2)
+            list_val = re.split(", ", result2)
+            liste_valued = ["%d %s"%(int(val), list_results[row]) 
+                for row, val in enumerate(list_val)]
+            self.actantsTab.L.addItems(liste_valued)
+        
+            self.actantsTab.L.currentItemChanged.connect(self.actsLchanged)
 
     def codex_window(self):
         codex_w = codex_window(self)
@@ -1212,6 +1208,8 @@ class Principal(QtGui.QMainWindow):
                     liste_valued = ["%s %s"% (int(val),
                         self.list_element_items[row]) for row, val in enumerate(list_val)]
                     self.text_elements.element_list.addItems(liste_valued)
+                    self.list_elements_valued = { self.list_element_items[row]: int(val) 
+                        for row, val in enumerate(list_val) }
                 else:
                     self.list_elements_valued = {}
                     val = False 
