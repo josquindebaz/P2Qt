@@ -1200,18 +1200,31 @@ class Principal(QtGui.QMainWindow):
             self.text_element_depl = []
             if (list_element != u''):
                 self.list_element_items = re.split(", ", list_element)
-                self.list_elements_valued = {}
-                val = False 
-                for i, item in enumerate(self.list_element_items):
-                    ask = u"%s.%s%d.val"%(self.semantique_txt_item, sem_concept, i)
-                    val = int(self.client.eval_var(ask))
-                    if (val == 1):
-                        list_resume = map(lambda x: "1 %s"%x, self.list_element_items[i:])
-                        self.text_elements.element_list.addItems(list_resume)
-                        break
-                    else:
-                        self.list_elements_valued[self.list_element_items[i]] = val
-                        self.text_elements.element_list.addItem("%d %s"%(val, item))
+                #FIXME for pers and undef too
+                if sem_concept not in ['$pers', '$undef']:
+                    ask = "%s.val_freq_%s[0:]" % (self.semantique_txt_item,
+                        sem_concept[1:])
+                    list_val = re.split(', ', self.client.eval_var(ask))
+                    #FIXME should be same size
+                    if len(list_val) > len(self.list_element_items):
+                        print "C15323 different list size", len(list_val) , len(self.list_element_items)
+                        list_val = list_val[:len(self.list_element_items)]
+                    liste_valued = ["%s %s"% (int(val),
+                        self.list_element_items[row]) for row, val in enumerate(list_val)]
+                    self.text_elements.element_list.addItems(liste_valued)
+                else:
+                    self.list_elements_valued = {}
+                    val = False 
+                    for i, item in enumerate(self.list_element_items):
+                        ask = u"%s.%s%d.val"%(self.semantique_txt_item, sem_concept, i)
+                        val = int(self.client.eval_var(ask))
+                        if (val == 1):
+                            list_resume = map(lambda x: "1 %s"%x, self.list_element_items[i:])
+                            self.text_elements.element_list.addItems(list_resume)
+                            break
+                        else:
+                            self.list_elements_valued[self.list_element_items[i]] = val
+                            self.text_elements.element_list.addItem("%d %s"%(val, item))
 
     def deploie_text_elements(self):
         item = self.text_elements.element_list.currentItem().text()
