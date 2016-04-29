@@ -411,10 +411,8 @@ class Principal(QtGui.QMainWindow):
             row = self.actantsTab.L.currentRow()
             cur = self.actantsTab.L.currentItem().text()
             ask = "$act%s.res[0:]" % (row)
-            print ask
             result = self.client.eval_var(ask)
             network = re.split(", ", result)
-            print network
             if len(network):
                 for r in range(self.actantsTab.L.count()):
                     element = self.actantsTab.L.item(r).text()
@@ -1363,7 +1361,7 @@ class Principal(QtGui.QMainWindow):
 
         # les collections
         # on met toutes les collections parce que leur émergence est donnée par leur déploiement
-        #TODO ordonner, saillantes
+        #TODO saillantes
         self.saillantes.Col.clear()
         self.saillantesCol_deployees = []
         list_col_sem = "%s.col[0:]" % sem_txt
@@ -1372,13 +1370,13 @@ class Principal(QtGui.QMainWindow):
         if (result != u""):
             self.list_col = re.split(", ", result)   
             self.list_col_valued = {}
-            self.PrgBar.perc(len(self.list_col))
-            for i in range(len(self.list_col)) :
-                val = int(self.client.eval_var(u"%s.col%d.dep"%(sem_txt, i)))
-                #FIXME list index out of range
-                self.saillantes.Col.addItem(u"%d %s" % (val, self.list_col[i]))
-                self.list_col_valued[self.list_col[i]] = val
-                self.PrgBar.percAdd (1)
+            vals = re.split(', ', self.client.eval_var("%s.val_dep_col[0:]"%(sem_txt)))
+            if len(vals) > len(self.list_col):
+                print "C31277 different list size"
+                vals = vals[:len(self.list_col)]
+            liste_valued = ["%d %s"%(int(val), self.list_col[row]) for row, val in enumerate(vals)]
+            self.list_col_valued = {self.list_col[row]: int(val) for row, val in enumerate(vals)}
+            self.saillantes.Col.addItems(liste_valued)
 
     def deploie_Col(self):
         item = self.saillantes.Col.currentItem().text()
