@@ -1256,7 +1256,9 @@ class Principal(QtGui.QMainWindow):
        
     def show_sailent(self, sem_txt): 
         #TODO signaler indéfinis importants
+
         #les actants
+
         #les actants en tête sont calculés par le serveur
         #    ex entre 0 et 4 pages :  le poids mini d'un actant est de 2 , le nbre d'actants ideal est 5
         #    ex entre 5 et 9 pages :  le poids mini d'un actant est de 3 , le nbre d'actants ideal est 7
@@ -1284,80 +1286,67 @@ class Principal(QtGui.QMainWindow):
         #    {100,-1,  12 ,10},
         #};
 
-
-
         self.saillantes.Act.clear()
         self.saillantesAct_deployes = []
         list_act_sem = "%s.act[0:]" % sem_txt
         result = self.client.eval_var(list_act_sem)
-        list_act = result.split(',')
-        list_act_sem_val = list_act_sem + ".val"
-        result = self.client.eval_var(list_act_sem_val)
-        list_act_val = result.split(',')
-        for pos, act in enumerate(list_act):
-            self.client.add_cache_var("%s.act%s"%(sem_txt, pos), act)
-            self.client.add_cache_var("%s.act%s.val"%(sem_txt, pos), list_act_val[pos])
-        if (list_act):
-            #self.list_act = re.split(", ", list_act)
-            self.list_act = list_act
-            self.liste_act_valued = {}
-            self.PrgBar.perc(len(self.list_act))
-            for i in range(len(self.list_act)) :
-                val = int(self.client.eval_var(u"%s.act%d.val"%(sem_txt, i)))
-                
-                self.liste_act_valued [self.list_act[i]] = [ val, 0 ] 
-                self.saillantes.Act.addItem(u"%d %s" % (val, self.list_act[i]))
-                self.PrgBar.percAdd (1)
+        self.list_act = result.split(',')
+
+        if len(self.list_act) > 0:
+            ask = "%s.val_freq_act[0:]"%(sem_txt)
+            result = self.client.eval_var(ask)
+            list_val = re.split(', ',result) 
+            liste_valued = ["%d %s"%(int(val), self.list_act[row])
+                for row, val in enumerate(list_val)]
+            self.saillantes.Act.addItems(liste_valued)
+            self.liste_act_valued = { self.list_act[i]: [int(val), 0] 
+                for i, val in enumerate(list_val) }
 
         #les catégories
-        #le serveur renvoie toutes les éléments de la catégorie
-        #si len(cat_ent[0:]) > 2, deux algos a tester pour économiser les interactions avec le serveur :
-        # si cat_ent0.val < len(cat_ent[0:]) on approxime le cumul des frequences de valeur par celui du rapport du nb d'element analysés sur le nb d'element total qu'on multiplie par cat_ent0.val, on arrête quand on atteint 0,5 ou on affiche les cat tant qu'elles ont le même score
-        # si cat_ent0.val > len(cat_ent[0:]) on fait le rapport des valeurs cumulees sur la somme totale si les valeurs suivantes avaient le même score que le dernier obtenu : Val_cumul / ((len(cat_ent[0:]) - i) * cat_ent[i].val + Val_cumul) on s'arrete en atteignant 0,25 ou etc
 
-        self.list_cat_valued = {}
-        self.list_cat_txt = {} 
         self.saillantes.Cat.clear()
         self.saillantesCat_deployes = []
-        #for typ in [u"cat_qua", u"cat_mar", u"cat_epr", u"cat_ent"]:
-        for typ in [u"cat_ent"]: #uniquement les cat_ent
+        liste_cats = []
+        self.list_cat_txt = {} 
+
+        for typ in [u"cat_qua", u"cat_mar", u"cat_epr", u"cat_ent"]:
             list_cat_sem = "%s.%s[0:]" % (sem_txt, typ)
-            list_cat  = self.client.eval_var(list_cat_sem)
+            list_cat  = re.split(', ', self.client.eval_var(list_cat_sem))
 
-            if (list_cat != u''):
-                list_cat_items = re.split(", ", list_cat)
-                for r, c in enumerate(list_cat_items):
-                    self.list_cat_txt[c] = [typ, r]
-                cum = 0
-                old_val = 0
-                #old_val2 = 0
-                self.PrgBar.perc(len(list_cat_items))
-                for i in range(len(list_cat_items)):
-                    ask = u"%s.%s%d.val"%(sem_txt, typ, i)
-                    val = int(self.client.eval_var(ask))
-                    
-                    if (val < old_val):
-                        break
-                    cum += val
-                    C = float(cum) / (cum + ((len(list_cat_items) - i) * val))
-                    #C2 = float(i) / len(list_cat_items) * val
-                    #if (C2 > 0.50 and old_val2 == 0) :
-                    #       old_val2 = val  
-                    if (C > 0.25 and old_val == 0) :
-                        old_val = val   
-                    self.list_cat_valued[list_cat_items[i]] = val
-                    self.PrgBar.percAdd (1)
+            if (list_cat != [u'']):
+                for r, c in enumerate(list_cat):
+                    self.list_cat_txt[c] =  [typ, r] 
+                ask = "%s.val_freq_%s[0:]"%(sem_txt, typ)
+                result = self.client.eval_var(ask)
+                list_val = re.split(', ',result) 
+                #FIXME should have same size
+                if len(list_val) > len(list_cat):
+                    print "C31278 different list size"
+                    list_val = list_val[:len(list_cat)]
+                try:
+                    liste_valued = [ [int(val), list_cat[row]] for row, val in enumerate(list_val) ]
+                except:
+                    print "C9338", list_cat, list_val
+                liste_cats.extend(liste_valued)
 
-        self.list_cat_valued_ord = []
-        for cat in sorted(self.list_cat_valued.items(), key = lambda(k, v) : v, reverse=1):
-            self.list_cat_valued_ord.append(cat[0])
-            resume = u"%d %s" % (int(cat[1]), cat[0])
-            #if int(cat[1]) < old_val:
-            #       resume = "D" + resume
-            #if int(cat[1]) < old_val2:
-            #       resume = "E" + resume
-            self.saillantes.Cat.addItem(resume)
-            
+        #if less tan 4 cat, show them all
+        #show until reached .5 of cumulated frequencies (show exaequo)
+        liste_cats.sort(reverse=True)
+        if len(liste_cats) <=4 : 
+            self.list_cat_aff = ["%d %s"%(val, el) for val, el in liste_cats] 
+        else:
+            self.list_cat_aff = []
+            somme = sum(map(lambda x: x[0], liste_cats))
+            cum = 0
+            old_val = False 
+            for val, el in liste_cats:
+                cum += val 
+                if (float(cum)/somme < 0.5) or (val == old_val):
+                    self.list_cat_aff.append("%d %s"%(val, el))
+                    old_val = val
+                else:
+                    break 
+        self.saillantes.Cat.addItems(self.list_cat_aff)
 
         # les collections
         # on met toutes les collections parce que leur émergence est donnée par leur déploiement
@@ -1413,9 +1402,9 @@ class Principal(QtGui.QMainWindow):
         item = self.saillantes.Cat.currentItem().text()
         item = re.sub("^\s*\d* ", "", item)
         self.saillantes.Cat.clear()
-        for cat in self.list_cat_valued_ord:
-            resume = u"%d %s" % (self.list_cat_valued[cat], cat)
+        for resume in self.list_cat_aff:
             self.saillantes.Cat.addItem(resume)
+            cat = re.sub("^\s*\d* ", "", resume)
 
             if ((cat == item) and (item in self.saillantesCat_deployes)):
                 self.saillantesCat_deployes.remove(item)
@@ -1430,14 +1419,11 @@ class Principal(QtGui.QMainWindow):
                 if (result != u''):
                     result = re.split(", ", result)
                     for sub_n in range(len(result)) :
-                        if (result[sub_n] not in self.list_cat_valued.keys()):
-                            ask = "%s.%s%d.rep_present%d.val"%(self.semantique_txt_item, 
-                                sem[0], sem[1], sub_n)
-                            res = self.client.eval_var(ask)
-                            self.list_cat_valued[result[sub_n]] = res
+                        ask = "%s.%s%d.rep_present%d.val"%(self.semantique_txt_item, 
+                            sem[0], sem[1], sub_n)
+                        res = self.client.eval_var(ask)
                         i = QtGui.QListWidgetItem()
-                        i.setText(u"  %s %s"%(self.list_cat_valued[result[sub_n]][0], 
-                            result[sub_n]))
+                        i.setText(u"  %s %s"%(res, result[sub_n]))
                         #i.setBackground(QtGui.QColor(245,245,245))
                         i.setBackground(QtGui.QColor(237,243,254)) # cyan
                         self.saillantes.Cat.addItem(i)
