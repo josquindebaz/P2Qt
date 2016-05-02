@@ -439,8 +439,8 @@ class Principal(QtGui.QMainWindow):
             ask = "$aut%s.%s[0:]" % (row, which)
             result1 = self.client.eval_var(ask)
             concepts = re.split(", ", result1)
-            #FIXME pb with act, pers mo undef
-            if which in ['$act']:
+            #FIXME pb no answer for pers & undef, different sizes for act
+            if which in ['$pers', '$undef', '$act']:
                 for i, el in enumerate(concepts):
                     ask = "$aut%s.%s%d.val" % (row, which, i)
                     val = self.client.eval_var(ask)
