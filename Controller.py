@@ -397,7 +397,6 @@ class preCompute(object):
             '$epr',
             '$pers',
             '$undef',
-            '$act',
             '$expr',
             '$cat_ent',
             '$cat_epr',
