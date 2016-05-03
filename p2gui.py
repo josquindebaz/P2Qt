@@ -1113,8 +1113,9 @@ class Principal(QtGui.QMainWindow):
         self.actantsTab.L.clear()
 
         if len(list_results) > 0:
-            ask2 = u"val_freq_act[0:]" 
-            #ask2 = u"val_nbtxt_act[0:]" 
+            #ask2 = u"val_freq_act[0:]" 
+            #TODO order values
+            ask2 = u"val_nbtxt_act[0:]" 
             result2 = self.client.eval_var(ask2)
             list_val = re.split(", ", result2)
             liste_valued = ["%d %s"%(int(val), list_results[row]) 
@@ -1515,13 +1516,18 @@ class Principal(QtGui.QMainWindow):
 
         if (len(result_network)):
             valued = []
-            self.PrgBar.perc(len(result_network))
-            for i, el in enumerate(result_network):
-                #TODO vérifier les scores
-                ask = "%s.res%d.val"%(sem, i)
-                val = self.client.eval_var(ask)
-                valued.append("%s %s"%(val, el))
-                self.PrgBar.percAdd(1)
+            ask2 = "%s.res[0:].val"%sem
+            print ask2
+            result = self.client.eval_var(ask2)
+            print result
+            #REMOVEME
+            #self.PrgBar.perc(len(result_network))
+            #for i, el in enumerate(result_network):
+                ##TODO vérifier les scores
+                #ask = "%s.res%d.val"%(sem, i)
+                #val = self.client.eval_var(ask)
+                #valued.append("%s %s"%(val, el))
+                #self.PrgBar.percAdd(1)
             network_view = Viewer.NetworksViewer(valued)
             network_view.elements.setValue(len(result_network))
 
