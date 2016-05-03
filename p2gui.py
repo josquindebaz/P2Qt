@@ -419,6 +419,7 @@ class Principal(QtGui.QMainWindow):
                     if (element != cur):
                         val, el = Controller.sp_el(element)
                         if (el not in network):
+                            #TODO incompatibilities : not actant in the same text
                             self.actantsTab.L2.addItem(element)
                         else:
                             #ask = "$act%s.res%d.val" % (row, r)
@@ -1112,7 +1113,7 @@ class Principal(QtGui.QMainWindow):
         self.actantsTab.L.clear()
 
         if len(list_results) > 0:
-            ask2 = u"val_freq_act[0:]" 
+            ask2 = u"val_nbtxt_act[0:]" 
             result2 = self.client.eval_var(ask2)
             list_val = re.split(", ", result2)
             liste_valued = ["%d %s"%(int(val), list_results[row]) 
