@@ -1518,7 +1518,8 @@ class ConnecteurPII (threading.Thread):
 		lmess = [] # contiendra les messages à envoyer à P-II
 		
 		# signature particuliere pour les .res
-		signature = self.getSignature(data)
+		#signature = self.getSignature(data)
+                signature = data
 		lmess.append("E:" + signature)
 
 		last_var_expr = ''  # pour l'accrochage des args  V:phadt:phadt0 --> V:phadt:phadt0.+xxx+yyy

@@ -1282,10 +1282,11 @@ class Principal(QtGui.QMainWindow):
                 ask = "%s.val_freq_%s[0:]"%(sem_txt, typ)
                 result = self.client.eval_var(ask)
                 list_val = re.split(', ',result) 
-                #FIXME should have same size
-                if len(list_val) > len(list_cat):
+
+                #REMOVEME should have same size
+                if len(list_val) != len(list_cat):
                     print "C31278 different list size"
-                    list_val = list_val[:len(list_cat)]
+
                 try:
                     liste_valued = [ [int(val), list_cat[row]] for row, val in enumerate(list_val) ]
                 except:
@@ -1315,8 +1316,6 @@ class Principal(QtGui.QMainWindow):
 
 
         # les collections
-        # on met toutes les collections parce que leur émergence est donnée par leur déploiement
-        #TODO saillantes
         self.saillantesCol_deployees = []
         list_col_sem = "%s.col[0:]" % sem_txt
         result = self.client.eval_var(list_col_sem)
@@ -1325,11 +1324,17 @@ class Principal(QtGui.QMainWindow):
             self.list_col = re.split(", ", result)   
             self.list_col_valued = {}
             vals = re.split(', ', self.client.eval_var("%s.val_dep_col[0:]"%(sem_txt)))
-            if len(vals) > len(self.list_col):
+
+            #REMOVEME since its fixed
+            if len(vals) != len(self.list_col):
                 print "C31277 different list size"
-                vals = vals[:len(self.list_col)]
-            liste_valued = ["%d %s"%(int(val), self.list_col[row]) for row, val in enumerate(vals)]
-            self.list_col_valued = {self.list_col[row]: int(val) for row, val in enumerate(vals)}
+
+            liste_valued = []
+            for row, val in enumerate(vals):
+                self.list_col_valued[self.list_col[row]] = int(val) 
+                liste_valued.append([int(val), self.list_col[row]]) 
+            liste_valued = ["%d %s"%(val, item) for val, item 
+                in sorted(liste_valued, reverse=True)]
             self.saillantes.Col.addItems(liste_valued)
 
         self.PrgBar.percAdd(12)
