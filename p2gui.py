@@ -692,42 +692,20 @@ class Principal(QtGui.QMainWindow):
 
                 sort = Controller.hash_sort[which]
 
-                #TODO correct for undef and mo
-                if sem not in ['$mo' ]:
-                    ask = "val_%s_%s[0:]" % (sort, sem[1:])
-                    result  = re.split(', ', self.client.eval_var(ask))
-                    if sem in ['$undef']:
-                        print "C18389", len(result), len(content)
-                        result = result[:len(content)]
-                    if (which  in ["first apparition", "last apparition"]):
-                        liste_valued = [[val, content[row]] for row, 
-                            val in enumerate(result)]
-                    else:
-                        liste_valued = [[int(val), content[row]] for row, 
-                            val in enumerate(result)]
+                ask = "val_%s_%s[0:]" % (sort, sem[1:])
+                result  = re.split(', ', self.client.eval_var(ask))
+                #FIXME does not return anything for undef
+                if sem in ['$undef']:
+                    print "C18389", len(result), len(content)
+                    print ask
+                    result = result[:len(content)]
+                if (which  in ["first apparition", "last apparition"]):
+                    liste_valued = [[val, content[row]] for row, 
+                        val in enumerate(result)]
                 else:
-                    #REMOVEME>
-                    for row, concept in enumerate(content):
-                        ask = "%s%d.%s" % (sem, row, sort)
-                        result  = self.client.eval_var(ask)
-                        if (which  in ["first apparition", 
-                                                     "last apparition"]):
-                            val = re.sub(u"^\s*", "", result)
-                        else :
-                            try:
-                                val = int(result)
-                            except:
-                                print "C32607", result
-                        if val == 1:
-                            list_resume = map(lambda x: [1, x], content[row:])
-                            liste_valued.extend(list_resume)
-                            break
-                        else: 
-                            liste_valued.append([val, content[row]])
-                            self.PrgBar.percAdd(1)
-                    self.PrgBar.reset()
-                    #<REMOVEME
-
+                    liste_valued = [[int(val), content[row]] for row, 
+                        val in enumerate(result)]
+                
                 liste_final = []
                 if (which == "alphabetically"):
                     for i in sorted(liste_valued, key=lambda x: x[1], reverse = 0):
@@ -758,11 +736,11 @@ class Principal(QtGui.QMainWindow):
             sem = Controller.semantiques[self.NOT1.select.currentText()]
             #FIXME $qual whereas elsewhere $qualite
             if (sem == '$qualite'):
+                print "C32584 changed $qual for $qualite"
                 self.semantique_lexicon_item_0 = re.sub('$qual', '$qualite',
                     self.client.eval_get_sem(item, "$qual"))
             else :
                 self.semantique_lexicon_item_0 = self.client.eval_get_sem(item, sem) 
-            #print "C122743", item, sem, self.semantique_lexicon_item_0
 
     def cdep0_changed(self,level):
         """ suite au changement de sélection, mettre à jour les vues dépendantes """ 
@@ -793,6 +771,7 @@ class Principal(QtGui.QMainWindow):
             if (result != [u'']):
                 if (sem in ["$cat_ent", "$cat_epr", "$cat_mar", "$cat_qua"]):
                     #display directly on II list
+
                     liste_scoree = []
                     self.PrgBar.perc(len(result))
 
