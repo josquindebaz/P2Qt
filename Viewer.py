@@ -1105,7 +1105,7 @@ class NetworksViewer(object):
         Network_list.addItems(items)
         show_network_box.addWidget(Network_list)
 
-        G = QtGui.QGroupBox("Export")
+        G = QtGui.QGroupBox()
         H.addWidget(G)
         V = QtGui.QVBoxLayout()
         V.setContentsMargins(0,0,0,0) 

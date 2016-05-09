@@ -1485,31 +1485,26 @@ class Principal(QtGui.QMainWindow):
         res_semantique = "%s.res[0:]" % (sem)
 
         result_network =   re.split(", ", self.client.eval_var(res_semantique))
+        #FIXME give sometimes the values instead of the elements
         
-        self.activity(self.tr("Displaying network for %s (%d items)")% (element,
-                 len(result_network)))
-
         if (len(result_network)):
-            valued = []
             ask2 = "%s.res[0:].val"%sem
-            print ask2
-            result = self.client.eval_var(ask2)
-            print result
-            #REMOVEME
-            #self.PrgBar.perc(len(result_network))
-            #for i, el in enumerate(result_network):
-                ##TODO vérifier les scores
-                #ask = "%s.res%d.val"%(sem, i)
-                #val = self.client.eval_var(ask)
-                #valued.append("%s %s"%(val, el))
-                #self.PrgBar.percAdd(1)
-            network_view = Viewer.NetworksViewer(valued)
-            network_view.elements.setValue(len(result_network))
+            result = re.split(", ", self.client.eval_var(ask2))
+            if (result == result_network):
+                print "C5073 %s has given values instead of element list" % res_semantique
+            else :
+                valued = ["%d %s" % (int(val), result_network[row]) for row, val in
+                    enumerate(result)]
+                network_view = Viewer.NetworksViewer(valued)
+                network_view.elements.setValue(len(result_network))
 
-        index = self.tabNetworks.addTab(network_view.show_network_widget, element)
-        self.tabNetworks.setTabToolTip(index, element)
-        self.tabNetworks.setCurrentIndex(index)
-        self.NOTs.setCurrentIndex(self.networks_tab_index)
+                index = self.tabNetworks.addTab(network_view.show_network_widget, element)
+                self.tabNetworks.setTabToolTip(index, element)
+                self.tabNetworks.setCurrentIndex(index)
+                self.NOTs.setCurrentIndex(self.networks_tab_index)
+
+                self.activity(self.tr("Displaying network for %s (%d items)")% (element,
+                         len(result_network)))
 
     def explo_item_selected(self):
         self.explorer_widget.explo_lexi.clear()
