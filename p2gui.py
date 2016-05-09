@@ -343,22 +343,23 @@ class Principal(QtGui.QMainWindow):
     #début des fonctions
     ################################################
 
-    def pre_calcule(self):
-        self.activity(self.tr("Caching text values"))
-        self.preCompute = Controller.preCompute(self)
-        self.listeObjetsTextes = self.preCompute.listeObjetsTextes
-
-        self.CTXs.l.clear()
-        self.CTXs.l.addItems(self.preCompute.liste_champs_ctx)
-        # associated values
-        max_compteur = len(self.preCompute.type_var) * len(self.preCompute.type_calcul)
-        self.PrgBar.perc(max_compteur)
-        for typ in self.preCompute.type_var :
-            self.activity(self.tr("Caching values for %s") % typ)
-            for calc in self.preCompute.type_calcul:
-                self.preCompute.cacheAssocValue(typ, calc)
-                self.PrgBar.percAdd(1)
+#REMOVEME>
+    #def pre_calcule(self):
+        #self.activity(self.tr("Caching text values"))
+        #self.preCompute = Controller.preCompute(self)
+        #self.listeObjetsTextes = self.preCompute.listeObjetsTextes
+        #self.CTXs.l.clear()
+        #self.CTXs.l.addItems(self.preCompute.liste_champs_ctx)
+        ## associated values
+        #max_compteur = len(self.preCompute.type_var) * len(self.preCompute.type_calcul)
+        #self.PrgBar.perc(max_compteur)
+        #for typ in self.preCompute.type_var :
+            #self.activity(self.tr("Caching values for %s") % typ)
+            #for calc in self.preCompute.type_calcul:
+                #self.preCompute.cacheAssocValue(typ, calc)
+                #self.PrgBar.percAdd(1)
         #TODO get concepts for search engine
+#REMOVEME>
 
     def activity(self, message):
         """Add message to the journal"""
@@ -391,11 +392,11 @@ class Principal(QtGui.QMainWindow):
             ask = "$aut%d.nbpg" % i 
             nbpg = self.client.eval_var(ask)
             firstTxt = txts[0]
-            firstTxt = self.listeObjetsTextes[self.preCompute.dicTxtSem[firstTxt]]
+            firstTxt = self.listeObjetsTextes[self.dicTxtSem[firstTxt]]
             firstDate = firstTxt.getCTX("date")
             firstDate = firstDate[0:10]
             lastTxt = txts[-1]
-            lastTxt = self.listeObjetsTextes[self.preCompute.dicTxtSem[lastTxt]]
+            lastTxt = self.listeObjetsTextes[self.dicTxtSem[lastTxt]]
             lastDate = lastTxt.getCTX("date")
             lastDate = lastDate[0:10]
             item.setToolTip("<table><tr><th colspan=\"2\">%s</th></tr><tr><td>number of texts</td><td align=\"right\">%d</td><tr><td>number of pages</td><td align=\"right\">%s</td></tr><tr><td>first text date</td><td align=\"right\">%s</td></tr><tr><td>last text date</td><td align=\"right\">%s</td></tr></table>"%(aut, n, nbpg, firstDate, lastDate))
@@ -458,10 +459,11 @@ class Principal(QtGui.QMainWindow):
         """create a tab for corpus texts"""
         #FIXME reset if open a new corpus
         self.destroy_texts_tabs()
-        n = len(self.preCompute.listeTextes)
+
+        n = len(self.listeObjetsTextes)
         self.activity(self.tr("Displaying text list (%d items)") % n)
         self.CorpusTexts = Viewer.ListTexts(False,
-            self.preCompute.dicTxtSem.values(), self.listeObjetsTextes, self)
+            self.dicTxtSem.values(), self.listeObjetsTextes, self)
         self.CorpusTexts.corpus.itemSelectionChanged.connect(self.onSelectText)
         self.SOT1.addTab(self.CorpusTexts, self.tr("corpus (%d)")%n)
         Viewer.hide_close_buttons(self.SOT1,0) #corpus text tab permanent
@@ -658,32 +660,6 @@ class Principal(QtGui.QMainWindow):
 
                     #TODO the same for I et II
 
-                    #REMOVEME>
-###                for row, concept in enumerate(content):
-###                    ask = "%s%d.%s" % (sem, row, sort)
-###                    result  = self.client.eval_var(ask)
-###
-###                    if (which  in ["first apparition", 
-###                                                 "last apparition"]):
-###                        val = re.sub(u"^\s*", "", result)
-###                    else :
-###                        val = int(result)
-###
-###                    if ((val == 1) and not (sem == "$ent" and which == "deployment")):
-###                        list_resume = map(lambda x: [1, x], content[row:])
-###                        liste_valued.extend(list_resume)
-###                        break
-###                    else: 
-###                        liste_valued.append([val, content[row]])
-###                        self.PrgBar.percAdd(1)
-###
-###                    #if (self.sem_concept == "$ent" 
-###                            #and which_concepts == "deployment" and val == 0):
-###                        #val = 1
-###
-###                self.PrgBar.reset()
-                    #<REMOVEME
-
                 liste_final = []
                 if (which == "alphabetically"):
                     for i in sorted(liste_valued, key=lambda x: x[1], reverse = 0):
@@ -718,11 +694,6 @@ class Principal(QtGui.QMainWindow):
                 self.PrgBar.perc(len(content))
 
                 sort = Controller.hash_sort[which]
-
-                #REMOVEME>
-                #if (sem == "$mo" and sort == "freq"):
-                #    sort = "val"
-                #REMOVEME>
 
                 #TODO correct for undef and mo
                 if sem not in ['$mo' ]:
@@ -1037,24 +1008,31 @@ class Principal(QtGui.QMainWindow):
         if (self.client.etat):
             # donne le focus a l'onglet journal
             self.NETs.setCurrentIndex(self.journal_index)
-            # calcule en avance
-            self.pre_calcule()
-            #display info in the toolbar
-            if name != "":
-                message = "Corpus \"%s\" %s texts %s pages ? volume" % (name,
-                    self.preCompute.nbtxt, self.preCompute.nbpg)
-            else:
-                message = "%s texts %s pages ? volume" % (self.preCompute.nbtxt, 
-                    self.preCompute.nbpg)
-            self.toolbar_descr_corpus.setText(message)
-            #TODO display volume
 
             #show actants
             self.display_actants()
 
+            #recup CTX and TXT
+            recupTXT = Controller.recupTXT_CTX(self) 
+            self.listeObjetsTextes = recupTXT.listeObjetsTextes
+            self.dicTxtSem = recupTXT.dicTxtSem
+
             #Show corpus texts list on its own tab
             self.create_corpus_texts_tab()
 
+            #provide contexts
+            self.CTXs.l.clear()
+            self.CTXs.l.addItems(recupTXT.liste_champs_ctx)
+
+            #display info in the toolbar
+            #TODO display volume
+            nbpg = self.client.eval_var("$nbpg")
+            nbtxt = self.client.eval_var("$nbtxt")
+            if name != "":
+                message = "<b>%s</b> %s texts %s pages ? volume" % (name, nbtxt, nbpg)
+            else:
+                message = "%s texts %s pages ? volume" % (nbtxt, nbpg)
+            self.toolbar_descr_corpus.setText(message)
         
     def disconnect_server(self):
         """Disconnect"""
@@ -1573,7 +1551,7 @@ class Principal(QtGui.QMainWindow):
         print "C17307", ask, result
         liste_textes = re.split(", ", result)
         lt_valued = {}
-        list_sems = map(lambda k: self.preCompute.dicTxtSem[k], liste_textes)
+        list_sems = map(lambda k: self.dicTxtSem[k], liste_textes)
         for i in list_sems:
         #TODO scorer/trier
             lt_valued[i] = 1
@@ -1594,7 +1572,7 @@ class Principal(QtGui.QMainWindow):
                 liste_textes = re.split(", ", result) 
                 self.activity(self.tr("Displaying %d texts for %s") % (len(liste_textes), element))
                 #transform txt filename to sem
-                list_sems = map(lambda k: self.preCompute.dicTxtSem[k], liste_textes)
+                list_sems = map(lambda k: self.dicTxtSem[k], liste_textes)
                 #get element occurences in texts
                 ask = "%s.txt[0:].val"%(sem)
                 r = self.client.eval_var(ask)
