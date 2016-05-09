@@ -409,9 +409,10 @@ class Principal(QtGui.QMainWindow):
         if hasattr(self, "client"):
             self.actantsTab.L1.clear()
             self.actantsTab.L2.clear()
-            row = self.actantsTab.L.currentRow()
             cur = self.actantsTab.L.currentItem().text()
-            ask = "$act%s.res[0:]" % (row)
+            value, item = re.split(" ",cur,1)
+            sem = self.client.eval_get_sem(item, "$act")
+            ask = "%s.res[0:]" % (sem)
             result = self.client.eval_var(ask)
             network = re.split(", ", result)
             if len(network):
@@ -423,10 +424,6 @@ class Principal(QtGui.QMainWindow):
                             #TODO incompatibilities : not actant in the same text
                             self.actantsTab.L2.addItem(element)
                         else:
-                            #ask = "$act%s.res%d.val" % (row, r)
-                            #result = self.client.eval_var(ask)
-                            #FIXME give always the same result
-                            #print "C4186", [ask, result]
                             self.actantsTab.L1.addItem(el)
 
     def authLchanged(self):
@@ -1091,13 +1088,13 @@ class Principal(QtGui.QMainWindow):
         self.actantsTab.L.clear()
 
         if len(list_results) > 0:
-            #ask2 = u"val_freq_act[0:]" 
-            #TODO order values
             ask2 = u"val_nbtxt_act[0:]" 
             result2 = self.client.eval_var(ask2)
             list_val = re.split(", ", result2)
-            liste_valued = ["%d %s"%(int(val), list_results[row]) 
+            liste_valued = [[int(val), list_results[row]] 
                 for row, val in enumerate(list_val)]
+            liste_valued = ["%d %s" %(val, item) for val, item in
+                sorted(liste_valued, reverse=True)]
             self.actantsTab.L.addItems(liste_valued)
         
             self.actantsTab.L.currentItemChanged.connect(self.actsLchanged)
