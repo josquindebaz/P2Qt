@@ -1214,6 +1214,12 @@ class Principal(QtGui.QMainWindow):
     def show_sailent(self, sem_txt): 
         #TODO signaler indéfinis importants
 
+        self.saillantes.Act.clear()
+        self.saillantes.Cat.clear()
+        self.saillantes.Col.clear()
+
+        self.PrgBar.perc(36)
+
         #les actants
 
         #les actants en tête sont calculés par le serveur
@@ -1243,7 +1249,6 @@ class Principal(QtGui.QMainWindow):
         #    {100,-1,  12 ,10},
         #};
 
-        self.saillantes.Act.clear()
         self.saillantesAct_deployes = []
         list_act_sem = "%s.act[0:]" % sem_txt
         result = self.client.eval_var(list_act_sem)
@@ -1259,9 +1264,10 @@ class Principal(QtGui.QMainWindow):
             self.liste_act_valued = { self.list_act[i]: [int(val), 0] 
                 for i, val in enumerate(list_val) }
 
+        self.PrgBar.percAdd(12)
+
         #les catégories
 
-        self.saillantes.Cat.clear()
         self.saillantesCat_deployes = []
         liste_cats = []
         self.list_cat_txt = {} 
@@ -1286,6 +1292,8 @@ class Principal(QtGui.QMainWindow):
                     print "C9338", list_cat, list_val
                 liste_cats.extend(liste_valued)
 
+            self.PrgBar.percAdd(3)
+
         #if less tan 4 cat, show them all
         #show until reached .5 of cumulated frequencies (show exaequo)
         liste_cats.sort(reverse=True)
@@ -1305,10 +1313,10 @@ class Principal(QtGui.QMainWindow):
                     break 
         self.saillantes.Cat.addItems(self.list_cat_aff)
 
+
         # les collections
         # on met toutes les collections parce que leur émergence est donnée par leur déploiement
         #TODO saillantes
-        self.saillantes.Col.clear()
         self.saillantesCol_deployees = []
         list_col_sem = "%s.col[0:]" % sem_txt
         result = self.client.eval_var(list_col_sem)
@@ -1323,6 +1331,8 @@ class Principal(QtGui.QMainWindow):
             liste_valued = ["%d %s"%(int(val), self.list_col[row]) for row, val in enumerate(vals)]
             self.list_col_valued = {self.list_col[row]: int(val) for row, val in enumerate(vals)}
             self.saillantes.Col.addItems(liste_valued)
+
+        self.PrgBar.percAdd(12)
 
     def deploie_Col(self):
         item = self.saillantes.Col.currentItem().text()
