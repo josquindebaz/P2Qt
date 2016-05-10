@@ -166,6 +166,7 @@ class actantsTab(QtGui.QWidget):
         H.setSpacing(5) 
         self.L = QtGui.QListWidget()
         self.L.setAlternatingRowColors(True)
+        self.L.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         H.addWidget(self.L)
         #TODO TreeView
         #self.T = QtGui.QTreeWidget()
@@ -498,7 +499,6 @@ class TexteWidgetItem(QtGui.QListWidgetItem):
         self.resume = text
         txt_resume = self.formeResume()
         self.label = QtGui.QLabel(txt_resume)
-        #self.setToolTip(txt_resume)
         self.setToolTip(self.formeToolTip())
         
     def formeResume(self):

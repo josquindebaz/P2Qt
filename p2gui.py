@@ -96,6 +96,8 @@ class Principal(QtGui.QMainWindow):
         ##################################################
 
         self.actantsTab = Viewer.actantsTab()
+        self.actantsTab.L.addAction(QtGui.QAction('texts', self,
+            triggered=lambda: self.show_texts_from_list(0)))
 
         ##### Tab for authors                #############
         ##################################################
@@ -343,24 +345,6 @@ class Principal(QtGui.QMainWindow):
     #début des fonctions
     ################################################
 
-#REMOVEME>
-    #def pre_calcule(self):
-        #self.activity(self.tr("Caching text values"))
-        #self.preCompute = Controller.preCompute(self)
-        #self.listeObjetsTextes = self.preCompute.listeObjetsTextes
-        #self.CTXs.l.clear()
-        #self.CTXs.l.addItems(self.preCompute.liste_champs_ctx)
-        ## associated values
-        #max_compteur = len(self.preCompute.type_var) * len(self.preCompute.type_calcul)
-        #self.PrgBar.perc(max_compteur)
-        #for typ in self.preCompute.type_var :
-            #self.activity(self.tr("Caching values for %s") % typ)
-            #for calc in self.preCompute.type_calcul:
-                #self.preCompute.cacheAssocValue(typ, calc)
-                #self.PrgBar.percAdd(1)
-        #TODO get concepts for search engine
-#REMOVEME>
-
     def activity(self, message):
         """Add message to the journal"""
         self.status.showMessage(message)
@@ -421,8 +405,11 @@ class Principal(QtGui.QMainWindow):
                 vals = re.split(", ", 
                     self.client.eval_var("%s.res[0:].val" % (sem)))
                 #FIXME give sometimes the values instead of the elements
-                self.actantsTab.L1.addItems(["%d %s"%(int(vals[row]), element)
-                    for row, element in enumerate(network)])
+                if vals == network:
+                    print "C29950 values instead of network"
+                else:
+                    self.actantsTab.L1.addItems(["%d %s"%(int(vals[row]), 
+                        element) for row, element in enumerate(network)])
 
             self.PrgBar.percAdd(12)
 
@@ -1447,6 +1434,13 @@ class Principal(QtGui.QMainWindow):
                         i.setBackground(QtGui.QColor(237, 243, 254)) # cyan
                         self.saillantes.Act.addItem(i)
                     
+    def recup_element_actants(self):
+        """get sem and name of item pointed in actants list"""
+        element = self.actantsTab.L.currentItem().text() 
+        val, element = Controller.sp_el(element)
+        sem = self.client.eval_get_sem(element, '$act')
+        return (sem, element)
+
     def recup_element_lexicon(self):
         """get semantic and name of item pointed in lexicon list"""
         element = self.NOT1.dep0.listw.currentItem().text() 
@@ -1531,7 +1525,6 @@ class Principal(QtGui.QMainWindow):
                 result = self.client.eval_get_sem(motif, '$undef')
                 if result != ['']:
                     self.explorer_widget.explo_lexi.addItem('undefined')
-                    
                 
             #TODO check concept
 
@@ -1565,15 +1558,21 @@ class Principal(QtGui.QMainWindow):
             elif (self.lexicon_or_concepts() == "concepts"):
                 sem, element = self.recup_element_concepts(lvl)
                 #print "C11734", sem, element
+            elif (self.lexicon_or_concepts() == "actants"):
+                sem, element = self.recup_element_actants()
+                element = "%s[as actant]" % element
+                #print "C11735", sem, element
+            else:
+               return 0 
 
             ask = "%s.txt[0:]" % (sem)
-            print "C11735", ask
+            #print "C11736", ask
             result = self.client.eval_var(ask)
             if  (result == ""):
                 self.activity(self.tr("No text to display for %s") % (element))
             else:
                 liste_textes = re.split(", ", result) 
-                print "C11736", liste_textes
+                #print "C11737", liste_textes
                 self.activity(self.tr("Displaying %d texts for %s") % (len(liste_textes), element))
                 #transform txt filename to sem
                 list_sems = map(lambda k: self.dicTxtSem[k], liste_textes)
@@ -1590,6 +1589,8 @@ class Principal(QtGui.QMainWindow):
             return "lexicon"
         elif (i == 2):
             return "concepts"
+        elif (i == 0):
+            return "actants"
         else:
             return False
 
