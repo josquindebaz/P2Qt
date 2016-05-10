@@ -407,6 +407,8 @@ class Principal(QtGui.QMainWindow):
 
     def actsLchanged(self):
         if hasattr(self, "client"):
+            self.PrgBar.perc(24)
+
             self.actantsTab.L1.clear()
             self.actantsTab.L2.clear()
             cur = self.actantsTab.L.currentItem().text()
@@ -416,15 +418,27 @@ class Principal(QtGui.QMainWindow):
             result = self.client.eval_var(ask)
             network = re.split(", ", result)
             if len(network):
-                for r in range(self.actantsTab.L.count()):
-                    element = self.actantsTab.L.item(r).text()
-                    if (element != cur):
-                        val, el = Controller.sp_el(element)
-                        if (el not in network):
-                            #TODO incompatibilities : not actant in the same text
-                            self.actantsTab.L2.addItem(element)
-                        else:
-                            self.actantsTab.L1.addItem(el)
+                vals = re.split(", ", 
+                    self.client.eval_var("%s.res[0:].val" % (sem)))
+                #FIXME give sometimes the values instead of the elements
+                self.actantsTab.L1.addItems(["%d %s"%(int(vals[row]), element)
+                    for row, element in enumerate(network)])
+
+            self.PrgBar.percAdd(12)
+
+            ask2 = "%s.act_incomp[0:]"  % (sem)
+            result2 = self.client.eval_var(ask2)
+            incomp = re.split(", ", result2)
+            if len(incomp):
+                el_val = { element: int(val) 
+                    for val, element in [ Controller.sp_el(el) 
+                    for el in self.actants_list_valued ] }
+                incomp_valued = sorted( [ [el_val[i], i] 
+                    for i in incomp ], reverse=True)
+                self.actantsTab.L2.addItems(["%d %s"%(val, element) 
+                    for val, element in incomp_valued])
+                
+            self.PrgBar.percAdd(12)
 
     def authLchanged(self):
         #TODO score, deploiement, acces aux textes et aux enonces
@@ -979,6 +993,7 @@ class Principal(QtGui.QMainWindow):
 
     def connect_server(self, h = 'prosperologie.org', p = '60000', name=""):
         self.activity(self.tr("Connecting to server"))
+
         self.client=Controller.client(h, p)
         
         if (self.client.etat):
@@ -1072,9 +1087,9 @@ class Principal(QtGui.QMainWindow):
             list_val = re.split(", ", result2)
             liste_valued = [[int(val), list_results[row]] 
                 for row, val in enumerate(list_val)]
-            liste_valued = ["%d %s" %(val, item) for val, item in
+            self.actants_list_valued = ["%d %s" %(val, item) for val, item in
                 sorted(liste_valued, reverse=True)]
-            self.actantsTab.L.addItems(liste_valued)
+            self.actantsTab.L.addItems(self.actants_list_valued)
         
             self.actantsTab.L.currentItemChanged.connect(self.actsLchanged)
 
@@ -1549,13 +1564,16 @@ class Principal(QtGui.QMainWindow):
                 sem, element = self.recup_element_lexicon()
             elif (self.lexicon_or_concepts() == "concepts"):
                 sem, element = self.recup_element_concepts(lvl)
+                #print "C11734", sem, element
 
             ask = "%s.txt[0:]" % (sem)
+            print "C11735", ask
             result = self.client.eval_var(ask)
             if  (result == ""):
                 self.activity(self.tr("No text to display for %s") % (element))
             else:
                 liste_textes = re.split(", ", result) 
+                print "C11736", liste_textes
                 self.activity(self.tr("Displaying %d texts for %s") % (len(liste_textes), element))
                 #transform txt filename to sem
                 list_sems = map(lambda k: self.dicTxtSem[k], liste_textes)
@@ -1651,7 +1669,8 @@ class Principal(QtGui.QMainWindow):
             self.SOTs.setCurrentIndex(self.tab_sentences_index)
 
     def easter1(self):
-        self.explorer_widget.explo_easter.setPixmap(QtGui.QPixmap("images/Prospero-II.png"))
+        image = QtGui.QPixmap("images/Prospero-II.png")
+        self.explorer_widget.explo_easter.setPixmap(image)
 
     def explorer(self):
         self.explorer_widget.liste.listw.clear()
