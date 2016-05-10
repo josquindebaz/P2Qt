@@ -98,6 +98,12 @@ class Principal(QtGui.QMainWindow):
         self.actantsTab = Viewer.actantsTab()
         self.actantsTab.L.addAction(QtGui.QAction('texts', self,
             triggered=lambda: self.show_texts_from_list(0)))
+        self.actantsTab.L.addAction(QtGui.QAction('copy list', self,
+            triggered=lambda: self.copy_lw(self.actantsTab.L)))
+        self.actantsTab.L1.addAction(QtGui.QAction('copy list', self,
+            triggered=lambda: self.copy_lw(self.actantsTab.L1)))
+        self.actantsTab.L2.addAction(QtGui.QAction('copy list', self,
+            triggered=lambda: self.copy_lw(self.actantsTab.L2)))
 
         ##### Tab for authors                #############
         ##################################################

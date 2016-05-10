@@ -179,6 +179,7 @@ class actantsTab(QtGui.QWidget):
         econf.setLayout(econfBox)
         self.L1 = QtGui.QListWidget()
         self.L1.setAlternatingRowColors(True)
+        self.L1.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         econfBox.addWidget(self.L1)
         incomp = QtGui.QGroupBox("incompatibilities")
         #incomp = QtGui.QGroupBox("disconnected")
@@ -188,6 +189,7 @@ class actantsTab(QtGui.QWidget):
         incomp.setLayout(incompBox) 
         self.L2 = QtGui.QListWidget()
         self.L2.setAlternatingRowColors(True)
+        self.L2.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         incompBox.addWidget(self.L2)
 
 class personsTab(QtGui.QWidget):
