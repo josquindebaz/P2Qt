@@ -453,6 +453,8 @@ class MyListWidgetTexts(QtGui.QListWidget):
         self.customContextMenuRequested.connect(self.context_menu)
         self.action_sentences = QtGui.QAction('Sentences', self) 
 
+        self.setStyleSheet("QToolTip {background-color: white;}")
+
         #TODO directly ask children without list
         self.widget_list = []
 
@@ -478,11 +480,10 @@ class MyListWidgetTexts(QtGui.QListWidget):
         self.parent.cumul_temp(self, delta)
 
     def changeColor(self):
-        #FIXME background color too light on windows
         currentRow = self.currentRow()
         for r in range(self.count()):
             if (r == currentRow):
-                self.item(r).label.setStyleSheet("color: white;")  
+                self.item(r).label.setStyleSheet("color: white; background-color: gray;")  
             else:
                 self.item(r).label.setStyleSheet("color: black;")
 
@@ -497,10 +498,14 @@ class TexteWidgetItem(QtGui.QListWidgetItem):
         self.resume = text
         txt_resume = self.formeResume()
         self.label = QtGui.QLabel(txt_resume)
-        self.setToolTip(txt_resume)
+        #self.setToolTip(txt_resume)
+        self.setToolTip(self.formeToolTip())
         
     def formeResume(self):
         return u"%s <span style=\"font: bold\">%s</span> %s" % self.resume 
+
+    def formeToolTip(self):
+        return u"<table> <tr><td><b>%s</b></td></tr> <tr><td><i>%s</i></td></tr> <tr><td>%s</td></tr> </table>"%(self.resume[2], self.resume[1], self.resume[0])
 
 class ListTexts(QtGui.QWidget):
     """Display texts corpus and anticorpus for an element"""
@@ -1228,6 +1233,7 @@ class MyListWidget(QtGui.QWidget):
             self.previousItem = item
 
     def eventFilter(self, widget, event):
+        """search function"""
         if (event.type() == QtCore.QEvent.KeyPress and
                 widget is self.listw):
             if (event.type()==QtCore.QEvent.KeyPress and (event.key() in
