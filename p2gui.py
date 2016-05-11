@@ -14,6 +14,7 @@ import threading
 import atexit
 import webbrowser
 import functools
+import operator
 
 import Viewer
 import Controller
@@ -427,7 +428,7 @@ class Principal(QtGui.QMainWindow):
                     for val, element in [ Controller.sp_el(el) 
                     for el in self.actants_list_valued ] }
                 incomp_valued = sorted( [ [el_val[i], i] 
-                    for i in incomp ], reverse=True)
+                    for i in incomp ], key=operator.itemgetter(0), reverse=True)
                 self.actantsTab.L2.addItems(["%d %s"%(val, element) 
                     for val, element in incomp_valued])
                 
