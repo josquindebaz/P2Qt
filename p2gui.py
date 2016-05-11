@@ -769,7 +769,7 @@ class Principal(QtGui.QMainWindow):
             self.semantique_concept_item = self.client.eval_get_sem(item, sem) 
             
             if self.semantique_concept_item == "":
-                #FIXME pb avec certains éléments des catégories
+                #FIXME pb avec certains éléments des catégories de qual
                 print "C990", [item, sem]
 
             ask = "%s.rep[0:]"% self.semantique_concept_item
@@ -785,9 +785,7 @@ class Principal(QtGui.QMainWindow):
 
                     for r in range(len(result)):
                         if (which_concepts == "number of texts"):
-                            #FIXME corriger, il donne la valeur de la categorie entiere
                             ask = "%s.rep%d.nbtxt"% (self.semantique_concept_item, r)
-                            print "C1976: %s" % ask
                         elif(which_concepts == "number of authors"):
                             #FIXME il ne renvoie rien
                             ask = "%s.rep%d.nbaut"% (self.semantique_concept_item, r)
