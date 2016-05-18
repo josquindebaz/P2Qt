@@ -174,6 +174,7 @@ class parseCorpus(object):
         file_handle.write(content.toprettyxml(encoding="utf-8"))
         file_handle.close()
 
+#FIXME rename class
 class parseCTX(object):
     def __init__(self):
         self.path = u""
@@ -194,6 +195,42 @@ class parseCTX(object):
             #FIXME use with open
             F = open(self.path, "rU")
             return minidom.parse(F)
+
+    def isP1(self, buf):
+        """P1 or P2 CTX file test"""
+        lines = re.split('\r\n', buf)
+        if len(lines):
+            if lines[0] == 'fileCtx0005':
+                return "P1"
+            elif lines[0] == '<?xml version="1.0" encoding="UTF-8" ?>':
+                return "P2"
+            else:
+                return False
+        else:
+            return False
+
+    def P1toP2(self, buf):
+        """transform a P1 content to P2 format"""
+        lines = re.split('\r\n', buf)
+        champs = ["", "title", "author", "narrateur", "destinataire", "date", "medium", 
+            "media-type", "observations", "authorship", "localisation", "CL1", "CL2"]
+        if len(lines) > 15:
+            for r, l in enumerate(lines):
+                if r > 0 and r < 13:
+                    if r in [1, 2, 5]:
+                        self.dico[champs[r]] = l
+                    elif len(l):
+                        self.dico[champs[r]] = l
+                if r > 14 and len(l):
+                    if r == 15:
+                        if l not in ["REF_HEURE:00:00", "REF_HEURE:0:0"]:
+                            print r, l 
+                    if r > 15:
+                            print r, l 
+
+            #print self.dico
+        else:
+            return False
 
     def savefile(self):
         if (self.path and self.dico):
