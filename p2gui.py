@@ -644,6 +644,17 @@ class Principal(QtGui.QMainWindow):
         if hasattr(self, "client"):
             sem = Controller.semantiques[typ]
             content = self.client.recup_liste_concept(sem)
+            #FIXME EN COURS
+            if sem in ["$ef", '$col', '$cat_ent', '$cat_epr', 
+                '$cat_qua', '$cat_mar']:
+                if not hasattr(self, 'gcs'):
+                    self.gcs = self.client.recup_liste_concepts_tot()
+                for i, gc in enumerate(self.gcs):
+                    #print i, content[0], gc[0], len(content), len(gc)
+                    if content[0] == gc[0]:
+                    #if set(content) < set(gc):
+                        content = gc
+                        break;
             if (content == ['']):
                 parent.activity(u"Nothing to Display for %s" % (typ))
             else:
@@ -660,8 +671,18 @@ class Principal(QtGui.QMainWindow):
                     liste_valued = [[val, content[row]] for row, 
                         val in enumerate(re.split(", ", result))]
                 else:
-                    liste_valued = [[int(val), content[row]] for row, 
-                        val in enumerate(re.split(", ", result))]
+                    #FIXME EN COURS
+                    if len(result) < len(content):
+                        liste_valued = []
+                        result = re.split(", ", result)
+                        for row, el in enumerate(content):
+                            if row < len(result):
+                                liste_valued.append([int(result[row]), el])
+                            else:
+                                liste_valued.append([0, el]) 
+                    else:
+                        liste_valued = [[int(val), content[row]] for row, 
+                            val in enumerate(re.split(", ", result))]
 
                     #TODO the same for I et II
 

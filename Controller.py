@@ -21,6 +21,13 @@ class client(object):
         var = "%s[0:]" % sem
         return re.split(", ", self.c.eval_variable(var))
     
+    def recup_liste_concepts_tot(self):
+        gcs = []
+        for i in range(6):
+            result = re.split(', ', self.c.eval_variable('$gc%d.c[0:]'%i))
+            gcs.append(result)
+        return gcs
+
     def eval_vector(self, type, type_calc):
         return self.c.eval_vect_values(type, type_calc)
 
