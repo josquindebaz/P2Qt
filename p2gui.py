@@ -405,13 +405,13 @@ class Principal(QtGui.QMainWindow):
             cur = self.actantsTab.L.currentItem().text()
             value, item = re.split(" ",cur,1)
             sem = self.client.eval_get_sem(item, "$act")
-            ask = "%s.res[0:]" % (sem)
+            ask = "%s.resact[0:]" % (sem)
             result = self.client.eval_var(ask)
             network = re.split(", ", result)
             if len(network):
                 vals = re.split(", ", 
-                    self.client.eval_var("%s.res[0:].val" % (sem)))
-                #FIXME give sometimes the values instead of the elements
+                    self.client.eval_var("%s.resact[0:].val" % (sem)))
+                #FIXME resact : actants du réseau, pb valeurs
                 if vals == network:
                     print "C29950 values instead of network"
                 else:
@@ -420,6 +420,7 @@ class Principal(QtGui.QMainWindow):
 
             self.PrgBar.percAdd(12)
 
+            #incompatibles : jamais actants dans le même texte
             ask2 = "%s.act_incomp[0:]"  % (sem)
             result2 = self.client.eval_var(ask2)
             incomp = re.split(", ", result2)
@@ -1029,13 +1030,15 @@ class Principal(QtGui.QMainWindow):
             self.CTXs.l.addItems(recupTXT.liste_champs_ctx)
 
             #display info in the toolbar
-            #TODO display volume
             nbpg = self.client.eval_var("$nbpg")
             nbtxt = self.client.eval_var("$nbtxt")
+            volcorpus = self.client.eval_var("$volume_corpus")
             if name != "":
-                message = "<b>%s</b> %s texts %s pages ? volume" % (name, nbtxt, nbpg)
+                message = "<b>%s</b> %s texts %s pages %s octets" % (name,
+                    nbtxt, nbpg, volcorpus)
             else:
-                message = "%s texts %s pages ? volume" % (nbtxt, nbpg)
+                message = "%s texts %s pages %s octets" % (nbtxt, nbpg,
+                    volcorpus)
             self.toolbar_descr_corpus.setText(message)
         
     def disconnect_server(self):

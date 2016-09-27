@@ -181,7 +181,7 @@ class actantsTab(QtGui.QWidget):
         self.L1.setAlternatingRowColors(True)
         self.L1.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         econfBox.addWidget(self.L1)
-        incomp = QtGui.QGroupBox("incompatible actants")
+        incomp = QtGui.QGroupBox("heterotopic actants")
         H.addWidget(incomp)
         incompBox = QtGui.QVBoxLayout()
         incompBox.setContentsMargins(0,0,0,0) 
