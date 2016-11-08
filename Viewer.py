@@ -1191,7 +1191,7 @@ class MyListWidget(QtGui.QWidget):
         self.listw.setAlternatingRowColors(True)
         self.listw.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         self.previousItem = False
-        self.listw.itemClicked.connect(self.deselect)
+        #self.listw.itemClicked.connect(self.deselect) #bug with windows : reselection of #1 item when contextual click
         self.listw.installEventFilter(self)
 
         #self.listw.setDragEnabled(True)
