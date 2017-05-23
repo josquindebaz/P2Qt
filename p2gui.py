@@ -1058,12 +1058,14 @@ class Principal(QtGui.QMainWindow):
         list_results = re.split(", ", result)
         self.activity(self.tr("Displaying %d persons")%len(list_results))
 
-        self.PrgBar.perc(len(list_results))
-
-        for i, p in enumerate(list_results):
-            ask = u"$pers%d.freq" % i 
-            r = self.client.eval_var(ask)
-            self.show_persons.L.addItem("%s %s"%(p, r))
+        if len(list_results) > 0:
+            self.PrgBar.perc(len(list_results))
+            ask2 = u"$pers[0:].val" 
+            result2 = self.client.eval_var(ask2)
+            list_val = re.split(", ", result2)
+            liste_valued = ["%s %s" %(list_val[row], item) for row, item in 
+                enumerate(list_results)]
+            self.show_persons.L.addItems(liste_valued)
 
     def display_actants(self):
         ask = u"$act[0:]" 
