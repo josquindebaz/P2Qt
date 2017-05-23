@@ -198,8 +198,9 @@ class personsTab(QtGui.QWidget):
         H = QtGui.QHBoxLayout()
         self.setLayout(H)
         H.setContentsMargins(0,0,0,0) 
-        self.L = QtGui.QListWidget()
-        self.L.setAlternatingRowColors(True)
+      #  self.L = QtGui.QListWidget()
+       # self.L.setAlternatingRowColors(True)
+        self.L = MyListWidget()
         H.addWidget(self.L)
 
 class authorsTab(QtGui.QWidget):

@@ -165,9 +165,18 @@ class Principal(QtGui.QMainWindow):
         self.NOT2.depII.listw.addAction(QtGui.QAction('copy list', self,
             triggered=lambda: self.copy_lw(self.NOT2.depII.listw)))
 
+            
         ##### Tab for persons                #############
         ##################################################
         self.show_persons = Viewer.personsTab()
+
+        self.show_persons.L.listw.addAction(QtGui.QAction('texts', self,
+            triggered=lambda: self.show_texts_from_list("pers")))
+        self.show_persons.L.listw.addAction(QtGui.QAction('network', self,
+            triggered=lambda: self.show_network("pers")))
+        self.show_persons.L.listw.addAction(QtGui.QAction('copy list', self,
+            triggered=lambda: self.copy_lw(self.show_persons.L.listw)))
+
 
         #Networks tab
         ##################################################
@@ -1051,7 +1060,7 @@ class Principal(QtGui.QMainWindow):
             self.persons_tab_index = self.NOTs.addTab(self.show_persons, self.tr("Persons"))
             self.NOTs.setCurrentIndex(self.persons_tab_index)
 
-        self.show_persons.L.clear()
+        self.show_persons.L.listw.clear()
 
         ask = "$pers[0:]" 
         result = self.client.eval_var(ask)
@@ -1065,7 +1074,7 @@ class Principal(QtGui.QMainWindow):
             list_val = re.split(", ", result2)
             liste_valued = ["%s %s" %(list_val[row], item) for row, item in 
                 enumerate(list_results)]
-            self.show_persons.L.addItems(liste_valued)
+            self.show_persons.L.listw.addItems(liste_valued)
 
     def display_actants(self):
         ask = u"$act[0:]" 
@@ -1472,6 +1481,13 @@ class Principal(QtGui.QMainWindow):
             val, element = Controller.sp_el(element)
             return  (self.semantique_concept_item, element)
 
+    def recup_element_persons(self):
+        """get semantic and name of item pointed in persons list"""
+        element = self.show_persons.L.listw.currentItem().text() 
+        row = self.show_persons.L.listw.currentRow()
+        val, element = Controller.sp_el(element)
+        return ("$pers%d"%row, element)
+
     def add_networks_tab(self):
         """display tab network in the NE cadran"""
         self.networks_tab_index = self.NOTs.addTab(self.tabNetworks, self.tr("Networks"))
@@ -1487,6 +1503,8 @@ class Principal(QtGui.QMainWindow):
             sem, element = self.recup_element_lexicon()
         elif (self.lexicon_or_concepts() == "concepts"):
             sem, element = self.recup_element_concepts(lvl)
+        elif (lvl == "pers"):
+            sem, element = self.recup_element_persons()
 
         for i in range(0, self.tabNetworks.count()):
             if (self.tabNetworks.tabText(i) == element):
@@ -1569,6 +1587,9 @@ class Principal(QtGui.QMainWindow):
                 sem, element = self.recup_element_actants()
                 element = "%s[as actant]" % element
                 #print "C11735", sem, element
+            elif (lvl == "pers"):
+                sem, element = self.recup_element_persons()
+                print "C2891"
             else:
                return 0 
 
