@@ -1351,6 +1351,8 @@ class ServerVars(QtGui.QListWidget):
         Vbox.addWidget(self.result)
         self.button_clear.clicked.connect(self.result.clear)
 
+        #TODO protect from pers[5] instead of pers5
+
 def hide_close_buttons(tabs_widget,index):
         """hide close button on tab no 'index', on the left side for Mac"""
         if tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.RightSide):

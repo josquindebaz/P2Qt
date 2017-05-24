@@ -1021,7 +1021,7 @@ class Principal(QtGui.QMainWindow):
             nbpg = self.client.eval_var("$nbpg")
             nbtxt = self.client.eval_var("$nbtxt")
             if name != "":
-                message = "<b>%s</b> %s texts %s pages ? volume" % (name, nbtxt, nbpg)
+                message = "Corpus: <b>%s</b> %s texts %s pages ? volume" % (name, nbtxt, nbpg)
             else:
                 message = "%s texts %s pages ? volume" % (nbtxt, nbpg)
             self.toolbar_descr_corpus.setText(message)

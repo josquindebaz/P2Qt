@@ -25,7 +25,13 @@ class client(object):
         return self.c.eval_vect_values(type, type_calc)
 
     def eval_var(self, var):
-        return self.c.eval_variable(var)
+        if var.find("gescdf") != -1:
+            return self.eval_formules(var)
+        else:
+            return self.c.eval_variable(var)
+
+    def eval_formules(self,exp):
+        return self.c.eval_sfrm(exp)
         
     def eval_var_ctx(self, props, ctx_range):
         return self.c.eval_ctx(props, ctx_range)
