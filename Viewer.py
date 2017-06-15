@@ -1287,6 +1287,47 @@ class MyListWidget(QtGui.QWidget):
             self.deselected.emit()
             self.label.setVisible(False)
             
+class Formulae(QtGui.QWidget):
+    """Formulae"""
+    def __init__(self, parent=None): 
+        QtGui.QWidget.__init__(self)
+        hbox = QtGui.QHBoxLayout()
+        self.setLayout(hbox)
+        hbox.setContentsMargins(0,0,0,0) 
+        vboxG = QtGui.QVBoxLayout()
+        vboxG.setContentsMargins(0,0,0,0) 
+        hbox.addLayout(vboxG)
+
+        self.tempButton =  QtGui.QPushButton("load")
+        vboxG.addWidget(self.tempButton)
+
+#TODO add alternate row and contextmenu
+
+        classesBox = QtGui.QGroupBox("classes")
+        vboxG.addWidget(classesBox)
+        classesBoxL = QtGui.QVBoxLayout()
+        classesBoxL.setContentsMargins(0,0,0,0) 
+        classesBox.setLayout(classesBoxL)
+        self.LFclasses = QtGui.QListWidget()
+        classesBoxL.addWidget(self.LFclasses)
+
+
+        compositionsBox = QtGui.QGroupBox("compositions")
+        vboxG.addWidget(compositionsBox)
+        compositionsBoxL = QtGui.QVBoxLayout()
+        compositionsBoxL.setContentsMargins(0,0,0,0) 
+        compositionsBox.setLayout(compositionsBoxL)
+        self.LFcompositions = QtGui.QListWidget()
+        compositionsBoxL.addWidget(self.LFcompositions)
+
+        resultsBox = QtGui.QGroupBox("results")
+        hbox.addWidget(resultsBox)
+        resultsBoxL = QtGui.QVBoxLayout()
+        resultsBoxL.setContentsMargins(0,0,0,0) 
+        resultsBox.setLayout(resultsBoxL)
+        self.LFresults = QtGui.QListWidget()
+        resultsBoxL.addWidget(self.LFresults)
+
 class Explorer(QtGui.QWidget):
     """Searches"""
     def __init__(self, parent=None): 

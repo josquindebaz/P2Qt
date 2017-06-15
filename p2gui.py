@@ -219,7 +219,8 @@ class Principal(QtGui.QMainWindow):
         ##### Tab for formulae                #############
         ##################################################
 
-        formulaeTab = QtGui.QWidget()
+        formulaeTab = Viewer.Formulae()
+        formulaeTab.tempButton.clicked.connect(self.recupFormules)
 
         #Access by context CTX
         ################################################
@@ -241,12 +242,11 @@ class Principal(QtGui.QMainWindow):
         self.NETs.tabCloseRequested.connect(self.NETs.removeTab)
         self.journal_index = self.NETs.addTab(self.journal.journal,
             self.tr("Journal"))
-        Viewer.hide_close_buttons(self.NETs,0)
+        Viewer.hide_close_buttons(self.NETs, 0)
         self.NETs.addTab(self.explorer_widget, self.tr("Search"))
-        Viewer.hide_close_buttons(self.NETs,1)
+        Viewer.hide_close_buttons(self.NETs, 1)
         self.NETs.addTab(formulaeTab, self.tr("Formulae"))
-        Viewer.hide_close_buttons(self.NETs,2)
-        self.NETs.setTabEnabled(2, False)
+        Viewer.hide_close_buttons(self.NETs, 2)
 
         ##################################################
         #cadran SO
@@ -1793,6 +1793,12 @@ class Principal(QtGui.QMainWindow):
         self.connect_server("localhost", port)
         #kill the server when the gui is closed
         atexit.register(local_server.terminate) 
+
+    ###FORMULES###
+    def recupFormules(self):
+        ask = "$gescdf.mesFormules0[0:]"
+        result = self.client.eval(ask)
+        print "C25713", ask, result
             
 
 class codex_window(QtGui.QWidget):
