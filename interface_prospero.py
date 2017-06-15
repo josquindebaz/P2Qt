@@ -512,7 +512,8 @@ class ConnecteurPII (threading.Thread):
 		if var in self.m_cache_var.keys():
 			self.m_threadlock.release()
 			ev = self.m_cache_var[var]
-			print " in cache ", ev
+                        if (verbose):
+                            print " in cache ", ev
 			return ev
 		
 		if not self.connexion : 
