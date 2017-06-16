@@ -198,8 +198,9 @@ class personsTab(QtGui.QWidget):
         H = QtGui.QHBoxLayout()
         self.setLayout(H)
         H.setContentsMargins(0,0,0,0) 
-        self.L = QtGui.QListWidget()
-        self.L.setAlternatingRowColors(True)
+      #  self.L = QtGui.QListWidget()
+       # self.L.setAlternatingRowColors(True)
+        self.L = MyListWidget()
         H.addWidget(self.L)
 
 class authorsTab(QtGui.QWidget):
@@ -1191,7 +1192,7 @@ class MyListWidget(QtGui.QWidget):
         self.listw.setAlternatingRowColors(True)
         self.listw.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         self.previousItem = False
-        self.listw.itemClicked.connect(self.deselect)
+        #self.listw.itemClicked.connect(self.deselect) #bug with windows : reselection of #1 item when contextual click
         self.listw.installEventFilter(self)
 
         #self.listw.setDragEnabled(True)
@@ -1286,6 +1287,47 @@ class MyListWidget(QtGui.QWidget):
             self.deselected.emit()
             self.label.setVisible(False)
             
+class Formulae(QtGui.QWidget):
+    """Formulae"""
+    def __init__(self, parent=None): 
+        QtGui.QWidget.__init__(self)
+        hbox = QtGui.QHBoxLayout()
+        self.setLayout(hbox)
+        hbox.setContentsMargins(0,0,0,0) 
+        vboxG = QtGui.QVBoxLayout()
+        vboxG.setContentsMargins(0,0,0,0) 
+        hbox.addLayout(vboxG)
+
+        self.tempButton =  QtGui.QPushButton("load")
+        vboxG.addWidget(self.tempButton)
+
+#TODO add alternate row and contextmenu
+
+        classesBox = QtGui.QGroupBox("classes")
+        vboxG.addWidget(classesBox)
+        classesBoxL = QtGui.QVBoxLayout()
+        classesBoxL.setContentsMargins(0,0,0,0) 
+        classesBox.setLayout(classesBoxL)
+        self.LFclasses = QtGui.QListWidget()
+        classesBoxL.addWidget(self.LFclasses)
+
+
+        compositionsBox = QtGui.QGroupBox("compositions")
+        vboxG.addWidget(compositionsBox)
+        compositionsBoxL = QtGui.QVBoxLayout()
+        compositionsBoxL.setContentsMargins(0,0,0,0) 
+        compositionsBox.setLayout(compositionsBoxL)
+        self.LFcompositions = QtGui.QListWidget()
+        compositionsBoxL.addWidget(self.LFcompositions)
+
+        resultsBox = QtGui.QGroupBox("results")
+        hbox.addWidget(resultsBox)
+        resultsBoxL = QtGui.QVBoxLayout()
+        resultsBoxL.setContentsMargins(0,0,0,0) 
+        resultsBox.setLayout(resultsBoxL)
+        self.LFresults = QtGui.QListWidget()
+        resultsBoxL.addWidget(self.LFresults)
+
 class Explorer(QtGui.QWidget):
     """Searches"""
     def __init__(self, parent=None): 
@@ -1349,6 +1391,8 @@ class ServerVars(QtGui.QListWidget):
         self.result = QtGui.QTextEdit(readOnly = False) 
         Vbox.addWidget(self.result)
         self.button_clear.clicked.connect(self.result.clear)
+
+        #TODO protect from pers[5] instead of pers5
 
 def hide_close_buttons(tabs_widget,index):
         """hide close button on tab no 'index', on the left side for Mac"""

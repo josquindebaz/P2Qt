@@ -37,7 +37,7 @@ correctement la dernière composante phadt ... un énoncé aléatoire avec auteu
 
 eval_status_done = 0
 verbose = 0
-
+import os.path
 import threading, socket, time , re
 #from eval_variable import eval_variables
 #from globals import getMapDossiers , log_file_name_messages
@@ -66,10 +66,17 @@ regex_reseau_tranche = re.compile (r"""(.*?)(?P<res>\.res)\[(?P<BI>-?\d*):(?P<BS
 regex_reseau_tranche_skip = re.compile (r"""(?P<SKIP>\[.*?\])""", re.VERBOSE | re.DOTALL)
 regex_reseau_indice = re.compile (r"""(.*?)(?P<res>\.res)(\d+)""", re.VERBOSE | re.DOTALL)
 regex_reseau_indice_skip = re.compile (r"""\.res(?P<SKIP>\d+)""", re.VERBOSE | re.DOTALL)
+# retrouver le nom du gestionnaire de formule dans $gescdf.mesFormules0 $gescdf.mesFormules[0:]  (le $gescdf. est déjà traité)
+regex_gescdf_name = re.compile (r"""(?P<NOM>.*?)($|\s|\d|\[)+""", re.VERBOSE | re.DOTALL)
 # pour les sfrm
 regex_sfrm_forme = re.compile (r"""(?P<VAR>forme.*)($|\s)+""", re.VERBOSE | re.DOTALL)
+# pour les cdf + def  $cdf.def[0:]
+regex_sfrm_def = re.compile (r"""(?P<VAR>def.*)($|\s)+""", re.VERBOSE | re.DOTALL)
 # pour les phadt
-regex_sfrm_ph = re.compile (r"""(?P<VAR>ph.*?)(\d|\[)""", re.VERBOSE | re.DOTALL)
+# $sfrm.formule.phadt $sfrm.formule.phadt0 $sfrm.formule.ph $sfrm.formule.ph[0:]
+#regex_sfrm_ph = re.compile (r"""(?P<VAR>ph.*?)(\d|\[)""", re.VERBOSE | re.DOTALL)
+regex_sfrm_listvar = re.compile (r"""(?P<VAR>listvar.*?)""", re.VERBOSE | re.DOTALL)
+regex_sfrm_ph = re.compile (r"""(?P<VAR>ph.*?)""", re.VERBOSE | re.DOTALL)
 # pour les X ... ds les sfrm ... par defaut puisque les noms de variables sont libres X Y Z etc..
 regex_sfrm_var = re.compile (r"""(?P<VAR>.*?)(\d|\[)""", re.VERBOSE | re.DOTALL)
 # pour les variables liés X=toto
@@ -77,6 +84,13 @@ regex_sfrm_link_var = re.compile (r"""(?P<VAR>.*?)=(?P<VAL>.*?)(\.|$)""", re.VER
 
 # regex complémentaire pour isoler les args dans le cas ou le premier arg n'a pas de '+' ( .$Obj+truc )
 regex_ph_args_bis =  re.compile (r"""(?P<var>\$.*?)\.(?P<arg_incorrect>.*?)\+(?P<arg>.*?)$""",  re.VERBOSE | re.DOTALL )
+
+regex_VAR = re.compile (r"""(\s+|^)/VAR=(?P<var>.*?)(\s+|$)""",  re.VERBOSE | re.DOTALL)
+regex_FILE_VAR = re.compile (r"""(\$\]\n.*?)\[""",  re.VERBOSE |  re.MULTILINE | re.DOTALL)
+
+regex_POUR_VAR = re.compile (r"""\$\]\n(.*?)\n(.*)""",  re.VERBOSE |  re.MULTILINE | re.DOTALL)
+
+regex_FILE_VAR2 = re.compile (r"""(\[\$\]\n.*?\[|$)*?""",  re.VERBOSE |   re.DOTALL)
 
 class ConnecteurPII (threading.Thread): 
 	""" Pourquoi dériver la class de threading.Thread ? -> utilisation du RLock
@@ -152,7 +166,7 @@ class ConnecteurPII (threading.Thread):
 		self.connexion.close()
 		self.connexion = None
 
-	def send_var_for_frm(self, dic_of_frm_var):
+	def send_var_for_frm_old(self, dic_of_frm_var):
 		"""envois des variables utilisées par les frm
 		"""
 		if not self.connexion : 
@@ -169,33 +183,6 @@ class ConnecteurPII (threading.Thread):
 				self.send_expression(mess)
 			self.send_expression("F")
 			self.get_value("send_var_for_frm")
-		
-	def send_frm(self, dic_formules):
-		"""envois des classe des formule vers P-II
-			entête CFRM:nom_de_la_classe
-					FRM:formule
-					F:	
-		"""
-		if not self.connexion : 
-			if not self.connect():
-				return ""
-		for cfrm in dic_formules.keys():
-			
-			mess = "E:CFRM_CONSTRUCTOR"
-			self.send_expression(mess)
-			mess = "CFRM:" + cfrm
-			self.send_expression(mess)
-			for frm in dic_formules[cfrm] :
-				mess = "ARG:" + frm
-				self.send_expression(mess)
-			self.send_expression("F")
-			value = self.get_value("send_frm")
-
-		# exec des frm par p-II
-		self.send_expression("E:CFRM_CONSTRUCTOR")
-		self.send_expression("CFRM_EXEC")
-		self.send_expression("F")
-		self.get_value("send_frm")
 
 	def send_dossiers(self):
 		"""
@@ -525,6 +512,8 @@ class ConnecteurPII (threading.Thread):
 		if var in self.m_cache_var.keys():
 			self.m_threadlock.release()
 			ev = self.m_cache_var[var]
+                        if (verbose):
+                            print " in cache ", ev
 			return ev
 		
 		if not self.connexion : 
@@ -543,8 +532,8 @@ class ConnecteurPII (threading.Thread):
 		if not is_random_var(var):
 			self.m_cache_var[var]  = ev
 		self.m_threadlock.release()
-		if (verbose):
-			print var , "  " , ev
+		#if (verbose):	# avec py2exe -> erreur de charmap
+		#	print var , "  " , ev
 		return ev
 	
 
@@ -890,7 +879,7 @@ class ConnecteurPII (threading.Thread):
 		$sfrm.Evts-marquants.forme0
 			E:sfrm.Evts-marquants.forme0
 			S:SFRM:Evts-marquant
-			S:FORM:forme0
+			S:FORM:forme0n
 			P:0
 		
 		$sfrm.Evts-marquants.X0
@@ -898,7 +887,11 @@ class ConnecteurPII (threading.Thread):
 			S:SFRM:Evts-marquant
 			S:V:X:X0
 			P:0
-			
+		$sfrm.Evts-marquants.val
+			E:sfrm.Evts-marquants.X0
+			S:SFRM:Evts-marquant
+			S:val:val
+			P:0			
 		$sfrm.Evts-marquants.X=xyz.forme0
 			E:sfrm.Evts-marquants.X=xyz.forme0
 			S:SFRM.Evts-marquants
@@ -918,6 +911,17 @@ class ConnecteurPII (threading.Thread):
 			BI:0
 			BS:10
 
+		$cdf.mesFormules[0:]
+			E:gescdf.mesFormules[0:]
+			S:GESCDF:mesFormules
+			BI:0
+			BS:999999
+			F
+		$cdf.mesFormules0
+			E:gescdf.mesFormules[0:]
+			S:GESCDF:mesFormules
+			P:0
+			F			
 		"""
 		if data[0] == '$' : data = data[1:]
 		L = data.split('.')
@@ -931,20 +935,82 @@ class ConnecteurPII (threading.Thread):
 		
 		last_var_expr = ''  
 		
-		flag_next_is_class_name = False
+		flag_next_is_gescdf_name = flag_next_is_class_name = False
 		construct_exp = ''
 		for terme in L :
-			if terme == 'sfrm':
-				construct_exp = "S:SFRM:"  # on y consera le nom de la cfrm
+			if terme == 'cdf':
+				construct_exp = "S:SFRM:"  # on y consera le nom de la cfrm (exception $cdf.def !)
 				flag_next_is_class_name = True
 				continue
+			if terme == 'gescdf':
+				construct_exp = "S:GESCDF:"  
+				flag_next_is_gescdf_name = True # ce qui suit est le nom du gestionnaire de formule ...
+				continue			
+			# definition des classes -> pour avoir la liste des formules
+			# $cdf.def[0:]
+			# $cdf.def
+			m = regex_sfrm_def.search(terme)
+			if m: 
+				# on finit lexpr.append(construct_exp) dans le cas $cdf.def[0:]
+				# mais dans $cdf.maformule.def[0:] construct_exp a été traité
+				if construct_exp:
+					construct_exp += terme
+					lexpr.append(construct_exp)
+				lexpr.append("V:def:" + terme)
+				flag_next_is_class_name = False
+				m = regex_indice.search(terme)
+				m2 = regex_tranche.search(terme) 
+				if m :
+					lexpr.append("P:" + m.groupdict('INDICE')['INDICE'])
+					continue
+				elif m2 : 
+
+					if not m2.groupdict('BI')['BI'] : g1 = 999999
+					else : g1 = m2.groupdict('BI')['BI']
+					if not m2.groupdict('BS')['BS'] : g2 = 999999
+					else : g2 = m2.groupdict('BS')['BS']
+					g1 = str(g1)
+					g2 = str(g2)
+					lexpr.append("BI:" + g1)
+					lexpr.append("BS:" + g2)
+					continue		
 			if flag_next_is_class_name:
 				construct_exp += terme
 				flag_next_is_class_name = False
 				lexpr.append(construct_exp)
 				construct_exp = ''
 				continue
-			
+			if flag_next_is_gescdf_name :  # $gescdf.mesFormules[0:] $gescdf.mesFormules0 $gescdf.mesFormules0.def0 $gescdf.mesFormules0.val
+				# on doit isoler 'mesFormules' dans terme 
+				flag_next_is_gescdf_name = False
+				m = regex_gescdf_name.search(terme)
+				if m:
+					nom_gescdf = m.groupdict('NOM')['NOM']
+					construct_exp += nom_gescdf
+					lexpr.append(construct_exp)
+					construct_exp =''
+				else:
+					print "erreur de reconnaissance du nom du gestionnaire de formules " + terme 
+				m = regex_indice.search(terme)
+				m2 = regex_tranche.search(terme) 
+				if m :
+ 
+					#last_var_expr = "V:" + m.groupdict('VAR')['VAR'] + ":"+ m.groupdict('VAR')['VAR']+m.groupdict('INDICE')['INDICE']
+					#lexpr.append(last_var_expr)
+					lexpr.append("P:" + m.groupdict('INDICE')['INDICE'])
+					continue
+				elif m2 : 
+
+					if not m2.groupdict('BI')['BI'] : g1 = 999999
+					else : g1 = m2.groupdict('BI')['BI']
+					if not m2.groupdict('BS')['BS'] : g2 = 999999
+					else : g2 = m2.groupdict('BS')['BS']
+					g1 = str(g1)
+					g2 = str(g2)
+					lexpr.append("BI:" + g1)
+					lexpr.append("BS:" + g2)
+					continue				
+				continue
 			m = regex_sfrm_forme.search(terme)
 			if m : 
 				# indice ou tranche ... ou aleatoire ?
@@ -1011,6 +1077,41 @@ class ConnecteurPII (threading.Thread):
 					#lexpr.append(last_var_expr)
 					lexpr.append("PL:" + m.groupdict('INDICE')['INDICE'])
 					continue
+			# $sfrm.FORMULEX.val
+			if terme == "val":
+				lexpr.append("V:val:" + terme)
+				continue
+			m = regex_sfrm_listvar.search(terme)
+			if m :
+
+				lexpr.append("S:listvar:" + terme)
+
+				m = regex_indice.search(terme)
+				m2 = regex_tranche.search(terme) 
+				if m :
+ 
+					#last_var_expr = "V:" + m.groupdict('VAR')['VAR'] + ":"+ m.groupdict('VAR')['VAR']+m.groupdict('INDICE')['INDICE']
+					#lexpr.append(last_var_expr)
+					lexpr.append("P:" + m.groupdict('INDICE')['INDICE'])
+					continue
+				elif m2 : 
+
+					if not m2.groupdict('BI')['BI'] : g1 = 999999
+					else : g1 = m2.groupdict('BI')['BI']
+					if not m2.groupdict('BS')['BS'] : g2 = 999999
+					else : g2 = m2.groupdict('BS')['BS']
+					g1 = str(g1)
+					g2 = str(g2)
+					lexpr.append("BI:" + g1)
+					lexpr.append("BS:" + g2)
+					continue
+				m = regex_tranche_indice.search(terme)
+				if m:  # on enverra un indice negatif ... gerer par P-II
+ 
+					#last_var_expr = "V:" + m.groupdict('VAR')['VAR'] + ":"+ m.groupdict('VAR')['VAR']+m.groupdict('INDICE')['INDICE']
+					#lexpr.append(last_var_expr)
+					lexpr.append("PL:" + m.groupdict('INDICE')['INDICE'])
+					continue			
 			# cas des X X0 X[0:10]  par defaut 
 			m = regex_sfrm_var.search(terme)
 			if m : 
@@ -1051,6 +1152,8 @@ class ConnecteurPII (threading.Thread):
 				nom_var = m.groupdict('VAR')['VAR']
 				val = m.groupdict('VAL')['VAL']
 				lexpr.append('S:VL:' + nom_var + ":" + val)
+			# par defaut il reste des variables ... sans indice ni tranche ( $gescdf.mesFormules0.X $gescdf.mesFormules0.def0.X
+			# mais conflit avec les variables aléatoires (sans indice ni tranche) -> utiliser listvar0 ..
 			
 
 		lexpr.append('F')
@@ -1519,7 +1622,7 @@ class ConnecteurPII (threading.Thread):
 		
 		# signature particuliere pour les .res
 		#signature = self.getSignature(data)
-                signature = data
+		signature = data
 		lmess.append("E:" + signature)
 
 		last_var_expr = ''  # pour l'accrochage des args  V:phadt:phadt0 --> V:phadt:phadt0.+xxx+yyy
@@ -1605,8 +1708,271 @@ class ConnecteurPII (threading.Thread):
 				L.append(terme.replace(mask,new_args))
 			lmess = L
 		return lmess
+	def send_var_for_frm(self, dic_of_frm_var):
+		"""envois des variables utilisées par les frm
+			pas d'expansion ... des /VAR imbriqués ...
+		"""
+		if not self.connexion : 
+			if not self.connect():
+				return ""
+		test=''
+		for var in dic_of_frm_var.keys():
+			
+			mess = "E:VAR_CONSTRUCTOR"
+			self.send_expression(mess)
+			mess = "VAR:" + var
+			self.send_expression(mess)
+			for terme in dic_of_frm_var[var]:
+				
+				termeUTF8 = terme.encode('utf8')
+				try:
+					test += chr(len(termeUTF8))
+				except:
+					print termeUTF8
+					print len(termeUTF8)
+				
+				mess = "ARG:" + terme
+				self.send_expression(mess)
+			self.send_expression("F")
+			self.get_value("send_var_for_frm")
+		
+	def send_frm(self, dic_formules):
+		"""envois des classe des formule vers P-II
+			entête CFRM:nom_de_la_classe
+					FRM:formule
+					F:	
+		"""
+		if not self.connexion : 
+			if not self.connect():
+				return ""
+		for cfrm in dic_formules.keys():
+			
+			mess = "E:CFRM_CONSTRUCTOR"
+			self.send_expression(mess)
+			mess = "CFRM:" + cfrm
+			self.send_expression(mess)
+			for frm in dic_formules[cfrm] :
+				mess = "ARG:" + frm
+				self.send_expression(mess)
+			self.send_expression("F")
+			value = self.get_value("send_frm")
+		'''	
+		# exec des frm par p-II
+		self.send_expression("E:CFRM_CONSTRUCTOR")
+		self.send_expression("CFRM_EXEC")
+		self.send_expression("F")
+		self.get_value("send_frm")
+		'''
+
+				
+	def exec_frm (self):
+		# exec des frm par p-II
+		# on ne sait pas quel gestionnaire de formule va s'executer !
+		self.send_expression("E:CFRM_CONSTRUCTOR")
+		self.send_expression("CFRM_EXEC")
+		self.send_expression("F")
+		self.get_value("send_frm")
+	def set_gesfrm_name (self, nom_du_gestionnaire):
+		# exec des frm par p-II
+		# on ne sait pas quel gestionnaire de formule va s'executer !
+		# on nomme le gestionnaire avant d'initialiser les formules
+		self.send_expression("E:CFRM_CONSTRUCTOR")
+		self.send_expression("CFRM_NAME")
+		mess = "ARG:" + nom_du_gestionnaire
+		self.send_expression(mess)
+		self.send_expression("F")
+		self.get_value("send_gesfrm_name")
+
+#############################################################################################
+#	lecture des /VAR et des FRM (format P1)
+# placer dans un dictionnaire
+# 	et envois vers le serveur
+def load_var( file,dic):
+	
+	f = open(file)
+	data= f.read()
+	data = unicode(data,"cp1252")
+	f.close()
+	#L2 = regex_FILE_VAR2.findall(data)
+	
+	L = regex_FILE_VAR.findall(data)
+	test=''
+	for r in L:
+		x = regex_POUR_VAR.findall(r)
+		var,data =x[0]
+		var = var.replace('\n','').strip()
+		data = data.split(u'\n')[:-1]
+		
+		#dataUTF8 = data.encode('utf8')
+		#test += chr(len(dataUTF8))
+		dic[var] = data
+	return dic
+
+def load_frm( file ,dic_var):
+	"""
+		format P1
+		[DEF_FRM]
+		ma_formule
+		/!X /ENTITE est /!Y /QUALITE
+		[DEF_FRM]
+		qui-accuse-qui
+		/!X /MAJENT /MO dénoncé /T=1 /!Y /MAJENT
+		
+		suite a la présence ds ces fichiers de définitions de variable [$]
+		on passe le dic_var en paramètre.
+	"""
+	dic={}
+	
+	f = open(file)
+	data= f.read()
+	data = unicode(data,"cp1252")
+	f.close()
+	lines = data.split(u"\n")
+	nomVAR = nomFRM =''
+	LDEF = L =[]
+	flg_nom=False
+	flg_frm=False
+	flg_def_var= flg_var_name = False
+	
+	for line in lines:
+		line= line.strip()
+		if line == "[$]": # présence de def de variable ds le fichier ... 
+			if flg_frm : # on a qq chose a enregistrer
+				dic[nomFRM] = L
+				L=[]
+			if flg_def_var : # on était déjà sur une variable
+				if nomVAR :
+					dic_var[nomVAR] = LDEF
+					LDEF =[]
+					nomVar=''
+			
+			flg_def_var = flg_nom = flg_frm = False
+			flg_var_name = True	# la ligne suivante contient le nom de la var
+			continue
+		if line =="[DEF_FRM]":
+			
+			if flg_frm : # on a qq chose a enregistrer
+				dic[nomFRM] = L
+				L=[]
+			if flg_def_var : # on était sur une variable
+				if nomVAR :
+					dic_var[nomVAR] = LDEF
+					LDEF =[]
+					nomVar=''
+			flg_def_var = flg_frm = False					
+			
+			flg_nom=True
+			continue
+		if flg_nom :
+			nomFRM = line
+			L=[]
+			flg_nom=False
+			flg_frm=True
+			continue
+		if flg_frm:
+			L.append(line)
+		if flg_var_name:
+			nomVAR = line
+			flg_var_name = False
+			flg_def_var = True
+			continue
+		if flg_def_var:
+			LDEF.append(line)
+			continue
+	if flg_frm:
+		dic[nomFRM]=L		
+	if flg_def_var:
+		if nomVAR :
+			dic_var[nomVAR] = LDEF
+	return (dic,dic_var)
+
+def send_formules_mini(connecteur_pII , dic_formules, dic_Variables):
+	"""
+		lister les /VAR disponibles mentionnées dans les formules, pour pouvoir les envoyer à P-II
+		avant d'envoyer les formules
+		 
+		 on envois ttes les variables ...
+		 
+		 puis on envois les définitions des variables au serveur. 
+	"""
+	#dic_formules = getMapFormules()
+	#m_connecteur_pII.send_frm ( dic_formules)
+	'''
+	dic_of_vars_in_frm  = {}
+	for cdf in dic_formules.keys():
 
 		
+		for frm in dic_formules[cdf]:
+			copy = frm
+			while 1:
+				r = regex_VAR.search(copy)
+				if r : 
+					var = r.groupdict()['var']
+					if var in dic_Variables.keys():
+						obj_var = dic_Variables[var]
+						obj_var.expansion(getMapVariables())
+						dic_of_vars_in_frm[var]=  getMapVariables()[var]
+					else :
+						print " la variable n'existe pas !!!!!!!!!!!"
+						
+					copy=copy.replace("/VAR="+var,"",1)
+				else:
+					break	
+	'''			
+	#connecteur_pII.send_var_for_frm (dic_of_vars_in_frm )
+	connecteur_pII.send_var_for_frm (dic_Variables )
+	connecteur_pII.send_frm ( dic_formules)
+	
+def SHOW (V):		
+	R = c.eval_variable(V)
+	print R
+def EVAL_SHOW_SFRM (V):		
+	print V
+	R = c.eval_sfrm(V)
+	print V , " --> " ,R
+
+	
+def init_frm(c):
+	folder_path="C:\Users\jean-pierre\workspace\PII\P2Qt"
+	dic_var={}
+	L = [ "mrlw_varm.txt", "mrlw_varm2.txt", "mrlw_varoutils.txt",  "mrlw_varu.txt", "mrlw_varvar.txt" ]
+	L = [ "mrlw_varm.txt"]
+	for F in L :
+		dic_var =  load_var(os.path.join(folder_path,F),dic_var)
+	# on lit un fichier de frm , pouvant aussi contenir des definitions de variables
+	dic_frm,dic_var = load_frm (os.path.join(folder_path,"mrlw_frm_small.frm")  , dic_var)
+	# evnois des variables et des formules
+	# .. lance le calcul directement ...
+	# peut-être isolé ça
+	#send_formules_mini( c, dic_frm,dic_var)
+	# un flag à positionner sur le serveur ... pour la fin du calcul
+	
+	c.set_gesfrm_name("mesFormules")
+	c.send_var_for_frm (dic_var )
+	c.send_frm ( dic_frm)
+	c.exec_frm()
+	
+def console_eval(c):
+	
+	while True:
+		exp = raw_input("entrer une expression : " )
+		if exp == "exit":
+			return
+		if exp.find("$sfrm") != -1:
+			EVAL_SHOW_SFRM(exp)
+		if exp.find("$cdf") != -1:
+			EVAL_SHOW_SFRM(exp)		
+		if exp.find("$gescdf") != -1:
+			EVAL_SHOW_SFRM(exp)					
+		else:
+			SHOW(exp)
+		
+def eval_frm (c):
+	
+	LVAR =[ u"$volume_corpus",u"$status"]
+	for V in LVAR :
+		SHOW(V)	
+	
 	
 m_connecteur_pII = ConnecteurPII()
 
@@ -1614,19 +1980,132 @@ m_connecteur_pII = ConnecteurPII()
 	
 if __name__ == "__main__" :
 
-
 	
-
 	c = ConnecteurPII()
+	#c.set( '192.168.1.35','60000' )
+	c.set( 'marloweb.eu','60001' )
+	c.connect()
+
+	rep = raw_input("je lance l'initialisation des formules ? " )
+	if rep == 'o' :
+		init_frm(c)
+	L = [	"$gescdf.mesFormules[0:]",
+			"$gescdf.mesFormules0.listvar[0:]",
+			"$gescdf.mesFormules0.X0.formes[0:]",
+			"$gescdf.mesFormules0.listvar0.formes[0:]",
+			"$gescdf.mesFormules0.val",
+			"$gescdf.mesFormules1.val",
+			"$gescdf.mesFormules2.val",
+			
+			"$gescdf.mesFormules0.def[0:]",
+			"$gescdf.mesFormules0.def0",
+			"$gescdf.mesFormules0.def0.val",		
+			"$gescdf.mesFormules0.def1",
+			"$gescdf.mesFormules0.def1.val",		
+			"$gescdf.mesFormules0.def2",
+			"$gescdf.mesFormules0.def2.val",		
+
+			"$gescdf.mesFormules1.def[0:]",
+			"$gescdf.mesFormules1.def0",
+			"$gescdf.mesFormules1.def0.val",		
+			"$gescdf.mesFormules1.def1",
+			"$gescdf.mesFormules1.def1.val",		
+			"$gescdf.mesFormules1.def2",
+			"$gescdf.mesFormules1.def2.val",		
+			
+			"$gescdf.mesFormules2.def[0:]",	
+			"$gescdf.mesFormules2.def0",
+			"$gescdf.mesFormules2.def0.val",		
+			"$gescdf.mesFormules2.def1",
+			"$gescdf.mesFormules2.def1.val",		
+			"$gescdf.mesFormules2.def2",
+			"$gescdf.mesFormules2.def2.val",			
+			"$gescdf.mesFormules2o.def3",
+			"$gescdf.mesFormules2.def3.val",			
+
+			"$gescdf.mesFormules0.X[0:]",
+			"$gescdf.mesFormules0.def0.ph[0:]",
+			"$gescdf.mesFormules0.def0.X0.ph[0:]",
+			"$gescdf.mesFormules0.def0.X1.ph[0:]",
+			"$gescdf.mesFormules0.def0.Y0.ph[0:]"
+			
+			"$gescdf.mesFormules1.X0.val",
+			"$gescdf.mesFormules1.Y0.val",
+			"$gescdf.mesFormules1.def0.X0.val",
+			"$gescdf.mesFormules1.def1.X0.val",
+			"$gescdf.mesFormules1.def2.X0.val",
+			]
+	L = [	
+			"$gescdf.mesFormules[0:]",
+			"$gescdf.mesFormules0.listvar[0:]",
+			"$gescdf.mesFormules0.X0.forme[0:]",
+			"$gescdf.mesFormules0.listvar0.forme[0:]",
+			"$gescdf.mesFormules0.def0.listvar0.forme[0:]",
+			"$gescdf.mesFormules0.def0.listvar0.forme0.ph0",
+			"$gescdf.mesFormules0.def0.listvar0.forme0.ph1",
+			"$gescdf.mesFormules0.def0.listvar0.forme0.ph2",
+			"$gescdf.mesFormules0.def0.listvar0.forme0.ph0",
+			"$gescdf.mesFormules0.def1.listvar0.forme0.ph1",
+			"$gescdf.mesFormules0.def1.listvar0.forme0.ph2",
+			"$gescdf.mesFormules0.def1.listvar0.forme0.val",
+			"$gescdf.mesFormules0.def1.listvar0.forme1.val",
+			"$gescdf.mesFormules0.def1.listvar0.forme2.val",
+			"$gescdf.mesFormules0.listvar[0:]",
+			"$gescdf.mesFormules0.listvar0",
+			"$gescdf.mesFormules0.listvar0.val",
+			"$gescdf.mesFormules0.listvar1",
+			"$gescdf.mesFormules0.listvar1.val",			
+			"$gescdf.mesFormules0",
+			"$gescdf.mesFormules0.val",
+			"$gescdf.mesFormules0.X0",
+			"$gescdf.mesFormules0.X0.forme[0:]",
+			"$gescdf.mesFormules0.Y0.forme[0:]",
+			"$gescdf.mesFormules1.X0",
+			"$gescdf.mesFormules1.X0.val",
+			"$gescdf.mesFormules1.Y0",
+			"$gescdf.mesFormules1.Y0.forme[0:]",
+			"$gescdf.mesFormules1.Y0.val",
+			"$gescdf.mesFormules1.X[0:]",
+			"$gescdf.mesFormules1.X0.ph[0:]"
+			]
+	rep = raw_input("évaluation d'une liste de formules ? " )
+	if rep == 'o' :
+		for exp in L:
+			EVAL_SHOW_SFRM(exp)
+		
+		
+		
+	console_eval( c)
+	'''
+	folder_path="C:\Users\jean-pierre\workspace\PII\P2Qt"
+	dic_var={}
+	L = [ "mrlw_varm.txt", "mrlw_varm2.txt", "mrlw_varoutils.txt",  "mrlw_varu.txt", "mrlw_varvar.txt" ]
+	for F in L :
+		dic_var =  load_var(os.path.join(folder_path,F),dic_var)
+	# on lit un fichier de frm , pouvant aussi contenir des definitions de variables
+	dic_frm,dic_var = load_frm (os.path.join(folder_path,"mrlw_frm1.txt")  , dic_var)
+	'''
+	
+	
+	# envois des variables et des formules
+	# .. lance le calcul directement ...
+	# peut-être isolé ça
+	'''
+	send_formules_mini( c, dic_frm,dic_var)
+	# un flag à positionner sur le serveur ... pour la fin du calcul
+	c.send_var_for_frm (dic_var )
+	c.send_frm ( dic_frm)
+	c.exec_frm()
+	
 	#L= c.creer_msg_ctx("titre","[0:]")
 	#c.set( '192.168.1.63','6000' )
 	
 	
-	c.set( '192.168.1.35','60000' )
-	path="C:\corpus\chronique\projet_chronique.prc"
+	#c.set( '192.168.1.35','60000' )
+	#path="C:\corpus\chronique\projet_chronique.prc"
 	#path="/home/jeanjean/monProjet.prc"
 	#c.load(path)
-	
+	'''
 	i = 0
 	while 1:
 		status = c.eval_variable("$status")
@@ -1637,6 +2116,23 @@ if __name__ == "__main__" :
 			break
 		time.sleep(1)
 	#eval_fonct (self, fonc, element,sem):
+	
+	# variables uniques , état du serveur
+	LVAR =[ u"$volume_corpus",u"$status"]
+	for V in LVAR :
+		SHOW(V)
+	
+	LVAR = [u"$pers0",u"$pers[0:10]", u"$ef0" ,]
+	for V in LVAR :
+		SHOW(V)
+	# variable incorporant le tri dans la partie préfix du nom
+	LVAR = [u"$val_freq_ent[0:20]",u"$val_nbaut_ent[0:]", u"$val_lapp_ent[0:]" ]
+	for V in LVAR :
+		SHOW(V)	
+
+	LVAR = [u"$gc0",u"$gc0.c[0:10]", u"$gc0.c0" , u"$gc0.c0.val" ]
+	for V in LVAR :
+		SHOW(V)	
 	data = c.eval_variable("$ent[20:25]")
 	print data
 	c.eval_op_concept("gestion_concept",'remove', "ef", "TRUC@")

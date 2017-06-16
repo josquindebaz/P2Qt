@@ -165,9 +165,18 @@ class Principal(QtGui.QMainWindow):
         self.NOT2.depII.listw.addAction(QtGui.QAction('copy list', self,
             triggered=lambda: self.copy_lw(self.NOT2.depII.listw)))
 
+            
         ##### Tab for persons                #############
         ##################################################
         self.show_persons = Viewer.personsTab()
+
+        self.show_persons.L.listw.addAction(QtGui.QAction('texts', self,
+            triggered=lambda: self.show_texts_from_list("pers")))
+        self.show_persons.L.listw.addAction(QtGui.QAction('network', self,
+            triggered=lambda: self.show_network("pers")))
+        self.show_persons.L.listw.addAction(QtGui.QAction('copy list', self,
+            triggered=lambda: self.copy_lw(self.show_persons.L.listw)))
+
 
         #Networks tab
         ##################################################
@@ -210,7 +219,8 @@ class Principal(QtGui.QMainWindow):
         ##### Tab for formulae                #############
         ##################################################
 
-        formulaeTab = QtGui.QWidget()
+        formulaeTab = Viewer.Formulae()
+        formulaeTab.tempButton.clicked.connect(self.recupFormules)
 
         #Access by context CTX
         ################################################
@@ -232,12 +242,11 @@ class Principal(QtGui.QMainWindow):
         self.NETs.tabCloseRequested.connect(self.NETs.removeTab)
         self.journal_index = self.NETs.addTab(self.journal.journal,
             self.tr("Journal"))
-        Viewer.hide_close_buttons(self.NETs,0)
+        Viewer.hide_close_buttons(self.NETs, 0)
         self.NETs.addTab(self.explorer_widget, self.tr("Search"))
-        Viewer.hide_close_buttons(self.NETs,1)
+        Viewer.hide_close_buttons(self.NETs, 1)
         self.NETs.addTab(formulaeTab, self.tr("Formulae"))
-        Viewer.hide_close_buttons(self.NETs,2)
-        self.NETs.setTabEnabled(2, False)
+        Viewer.hide_close_buttons(self.NETs, 2)
 
         ##################################################
         #cadran SO
@@ -1034,8 +1043,8 @@ class Principal(QtGui.QMainWindow):
             nbtxt = self.client.eval_var("$nbtxt")
             volcorpus = self.client.eval_var("$volume_corpus")
             if name != "":
-                message = "<b>%s</b> %s texts %s pages %s octets" % (name,
-                    nbtxt, nbpg, volcorpus)
+                message = "Corpus: <b>%s</b> texts: %s pages: %s volume: ?" % (name, 
+                    nbtxt, nbpg)
             else:
                 message = "%s texts %s pages %s octets" % (nbtxt, nbpg,
                     volcorpus)
@@ -1075,19 +1084,21 @@ class Principal(QtGui.QMainWindow):
             self.persons_tab_index = self.NOTs.addTab(self.show_persons, self.tr("Persons"))
             self.NOTs.setCurrentIndex(self.persons_tab_index)
 
-        self.show_persons.L.clear()
+        self.show_persons.L.listw.clear()
 
         ask = "$pers[0:]" 
         result = self.client.eval_var(ask)
         list_results = re.split(", ", result)
         self.activity(self.tr("Displaying %d persons")%len(list_results))
 
-        self.PrgBar.perc(len(list_results))
-
-        for i, p in enumerate(list_results):
-            ask = u"$pers%d.freq" % i 
-            r = self.client.eval_var(ask)
-            self.show_persons.L.addItem("%s %s"%(p, r))
+        if len(list_results) > 0:
+            self.PrgBar.perc(len(list_results))
+            ask2 = u"$pers[0:].val" 
+            result2 = self.client.eval_var(ask2)
+            list_val = re.split(", ", result2)
+            liste_valued = ["%s %s" %(list_val[row], item) for row, item in 
+                enumerate(list_results)]
+            self.show_persons.L.listw.addItems(liste_valued)
 
     def display_actants(self):
         ask = u"$act[0:]" 
@@ -1494,6 +1505,13 @@ class Principal(QtGui.QMainWindow):
             val, element = Controller.sp_el(element)
             return  (self.semantique_concept_item, element)
 
+    def recup_element_persons(self):
+        """get semantic and name of item pointed in persons list"""
+        element = self.show_persons.L.listw.currentItem().text() 
+        row = self.show_persons.L.listw.currentRow()
+        val, element = Controller.sp_el(element)
+        return ("$pers%d"%row, element)
+
     def add_networks_tab(self):
         """display tab network in the NE cadran"""
         self.networks_tab_index = self.NOTs.addTab(self.tabNetworks, self.tr("Networks"))
@@ -1509,6 +1527,8 @@ class Principal(QtGui.QMainWindow):
             sem, element = self.recup_element_lexicon()
         elif (self.lexicon_or_concepts() == "concepts"):
             sem, element = self.recup_element_concepts(lvl)
+        elif (lvl == "pers"):
+            sem, element = self.recup_element_persons()
 
         for i in range(0, self.tabNetworks.count()):
             if (self.tabNetworks.tabText(i) == element):
@@ -1591,6 +1611,9 @@ class Principal(QtGui.QMainWindow):
                 sem, element = self.recup_element_actants()
                 element = "%s[as actant]" % element
                 #print "C11735", sem, element
+            elif (lvl == "pers"):
+                sem, element = self.recup_element_persons()
+                print "C2891"
             else:
                return 0 
 
@@ -1794,6 +1817,12 @@ class Principal(QtGui.QMainWindow):
         self.connect_server("localhost", port)
         #kill the server when the gui is closed
         atexit.register(local_server.terminate) 
+
+    ###FORMULES###
+    def recupFormules(self):
+        ask = "$gescdf.mesFormules0[0:]"
+        result = self.client.eval(ask)
+        print "C25713", ask, result
             
 
 class codex_window(QtGui.QWidget):
