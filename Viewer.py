@@ -1298,10 +1298,11 @@ class Formulae(QtGui.QWidget):
         vboxG.setContentsMargins(0,0,0,0) 
         hbox.addLayout(vboxG)
 
+        #FIXME no buttons!
         self.tempButton =  QtGui.QPushButton("load")
-        vboxG.addWidget(self.tempButton)
+#        vboxG.addWidget(self.tempButton)
 
-#TODO add alternate row and contextmenu
+        #TODO add alternate row and contextmenu
 
         classesBox = QtGui.QGroupBox("classes")
         vboxG.addWidget(classesBox)
@@ -1309,8 +1310,8 @@ class Formulae(QtGui.QWidget):
         classesBoxL.setContentsMargins(0,0,0,0) 
         classesBox.setLayout(classesBoxL)
         self.LFclasses = QtGui.QListWidget()
+        self.LFclasses.setMaximumHeight(75)
         classesBoxL.addWidget(self.LFclasses)
-
 
         compositionsBox = QtGui.QGroupBox("compositions")
         vboxG.addWidget(compositionsBox)
