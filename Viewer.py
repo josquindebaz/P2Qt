@@ -16,36 +16,36 @@ class MyMenu(QtGui.QMenuBar):
 
         ##################################################
         #Corpus and Server
-        menu_server = self.addMenu(self.tr('Server and projects'))
-        self.distant = menu_server.addMenu(QtGui.QIcon('images/distant.png'),
-                                                             self.tr('Remote'))
-        
-        menu_local = menu_server.addMenu(QtGui.QIcon('images/home.png'),
-             self.tr('Local')) 
-        self.local_connect = QtGui.QAction(self.tr("Connect"), self)
-        menu_local.addAction(self.local_connect)
-        self.local_edit = QtGui.QAction(self.tr("Edit project"), self)
-        menu_local.addAction(self.local_edit)
-        #TODO edit local server parameters: path, port
-        menu_local_param = QtGui.QAction(self.tr("Local server parameters"), self)
-        menu_local.addAction(menu_local_param)
-        menu_local_param.setEnabled(False)
+        menu_server = self.addMenu(self.tr('Projects and servers'))
 
-        menu_server.addSeparator()
+        self.local_edit = QtGui.QAction(self.tr("Local project"), self)
+        menu_server.addAction(self.local_edit)
 
         self.codex = QtGui.QAction(self.tr("Codex"), self)
         menu_server.addAction(self.codex)
 
-        self.server_vars = QtGui.QAction(self.tr("Variables testing"), self)
-        menu_server.addAction(self.server_vars)
-
         #TODO transform corpus p1<->p2
-        menu_convert_corpus = QtGui.QAction(self.tr("Convert P1 and P2 corpus"), self)
+        menu_convert_corpus = QtGui.QAction(self.tr("Convert P1 to P2 corpus"), self)
         menu_server.addAction(menu_convert_corpus)
         menu_convert_corpus.setEnabled(False) 
 
         #TODO recup corpus, fusion, generer sous corpus
         #TODO Constellations and corpus comparisons
+
+        menu_server.addSeparator()
+
+        self.distant = menu_server.addMenu(self.tr('Connect remote server'))
+
+        self.local_connect = QtGui.QAction(self.tr("Connect local server"), self)
+        menu_server.addAction(self.local_connect)
+
+        #TODO edit local server parameters: path, port // menu paramètres
+
+        menu_server.addSeparator()
+
+        self.server_vars = QtGui.QAction(self.tr("Variables testing"), self)
+        menu_server.addAction(self.server_vars)
+
 
         ##################################################
         #Concepts and lexics
