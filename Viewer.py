@@ -21,12 +21,14 @@ class MyMenu(QtGui.QMenuBar):
         self.local_edit = QtGui.QAction(self.tr("Local project"), self)
         menu_server.addAction(self.local_edit)
 
+        #FIXME images do not display
         self.distant = menu_server.addMenu(QtGui.QIcon('images/distant.png'), 
                 self.tr('Connect'))
         self.local_connect = QtGui.QAction(QtGui.QIcon('images/home.png'), 
                 self.tr("Local server"), self)
         self.distant.addAction(self.local_connect)
         self.local_connect.setEnabled(False)
+        menu_server.addSeparator()
 
         ##################################################
         #Concepts and lexics
@@ -114,7 +116,7 @@ class MyMenu(QtGui.QMenuBar):
         menu_param.addAction(menu_local_param)
         menu_local_param.setEnabled(False)
 
-        self.server_vars = QtGui.QAction(self.tr("Variables testing"), self)
+        self.server_vars = QtGui.QAction(self.tr("Direct variable testing"), self)
         menu_param.addAction(self.server_vars)
 
 
@@ -1304,10 +1306,11 @@ class Formulae(QtGui.QWidget):
         vboxG.setContentsMargins(0,0,0,0) 
         hbox.addLayout(vboxG)
 
+        #FIXME no buttons!
         self.tempButton =  QtGui.QPushButton("load")
-        vboxG.addWidget(self.tempButton)
+#        vboxG.addWidget(self.tempButton)
 
-#TODO add alternate row and contextmenu
+        #TODO add alternate row and contextmenu
 
         classesBox = QtGui.QGroupBox("classes")
         vboxG.addWidget(classesBox)
@@ -1315,8 +1318,8 @@ class Formulae(QtGui.QWidget):
         classesBoxL.setContentsMargins(0,0,0,0) 
         classesBox.setLayout(classesBoxL)
         self.LFclasses = QtGui.QListWidget()
+        self.LFclasses.setMaximumHeight(75)
         classesBoxL.addWidget(self.LFclasses)
-
 
         compositionsBox = QtGui.QGroupBox("compositions")
         vboxG.addWidget(compositionsBox)

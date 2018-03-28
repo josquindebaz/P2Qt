@@ -25,8 +25,8 @@ class Principal(QtGui.QMainWindow):
 
         # create the menu 
         ##################################################
-        menu = Viewer.MyMenu()
-        self.setMenuBar(menu)
+        self.menu = Viewer.MyMenu()
+        self.setMenuBar(self.menu)
 
         get_remote_corpus = Controller.myxml()
         if get_remote_corpus.get():
@@ -35,18 +35,17 @@ class Principal(QtGui.QMainWindow):
                     t = QtGui.QAction(corpus[0], self)
                     t.triggered.connect(functools.partial(self.connect_server,
                                  "prosperologie.org", corpus[1], corpus[0]))
-                    menu.distant.addAction(t)
+                    self.menu.distant.addAction(t)
 
-
-        menu.local_connect.triggered.connect(self.connect_server_localhost)
-        menu.local_edit.triggered.connect(self.add_edit_corpus_tab)
-        menu.codex.triggered.connect(self.codex_window)
-        menu.server_vars.triggered.connect(self.display_server_vars)
-        menu.contexts.triggered.connect(self.display_contexts)
-        menu.pers.triggered.connect(self.display_pers)
-        menu.marlowe_gen.triggered.connect(self.add_gen_mrlw_tab)
-        menu.Marlowe_remote.triggered.connect(self.MarloweViewer)
-        menu.manual.triggered.connect(lambda: webbrowser.open('http://mypads.framapad.org/mypads/?/mypads/group/doxa-g71fm7ki/pad/view/interface-p2-manuel-de-l-utilisateur-hsa17wo'))
+        self.menu.local_connect.triggered.connect(self.connect_server_localhost)
+        self.menu.local_edit.triggered.connect(self.add_edit_corpus_tab)
+        self.menu.codex.triggered.connect(self.codex_window)
+        self.menu.server_vars.triggered.connect(self.display_server_vars)
+        self.menu.contexts.triggered.connect(self.display_contexts)
+        self.menu.pers.triggered.connect(self.display_pers)
+        self.menu.marlowe_gen.triggered.connect(self.add_gen_mrlw_tab)
+        self.menu.Marlowe_remote.triggered.connect(self.MarloweViewer)
+        self.menu.manual.triggered.connect(lambda: webbrowser.open('http://mypads.framapad.org/mypads/?/mypads/group/doxa-g71fm7ki/pad/view/interface-p2-manuel-de-l-utilisateur-hsa17wo'))
 
         # create the status bar
         ##################################################
@@ -1015,8 +1014,14 @@ class Principal(QtGui.QMainWindow):
         #self.connect_server(h='192.168.1.99', p='60000')
 
     def connect_server(self, h = 'prosperologie.org', p = '60000', name=""):
+
         self.activity(self.tr("Connecting to server"))
 
+        #disable connection menus
+        self.menu.local_edit.setEnabled(False)
+        self.menu.distant.setEnabled(False)
+        #self.menu.local_connect.setEnabled(False)
+        
         self.client=Controller.client(h, p)
         
         if (self.client.etat):
@@ -1063,7 +1068,7 @@ class Principal(QtGui.QMainWindow):
                  QtCore.SIGNAL("triggered()"), self.send_codex_ViewListeTextes)
         self.param_corpus.launchPRC_button.clicked.connect(self.launchPRC)
         self.param_corpus_tab_index = self.NETs.addTab(self.param_corpus,
-            self.tr("Corpus"))
+            self.tr("Project"))
         self.NETs.setCurrentIndex(self.param_corpus_tab_index)
 
     def display_contexts(self):
