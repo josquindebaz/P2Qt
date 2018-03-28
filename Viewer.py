@@ -16,36 +16,17 @@ class MyMenu(QtGui.QMenuBar):
 
         ##################################################
         #Corpus and Server
-        menu_server = self.addMenu(self.tr('Server and projects'))
-        self.distant = menu_server.addMenu(QtGui.QIcon('images/distant.png'),
-                                                             self.tr('Remote'))
-        
-        menu_local = menu_server.addMenu(QtGui.QIcon('images/home.png'),
-             self.tr('Local')) 
-        self.local_connect = QtGui.QAction(self.tr("Connect"), self)
-        menu_local.addAction(self.local_connect)
-        self.local_edit = QtGui.QAction(self.tr("Edit project"), self)
-        menu_local.addAction(self.local_edit)
-        #TODO edit local server parameters: path, port
-        menu_local_param = QtGui.QAction(self.tr("Local server parameters"), self)
-        menu_local.addAction(menu_local_param)
-        menu_local_param.setEnabled(False)
+        menu_server = self.addMenu(self.tr('Projects'))
 
-        menu_server.addSeparator()
+        self.local_edit = QtGui.QAction(self.tr("Local project"), self)
+        menu_server.addAction(self.local_edit)
 
-        self.codex = QtGui.QAction(self.tr("Codex"), self)
-        menu_server.addAction(self.codex)
-
-        self.server_vars = QtGui.QAction(self.tr("Variables testing"), self)
-        menu_server.addAction(self.server_vars)
-
-        #TODO transform corpus p1<->p2
-        menu_convert_corpus = QtGui.QAction(self.tr("Convert P1 and P2 corpus"), self)
-        menu_server.addAction(menu_convert_corpus)
-        menu_convert_corpus.setEnabled(False) 
-
-        #TODO recup corpus, fusion, generer sous corpus
-        #TODO Constellations and corpus comparisons
+        self.distant = menu_server.addMenu(QtGui.QIcon('images/distant.png'), 
+                self.tr('Connect'))
+        self.local_connect = QtGui.QAction(QtGui.QIcon('images/home.png'), 
+                self.tr("Local server"), self)
+        self.distant.addAction(self.local_connect)
+        self.local_connect.setEnabled(False)
 
         ##################################################
         #Concepts and lexics
@@ -69,6 +50,11 @@ class MyMenu(QtGui.QMenuBar):
         Menu_Texts.addAction(Menu_ModTex)
         Menu_ModTex.setEnabled(False)
 
+        Menu_Texts.addSeparator()
+
+        self.codex = QtGui.QAction(self.tr("Codex"), self)
+        Menu_Texts.addAction(self.codex)
+
         ##################################################
         #Corpus
         menu_corpus = self.addMenu(self.tr('Corpus'))
@@ -78,6 +64,15 @@ class MyMenu(QtGui.QMenuBar):
         menu_corpus_comb =  QtGui.QAction(self.tr("Corpus combination"), self)
         menu_corpus.addAction(menu_corpus_comb)
         menu_corpus_comb.setEnabled(False)
+
+        #TODO transform corpus p1<->p2
+        #menu_convert_corpus = QtGui.QAction(self.tr("Convert P1 and P2 corpus"), self)
+        #menu_server.addAction(menu_convert_corpus)
+        #menu_convert_corpus.setEnabled(False) 
+
+        #TODO recup corpus, fusion, generer sous corpus
+        #TODO Constellations and corpus comparisons
+
 
         ##################################################
         #Viz and computations
@@ -113,6 +108,17 @@ class MyMenu(QtGui.QMenuBar):
         #ex reduire le poids seulement si expr englobante de meme type
         self.manual = QtGui.QAction(self.tr('Manual'), self)
         menu_param.addAction(self.manual)
+
+        #TODO edit local server parameters: path, port
+        menu_local_param = QtGui.QAction(self.tr("Local server parameters"), self)
+        menu_param.addAction(menu_local_param)
+        menu_local_param.setEnabled(False)
+
+        self.server_vars = QtGui.QAction(self.tr("Variables testing"), self)
+        menu_param.addAction(self.server_vars)
+
+
+
 
 class PrgBar(object):
     """a progress bar"""
@@ -693,11 +699,11 @@ class Corpus_tab(QtGui.QListWidget):
         H2LV1.addWidget(self.ViewListeTextes)
 
         self.ViewListeTextes.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-        addItem_ViewListeTextes = QtGui.QAction(self.tr('add text'), self)
+        addItem_ViewListeTextes = QtGui.QAction(self.tr('add'), self)
         self.ViewListeTextes.addAction(addItem_ViewListeTextes)
         QtCore.QObject.connect(addItem_ViewListeTextes, 
             QtCore.SIGNAL("triggered()"), self.addItem_ViewListeTextes)
-        efface_ViewListeTextesItem = QtGui.QAction(self.tr('delete item'), self)
+        efface_ViewListeTextesItem = QtGui.QAction(self.tr('remove'), self)
         self.ViewListeTextes.addAction(efface_ViewListeTextesItem)
         QtCore.QObject.connect(efface_ViewListeTextesItem, 
             QtCore.SIGNAL("triggered()"), self.efface_ViewListeTextesItem)
