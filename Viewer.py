@@ -5,6 +5,7 @@ from PySide import QtGui
 import re
 import os
 import datetime
+import getpass
 
 import Controller
 import generator_mrlw
@@ -701,7 +702,7 @@ class Corpus_tab(QtGui.QListWidget):
         H2LV1.addWidget(self.ViewListeTextes)
 
         self.ViewListeTextes.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-        addItem_ViewListeTextes = QtGui.QAction(self.tr('add'), self)
+        addItem_ViewListeTextes = QtGui.QAction(self.tr('add text file'), self)
         self.ViewListeTextes.addAction(addItem_ViewListeTextes)
         QtCore.QObject.connect(addItem_ViewListeTextes, 
             QtCore.SIGNAL("triggered()"), self.addItem_ViewListeTextes)
@@ -796,7 +797,7 @@ class Corpus_tab(QtGui.QListWidget):
 
     def addItem_ViewListeTextes(self):
         fnames, filt = QtGui.QFileDialog.getOpenFileNames(self,
-         self.tr('Add file'), '.', '*.txt;*.TXT')
+         self.tr('Add text file'), '.', 'Text (*.txt *.TXT)')
         if (fnames):
             self.TxtFilesDropped(fnames)
 
@@ -813,7 +814,7 @@ class Corpus_tab(QtGui.QListWidget):
 
     def addItem_ViewListeConcepts(self):
         fnames, filt = QtGui.QFileDialog.getOpenFileNames(self,
-            self.tr('Add file'), '.', '*.fic;*.cat;*.col')
+            self.tr('Add file'), '.', '*.fic *.cat *.col')
         if (fnames):
             self.ccfFilesDropped(fnames)
 
@@ -863,8 +864,14 @@ class Corpus_tab(QtGui.QListWidget):
         self.ViewListeLexicons.sortItems()
 
     def getFile(self):
+        testlinux = "/home/" + getpass.getuser() + "/corpus"
+        #TODO for all platforms
         if os.path.isdir("/Users/gspr/corpus"):
             rep = "/Users/gspr/corpus"
+        elif os.path.isdir("C:\\corpus\\"):
+            rep = "C:\\corpus\\" 
+        elif os.path.isdir(testlinux):
+            rep = testlinux
         else:
             rep = "."
         fname, filt = QtGui.QFileDialog.getOpenFileName(self, 
