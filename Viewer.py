@@ -665,10 +665,13 @@ class Corpus_tab(QtGui.QListWidget):
         openPRC_button.setToolTip(self.tr("Open a .prc file"))
         openPRC_button.clicked.connect(self.openPRC)
         H1.addWidget(openPRC_button)
-        mergePRC_button= QtGui.QPushButton(self.tr("Merge"))
-        mergePRC_button.setToolTip(self.tr("Merge text list with a .prc file"))
-        H1.addWidget(mergePRC_button)
-        mergePRC_button.clicked.connect(self.mergePRC)
+
+        self.mergePRC_button= QtGui.QPushButton(self.tr("Merge"))
+        self.mergePRC_button.setToolTip(self.tr("Merge text list with a .prc file"))
+        H1.addWidget(self.mergePRC_button)
+        self.mergePRC_button.clicked.connect(self.mergePRC)
+        self.mergePRC_button.setEnabled(False)
+
         savePRC_button= QtGui.QPushButton(self.tr("Save"))
         H1.addWidget(savePRC_button)
         savePRC_button.clicked.connect(self.savePRC)
@@ -684,13 +687,6 @@ class Corpus_tab(QtGui.QListWidget):
         H2LV1.addLayout(H2LV1B)
         self.numTexts = QtGui.QLabel()
         H2LV1B.addWidget(self.numTexts)
-        spacer_1 = QtGui.QLabel()
-        spacer_1.setSizePolicy(QtGui.QSizePolicy.Expanding, 
-                                    QtGui.QSizePolicy.Minimum)
-        H2LV1B.addWidget(spacer_1)
-        self.checkTexts = QtGui.QCheckBox(self.tr("file existence"))
-        H2LV1B.addWidget(self.checkTexts)
-        self.checkTexts.stateChanged.connect(self.checkFileExistence)
     
         self.TextFilesDates = {}
 
@@ -705,14 +701,17 @@ class Corpus_tab(QtGui.QListWidget):
         self.ViewListeTextes.addAction(addItem_ViewListeTextes)
         QtCore.QObject.connect(addItem_ViewListeTextes, 
             QtCore.SIGNAL("triggered()"), self.addItem_ViewListeTextes)
+
         efface_ViewListeTextesItem = QtGui.QAction(self.tr('remove'), self)
         self.ViewListeTextes.addAction(efface_ViewListeTextesItem)
         QtCore.QObject.connect(efface_ViewListeTextesItem, 
             QtCore.SIGNAL("triggered()"), self.efface_ViewListeTextesItem)
+
         efface_ViewListeTextes = QtGui.QAction(self.tr('clear list'), self)
         self.ViewListeTextes.addAction(efface_ViewListeTextes)
         QtCore.QObject.connect(efface_ViewListeTextes, 
             QtCore.SIGNAL("triggered()"), self.efface_ViewListeTextes)
+
         self.send_codex_ViewListeTextes = QtGui.QAction(self.tr('send to codex'), self)
         self.ViewListeTextes.addAction(self.send_codex_ViewListeTextes)
         #QtCore.QObject.connect(send_codex_ViewListeTextes, 
@@ -724,7 +723,7 @@ class Corpus_tab(QtGui.QListWidget):
         H22Tab.addTab(H22TabDic, self.tr("Dictionaries"))
         H2L = QtGui.QVBoxLayout()
         H22TabDic.setLayout(H2L)
-        H2L.setContentsMargins(0,0,0,0) 
+        H2L.setContentsMargins(0, 0, 0, 0) 
         H2L.setSpacing(0) 
 
         self.ViewListeConcepts = ListViewDrop(self)
@@ -832,8 +831,15 @@ class Corpus_tab(QtGui.QListWidget):
         for url in list(set(l) - set(existing)):
             if os.path.exists(url):
                 if os.path.splitext(url)[1] in ['.cat', '.fic', '.col']:
-                    item = QtGui.QListWidgetItem(url, self.ViewListeConcepts)
-                    item.setStatusTip(url)
+                    testP2 = Controller.checkP1P2dic(url)
+                    if (testP2):
+                        if testP2 == "P1":
+                            QtGui.QMessageBox.information(self, 
+                                    self.tr("Concept format error"), 
+                                    self.tr("This is a file for Prospero 1"))
+                        else:
+                            item = QtGui.QListWidgetItem(url, self.ViewListeConcepts)
+                            item.setStatusTip(url)
         self.ViewListeConcepts.sortItems()
         
     def efface_ViewListeLexicons(self):
@@ -880,61 +886,65 @@ class Corpus_tab(QtGui.QListWidget):
         fname = self.getFile()
         if (fname) :
             corpus = Controller.parseCorpus()
-            corpus.open(fname)
+            testP2 = corpus.open(fname)
 
-            self.nameCorpus.clear()
-            self.nameCorpus.setText(fname)
-
-            self.ViewListeTextes.clear()
-            for f in corpus.textFileList(): 
-                item = QtGui.QListWidgetItem(f[0])
-                item.setToolTip(self.tr("insertion date %s") % f[1])
-                self.ViewListeTextes.addItem(item)
-                self.TextFilesDates[f[0]] = f[1]
-            self.numTexts.setText(self.tr("%d texts")%self.ViewListeTextes.count())
-            self.ViewListeTextes.sortItems()
-            if self.checkTexts.checkState() :
-                self.checkFileExistence()
-
-            self.ViewListeConcepts.clear()
-            self.ViewListeConcepts.addItems(corpus.conceptFileList())
-            self.ViewListeConcepts.sortItems()
-
-            self.ViewListeLexicons.clear()
-            self.ViewListeLexicons.addItems(corpus.dicFileList())
-            self.ViewListeLexicons.sortItems()
-
-            self.launchPRC_button.setEnabled(True)
-
-    def checkFileExistence(self):
-        for row in range(self.ViewListeTextes.count()):
-            F = self.ViewListeTextes.item(row).text()
-            if self.checkTexts.checkState():
-                if os.path.isfile(F):
-                    self.ViewListeTextes.item(row).setForeground(
-                                            QtGui.QColor("green"))
+            if (testP2):
+                if (testP2 == "P1"):
+                    QtGui.QMessageBox.information(self, self.tr("Project format error"), 
+                            self.tr("This is a project for Prospero 1"))
                 else:
-                    self.ViewListeTextes.item(row).setForeground(
-                                                QtGui.QColor("red"))
+                    self.nameCorpus.clear()
+                    self.nameCorpus.setText(fname)
+
+                    self.ViewListeTextes.clear()
+                    for f in corpus.textFileList(): 
+                        item = QtGui.QListWidgetItem(f[0])
+                        item.setToolTip(self.tr("insertion date %s") % f[1])
+                        self.ViewListeTextes.addItem(item)
+                        self.TextFilesDates[f[0]] = f[1]
+                    self.numTexts.setText(self.tr("%d texts")%self.ViewListeTextes.count())
+                    self.ViewListeTextes.sortItems()
+                    self.checkFileExistence(self.ViewListeTextes)
+
+                    self.ViewListeConcepts.clear()
+                    self.ViewListeConcepts.addItems(corpus.conceptFileList())
+                    self.ViewListeConcepts.sortItems()
+                    self.checkFileExistence(self.ViewListeConcepts)
+
+                    self.ViewListeLexicons.clear()
+                    self.ViewListeLexicons.addItems(corpus.dicFileList())
+                    self.ViewListeLexicons.sortItems()
+                    self.checkFileExistence(self.ViewListeLexicons)
+
+                    self.launchPRC_button.setEnabled(True)
+                    self.mergePRC_button.setEnabled(True)
+
+    def checkFileExistence(self, L):
+        for row in range(L.count()):
+            F = L.item(row).text()
+            if os.path.isfile(F):
+                L.item(row).setForeground(
+                                        QtGui.QColor("green"))
             else:
-                self.ViewListeTextes.item(row).setForeground(
-                                        QtGui.QColor("black"))
+                L.item(row).setForeground(
+                                            QtGui.QColor("red"))
 
     def mergePRC(self):
         fname = self.getFile()
         if (fname) :
             corpusM = Controller.parseCorpus()
-            corpusM.open(fname)
-            for f in corpusM.textFileList(): 
-                if f[0] not in self.TextFilesDates.keys():
-                    self.TextFilesDates[f[0]] = f[1]
-                    item = QtGui.QListWidgetItem(f[0])
-                    item.setToolTip(self.tr("insertion date %s") % f[1])
-                    self.ViewListeTextes.addItem(item)
-            self.ViewListeTextes.sortItems()
-            self.numTexts.setText(self.tr("%d texts")%self.ViewListeTextes.count())
-            if self.checkTexts.checkState() :
-                self.checkFileExistence()
+            testP2 = corpusM.open(fname)
+            if (testP2 != "P1" and testP2 != False):
+                for f in corpusM.textFileList(): 
+                    if f[0] not in self.TextFilesDates.keys():
+                        self.TextFilesDates[f[0]] = f[1]
+                        item = QtGui.QListWidgetItem(f[0])
+                        item.setToolTip(self.tr("insertion date %s") % f[1])
+                        self.ViewListeTextes.addItem(item)
+                self.ViewListeTextes.sortItems()
+                self.numTexts.setText(self.tr("%d texts")%self.ViewListeTextes.count())
+
+                self.checkFileExistence(self.ViewListeTextes)
 
     def savePRC(self):
         fileName, ext = QtGui.QFileDialog.getSaveFileName(self,

@@ -100,6 +100,16 @@ class Texte(object):
 
         return (date, author, title)
 
+def checkP1P2dic(url):
+    with open(url, 'r') as f:
+        b = f.readlines()
+        if re.search("<Gestionnaire-Concepts>", b[1]):
+            return True
+        elif re.search("(col0001|fic0001|cat0001)", b[0]):
+            return "P1"
+        else:
+            return False
+
 class parseCorpus(object):
     def __init__(self):
         self.corpus = 0
@@ -112,6 +122,8 @@ class parseCorpus(object):
             F.seek(0)
             self.corpus  = minidom.parse(F)
             return True
+        elif re.search("projet0005", B[0]):
+            return "P1"
         else:
             return False
         
