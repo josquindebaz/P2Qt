@@ -21,7 +21,7 @@ class MyMenu(QtGui.QMenuBar):
         self.local_edit = QtGui.QAction(self.tr("Local project"), self)
         menu_server.addAction(self.local_edit)
 
-        #FIXME images do not display
+        #FIXME images do not display on linux, to be tested on mac
         self.distant = menu_server.addMenu(QtGui.QIcon('images/distant.png'), 
                 self.tr('Connect'))
         self.local_connect = QtGui.QAction(QtGui.QIcon('images/home.png'), 
@@ -773,7 +773,8 @@ class Corpus_tab(QtGui.QListWidget):
             QtCore.SIGNAL("triggered()"), self.efface_ViewListeLexicons)
 
         H22TabPar = QtGui.QWidget()
-        H22Tab.addTab(H22TabPar, self.tr("Parameters"))
+        i = H22Tab.addTab(H22TabPar, self.tr("Parameters"))
+        H22Tab.setTabEnabled(i, False)
           
     def TxtFilesDropped(self, l):
         existing = [] 

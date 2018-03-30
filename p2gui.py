@@ -1063,13 +1063,15 @@ class Principal(QtGui.QMainWindow):
         self.Param_Server_B.clicked.connect(self.connect_server)
 
     def add_edit_corpus_tab(self):
-        self.param_corpus = Viewer.Corpus_tab(self)
-        QtCore.QObject.connect(self.param_corpus.send_codex_ViewListeTextes,
-                 QtCore.SIGNAL("triggered()"), self.send_codex_ViewListeTextes)
-        self.param_corpus.launchPRC_button.clicked.connect(self.launchPRC)
-        self.param_corpus_tab_index = self.NETs.addTab(self.param_corpus,
-            self.tr("Project"))
-        self.NETs.setCurrentIndex(self.param_corpus_tab_index)
+        if  self.tr("Project") not in [self.NETs.tabText(i) 
+                for i in range(0, self.NETs.count())] :
+            self.param_corpus = Viewer.Corpus_tab(self)
+            QtCore.QObject.connect(self.param_corpus.send_codex_ViewListeTextes,
+                     QtCore.SIGNAL("triggered()"), self.send_codex_ViewListeTextes)
+            self.param_corpus.launchPRC_button.clicked.connect(self.launchPRC)
+            self.param_corpus_tab_index = self.NETs.addTab(self.param_corpus,
+                self.tr("Project"))
+            self.NETs.setCurrentIndex(self.param_corpus_tab_index)
 
     def display_contexts(self):
         i = self.NETs.addTab(self.CTXs, self.tr("Contexts"))
