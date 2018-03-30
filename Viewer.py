@@ -5,7 +5,6 @@ from PySide import QtGui
 import re
 import os
 import datetime
-import getpass
 
 import Controller
 import generator_mrlw
@@ -864,14 +863,12 @@ class Corpus_tab(QtGui.QListWidget):
         self.ViewListeLexicons.sortItems()
 
     def getFile(self):
-        testlinux = "/home/" + getpass.getuser() + "/corpus"
-        #TODO for all platforms
-        if os.path.isdir("/Users/gspr/corpus"):
-            rep = "/Users/gspr/corpus"
+        testrep = os.path.expanduser("~") + "/corpus"
+        #TODO test for mac
+        if os.path.isdir(testrep):
+            rep = testrep
         elif os.path.isdir("C:\\corpus\\"):
             rep = "C:\\corpus\\" 
-        elif os.path.isdir(testlinux):
-            rep = testlinux
         else:
             rep = "."
         fname, filt = QtGui.QFileDialog.getOpenFileName(self, 
