@@ -21,7 +21,7 @@ class MyMenu(QtGui.QMenuBar):
         self.local_edit = QtGui.QAction(self.tr("Local project"), self)
         menu_server.addAction(self.local_edit)
 
-        #FIXME images do not display on linux, to be tested on mac
+        #FIXME images do not display on linux
         self.distant = menu_server.addMenu(QtGui.QIcon('images/distant.png'), 
                 self.tr('Connect'))
         self.local_connect = QtGui.QAction(QtGui.QIcon('images/home.png'), 
