@@ -27,7 +27,7 @@ class MyMenu(QtGui.QMenuBar):
         self.local_connect = QtGui.QAction(QtGui.QIcon('images/home.png'), 
                 self.tr("Local server"), self)
         self.distant.addAction(self.local_connect)
-        self.local_connect.setEnabled(False)
+        #self.local_connect.setEnabled(False)
         menu_server.addSeparator()
 
         ##################################################
@@ -507,9 +507,11 @@ class TexteWidgetItem(QtGui.QListWidgetItem):
     def __init__(self, text, parent=None):
         QtGui.QListWidgetItem.__init__(self)
         self.resume = text
-        txt_resume = self.formeResume()
-        self.label = QtGui.QLabel(txt_resume)
+        self.label = QtGui.QLabel(self.formeResume())
         self.setToolTip(self.formeToolTip())
+
+    def updateText(self):
+        self.label.setText(self.formeResume())
         
     def formeResume(self):
         return u"%s <span style=\"font: bold\">%s</span> %s" % self.resume 

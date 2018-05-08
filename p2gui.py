@@ -573,9 +573,6 @@ class Principal(QtGui.QMainWindow):
 
     def saveCTX(self):
         sem_txt = self.semantique_txt_item
-        txt =  self.listeObjetsTextes[sem_txt]
-        #FIXME AttributeError: 'Texte' object has no attribute 'formeResume'
-        txtResume = txt.formeResume()
         modif = []
         for r in range(self.SET2.T.rowCount()):
             field = self.SET2.T.item(r, 0).text()
@@ -584,32 +581,42 @@ class Principal(QtGui.QMainWindow):
             result = self.client.eval_var(ask)
             result = re.sub(u"^\s*", "", result)
             if (result != val):
+                self.activity("Edit context %s %s %s" % (sem_txt, field, val))
+
+                #JPC FIXME IL N'EDITE PAS LE FICHIER A TOUS LES COUPS !!
                 self.client.eval_set_ctx(sem_txt, field, val)
-                #FIXME NE MARCHE PAS A TOUS LES COUPS !!
                 self.client.add_cache_var(sem_txt +".ctx."+field, val)
+                
                 self.listeObjetsTextes[sem_txt].setCTX(field, val)
                 modif.append(field)
                 
         #FIXME a la creation d'un nouveau champ ?
         #self.client.eval_set_ctx(sem_txt, "testfield", val)
 
-        # mettre à jour listes des textes si auteur, date, titre
-        if len(set(modif) & set(["author", "date", "title"])):
-            if "date" in modif:
-                self.display_liste_textes_corpus()
-                self.selectTxtCorpus(txt)
-                #TODO faire de même pour les autres onglets
-                for tab in range(1, self.SOT1.count())   :
-                    self.SOT1.removeTab(tab)
-            else :
-                newResume = txt.formeResume()
-                for listWidget in self.SOT1.findChildren(QtGui.QListWidget):
-                    for label in  listWidget.findChildren(QtGui.QLabel):
-                        if label.text() == txtResume:
-                            label.setText(newResume)
-            
         #FIXME pb de cache quand remet a jour la liste des ctx
         self.maj_metadatas()
+
+        # mettre à jour listes des textes si auteur, date, titre
+        #TODO tri quand date
+        if len(set(modif) & set(["author", "date", "title"])):
+            txt =  self.listeObjetsTextes[sem_txt]
+            for t in range(self.SOT1.count()): 
+                lw =  self.SOT1.widget(t).findChildren(QtGui.QListWidget) 
+                for i, l in enumerate(lw):
+                    for w in l.widget_list:
+                        if w == txt:
+                            oldResume = l.currentItem().resume
+                            num = re.findall(" \[\d*\]", oldResume[0])
+                            newResume = w.getResume()
+
+                            if len(num):
+                                newResume = (newResume[0] + num[0],
+                                             newResume[1], newResume[2])
+                            
+                            l.currentItem().resume = newResume
+                            l.currentItem().updateText()
+
+
 
         self.SET2.valid.setEnabled(False)
         self.SET2.reset.setEnabled(False)
