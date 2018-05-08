@@ -23,7 +23,7 @@ class MyMenu(QtGui.QMenuBar):
 
         #FIXME images do not display on linux
         self.distant = menu_server.addMenu(QtGui.QIcon('images/distant.png'), 
-                self.tr('Connect'))
+                self.tr('Servers'))
         self.local_connect = QtGui.QAction(QtGui.QIcon('images/home.png'), 
                 self.tr("Local server"), self)
         self.distant.addAction(self.local_connect)
