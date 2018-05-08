@@ -365,8 +365,9 @@ class Principal(QtGui.QMainWindow):
         self.status.showMessage(message)
         time = "%s" % datetime.datetime.now()
         self.journal.history.append("%s %s" % (time[:19], message))
-        with open("P-II-gui.log",'a') as logfile:
-            logfile.write("%s %s\n" % (time[:19], message.encode("utf-8")))
+        #pb rights with windows Program folder
+        #with open("P-II-gui.log",'a') as logfile:
+        #    logfile.write("%s %s\n" % (time[:19], message.encode("utf-8")))
 
     def destroy_texts_tabs(self):
         for i in reversed(range(self.SOT1.tabBar().count())):
@@ -1011,7 +1012,6 @@ class Principal(QtGui.QMainWindow):
     
     def connect_server_localhost(self):
         self.connect_server('localhost')
-        #self.connect_server(h='192.168.1.99', p='60000')
 
     def connect_server(self, h = 'prosperologie.org', p = '60000', name=""):
 
@@ -1116,7 +1116,7 @@ class Principal(QtGui.QMainWindow):
         self.actantsTab.L.clear()
 
         if len(list_results) > 0:
-            ask2 = u"val_nbtxt_act[0:]" 
+            ask2 = u"val_nbtxt_act[0:]"
             result2 = self.client.eval_var(ask2)
             list_val = re.split(", ", result2)
             liste_valued = [[int(val), list_results[row]] 
@@ -1813,12 +1813,11 @@ class Principal(QtGui.QMainWindow):
     def launchPRC(self):
         PRC = self.param_corpus.nameCorpus.text()
         if (os.name == 'nt'):
-            server_path = "prospero-II-serveur.exe"
+            server_path = "prospero-II-serveur-64.exe"
         else:
             server_path = "./prospero-server"
         port = 60000
-        commande = "%s -e -d 1 -p %s -f %s" % (server_path, port, PRC)
-        print commande
+        commande = '"%s" -e -d 1 -p %s -f %s' % (server_path, port, PRC)
         local_server = subprocess.Popen(commande, shell=True)
         time.sleep(5)
         self.connect_server("localhost", port)
