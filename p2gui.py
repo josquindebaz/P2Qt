@@ -1820,9 +1820,9 @@ class Principal(QtGui.QMainWindow):
     def launchPRC(self):
         PRC = self.param_corpus.nameCorpus.text()
         if (os.name == 'nt'):
-            server_path = "prospero-II-serveur-64.exe"
+            server_path = "server/prospero-II-serveur-64.exe"
         else:
-            server_path = "./prospero-server"
+            server_path = "./server/prospero-server"
         port = 60000
         commande = '"%s" -e -d 1 -p %s -f %s' % (server_path, port, PRC)
         local_server = subprocess.Popen(commande, shell=True)
