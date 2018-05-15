@@ -1822,7 +1822,7 @@ class Principal(QtGui.QMainWindow):
         if (os.name == 'nt'):
             server_path = "server/prospero-II-serveur-64.exe"
         else:
-            server_path = "./server/prospero-server"
+            server_path = os.path.join(os.getcwd(), "server/prospero-server")
         port = 60000
         commande = '"%s" -e -d 1 -p %s -f %s' % (server_path, port, PRC)
         local_server = subprocess.Popen(commande, shell=True)
