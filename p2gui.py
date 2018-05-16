@@ -351,7 +351,9 @@ class Principal(QtGui.QMainWindow):
         
         #grid.setContentsMargins(2,2,2,2)
 
-        self.setWindowTitle(self.tr('P-II interface'))
+        with open('version.txt') as V:
+            v = V.read()
+            self.setWindowTitle(v)
         self.setWindowIcon(QtGui.QIcon("images/Prospero-II.png"))
         self.show() 
 
