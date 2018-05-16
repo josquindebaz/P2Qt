@@ -649,6 +649,7 @@ class ListViewDrop(QtGui.QListWidget):
             event.ignore()
 
 class Corpus_tab(QtGui.QListWidget):
+    """    Tab for project editing     """
     def __init__(self, type, parent=None):
         super(Corpus_tab, self).__init__(parent)
         L = QtGui.QVBoxLayout()
@@ -683,11 +684,14 @@ class Corpus_tab(QtGui.QListWidget):
 
         H2 = QtGui.QHBoxLayout()
         L.addLayout(H2)
+
+        """Text list"""
         H2LV1 = QtGui.QVBoxLayout()
         H2.addLayout(H2LV1)
         H2LV1B = QtGui.QHBoxLayout()
         H2LV1.addLayout(H2LV1B)
         self.numTexts = QtGui.QLabel()
+        self.numTexts.setText("Texts")
         H2LV1B.addWidget(self.numTexts)
     
         self.TextFilesDates = {}
@@ -719,6 +723,8 @@ class Corpus_tab(QtGui.QListWidget):
         #QtCore.QObject.connect(send_codex_ViewListeTextes, 
         #   QtCore.SIGNAL("triggered()"), self.send_codex_ViewListeTextes)
 
+
+        """Dictionaries"""
         H22Tab = QtGui.QTabWidget()
         H2.addWidget(H22Tab)
         H22TabDic = QtGui.QWidget()
@@ -728,6 +734,33 @@ class Corpus_tab(QtGui.QListWidget):
         H2L.setContentsMargins(0, 0, 0, 0) 
         H2L.setSpacing(0) 
 
+        """Test with concepts+lexicons"""
+        self.ViewListeConcepts = ListViewDrop(self)
+        H2L.addWidget(self.ViewListeConcepts)
+        self.ViewListeConcepts.setSelectionMode(
+            QtGui.QAbstractItemView.MultiSelection)
+        self.ViewListeConcepts.fileDropped.connect(self.ccfFilesDropped)
+        self.ViewListeConcepts.setContextMenuPolicy(
+                            QtCore.Qt.ActionsContextMenu)
+
+        self.ViewListeConcepts.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        addItem_ViewListeConcepts = QtGui.QAction(self.tr('add concept/lexicon file'), self)
+        self.ViewListeConcepts.addAction(addItem_ViewListeConcepts)
+        QtCore.QObject.connect(addItem_ViewListeConcepts, 
+            QtCore.SIGNAL("triggered()"), self.addItem_ViewListeConcepts)
+
+        efface_ViewListeConceptsItem = QtGui.QAction(self.tr('delete item'), self)
+        self.ViewListeConcepts.addAction(efface_ViewListeConceptsItem)
+        QtCore.QObject.connect(efface_ViewListeConceptsItem, 
+            QtCore.SIGNAL("triggered()"), self.efface_ViewListeConceptsItem)
+        efface_ViewListeConcepts = QtGui.QAction(self.tr('clear list'), self)
+        self.ViewListeConcepts.addAction(efface_ViewListeConcepts)
+        QtCore.QObject.connect(efface_ViewListeConcepts, 
+            QtCore.SIGNAL("triggered()"), self.efface_ViewListeConcepts)
+
+        """Old Code
+        Separating Concepts and Lexicon Files
+        
         self.ViewListeConcepts = ListViewDrop(self)
         H2L.addWidget(self.ViewListeConcepts)
         self.ViewListeConcepts.setSelectionMode(
@@ -773,6 +806,8 @@ class Corpus_tab(QtGui.QListWidget):
         QtCore.QObject.connect(efface_ViewListeLexicons, 
             QtCore.SIGNAL("triggered()"), self.efface_ViewListeLexicons)
 
+        End Old Code"""
+
         H22TabPar = QtGui.QWidget()
         i = H22Tab.addTab(H22TabPar, self.tr("Parameters"))
         H22Tab.setTabEnabled(i, False)
@@ -814,8 +849,12 @@ class Corpus_tab(QtGui.QListWidget):
         self.ViewListeConcepts.clear()
 
     def addItem_ViewListeConcepts(self):
+        """Old
         fnames, filt = QtGui.QFileDialog.getOpenFileNames(self,
             self.tr('Add file'), '.', '*.fic *.cat *.col')
+        """
+        fnames, filt = QtGui.QFileDialog.getOpenFileNames(self,
+            self.tr('Add file'), '.', '*.fic *.cat *.col *dic')
         if (fnames):
             self.ccfFilesDropped(fnames)
 
@@ -832,6 +871,12 @@ class Corpus_tab(QtGui.QListWidget):
             existing.append(self.ViewListeConcepts.item(r).text())
         for url in list(set(l) - set(existing)):
             if os.path.exists(url):
+                """Test code"""
+                if os.path.splitext(url)[1] in ['.dic']:
+                    item = QtGui.QListWidgetItem(url, self.ViewListeConcepts)
+                    item.setStatusTip(url)
+                """ end """
+                
                 if os.path.splitext(url)[1] in ['.cat', '.fic', '.col']:
                     testP2 = Controller.checkP1P2dic(url)
                     if (testP2):
@@ -843,7 +888,8 @@ class Corpus_tab(QtGui.QListWidget):
                             item = QtGui.QListWidgetItem(url, self.ViewListeConcepts)
                             item.setStatusTip(url)
         self.ViewListeConcepts.sortItems()
-        
+
+    """Old Code   
     def efface_ViewListeLexicons(self):
         self.ViewListeLexicons.clear()
 
@@ -870,6 +916,7 @@ class Corpus_tab(QtGui.QListWidget):
                     item = QtGui.QListWidgetItem(url, self.ViewListeLexicons)
                     item.setStatusTip(url)
         self.ViewListeLexicons.sortItems()
+    """
 
     def getFile(self):
         testrep = os.path.expanduser("~") + "/corpus"
@@ -911,25 +958,36 @@ class Corpus_tab(QtGui.QListWidget):
                     self.ViewListeConcepts.clear()
                     self.ViewListeConcepts.addItems(corpus.conceptFileList())
                     self.ViewListeConcepts.sortItems()
+
+                    """Test code"""
+                    self.ViewListeConcepts.addItems(corpus.dicFileList())
+                    self.ViewListeConcepts.sortItems()
+                    """ end """
+                    
                     self.checkFileExistence(self.ViewListeConcepts)
 
+
+
+                    """ Old code
                     self.ViewListeLexicons.clear()
                     self.ViewListeLexicons.addItems(corpus.dicFileList())
                     self.ViewListeLexicons.sortItems()
                     self.checkFileExistence(self.ViewListeLexicons)
+                    """
 
                     self.launchPRC_button.setEnabled(True)
                     self.mergePRC_button.setEnabled(True)
+                    
 
     def checkFileExistence(self, L):
         for row in range(L.count()):
             F = L.item(row).text()
             if os.path.isfile(F):
                 L.item(row).setForeground(
-                                        QtGui.QColor("green"))
+                    QtGui.QColor("green"))
             else:
                 L.item(row).setForeground(
-                                            QtGui.QColor("red"))
+                    QtGui.QColor("red"))
 
     def mergePRC(self):
         fname = self.getFile()
@@ -953,14 +1011,25 @@ class Corpus_tab(QtGui.QListWidget):
                                     self.tr("Save prc file"), '', '*.prc') 
         corpusS = Controller.parseCorpus()    
         concepts = []
-        for r in range(self.ViewListeConcepts.count()):
-            concepts.append(self.ViewListeConcepts.item(r).text())
         ressources = []
+        
+        for r in range(self.ViewListeConcepts.count()):
+            #Old concepts.append(self.ViewListeConcepts.item(r).text())
+            I = self.ViewListeConcepts.item(r).text()
+            if re.search("\.dic$", I):
+                ressources.append(I)
+            else:
+                concepts.append(I)
+
+        """Old code
         for r in  range(self.ViewListeLexicons.count()):
             ressources.append(self.ViewListeLexicons.item(r).text())
+         """
+        
         corpusS.savefile(fileName, langue=u"français",
             ressource_list=ressources, concept_list=concepts, 
                                     text_dic=self.TextFilesDates)
+
         self.launchPRC_button.setEnabled(True)
         self.nameCorpus.setText(fileName)
 
