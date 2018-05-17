@@ -36,7 +36,7 @@ correctement la dernière composante phadt ... un énoncé aléatoire avec auteu
 #from settings import hostPII , portPII , logger
 
 eval_status_done = 0
-verbose = 0
+verbose = 1
 import os.path
 import threading, socket, time , re
 #from eval_variable import eval_variables
@@ -184,14 +184,14 @@ class ConnecteurPII (threading.Thread):
 			self.send_expression("F")
 			self.get_value("send_var_for_frm")
 
-	def send_dossiers(self):
+	def send_dossiers(self , dic_dossier):
 		"""
 		envois des définitions de dossier à P-II
 		"""
 		if not self.connexion : 
 			if not self.connect():
 				return ""
-		dic_dossier = getMapDossiers()
+		#dic_dossier = getMapDossiers()
 		for dossier in dic_dossier.keys():
 			if (verbose) :
 				print "dossier envoyé" , dossier
@@ -512,8 +512,7 @@ class ConnecteurPII (threading.Thread):
 		if var in self.m_cache_var.keys():
 			self.m_threadlock.release()
 			ev = self.m_cache_var[var]
-                        if (verbose):
-                            print " in cache ", ev
+			print " in cache ", ev
 			return ev
 		
 		if not self.connexion : 
@@ -875,53 +874,53 @@ class ConnecteurPII (threading.Thread):
 			v = v.replace(r1.group('SKIP'), '')
 		return v
 	def creer_msg_sfrm(self, data):
-		"""spécifique aux sfrm !
-		$sfrm.Evts-marquants.forme0
-			E:sfrm.Evts-marquants.forme0
-			S:SFRM:Evts-marquant
-			S:FORM:forme0n
-			P:0
+		"""spécifique aux gescdf  !
+		$gescdf.name=frm_base.cdf0
+		14:41:26: E:gescdf.name=frm_base.cdf0
+		14:41:26: S:GESCDF:
+		14:41:26: S:NAME:frm_base
+		14:41:26: S:cdf:
+		14:41:26: P:0
+		14:41:26: F
+		$gescdf.name=frm_base.cdf.name=pers
+		14:44:11: E:gescdf.name=frm_base.cdf.name=pers
+		14:44:11: S:GESCDF:
+		14:44:11: S:NAME:frm_base
+		14:44:11: S:cdf:
+		14:44:11: S:NAME:pers
+		14:44:11: F
 		
-		$sfrm.Evts-marquants.X0
-			E:sfrm.Evts-marquants.X0
-			S:SFRM:Evts-marquant
-			S:V:X:X0
-			P:0
-		$sfrm.Evts-marquants.val
-			E:sfrm.Evts-marquants.X0
-			S:SFRM:Evts-marquant
-			S:val:val
-			P:0			
-		$sfrm.Evts-marquants.X=xyz.forme0
-			E:sfrm.Evts-marquants.X=xyz.forme0
-			S:SFRM.Evts-marquants
-			S:VL:X:xyz
-			S:forme:forme0
-			P:0
-			F:
-			
-		$sfrm.Evts-marquants.X0.forme0.phadt[0:10]
-			E:sfrm.Evts-marquants.X0.forme0.phadt[0:10]
-			S:sfrm.Evts-marquants
-			S:V:X:X0
-			P:0
-			S:FORM:forme0
-			P:0
-			S:PH:phadt[0:10]
-			BI:0
-			BS:10
-
-		$cdf.mesFormules[0:]
-			E:gescdf.mesFormules[0:]
-			S:GESCDF:mesFormules
-			BI:0
-			BS:999999
-			F
-		$cdf.mesFormules0
-			E:gescdf.mesFormules[0:]
-			S:GESCDF:mesFormules
-			P:0
-			F			
+		$gescdf0.cdf0.var.name=X.bi=0.bs=9999
+		14:44:11: E:gescdf0.cdf0.var.name=X.bi=0.bs=9999
+		14:44:11: S:GESCDF:
+		14:44:11: P:0
+		14:44:11: S:cdf:
+		14:44:11: S:P:0
+		14:44:11: S:VAR
+		14:44:11: S:NAME:X
+		14:44:11: S:BI:0
+		14:44:11: S:BS:9999
+		14:44:11: F
+		
+		14:44:11: E:gescdf.name=frm_base.cdf.name=pers
+		14:44:11: S:GESCDF:
+		14:44:11: S:NAME:frm_base
+		14:44:11: S:cdf:
+		14:44:11: S:NAME:pers
+		14:44:11: F
+	
+		$gescdf0.cdf0.var.name=X.name=Y.value=toto
+		X est libre et Y est lié
+		14:44:11: E:gescdf0.cdf0.var.name=X.name=Y.value=toto
+		14:44:11: S:GESCDF:
+		14:44:11: P:0
+		14:44:11: S:cdf:
+		14:44:11: P:0
+		14:44:11: S:VAR
+		14:44:11: S:NAME:X
+		14:44:11: S:NAME:Y
+		14:44:11: S:VAL:toto
+		14:44:11: F
 		"""
 		if data[0] == '$' : data = data[1:]
 		L = data.split('.')
@@ -936,16 +935,94 @@ class ConnecteurPII (threading.Thread):
 		last_var_expr = ''  
 		
 		flag_next_is_gescdf_name = flag_next_is_class_name = False
+		flag_next_is_name = False
 		construct_exp = ''
 		for terme in L :
-			if terme == 'cdf':
-				construct_exp = "S:SFRM:"  # on y consera le nom de la cfrm (exception $cdf.def !)
-				flag_next_is_class_name = True
+			'''  
+			'''
+			 # pour $gescdf.name=frm_base.cdf.name=pers  ( pour 2 objets $gescdf et cdf voir frm)
+			 # $gescdf0.cdf0.var.name=X.bi=0.bs=9999
+			if terme.startswith( 'name='):
+				lexpr.append("S:NAME:" + terme.replace('name=',''))
 				continue
-			if terme == 'gescdf':
-				construct_exp = "S:GESCDF:"  
-				flag_next_is_gescdf_name = True # ce qui suit est le nom du gestionnaire de formule ...
-				continue			
+			if terme.startswith('var'):
+				lexpr.append("S:FVAR")
+				continue
+			if terme.startswith('bi='):
+				lexpr.append("S:BI:"  + terme.replace('bi=',''))
+				continue
+			if terme.startswith('bs='):			
+				lexpr.append("S:BS:"  + terme.replace('bs=',''))
+				continue
+			if terme.startswith('pos='):
+				lexpr.append("S:P:"  + terme.replace('pos=',''))
+				continue
+			if terme.startswith('value='):
+				lexpr.append("S:VAL:"  + terme.replace('value=',''))
+				continue
+			
+			# $gescdf.name=frm_base.cdf.name=pers
+			# $gescdf.name=pers.cdf[0:]
+			# $gescdf.name=pers.cdf0
+			if terme.startswith('cdf'):
+				lexpr.append("S:cdf:")
+				m = regex_indice.search(terme)
+				m2 = regex_tranche.search(terme) 
+				if m :
+					lexpr.append("P:" + m.groupdict('INDICE')['INDICE'])
+					continue
+				elif m2 : 
+
+					if not m2.groupdict('BI')['BI'] : g1 = 999999
+					else : g1 = m2.groupdict('BI')['BI']
+					if not m2.groupdict('BS')['BS'] : g2 = 999999
+					else : g2 = m2.groupdict('BS')['BS']
+					g1 = str(g1)
+					g2 = str(g2)
+					lexpr.append("BI:" + g1)
+					lexpr.append("BS:" + g2)
+					continue						
+				continue
+			if terme.startswith('frm'):
+				lexpr.append("S:frm:")
+				m = regex_indice.search(terme)
+				m2 = regex_tranche.search(terme) 
+				if m :
+					lexpr.append("P:" + m.groupdict('INDICE')['INDICE'])
+					continue
+				elif m2 : 
+
+					if not m2.groupdict('BI')['BI'] : g1 = 999999
+					else : g1 = m2.groupdict('BI')['BI']
+					if not m2.groupdict('BS')['BS'] : g2 = 999999
+					else : g2 = m2.groupdict('BS')['BS']
+					g1 = str(g1)
+					g2 = str(g2)
+					lexpr.append("BI:" + g1)
+					lexpr.append("BS:" + g2)
+					continue						
+				continue
+			# cas $gescdf[0:] pas de nom !
+			# # $gescdf.name=frm_base
+			if terme.startswith('gescdf'):
+				lexpr.append("S:GESCDF:")
+				m = regex_indice.search(terme)
+				m2 = regex_tranche.search(terme) 
+				if m :
+					lexpr.append("P:" + m.groupdict('INDICE')['INDICE'])
+					continue
+				elif m2 : 
+
+					if not m2.groupdict('BI')['BI'] : g1 = 999999
+					else : g1 = m2.groupdict('BI')['BI']
+					if not m2.groupdict('BS')['BS'] : g2 = 999999
+					else : g2 = m2.groupdict('BS')['BS']
+					g1 = str(g1)
+					g2 = str(g2)
+					lexpr.append("BI:" + g1)
+					lexpr.append("BS:" + g2)
+					continue						
+				continue
 			# definition des classes -> pour avoir la liste des formules
 			# $cdf.def[0:]
 			# $cdf.def
@@ -975,7 +1052,8 @@ class ConnecteurPII (threading.Thread):
 					lexpr.append("BS:" + g2)
 					continue		
 			if flag_next_is_class_name:
-				construct_exp += terme
+				construct_exp = "S:NAME_CDF:" + terme
+				
 				flag_next_is_class_name = False
 				lexpr.append(construct_exp)
 				construct_exp = ''
@@ -1282,6 +1360,11 @@ class ConnecteurPII (threading.Thread):
 				L.append(VBI)
 				L.append(VBS)
 			L.append ("F")
+		# pour éviter de bloquer le serveur
+		# avec un simplte $ctx[0:]
+		# on test la présence du code 'F' 	
+		if L and L[-1] != 'F' :
+			L.append ("F")
 		return L
 
 
@@ -1497,8 +1580,168 @@ class ConnecteurPII (threading.Thread):
 				L.append(terme.replace(mask,new_args))
 			lmess = L
 		return lmess
-
+	
+	def tranche_et_position(self,  terme, lmess):
 		
+		
+		# provisoire : repérage des {}
+		# pas ici ...
+		forme_liste = False
+			
+		m = regex_indice.search(terme) 
+		if m :
+	
+			last_var_expr = "V:" + m.groupdict('VAR')['VAR'] + ":" + m.groupdict('VAR')['VAR'] + m.groupdict('INDICE')['INDICE']
+			lmess.append(last_var_expr)
+			lmess.append("P:" + m.groupdict('INDICE')['INDICE'])
+		m = regex_tranche.search(terme) 
+		if m : 
+			# pb des aut[:-3] traduit par ('aut', '', '-3')
+			# ou aut[3:] ('aut', '3', '')
+	
+			if not m.groupdict('BI')['BI'] : g1 = 999999
+			else : g1 = m.groupdict('BI')['BI']
+			if not m.groupdict('BS')['BS'] : g2 = 999999
+			else : g2 = m.groupdict('BS')['BS']
+			g1 = str(g1)
+			g2 = str(g2)
+			nom_var= m.groupdict('VAR')['VAR']
+			if forme_liste:
+				last_var_expr = "V:" + nom_var + ":" + nom_var + "{" + g1 + ":" + g2 + "}"
+			else:
+				last_var_expr = "V:" + nom_var + ":" + nom_var + "[" + g1 + ":" + g2 + "]"
+			lmess.append(last_var_expr)
+			lmess.append("BI:" + g1)
+			lmess.append("BS:" + g2)
+			
+		m = regex_tranche_indice.search(terme)
+		if m:  # on enverra un indice negatif ... gerer par P-II
+	
+			indice =  m.groupdict('INDICE')['INDICE']
+			nom_var =  m.groupdict('VAR')['VAR']
+			
+			if forme_liste :
+				lmess.append("V:" + nom_var +":" + nom_var + "{" + indice + "}")
+			else:
+				lmess.append("V:" + nom_var +":" + nom_var + "[" + indice + "]")
+			lmess.append("PL:" + indice)
+			
+		return lmess	
+
+	
+	def creer_msg_mrlw_var (self,data):
+		"""
+		$mrlw_var[0:]
+		$mrlw_var0.item[0:]
+		
+		pour relire les définitions des /VAR du serveur
+		l'objet est un singleton sur le serveur ( même signature )
+		avoir tous les noms de variables
+		E:mrlw_var[0:]
+		V:VARU:mrlw_var[0:]
+		BI:0
+		BS:999999
+		F
+		avoir la première variable
+		E:mrlw_var0
+		V:VARU:mrlw_var0
+		P:0
+		F
+		
+		E:VARU
+		V:VARU:mrlw_var0.item[0:]
+		P:0
+		V:item:item[0:]
+		BI:0
+		BS:99999
+		F
+		
+		# $mrlw_var permet d'indiquer un nom de variable
+		
+		E:mrlw_var.LeLaLes.item[0:]
+		V:VARU:LeLaLes.item[0:]
+		V:item:item[0:]
+		BI:0
+		BS:99999
+		F
+		
+		E:mrlw_var.LeLaLes[0:]
+		V:VARU:LeLaLes
+		BI:0
+		BS:999999
+		F
+
+		"""
+		data = data[1:] # passe le $
+		lmess=[]
+		next_is_var_name=False
+		L = data.split(".")
+		for terme in L :
+			
+			if terme.startswith('mrlw_var'):
+				lmess.append("E:" + data  ) # signature
+				#lmess.append("V:VARU:"+terme)
+				lmess = self.tranche_et_position(terme, lmess)
+				continue
+			if terme.startswith('mrlw_var'):
+				lmess.append("E:mrlw_var"  )
+				next_is_var_name=True
+				continue
+			if next_is_var_name:
+				lmess.append("V:mrlw_var:" + terme)
+				next_is_var_name=False
+				continue
+			if terme.startswith('item'):
+				#lmess.append("V:" + data )
+				lmess = self.tranche_et_position(terme, lmess)
+				
+				
+
+		lmess.append('F')
+		return lmess		
+	def creer_msg_typage (self,data):
+		"""
+			coder autrement les types ?
+			Entités->1
+			qualité->2
+			marqueur->3
+			etc...
+		
+			demande des typages
+			E:typage
+			V:typage
+			ARG:get
+			ARG:toto
+			F:
+
+			modifications des typages
+			E:typage
+			V:typage
+			ARG:set
+			ARG:toto
+			ARG:Entités
+			ARG:Mot outil
+			ARG:marqueur
+			F:
+			
+		"""
+		data = data[1:] # passe le $
+		lmess=[]
+		L = data.split(".")
+		for terme in L :
+			
+			if terme.startswith('typage'):
+				lmess.append("E:" + terme)
+				continue
+			if terme.startswith('set') or terme.startswith('get') :
+				lmess.append("V:typage:" + 'typage')
+				lmess.append("ARG:" + terme)
+				continue
+			else:
+				lmess.append("ARG:" + terme)
+		lmess.append('F')
+		return lmess
+	
 	def creer_msg(self, data,user_env='',corpus_env='',env_dialogue=''):
 		"""
 			transforme l'expression en une séquence de messages qui seront envoyés à P-II
@@ -1581,7 +1824,10 @@ class ConnecteurPII (threading.Thread):
 		if data.find('ctx') != -1 :
 			return self.creer_msg_ctx(data)
 		
-		
+		if data.startswith('$typage') :
+			return self.creer_msg_typage(data)		
+		if data.startswith('$mrlw_var') :
+			return self.creer_msg_mrlw_var(data)	
 		mask = "TUVXYZ"
 
 		# provisoire : repérage des {}
@@ -1659,7 +1905,7 @@ class ConnecteurPII (threading.Thread):
 				
 			m = regex_indice.search(terme) 
 			if m :
- 
+
 				last_var_expr = "V:" + m.groupdict('VAR')['VAR'] + ":" + m.groupdict('VAR')['VAR'] + m.groupdict('INDICE')['INDICE']
 				lmess.append(last_var_expr)
 				lmess.append("P:" + m.groupdict('INDICE')['INDICE'])
@@ -1931,7 +2177,65 @@ def EVAL_SHOW_SFRM (V):
 	R = c.eval_sfrm(V)
 	print V , " --> " ,R
 
+
+def init_dossier(c):
+	"""
+		on va lire en local un fichier mrlw_dos.txt contenant des définitiions de dossuier
+		[DOSSIER]
+		polémique
+		société
+		questions
+		intellectuels
+		vérité
+		médias
+		idées
+		mots
+		accusations
+		discours
+		[DOSSIER]
+		historique
+		histoire
+		historiques
+		archives
+		mémoire
+	"""
+	nom ="mrlw_dos.txt"
+	try :
+		f= open (nom,'r')
+		data = f.read()
+		data = unicode(data,"cp1252")
+		f.close()
+	except:
+		print "impossible de lire :", nom
 	
+	dic= {}
+	L= data.split("\n")
+	for x in L:
+		print x
+		if x.startswith("[DOSSIER]"):
+			flag_nom_dossier = True
+			flag_definition = False
+			continue
+		if flag_nom_dossier == True:
+			nom_dossier =x
+			flag_nom_dossier = False
+			flag_definition = True
+			continue
+		if flag_definition :
+			if dic.has_key(nom_dossier):
+				L = dic[nom_dossier].append(x)
+				
+				if L:
+					dic[nom_dossier] = L 
+				else:
+					continue
+			else:
+				dic[nom_dossier] = [x]
+	print dic.keys()
+		# on envoit les données au serveur
+	c.send_dossiers(dic)
+		
+		
 def init_frm(c):
 	folder_path="C:\Users\jean-pierre\workspace\PII\P2Qt"
 	dic_var={}
@@ -1948,16 +2252,22 @@ def init_frm(c):
 	# un flag à positionner sur le serveur ... pour la fin du calcul
 	
 	c.set_gesfrm_name("mesFormules")
-	c.send_var_for_frm (dic_var )
+	rep = raw_input("envois des définitions des /VAR sur le serveur ?")
+	if rep =='o':
+		c.send_var_for_frm (dic_var )
 	c.send_frm ( dic_frm)
 	c.exec_frm()
 	
 def console_eval(c):
 	
 	while True:
-		exp = raw_input("entrer une expression : " )
+		# par defaut deja encodé en utf-8 ?
+		rep = raw_input("entrer une expression : " )
+		exp = rep.decode ('utf-8')
+
 		if exp == "exit":
 			return
+
 		if exp.find("$sfrm") != -1:
 			EVAL_SHOW_SFRM(exp)
 		if exp.find("$cdf") != -1:
@@ -1966,7 +2276,7 @@ def console_eval(c):
 			EVAL_SHOW_SFRM(exp)					
 		else:
 			SHOW(exp)
-		
+
 def eval_frm (c):
 	
 	LVAR =[ u"$volume_corpus",u"$status"]
@@ -1980,15 +2290,42 @@ m_connecteur_pII = ConnecteurPII()
 	
 if __name__ == "__main__" :
 
-	
-	c = ConnecteurPII()
-	#c.set( '192.168.1.35','60000' )
-	c.set( 'marloweb.eu','60001' )
-	c.connect()
 
+		
+	c = ConnecteurPII()
+	L =  ["$mrlw_var[0:]","$mrlw_var0.item[0:]","$mrlw_var0.item0"]
+	for v in L:
+		r = c.creer_msg_mrlw_var(v)
+		print r
+	
+	rep = raw_input("travailler avec le serveur marloweb.eu : " )
+	if rep == 'o':
+		print "ok on travaille avec Marloweb "
+		c.set( 'marloweb.eu','60001' )
+	else:
+		print "ok on travaille en local "
+		c.set( '192.168.1.35','60000' )
+		
+	
+	
+	c.connect()
+	'''
+	for v in  [ u"$typage.get.Macron" ,
+			 u"$typage.get.Le",
+			 u"$typage.get.ministre",
+			 u"$typage.get.Jean-Claude",
+			 u"$typage.get.il faut",
+			 u"$typage.get.déchets radioactifs",
+			 u"$typage.get.Machin bidule",
+			 u"$typage.get.remettre en cause"]:
+		r = c.eval_variable(v)
+		print r
+	'''
+	'''
 	rep = raw_input("je lance l'initialisation des formules ? " )
 	if rep == 'o' :
 		init_frm(c)
+	'''
 	L = [	"$gescdf.mesFormules[0:]",
 			"$gescdf.mesFormules0.listvar[0:]",
 			"$gescdf.mesFormules0.X0.formes[0:]",
@@ -2068,13 +2405,37 @@ if __name__ == "__main__" :
 			"$gescdf.mesFormules1.X[0:]",
 			"$gescdf.mesFormules1.X0.ph[0:]"
 			]
+	'''
 	rep = raw_input("évaluation d'une liste de formules ? " )
 	if rep == 'o' :
 		for exp in L:
 			EVAL_SHOW_SFRM(exp)
+	'''	
+	L = [	
+			"$gescdf0",
+			"$gescdf.name=frm_base.cdf.name=pers.var.name=N.bi=0.bs=10",
+			"$gescdf.name=frm_base.cdf.name=pers.var.name=N.pos=0",
+			"$gescdf.name=frm_base.cdf.name=pers.var.name=N"
+			# tous les Q associées à E=Macron
+			"$gescdf.name=frm_base.cdf.name=pers.var.name=N.value=Macron.name=Q"
+			#"gescdf.name=frm_base.cdf.name=pers.var.name=E.value=Macron"
+			"$gescdf.name=frm_base.cdf0",
+			"$gescdf.name=frm_base.cdf.name=pers",
+		]
+	'''
+	for exp in L:
+		print "evaluation de : " , exp
+		EVAL_SHOW_SFRM(exp)
+	'''
+	
+	'''
+	
+		$gescdf0.cdf0.var.name=N.pos=0
+		$gescdf0.cdf0.var.name=Q.pos=0
 		
-		
-		
+	'''
+	
+	#init_dossier(c)
 	console_eval( c)
 	'''
 	folder_path="C:\Users\jean-pierre\workspace\PII\P2Qt"
