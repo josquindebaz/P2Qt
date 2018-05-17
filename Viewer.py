@@ -652,7 +652,9 @@ class ListViewDrop(QtGui.QListWidget):
             event.ignore()
 
 class Corpus_tab(QtGui.QListWidget):
-    """    Tab for project editing     """
+    """
+    Tab for project editing
+    """
     def __init__(self, type, parent=None):
         super(Corpus_tab, self).__init__(parent)
         L = QtGui.QVBoxLayout()
@@ -761,6 +763,20 @@ class Corpus_tab(QtGui.QListWidget):
         QtCore.QObject.connect(efface_ViewListeConcepts, 
             QtCore.SIGNAL("triggered()"), self.efface_ViewListeConcepts)
 
+        """Selecting language"""
+        self.Lang = QtGui.QComboBox()
+        self.Lang.addItems([
+            u"français",
+            u"anglais",
+            u"portugais",
+            u"allemand",
+            u"italien",
+            u"espagnol",
+            ])
+        H2L.addWidget(self.Lang)
+        self.Lang.setEnabled(False)
+        
+
         """Old Code
         Separating Concepts and Lexicon Files
         
@@ -817,17 +833,7 @@ class Corpus_tab(QtGui.QListWidget):
         H22TabPar.setLayout(H22V1)
         H22V1.setContentsMargins(0, 0, 0, 0) 
         H22V1.setSpacing(0) 
-        self.Lang = QtGui.QComboBox()
-        self.Lang.addItems([
-            u"français",
-            u"anglais",
-            u"portugais",
-            u"allemand",
-            u"italien",
-            u"espagnol",
-            ])
-        H22V1.addWidget(self.Lang)
-        self.Lang.setEnabled(False)
+
         CB1 = QtGui.QCheckBox(u"mode_calcul_ele_in_expr")
         H22V1.addWidget(CB1)
         CB1.setEnabled(False)
