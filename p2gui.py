@@ -38,7 +38,11 @@ class Principal(QtGui.QMainWindow):
                     self.menu.distant.addAction(t)
 
         self.menu.local_connect.triggered.connect(self.connect_server_localhost)
+
+        """To delete: direct access to corpus editing tab"""
         self.menu.local_edit.triggered.connect(self.add_edit_corpus_tab)
+        """ end """
+
         self.menu.codex.triggered.connect(self.codex_window)
         self.menu.server_vars.triggered.connect(self.display_server_vars)
         self.menu.contexts.triggered.connect(self.display_contexts)
@@ -234,6 +238,8 @@ class Principal(QtGui.QMainWindow):
         self.server_vars.button_getsem.clicked.connect(self.server_getsem_Evalue)
         self.server_vars.button_eval_index.clicked.connect(self.server_index_Evalue)
 
+
+
         #NE QTabWidget
         ##################################################
         self.NETs = QtGui.QTabWidget()
@@ -246,6 +252,19 @@ class Principal(QtGui.QMainWindow):
         Viewer.hide_close_buttons(self.NETs, 1)
         self.NETs.addTab(formulaeTab, self.tr("Formulae"))
         Viewer.hide_close_buttons(self.NETs, 2)
+
+        #Project editing tab
+        self.param_corpus = Viewer.Corpus_tab(self)
+        QtCore.QObject.connect(self.param_corpus.send_codex_ViewListeTextes,
+                     QtCore.SIGNAL("triggered()"), self.send_codex_ViewListeTextes)
+        self.param_corpus.launchPRC_button.clicked.connect(self.launchPRC)
+        self.NETs.addTab(self.param_corpus, self.tr("Project"))
+        Viewer.hide_close_buttons(self.NETs, 3)
+
+        #give focus to editing tab
+        self.NETs.setCurrentIndex(3)
+
+        
 
         ##################################################
         #cadran SO
@@ -1829,7 +1848,7 @@ class Principal(QtGui.QMainWindow):
         else:
             server_path = os.path.join(os.getcwd(), "server/prospero-server")
         port = 60000
-        commande = '"%s" -e -d 1 -p %s -f %s' % (server_path, port, PRC)
+        commande = '"%s" -e -d 1 -p %s -f "%s"' % (server_path, port, PRC)
         local_server = subprocess.Popen(commande, shell=True)
         time.sleep(5)
         self.connect_server("localhost", port)

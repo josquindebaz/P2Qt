@@ -18,8 +18,11 @@ class MyMenu(QtGui.QMenuBar):
         #Corpus and Server
         menu_server = self.addMenu(self.tr('Projects'))
 
+        """To delete: direct access to corpus editing tab"""
         self.local_edit = QtGui.QAction(self.tr("Local project"), self)
         menu_server.addAction(self.local_edit)
+        self.local_edit.setEnabled(False)
+        """ end """
 
         #FIXME images do not display on linux
         self.distant = menu_server.addMenu(QtGui.QIcon('images/distant.png'), 
@@ -27,7 +30,7 @@ class MyMenu(QtGui.QMenuBar):
         self.local_connect = QtGui.QAction(QtGui.QIcon('images/home.png'), 
                 self.tr("Local server"), self)
         self.distant.addAction(self.local_connect)
-        #self.local_connect.setEnabled(False)
+        self.local_connect.setEnabled(False)
         menu_server.addSeparator()
 
         ##################################################
@@ -691,7 +694,7 @@ class Corpus_tab(QtGui.QListWidget):
         H2LV1B = QtGui.QHBoxLayout()
         H2LV1.addLayout(H2LV1B)
         self.numTexts = QtGui.QLabel()
-        self.numTexts.setText("Texts")
+        self.numTexts.setText(self.tr("Insert texts"))
         H2LV1B.addWidget(self.numTexts)
     
         self.TextFilesDates = {}
