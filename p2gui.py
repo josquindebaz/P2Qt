@@ -1820,6 +1820,9 @@ class Principal(QtGui.QMainWindow):
             codex_w.appendItems(l)
 
     def launchPRC(self):
+
+        self.param_corpus.launchPRC_button.setEnabled(False)
+
         PRC = self.param_corpus.nameCorpus.text()
         if (os.name == 'nt'):
             server_path = "server/prospero-II-serveur-64.exe"
@@ -1830,6 +1833,8 @@ class Principal(QtGui.QMainWindow):
         local_server = subprocess.Popen(commande, shell=True)
         time.sleep(5)
         self.connect_server("localhost", port)
+
+        #FIXME
         #kill the server when the gui is closed
         atexit.register(local_server.terminate) 
 

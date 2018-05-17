@@ -810,7 +810,36 @@ class Corpus_tab(QtGui.QListWidget):
 
         H22TabPar = QtGui.QWidget()
         i = H22Tab.addTab(H22TabPar, self.tr("Parameters"))
-        H22Tab.setTabEnabled(i, False)
+        H22V1 = QtGui.QVBoxLayout()
+        H22TabPar.setLayout(H22V1)
+        H22V1.setContentsMargins(0, 0, 0, 0) 
+        H22V1.setSpacing(0) 
+        self.Lang = QtGui.QComboBox()
+        self.Lang.addItems([
+            u"français",
+            u"anglais",
+            u"portugais",
+            u"allemand",
+            u"italien",
+            u"espagnol",
+            ])
+        H22V1.addWidget(self.Lang)
+        self.Lang.setEnabled(False)
+        CB1 = QtGui.QCheckBox(u"mode_calcul_ele_in_expr")
+        H22V1.addWidget(CB1)
+        CB1.setEnabled(False)
+        CB2 = QtGui.QCheckBox(u"exclusion_type_multi")
+        H22V1.addWidget(CB2)
+        CB2.setEnabled(False)
+        CB3 = QtGui.QCheckBox(u"desact_calcul_de_listes_boot")
+        H22V1.addWidget(CB3)
+        CB3.setEnabled(False)
+        CB4 = QtGui.QCheckBox(u"mode-typage-auto-des-indéfinis")
+        H22V1.addWidget(CB4)
+        CB4.setChecked(True)
+        CB4.setEnabled(False)
+
+        #H22Tab.setTabEnabled(i, False)
           
     def TxtFilesDropped(self, l):
         existing = [] 
