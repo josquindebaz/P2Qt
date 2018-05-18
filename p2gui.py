@@ -254,7 +254,16 @@ class Principal(QtGui.QMainWindow):
         Viewer.hide_close_buttons(self.NETs, 2)
 
         #Project editing tab
+        ###
         self.param_corpus = Viewer.Corpus_tab(self)
+
+        #display in selector languages contained in dictio.cfg
+        listLangCfg = []
+        with open('server/dictio.cfg') as diccfg:
+            listLangCfg = re.findall("\[LANGUES (\S*)\]", diccfg.read())
+        self.param_corpus.Lang.addItems(listLangCfg)
+
+        
         QtCore.QObject.connect(self.param_corpus.send_codex_ViewListeTextes,
                      QtCore.SIGNAL("triggered()"), self.send_codex_ViewListeTextes)
         self.param_corpus.launchPRC_button.clicked.connect(self.launchPRC)

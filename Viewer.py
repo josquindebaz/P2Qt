@@ -765,16 +765,16 @@ class Corpus_tab(QtGui.QListWidget):
 
         """Selecting language"""
         self.Lang = QtGui.QComboBox()
-        self.Lang.addItems([
+        """self.Lang.addItems([
             u"français",
             u"anglais",
             u"portugais",
             u"allemand",
             u"italien",
             u"espagnol",
-            ])
+            ])"""
         H2L.addWidget(self.Lang)
-        self.Lang.setEnabled(False)
+        #self.Lang.setEnabled(False)
         
 
         """Old Code
@@ -1004,7 +1004,10 @@ class Corpus_tab(QtGui.QListWidget):
                     
                     self.checkFileExistence(self.ViewListeConcepts)
 
-
+                    #select language indicated in .prc
+                    Params = corpus.configList()
+                    index = self.Lang.findText(Params['langue'], QtCore.Qt.MatchFixedString)
+                    self.Lang.setCurrentIndex(index)
 
                     """ Old code
                     self.ViewListeLexicons.clear()

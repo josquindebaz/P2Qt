@@ -115,17 +115,16 @@ class parseCorpus(object):
         self.corpus = 0
 
     def open(self, path):
-        #FIXME use with open
-        F = open(path, "rU")
-        B = F.readlines()
-        if re.search("<Projet-Prospéro-II", B[1]):
-            F.seek(0)
-            self.corpus  = minidom.parse(F)
-            return True
-        elif re.search("projet0005", B[0]):
-            return "P1"
-        else:
-            return False
+        with open(path, "rU") as F:
+            B = F.readlines()
+            if re.search("<Projet-Prospéro-II", B[1]):
+                F.seek(0)
+                self.corpus  = minidom.parse(F)
+                return True
+            elif re.search("projet0005", B[0]):
+                return "P1"
+            else:
+                return False
         
     def textFileList(self):
         textFiles = []
@@ -145,6 +144,13 @@ class parseCorpus(object):
         for F in self.corpus.getElementsByTagName('ressource'):
             FileNames.append(F.getAttribute("adresse"))
         return FileNames
+
+    def configList(self):
+        Params = {}
+        for E in self.corpus.getElementsByTagName('config'):
+            Params[E.attributes.items()[0][0]] = E.attributes.items()[0][1]
+        return Params
+        
 
     def savefile(self, fname, langue=u"français", ressource_list=[], 
                                         concept_list=[], text_dic={}):
