@@ -9,8 +9,331 @@ import datetime
 import Controller
 import generator_mrlw
 
+
+"""
+General classes :
+    PrgBar
+    MyListWidgetTexts
+    TexteWidgetItem
+    MyDelegate
+    ListViewDrop
+    MyListWidget
+    hide_close_buttons
+"""
+
+
+
+class PrgBar(object):
+    """a progress bar"""
+    def __init__(self, parent=None): 
+        self.bar = QtGui.QProgressBar()
+        self.bar.setMaximumSize(199,19)
+        self.val = 0
+        self.disp()
+        self.total = 0
+
+    def setv(self, val):
+        self.val = val 
+        self.disp()
+
+    def disp(self):
+        self.bar.setValue(self.val)
+        QtGui.QApplication.processEvents()
+
+    def add(self, i):
+        self.val += i
+        self.disp()
+
+    def perc(self, total):
+        self.total = total
+        self.inc = float(0)
+        self.setv(0)
+        QtGui.QApplication.processEvents()
+
+    def percAdd(self, i):
+        self.inc += i
+        if self.inc >= self.total:
+            self.reset()
+        else:
+            evalue = self.inc*100/self.total
+            self.setv(evalue)
+
+    def reset(self):
+        self.bar.reset()
+        self.inc = 0
+        self.total = 0
+        self.setv(0)
+        QtGui.QApplication.processEvents()
+
+
+class MyListWidgetTexts(QtGui.QListWidget):
+    """a specific widget for textslists""" 
+    def __init__(self, parent=None):
+        QtGui.QListWidget.__init__(self)
+        self.parent = parent
+        self.sentences_menu = False
+        self.setAlternatingRowColors(True)
+        self.itemSelectionChanged.connect(self.changeColor)
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.context_menu)
+        self.action_sentences = QtGui.QAction('Sentences', self) 
+
+        self.setStyleSheet("QToolTip {background-color: white;}")
+
+        #TODO directly ask children without list
+        self.widget_list = []
+
+        #TODO sorting
+        #self.orderdt = QtGui.QAction("order by date", self, triggered=lambda: self.sortby("dt")) 
+        #self.orderoc = QtGui.QAction("order by occurence", self, triggered=lambda: self.sortby("oc")) 
+        #self.corpus.addAction(self.orderoc)
+
+    def context_menu(self, pos):
+        menu = QtGui.QMenu()
+        if (self.sentences_menu):
+            menu.addAction(self.action_sentences)
+        temp = menu.addMenu('Temporal distribution')
+        temp.addAction(QtGui.QAction('days', self, 
+            triggered=self.copy))
+        temp.addAction(QtGui.QAction('months', self, 
+            triggered=lambda: self.copy('months')))
+        temp.addAction(QtGui.QAction('years', self, 
+            triggered=lambda: self.copy('years')))
+        menu.exec_(QtGui.QCursor.pos())
+
+    def copy(self, delta="days"):
+        self.parent.cumul_temp(self, delta)
+
+    def changeColor(self):
+        currentRow = self.currentRow()
+        for r in range(self.count()):
+            if (r == currentRow):
+                self.item(r).label.setStyleSheet("color: white; background-color: gray;")  
+            else:
+                self.item(r).label.setStyleSheet("color: black;")
+
+    def deselect_all(self):
+        self.clearSelection()
+        for r in range(self.count()):
+             self.item(r).label.setStyleSheet("color: black;")
+
+
+
+class TexteWidgetItem(QtGui.QListWidgetItem):
+    def __init__(self, text, parent=None):
+        QtGui.QListWidgetItem.__init__(self)
+        self.resume = text
+        self.label = QtGui.QLabel(self.formeResume())
+        self.setToolTip(self.formeToolTip())
+
+    def updateText(self):
+        self.label.setText(self.formeResume())
+        
+    def formeResume(self):
+        return u"%s <span style=\"font: bold\">%s</span> %s" % self.resume 
+
+    def formeToolTip(self):
+        return u"<table> <tr><td><b>%s</b></td></tr> <tr><td><i>%s</i></td></tr> <tr><td>%s</td></tr> </table>"%(self.resume[2], self.resume[1], self.resume[0])
+
+
+
+
+
+
+class MyDelegate(QtGui.QStyledItemDelegate):
+    
+    closedSignal = QtCore.Signal()
+
+    def __init__(self, parent=None): 
+        super(MyDelegate, self).__init__(parent)
+        self.closeEditor.connect(self.cSignal)
+
+    def cSignal(self):
+        self.closedSignal.emit()
+
+
+class ListViewDrop(QtGui.QListWidget):
+
+    fileDropped = QtCore.Signal(list)
+
+    def __init__(self, type, parent=None):
+        super(ListViewDrop, self).__init__(parent)
+        self.setAcceptDrops(True)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls:
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        if event.mimeData().hasUrls:
+            event.setDropAction(QtCore.Qt.CopyAction)
+            event.accept()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        if event.mimeData().hasUrls:
+            event.setDropAction(QtCore.Qt.CopyAction)
+            event.accept()
+            links = []
+            #FIXME bug Qt et MAC ne donne pas path complet
+            for url in event.mimeData().urls():
+                #print str(NSURL.URLWithString_(str(url.toString())))
+                #links.append(str(url.toLocalFile())) #pb encodage
+                links.append(url.toLocalFile())
+            self.fileDropped.emit(links)
+        else:
+            event.ignore()
+
+
+class MyListWidget(QtGui.QWidget):
+    """
+    a specific widget for concept/lexicon lists
+    """ 
+    deselected = QtCore.Signal()
+
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self)
+        self.listw = QtGui.QListWidget()
+        self.listw.setAlternatingRowColors(True)
+        self.listw.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        self.previousItem = False
+        #self.listw.itemClicked.connect(self.deselect) #bug with windows : reselection of #1 item when contextual click
+        self.listw.installEventFilter(self)
+
+        #self.listw.setDragEnabled(True)
+        #self.listw.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
+        #self.listw.setAcceptDrops(True)
+
+        vbox = QtGui.QVBoxLayout()
+        self.setLayout(vbox)
+        vbox.setContentsMargins(0, 0, 0, 0)
+        #vbox.setSpacing(0)
+        self.label = QtGui.QLabel()
+        self.label.setVisible(False)
+        self.label.setStyleSheet("* {border: 2px solid rgb(234, 240, 253);\
+            background-color: white; padding: 2px; margin: 0px;\
+            text-transform: lowercase;}")
+        vbox.addWidget(self.label)
+        vbox.addWidget(self.listw)
+
+    #def dragEnterEvent(self, event):
+        #if event.mimeData().hasFormat('text/plain'):
+            #event.accept()
+            #print event.mimeData().text()
+        #else:
+            ##event.ignore() 
+            #event.accept()
+
+    #def dropEvent(self, e):
+        #print e.mimeData()
+
+    def deselect(self, item):
+        if (self.previousItem): 
+            if ( str(self.previousItem) == str(item) ):
+                self.listw.clearSelection()
+                self.listw.setCurrentRow(-1)
+                self.previousItem = False
+                self.deselected.emit()
+            else :
+                self.previousItem = item
+        else : 
+            self.previousItem = item
+
+    def eventFilter(self, widget, event):
+        """search function"""
+        if (event.type() == QtCore.QEvent.KeyPress and
+                widget is self.listw):
+            if (event.type()==QtCore.QEvent.KeyPress and (event.key() in
+                        range(256) or event.key()==QtCore.Qt.Key_Space)):
+                if hasattr(self, "motif"):
+                    self.motif += chr(event.key())
+                else:
+                    self.motif = chr(event.key()) 
+                self.searchmotif(self.motif, 0)
+                return True
+            elif (event.type()==QtCore.QEvent.KeyPress and
+                        (event.key()==QtCore.Qt.Key_Escape)):
+                self.motif = ""
+                self.searchmotif('', 0)
+                return True
+            elif (event.type()==QtCore.QEvent.KeyPress and
+                        (event.key()==QtCore.Qt.Key_Backspace)):
+                if hasattr(self, "motif"):
+                    self.motif = self.motif[:-1]
+                    self.searchmotif(self.motif, 0)
+                return True
+            elif (event.type()==QtCore.QEvent.KeyPress and
+                        (event.key()==QtCore.Qt.Key_Return)):
+                if hasattr(self, "motif"):
+                    if (self.motif != ""):
+                        self.searchmotif(self.motif, 1)
+                return True
+        return QtGui.QWidget.eventFilter(self, widget, event)
+
+    def searchmotif(self, motif, pos=0):
+        if (self.motif != ""):
+            if (pos == 0):
+                self.pos = 0
+            else:
+                self.pos += 1
+            matches = self.listw.findItems(self.motif, QtCore.Qt.MatchContains)
+            if (matches):
+                if (self.pos >= len(matches)):
+                    self.pos = 0
+                self.listw.setCurrentItem(matches[self.pos])
+            else:
+                self.listw.clearSelection()
+                self.deselected.emit()
+            self.label.setText(self.motif)
+            self.label.setVisible(True)
+        else:
+            self.pos = 0
+            self.listw.clearSelection()
+            self.deselected.emit()
+            self.label.setVisible(False)
+
+
+def hide_close_buttons(tabs_widget,index):
+        """
+        hide close button on tab no 'index', on the left side for Mac
+        """
+        if tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.RightSide):
+            tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.RightSide).resize(0,0)
+            tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.RightSide).hide()
+        elif tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide):
+            tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).resize(0,0)
+            tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).hide()
+
+
+"""
+Applied classes:
+    MyMenu
+    ListTexts
+    actantsTab
+    personsTab
+    authorsTab
+    LexiconTab
+    ConceptTab
+    Contexts
+    SaillantesProperties
+    textCTX
+    Corpus_tab
+    MrlwVarGenerator
+    Journal
+    NetworksViewer
+    TextElements
+    Formulae
+    Explorer
+    ServerVars
+"""
+
 class MyMenu(QtGui.QMenuBar):
-    """the menu"""
+    """
+    the menu
+    """
     def __init__(self, parent=None): 
         QtGui.QMenuBar.__init__(self)
 
@@ -124,48 +447,99 @@ class MyMenu(QtGui.QMenuBar):
 
 
 
+class ListTexts(QtGui.QWidget):
+    """
+    Display texts corpus and anticorpus for an element
+    """
+    def __init__(self, element, lsems, ltxts, parent):
+        QtGui.QWidget.__init__(self)
+        self.parent = parent
 
-class PrgBar(object):
-    """a progress bar"""
-    def __init__(self, parent=None): 
-        self.bar = QtGui.QProgressBar()
-        self.bar.setMaximumSize(199,19)
-        self.val = 0
-        self.disp()
-        self.total = 0
+        self.lsems = lsems
+        #print "C31471", lsems
+        self.ltxts = ltxts
+        HBox = QtGui.QHBoxLayout()
+        HBox.setContentsMargins(0,0,0,0) 
+        HBox.setSpacing(5) 
+        self.setLayout(HBox)
 
-    def setv(self, val):
-        self.val = val 
-        self.disp()
-
-    def disp(self):
-        self.bar.setValue(self.val)
-        QtGui.QApplication.processEvents()
-
-    def add(self, i):
-        self.val += i
-        self.disp()
-
-    def perc(self, total):
-        self.total = total
-        self.inc = float(0)
-        self.setv(0)
-        QtGui.QApplication.processEvents()
-
-    def percAdd(self, i):
-        self.inc += i
-        if self.inc >= self.total:
-            self.reset()
+        if (element):
+            self.title = "%s (%d)" % (element, len(self.lsems))
+            self.corpus = MyListWidgetTexts(self)
+            self.corpus.sentences_menu = True
+            Gcorpus = QtGui.QGroupBox("corpus")
+            HBox.addWidget(Gcorpus)
+            Gcorpusbox = QtGui.QHBoxLayout()
+            Gcorpusbox.setContentsMargins(0,0,0,0)
+            Gcorpus.setLayout(Gcorpusbox)
+            Gcorpusbox.addWidget(self.corpus)
+            self.anticorpus = MyListWidgetTexts(self)
+            Gacorpus = QtGui.QGroupBox("anti-corpus")
+            HBox.addWidget(Gacorpus)
+            Gacorpusbox = QtGui.QHBoxLayout()
+            Gacorpusbox.setContentsMargins(0,0,0,0)
+            Gacorpus.setLayout(Gacorpusbox)
+            Gacorpusbox.addWidget(self.anticorpus)
         else:
-            evalue = self.inc*100/self.total
-            self.setv(evalue)
+            self.corpus = MyListWidgetTexts(self)
+            HBox.addWidget(self.corpus)
+            for sem, tri in self.sort():
+                txt = self.ltxts[sem]
+                WI = TexteWidgetItem(txt.getResume())
+                self.corpus.addItem(WI)
+                self.corpus.setItemWidget(WI, WI.label)
+                self.corpus.widget_list.append(txt) 
 
-    def reset(self):
-        self.bar.reset()
-        self.inc = 0
-        self.total = 0
-        self.setv(0)
-        QtGui.QApplication.processEvents()
+    def add(self, sem, resume):
+        if sem in self.lsems.keys(): 
+        #add to corpus list
+            resume = ("%s [%s]"%(resume[0], self.lsems[sem]) , resume[1], resume[2])
+            WI = TexteWidgetItem(resume)
+            self.corpus.addItem(WI)
+            self.corpus.setItemWidget(WI, WI.label)
+            self.corpus.widget_list.append(self.ltxts[sem])
+        else:
+        #add to anticorpus list
+            WI = TexteWidgetItem(resume)
+            self.anticorpus.addItem(WI)
+            self.anticorpus.setItemWidget(WI, WI.label)
+            self.anticorpus.widget_list.append(self.ltxts[sem]) 
+
+    def sort(self):
+        l = self.ltxts.keys()
+        liste = {}
+        for e in l:
+            liste[e] = self.get_date(self.ltxts[e])
+        return sorted(liste.items(), key=lambda (k, v): v) 
+
+    def get_date(self, txt):
+        date = txt.getCTX("date")
+        date = re.split(" ", date) #split date and time
+        if (len(date) > 1):
+            date, heure = date
+        else:
+            date = date[0]
+        return "-".join(reversed(re.split("/", date)))
+
+    def cumul_temp(self, l, delta):
+        ld = []
+        for w in l.widget_list:
+            ld.append(self.get_date(w))
+        if len(ld):
+            ld = Controller.cumul_days(ld)
+            if delta in ["years", "months"]:
+                ld = Controller.cumul_dates(ld, delta) 
+            self.parent.to_clipboard(ld)
+
+
+
+
+
+
+
+
+
+
 
 class actantsTab(QtGui.QWidget):
     """Widget actants lists"""
@@ -455,201 +829,6 @@ class textCTX(QtGui.QWidget):
         B.setEnabled(False)
         V.addLayout(commands)
 
-class MyListWidgetTexts(QtGui.QListWidget):
-    """a specific widget for textslists""" 
-    def __init__(self, parent=None):
-        QtGui.QListWidget.__init__(self)
-        self.parent = parent
-        self.sentences_menu = False
-        self.setAlternatingRowColors(True)
-        self.itemSelectionChanged.connect(self.changeColor)
-        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.context_menu)
-        self.action_sentences = QtGui.QAction('Sentences', self) 
-
-        self.setStyleSheet("QToolTip {background-color: white;}")
-
-        #TODO directly ask children without list
-        self.widget_list = []
-
-        #TODO sorting
-        #self.orderdt = QtGui.QAction("order by date", self, triggered=lambda: self.sortby("dt")) 
-        #self.orderoc = QtGui.QAction("order by occurence", self, triggered=lambda: self.sortby("oc")) 
-        #self.corpus.addAction(self.orderoc)
-
-    def context_menu(self, pos):
-        menu = QtGui.QMenu()
-        if (self.sentences_menu):
-            menu.addAction(self.action_sentences)
-        temp = menu.addMenu('Temporal distribution')
-        temp.addAction(QtGui.QAction('days', self, 
-            triggered=self.copy))
-        temp.addAction(QtGui.QAction('months', self, 
-            triggered=lambda: self.copy('months')))
-        temp.addAction(QtGui.QAction('years', self, 
-            triggered=lambda: self.copy('years')))
-        menu.exec_(QtGui.QCursor.pos())
-
-    def copy(self, delta="days"):
-        self.parent.cumul_temp(self, delta)
-
-    def changeColor(self):
-        currentRow = self.currentRow()
-        for r in range(self.count()):
-            if (r == currentRow):
-                self.item(r).label.setStyleSheet("color: white; background-color: gray;")  
-            else:
-                self.item(r).label.setStyleSheet("color: black;")
-
-    def deselect_all(self):
-        self.clearSelection()
-        for r in range(self.count()):
-             self.item(r).label.setStyleSheet("color: black;")
-
-class TexteWidgetItem(QtGui.QListWidgetItem):
-    def __init__(self, text, parent=None):
-        QtGui.QListWidgetItem.__init__(self)
-        self.resume = text
-        self.label = QtGui.QLabel(self.formeResume())
-        self.setToolTip(self.formeToolTip())
-
-    def updateText(self):
-        self.label.setText(self.formeResume())
-        
-    def formeResume(self):
-        return u"%s <span style=\"font: bold\">%s</span> %s" % self.resume 
-
-    def formeToolTip(self):
-        return u"<table> <tr><td><b>%s</b></td></tr> <tr><td><i>%s</i></td></tr> <tr><td>%s</td></tr> </table>"%(self.resume[2], self.resume[1], self.resume[0])
-
-class ListTexts(QtGui.QWidget):
-    """Display texts corpus and anticorpus for an element"""
-    def __init__(self, element, lsems, ltxts, parent):
-        QtGui.QWidget.__init__(self)
-        self.parent = parent
-
-        self.lsems = lsems
-        #print "C31471", lsems
-        self.ltxts = ltxts
-        HBox = QtGui.QHBoxLayout()
-        HBox.setContentsMargins(0,0,0,0) 
-        HBox.setSpacing(5) 
-        self.setLayout(HBox)
-
-        if (element):
-            self.title = "%s (%d)" % (element, len(self.lsems))
-            self.corpus = MyListWidgetTexts(self)
-            self.corpus.sentences_menu = True
-            Gcorpus = QtGui.QGroupBox("corpus")
-            HBox.addWidget(Gcorpus)
-            Gcorpusbox = QtGui.QHBoxLayout()
-            Gcorpusbox.setContentsMargins(0,0,0,0)
-            Gcorpus.setLayout(Gcorpusbox)
-            Gcorpusbox.addWidget(self.corpus)
-            self.anticorpus = MyListWidgetTexts(self)
-            Gacorpus = QtGui.QGroupBox("anti-corpus")
-            HBox.addWidget(Gacorpus)
-            Gacorpusbox = QtGui.QHBoxLayout()
-            Gacorpusbox.setContentsMargins(0,0,0,0)
-            Gacorpus.setLayout(Gacorpusbox)
-            Gacorpusbox.addWidget(self.anticorpus)
-        else:
-            self.corpus = MyListWidgetTexts(self)
-            HBox.addWidget(self.corpus)
-            for sem, tri in self.sort():
-                txt = self.ltxts[sem]
-                WI = TexteWidgetItem(txt.getResume())
-                self.corpus.addItem(WI)
-                self.corpus.setItemWidget(WI, WI.label)
-                self.corpus.widget_list.append(txt) 
-
-    def add(self, sem, resume):
-        if sem in self.lsems.keys(): 
-        #add to corpus list
-            resume = ("%s [%s]"%(resume[0], self.lsems[sem]) , resume[1], resume[2])
-            WI = TexteWidgetItem(resume)
-            self.corpus.addItem(WI)
-            self.corpus.setItemWidget(WI, WI.label)
-            self.corpus.widget_list.append(self.ltxts[sem])
-        else:
-        #add to anticorpus list
-            WI = TexteWidgetItem(resume)
-            self.anticorpus.addItem(WI)
-            self.anticorpus.setItemWidget(WI, WI.label)
-            self.anticorpus.widget_list.append(self.ltxts[sem]) 
-
-    def sort(self):
-        l = self.ltxts.keys()
-        liste = {}
-        for e in l:
-            liste[e] = self.get_date(self.ltxts[e])
-        return sorted(liste.items(), key=lambda (k, v): v) 
-
-    def get_date(self, txt):
-        date = txt.getCTX("date")
-        date = re.split(" ", date) #split date and time
-        if (len(date) > 1):
-            date, heure = date
-        else:
-            date = date[0]
-        return "-".join(reversed(re.split("/", date)))
-
-    def cumul_temp(self, l, delta):
-        ld = []
-        for w in l.widget_list:
-            ld.append(self.get_date(w))
-        if len(ld):
-            ld = Controller.cumul_days(ld)
-            if delta in ["years", "months"]:
-                ld = Controller.cumul_dates(ld, delta) 
-            self.parent.to_clipboard(ld)
-
-class MyDelegate(QtGui.QStyledItemDelegate):
-    
-    closedSignal = QtCore.Signal()
-
-    def __init__(self, parent=None): 
-        super(MyDelegate, self).__init__(parent)
-        self.closeEditor.connect(self.cSignal)
-
-    def cSignal(self):
-        self.closedSignal.emit()
-
-
-class ListViewDrop(QtGui.QListWidget):
-
-    fileDropped = QtCore.Signal(list)
-
-    def __init__(self, type, parent=None):
-        super(ListViewDrop, self).__init__(parent)
-        self.setAcceptDrops(True)
-
-    def dragEnterEvent(self, event):
-        if event.mimeData().hasUrls:
-            event.accept()
-        else:
-            event.ignore()
-
-    def dragMoveEvent(self, event):
-        if event.mimeData().hasUrls:
-            event.setDropAction(QtCore.Qt.CopyAction)
-            event.accept()
-        else:
-            event.ignore()
-
-    def dropEvent(self, event):
-        if event.mimeData().hasUrls:
-            event.setDropAction(QtCore.Qt.CopyAction)
-            event.accept()
-            links = []
-            #FIXME bug Qt et MAC ne donne pas path complet
-            for url in event.mimeData().urls():
-                #print str(NSURL.URLWithString_(str(url.toString())))
-                #links.append(str(url.toLocalFile())) #pb encodage
-                links.append(url.toLocalFile())
-            self.fileDropped.emit(links)
-        else:
-            event.ignore()
 
 class Corpus_tab(QtGui.QListWidget):
     """
@@ -1317,110 +1496,7 @@ class TextElements(object):
         self.element_list =  QtGui.QListWidget()
         box.addWidget(self.element_list)
 
-class MyListWidget(QtGui.QWidget):
-    """a specific widget for concept/lexicon lists""" 
-    deselected = QtCore.Signal()
 
-    def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self)
-        self.listw = QtGui.QListWidget()
-        self.listw.setAlternatingRowColors(True)
-        self.listw.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-        self.previousItem = False
-        #self.listw.itemClicked.connect(self.deselect) #bug with windows : reselection of #1 item when contextual click
-        self.listw.installEventFilter(self)
-
-        #self.listw.setDragEnabled(True)
-        #self.listw.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
-        #self.listw.setAcceptDrops(True)
-
-        vbox = QtGui.QVBoxLayout()
-        self.setLayout(vbox)
-        vbox.setContentsMargins(0, 0, 0, 0)
-        #vbox.setSpacing(0)
-        self.label = QtGui.QLabel()
-        self.label.setVisible(False)
-        self.label.setStyleSheet("* {border: 2px solid rgb(234, 240, 253);\
-            background-color: white; padding: 2px; margin: 0px;\
-            text-transform: lowercase;}")
-        vbox.addWidget(self.label)
-        vbox.addWidget(self.listw)
-
-    #def dragEnterEvent(self, event):
-        #if event.mimeData().hasFormat('text/plain'):
-            #event.accept()
-            #print event.mimeData().text()
-        #else:
-            ##event.ignore() 
-            #event.accept()
-
-    #def dropEvent(self, e):
-        #print e.mimeData()
-
-    def deselect(self, item):
-        if (self.previousItem): 
-            if ( str(self.previousItem) == str(item) ):
-                self.listw.clearSelection()
-                self.listw.setCurrentRow(-1)
-                self.previousItem = False
-                self.deselected.emit()
-            else :
-                self.previousItem = item
-        else : 
-            self.previousItem = item
-
-    def eventFilter(self, widget, event):
-        """search function"""
-        if (event.type() == QtCore.QEvent.KeyPress and
-                widget is self.listw):
-            if (event.type()==QtCore.QEvent.KeyPress and (event.key() in
-                        range(256) or event.key()==QtCore.Qt.Key_Space)):
-                if hasattr(self, "motif"):
-                    self.motif += chr(event.key())
-                else:
-                    self.motif = chr(event.key()) 
-                self.searchmotif(self.motif, 0)
-                return True
-            elif (event.type()==QtCore.QEvent.KeyPress and
-                        (event.key()==QtCore.Qt.Key_Escape)):
-                self.motif = ""
-                self.searchmotif('', 0)
-                return True
-            elif (event.type()==QtCore.QEvent.KeyPress and
-                        (event.key()==QtCore.Qt.Key_Backspace)):
-                if hasattr(self, "motif"):
-                    self.motif = self.motif[:-1]
-                    self.searchmotif(self.motif, 0)
-                return True
-            elif (event.type()==QtCore.QEvent.KeyPress and
-                        (event.key()==QtCore.Qt.Key_Return)):
-                if hasattr(self, "motif"):
-                    if (self.motif != ""):
-                        self.searchmotif(self.motif, 1)
-                return True
-        return QtGui.QWidget.eventFilter(self, widget, event)
-
-    def searchmotif(self, motif, pos=0):
-        if (self.motif != ""):
-            if (pos == 0):
-                self.pos = 0
-            else:
-                self.pos += 1
-            matches = self.listw.findItems(self.motif, QtCore.Qt.MatchContains)
-            if (matches):
-                if (self.pos >= len(matches)):
-                    self.pos = 0
-                self.listw.setCurrentItem(matches[self.pos])
-            else:
-                self.listw.clearSelection()
-                self.deselected.emit()
-            self.label.setText(self.motif)
-            self.label.setVisible(True)
-        else:
-            self.pos = 0
-            self.listw.clearSelection()
-            self.deselected.emit()
-            self.label.setVisible(False)
             
 class Formulae(QtGui.QWidget):
     """Formulae"""
@@ -1530,12 +1606,5 @@ class ServerVars(QtGui.QListWidget):
 
         #TODO protect from pers[5] instead of pers5
 
-def hide_close_buttons(tabs_widget,index):
-        """hide close button on tab no 'index', on the left side for Mac"""
-        if tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.RightSide):
-            tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.RightSide).resize(0,0)
-            tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.RightSide).hide()
-        elif tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide):
-            tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).resize(0,0)
-            tabs_widget.tabBar().tabButton(index, QtGui.QTabBar.LeftSide).hide()
+
 
