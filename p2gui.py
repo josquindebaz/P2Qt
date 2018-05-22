@@ -1381,8 +1381,10 @@ class Principal(QtGui.QMainWindow):
 
             self.PrgBar.percAdd(3)
 
-        #if less tan 4 cat, show them all
-        #show until reached .5 of cumulated frequencies (show exaequo)
+        """
+        if less than 4 cat, show them all
+        show until reached .5 of cumulated frequencies (show exaequo)
+        """
         liste_cats.sort(reverse=True)
         if len(liste_cats) <=4 : 
             self.list_cat_aff = ["%d %s"%(val, el) for val, el in liste_cats] 
@@ -1859,6 +1861,9 @@ class Principal(QtGui.QMainWindow):
         port = 60000
         commande = '"%s" -e -d 1 -p %s -f "%s"' % (server_path, port, PRC)
         local_server = subprocess.Popen(commande, shell=True)
+
+        #FIXME
+        #only connect when server is ready
         time.sleep(5)
         self.connect_server("localhost", port)
 
@@ -1872,7 +1877,7 @@ class Principal(QtGui.QMainWindow):
         result = self.client.eval(ask)
         print "C25713", ask, result
             
-
+#TODO move to Viewer
 class codex_window(QtGui.QWidget):
     def __init__(self, parent=None):
         super(codex_window, self).__init__(parent, QtCore.Qt.Window)

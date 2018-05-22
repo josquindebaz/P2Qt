@@ -152,8 +152,20 @@ class parseCorpus(object):
         return Params
         
 
-    def savefile(self, fname, langue=u"français", ressource_list=[], 
-                                        concept_list=[], text_dic={}):
+    def savefile(self,
+                 fname,
+                 langue=u"français",
+                 ressource_list=[],
+                 concept_list=[],
+                 param = {'listes_boot': 0,
+                          'type_multi': 0,
+                          'typage_auto': 1,
+                          'ele_in_expr': 0},
+                 text_dic={}
+                 ):
+        """
+        Save a PRC file in xml
+        """
         content = minidom.Document()
         root = content.createElement(u'Projet-Prospéro-II')
         content.appendChild(root)
@@ -161,6 +173,7 @@ class parseCorpus(object):
             u"%s"%datetime.datetime.now().strftime("%Y-%m-%d"))
         root.setAttribute(u'heure-creation', 
             u"%s"%datetime.datetime.now().strftime("%H:%M:%S"))
+
         config = content.createElement(u'configuration')
         root.appendChild(config)
         label = u"config"
@@ -169,16 +182,17 @@ class parseCorpus(object):
         node_config.setAttribute (u"langue", langue)
         node_config = content.createElement(label)
         config.appendChild(node_config)
-        node_config.setAttribute (u"mode_calcul_ele_in_expr", "0")
+        node_config.setAttribute (u"mode_calcul_ele_in_expr", str(param["ele_in_expr"]))
         node_config = content.createElement(label)
         config.appendChild(node_config)
-        node_config.setAttribute (u"exclusion_type_multi", "0")
+        node_config.setAttribute (u"exclusion_type_multi", str(param["type_multi"]))
         node_config = content.createElement(label)
         config.appendChild(node_config)
-        node_config.setAttribute (u"desact_calcul_de_listes_boot", "0")
+        node_config.setAttribute (u"desact_calcul_de_listes_boot", str(param["listes_boot"]))
         node_config = content.createElement(label)
         config.appendChild(node_config)
-        node_config.setAttribute (u"mode-typage-auto-des-indéfinis", "1")
+        node_config.setAttribute (u"mode-typage-auto-des-indéfinis", str(param["typage_auto"]))
+
         ressources = content.createElement(u'statut-des-ressources')
         config.appendChild(ressources)
         for r in ressource_list:
@@ -186,6 +200,7 @@ class parseCorpus(object):
             ressources.appendChild(ressource)
             ressource.setAttribute("adresse", r)
             ressource.setAttribute("statut", "1")
+
         concepts = content.createElement(u'gestionnaire-de-concepts')
         root.appendChild(concepts)
         for c in concept_list:
@@ -193,6 +208,7 @@ class parseCorpus(object):
             concepts.appendChild(concept)
             concept.setAttribute("adresse", c)
             concept.setAttribute("statut", "1")
+
         textes = content.createElement(u'textes-du-projet')
         root.appendChild(textes)
         for t in text_dic.keys():
@@ -200,10 +216,10 @@ class parseCorpus(object):
             textes.appendChild(texte)
             texte.setAttribute(u"nom", t)
             texte.setAttribute(u"date-insertion-projet", u"%s" % text_dic[t])
-        #FIXME use with open
-        file_handle = open(fname, "wb")
-        file_handle.write(content.toprettyxml(encoding="utf-8"))
-        file_handle.close()
+
+        with open(fname, "wb") as file_handle:
+            file_handle.write(content.toprettyxml(encoding="utf-8"))
+            file_handle.close()
 
 #FIXME rename class
 class parseCTX(object):

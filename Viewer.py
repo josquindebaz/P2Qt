@@ -953,58 +953,6 @@ class Corpus_tab(QtGui.QListWidget):
             u"espagnol",
             ])"""
         H2L.addWidget(self.Lang)
-        #self.Lang.setEnabled(False)
-        
-
-        """Old Code
-        Separating Concepts and Lexicon Files
-        
-        self.ViewListeConcepts = ListViewDrop(self)
-        H2L.addWidget(self.ViewListeConcepts)
-        self.ViewListeConcepts.setSelectionMode(
-            QtGui.QAbstractItemView.MultiSelection)
-        self.ViewListeConcepts.fileDropped.connect(self.ccfFilesDropped)
-        self.ViewListeConcepts.setContextMenuPolicy(
-                            QtCore.Qt.ActionsContextMenu)
-
-        self.ViewListeConcepts.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-        addItem_ViewListeConcepts = QtGui.QAction(self.tr('add concept file'), self)
-        self.ViewListeConcepts.addAction(addItem_ViewListeConcepts)
-        QtCore.QObject.connect(addItem_ViewListeConcepts, 
-            QtCore.SIGNAL("triggered()"), self.addItem_ViewListeConcepts)
-
-        efface_ViewListeConceptsItem = QtGui.QAction(self.tr('delete item'), self)
-        self.ViewListeConcepts.addAction(efface_ViewListeConceptsItem)
-        QtCore.QObject.connect(efface_ViewListeConceptsItem, 
-            QtCore.SIGNAL("triggered()"), self.efface_ViewListeConceptsItem)
-        efface_ViewListeConcepts = QtGui.QAction(self.tr('clear list'), self)
-        self.ViewListeConcepts.addAction(efface_ViewListeConcepts)
-        QtCore.QObject.connect(efface_ViewListeConcepts, 
-            QtCore.SIGNAL("triggered()"), self.efface_ViewListeConcepts)
-
-        self.ViewListeLexicons = ListViewDrop(self)
-        H2L.addWidget(self.ViewListeLexicons)
-        self.ViewListeLexicons.setSelectionMode(
-            QtGui.QAbstractItemView.MultiSelection)
-        self.ViewListeLexicons.fileDropped.connect(self.dicFilesDropped)
-        self.ViewListeLexicons.setContextMenuPolicy(
-                        QtCore.Qt.ActionsContextMenu)
-
-        addItem_ViewListeLexicons = QtGui.QAction(self.tr('add lexicon file'), self)
-        self.ViewListeLexicons.addAction(addItem_ViewListeLexicons)
-        QtCore.QObject.connect(addItem_ViewListeLexicons, 
-            QtCore.SIGNAL("triggered()"), self.addItem_ViewListeLexicons)
-
-        efface_ViewListeLexiconsItem = QtGui.QAction(self.tr('delete item'), self)
-        self.ViewListeLexicons.addAction(efface_ViewListeLexiconsItem)
-        QtCore.QObject.connect(efface_ViewListeLexiconsItem, 
-            QtCore.SIGNAL("triggered()"), self.efface_ViewListeLexiconsItem)
-        efface_ViewListeLexicons = QtGui.QAction(self.tr('clear list'), self)
-        self.ViewListeLexicons.addAction(efface_ViewListeLexicons)
-        QtCore.QObject.connect(efface_ViewListeLexicons, 
-            QtCore.SIGNAL("triggered()"), self.efface_ViewListeLexicons)
-
-        End Old Code"""
 
         H22TabPar = QtGui.QWidget()
         i = H22Tab.addTab(H22TabPar, self.tr("Parameters"))
@@ -1013,21 +961,23 @@ class Corpus_tab(QtGui.QListWidget):
         H22V1.setContentsMargins(0, 0, 0, 0) 
         H22V1.setSpacing(0) 
 
-        CB1 = QtGui.QCheckBox(u"mode_calcul_ele_in_expr")
-        H22V1.addWidget(CB1)
-        CB1.setEnabled(False)
-        CB2 = QtGui.QCheckBox(u"exclusion_type_multi")
-        H22V1.addWidget(CB2)
-        CB2.setEnabled(False)
-        CB3 = QtGui.QCheckBox(u"desact_calcul_de_listes_boot")
-        H22V1.addWidget(CB3)
-        CB3.setEnabled(False)
-        CB4 = QtGui.QCheckBox(u"mode-typage-auto-des-indéfinis")
-        H22V1.addWidget(CB4)
-        CB4.setChecked(True)
-        CB4.setEnabled(False)
+        self.ele_in_expr = QtGui.QCheckBox(u"mode_calcul_ele_in_expr")
+        H22V1.addWidget(self.ele_in_expr)
+        #self.ele_in_expr.setEnabled(False)
+        
+        self.type_multi = QtGui.QCheckBox(u"exclusion_type_multi")
+        H22V1.addWidget(self.type_multi)
+        #self.type_multi.setEnabled(False)
+        
+        self.listes_boot = QtGui.QCheckBox(u"desact_calcul_de_listes_boot")
+        H22V1.addWidget(self.listes_boot)
+        #self.listes_boot.setEnabled(False)
+        
+        self.typage_auto = QtGui.QCheckBox(u"mode-typage-auto-des-indéfinis")
+        H22V1.addWidget(self.typage_auto)
+        self.typage_auto.setChecked(True)
+        #self.typage_auto.setEnabled(False)
 
-        #H22Tab.setTabEnabled(i, False)
           
     def TxtFilesDropped(self, l):
         existing = [] 
@@ -1176,24 +1126,28 @@ class Corpus_tab(QtGui.QListWidget):
                     self.ViewListeConcepts.addItems(corpus.conceptFileList())
                     self.ViewListeConcepts.sortItems()
 
-                    """Test code"""
                     self.ViewListeConcepts.addItems(corpus.dicFileList())
                     self.ViewListeConcepts.sortItems()
-                    """ end """
                     
                     self.checkFileExistence(self.ViewListeConcepts)
 
-                    #select language indicated in .prc
+                    #select parameters indicated in .prc
                     Params = corpus.configList()
                     index = self.Lang.findText(Params['langue'], QtCore.Qt.MatchFixedString)
                     self.Lang.setCurrentIndex(index)
+                    
+                    if int(Params[u"mode_calcul_ele_in_expr"]): self.ele_in_expr.setCheckState(QtCore.Qt.Checked)
+                    else: self.ele_in_expr.setCheckState(QtCore.Qt.Unchecked)
 
-                    """ Old code
-                    self.ViewListeLexicons.clear()
-                    self.ViewListeLexicons.addItems(corpus.dicFileList())
-                    self.ViewListeLexicons.sortItems()
-                    self.checkFileExistence(self.ViewListeLexicons)
-                    """
+                    if int(Params[u"exclusion_type_multi"]): self.type_multi.setCheckState(QtCore.Qt.Checked)
+                    else: self.type_multi.setCheckState(QtCore.Qt.Unchecked)
+
+                    if int(Params[u"desact_calcul_de_listes_boot"]): self.listes_boot.setCheckState(QtCore.Qt.Checked)
+                    else: self.listes_boot.setCheckState(QtCore.Qt.Unchecked)
+
+                    if int(Params[u"mode-typage-auto-des-indéfinis"]): self.typage_auto.setCheckState(QtCore.Qt.Checked)
+                    else: self.typage_auto.setCheckState(QtCore.Qt.Unchecked)                  
+
 
                     self.launchPRC_button.setEnabled(True)
                     self.mergePRC_button.setEnabled(True)
@@ -1232,23 +1186,26 @@ class Corpus_tab(QtGui.QListWidget):
         corpusS = Controller.parseCorpus()    
         concepts = []
         ressources = []
+        params = {}
         
         for r in range(self.ViewListeConcepts.count()):
-            #Old concepts.append(self.ViewListeConcepts.item(r).text())
             I = self.ViewListeConcepts.item(r).text()
             if re.search("\.dic$", I):
                 ressources.append(I)
             else:
                 concepts.append(I)
 
-        """Old code
-        for r in  range(self.ViewListeLexicons.count()):
-            ressources.append(self.ViewListeLexicons.item(r).text())
-         """
-        
-        corpusS.savefile(fileName, langue=u"français",
-            ressource_list=ressources, concept_list=concepts, 
-                                    text_dic=self.TextFilesDates)
+        params["ele_in_expr"] = (0, 1) [self.ele_in_expr.isChecked()]
+        params["type_multi"] = (0, 1) [self.type_multi.isChecked()]
+        params["listes_boot"] = (0, 1) [self.listes_boot.isChecked()]
+        params["typage_auto"] = (0, 1) [self.typage_auto.isChecked()]
+
+        corpusS.savefile(fileName,
+                         langue = self.Lang.currentText(),
+                         ressource_list=ressources,
+                         concept_list=concepts,
+                         param=params,
+                         text_dic=self.TextFilesDates)
 
         self.launchPRC_button.setEnabled(True)
         self.nameCorpus.setText(fileName)
