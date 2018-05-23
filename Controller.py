@@ -713,14 +713,23 @@ explo_lexic = {
     }
 #NB $entef = entite out of fictions + fictions + entities in fictions
 
-explo_type_to_add = [
-    'entity',
-    'quality',
-    'marker',
-    'verbs',
-    'function word',
-    ]
+explo_type_dic = {
+    u'Entit\xe9s': 'entity',
+    u'Qualit\xe9s': 'quality',
+    "Marqueur": 'marker',
+    'Nombres': 'numbers',
+    'Epreuve': 'verbs',
+    'Prénoms': 'first name',
+    'Mot outil': 'function word',
+    }
 
+explo_type_auto = {
+    u'entité (suffixe)': "?",
+    u'qualité (suffixe)': "?",
+    u'Formes majuscules': "?",
+    u'épreuve (suffixe)': "?",
+    'undefined': '?',
+    }
 
 #For affiche_concepts_scores
 hash_sort = {

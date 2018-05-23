@@ -36,7 +36,7 @@ correctement la dernière composante phadt ... un énoncé aléatoire avec auteu
 #from settings import hostPII , portPII , logger
 
 eval_status_done = 0
-verbose = 1
+verbose = 0
 import os.path
 import threading, socket, time , re
 #from eval_variable import eval_variables

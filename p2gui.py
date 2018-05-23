@@ -220,10 +220,10 @@ class Principal(QtGui.QMainWindow):
         self.explorer_widget.liste.listw.currentItemChanged.connect(self.explo_item_selected)
         self.explorer_widget.liste.listw.addAction(QtGui.QAction(self.tr('texts'),
             self, triggered=self.explo_show_text))
-        self.explorer_widget.explo_lexi.listw.addAction(QtGui.QAction(self.tr('add type'),
-            self,  triggered=self.explo_add_type))
-        self.explorer_widget.explo_lexi.listw.addAction(QtGui.QAction(self.tr('remove type'),
-            self,  triggered=self.explo_remove_type))
+        self.explorer_widget.explo_lexi.listw.addAction(QtGui.QAction(self.tr('change type TODO'),
+            self))
+
+
         
 
         ##### Tab for formulae                #############
@@ -1616,36 +1616,39 @@ class Principal(QtGui.QMainWindow):
         if self.explorer_widget.liste.listw.currentItem():
             motif = self.explorer_widget.liste.listw.currentItem().text()
             val, motif = Controller.sp_el(motif)
-            result = self.client.eval_index(motif)
-            print "C17248", result
-            if (len(result[0][1])):
-                for r in result[0][1]:
-                    if Controller.explo_lexic.has_key(r):
-                        self.explorer_widget.explo_lexi.listw.addItem(Controller.explo_lexic[r])
+            
+##            result = self.client.eval_index(motif)
+##            print "C17248", result
+##            if (len(result[0][1])):
+##                for r in result[0][1]:
+##                    if Controller.explo_lexic.has_key(r):
+##                        self.explorer_widget.explo_lexi.listw.addItem(Controller.explo_lexic[r])
+##                    else:
+##                        print "C17249 %s %s" %(motif, r)
+##            else :
+##                result = self.client.eval_get_sem(motif, '$undef')
+##                if result != ['']:
+##                    self.explorer_widget.explo_lexi.listw.addItem('undefined')
+            
+            result_typage = self.client.eval_var("$typage.get.%s"%motif)
+            if len(result_typage):
+                for typ in re.split(',', result_typage):
+                    if Controller.explo_type_dic.has_key(typ):
+                        self.explorer_widget.explo_lexi.listw.addItem(Controller.explo_type_dic[typ])
+                    elif Controller.explo_type_auto.has_key(typ):
+                        self.explorer_widget.explo_lexi.listw.addItem(typ)
+
                     else:
-                        print "C17249 %s %s" %(motif, r)
+                        print "C17250 %s %s" %(motif, typ)
             else :
                 result = self.client.eval_get_sem(motif, '$undef')
                 if result != ['']:
                     self.explorer_widget.explo_lexi.listw.addItem('undefined')
+
                 
             #TODO check concept
 
-    def explo_remove_type(self):
-        """
-        remove selected type for a pattern
-        """
-        if self.explorer_widget.explo_lexi.listw.currentItem():
-            typ = self.explorer_widget.explo_lexi.listw.currentItem().text()
-            if typ in Controller.explo_type_to_add:
-                print "TODO"
-                
 
-    def explo_add_type(self):
-        """
-        add type for a pattern
-        """
-        print "TODO"
 
 
 
@@ -1653,28 +1656,30 @@ class Principal(QtGui.QMainWindow):
         """
         Show texts containing a pattern
         """
-        motif = self.motif #recup from self.explorer
-        row =  self.explorer_widget.liste.listw.currentRow()
-        element = self.explorer_widget.liste.listw.currentItem().text()
-        val, element = Controller.sp_el(element)
-        
-        select_search = self.explorer_widget.select_fix.currentIndex()
-        types = [u"$search.pre", u"$search.suf", u"$search.rac"]
-        type_search = types[select_search]
-        
-        ask = self.client.creer_msg_search(type_search,
-                                           motif,
-                                           pelement="%d"%row,
-                                           txt=True )
-        result = self.client.eval(ask)
-        print "C17307", ask, result
-        liste_textes = re.split(", ", result)
-        lt_valued = {}
-        list_sems = map(lambda k: self.dicTxtSem[k], liste_textes)
-        for i in list_sems:
-        #TODO scorer/trier
-            lt_valued[i] = 1
-        self.show_texts(element, lt_valued)
+        if self.explorer_widget.liste.listw.currentItem():
+
+            motif = self.motif #recup from self.explorer
+            row =  self.explorer_widget.liste.listw.currentRow()
+            element = self.explorer_widget.liste.listw.currentItem().text()
+            val, element = Controller.sp_el(element)
+            
+            select_search = self.explorer_widget.select_fix.currentIndex()
+            types = [u"$search.pre", u"$search.suf", u"$search.rac"]
+            type_search = types[select_search]
+            
+            ask = self.client.creer_msg_search(type_search,
+                                               motif,
+                                               pelement="%d"%row,
+                                               txt=True )
+            result = self.client.eval(ask)
+            print "C17307", ask, result
+            liste_textes = re.split(", ", result)
+            lt_valued = {}
+            list_sems = map(lambda k: self.dicTxtSem[k], liste_textes)
+            for i in list_sems:
+            #TODO scorer/trier
+                lt_valued[i] = 1
+            self.show_texts(element, lt_valued)
 
     def show_texts_from_list(self, lvl):
         if hasattr(self, "client"):
@@ -1810,7 +1815,7 @@ class Principal(QtGui.QMainWindow):
             if (self.motif != "" and hasattr(self, "client")):
                 ask = self.client.creer_msg_search(type_search, self.motif, "[0:]") 
                 result = self.client.eval(ask)
-                print "C25712", ask, result
+                #print "C25712", ask, result
 
                 if (result != ''):
                     liste_result = re.split(", ", result)
@@ -1823,7 +1828,7 @@ class Principal(QtGui.QMainWindow):
                         ask = self.client.creer_msg_search(type_search, 
                             self.motif, "%d"%i, val=True) 
                         r = self.client.eval(ask)
-                        print "C25713", ask, r 
+                        #print "C25713", ask, r 
                         self.PrgBar.percAdd(1)
                         self.explorer_widget.liste.listw.addItem("%s %s"% (r,
                             liste_result[i]))

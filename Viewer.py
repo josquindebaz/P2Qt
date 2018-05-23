@@ -1519,8 +1519,15 @@ class Explorer(QtGui.QWidget):
         self.saisie = QtGui.QLineEdit()
         vbox.addWidget(self.saisie)
 
+        hbox15 = QtGui.QHBoxLayout()
+        vbox.addLayout(hbox15)
         self.explo_result_count = QtGui.QLabel()
-        vbox.addWidget(self.explo_result_count)        
+        hbox15.addWidget(self.explo_result_count)
+        #self.select_typage = QtGui.QComboBox()
+        #self.select_typage.addItems(Controller.explo_type_dic.values())
+        #hbox15.addWidget(self.select_typage)
+        #self.button_typage = QtGui.QPushButton('typage')
+        #hbox15.addWidget(self.button_typage)
 
         hbox2 = QtGui.QHBoxLayout()
         vbox.addLayout(hbox2)
