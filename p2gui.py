@@ -213,11 +213,18 @@ class Principal(QtGui.QMainWindow):
         #Explorer Tab
         ################################################
         #TODO ajouter navigateur (concepts)
+        #TODO menu contextuel seulement quand selection
+        
         self.explorer_widget =  Viewer.Explorer()
         self.explorer_widget.saisie.returnPressed.connect(self.explorer)
         self.explorer_widget.liste.listw.currentItemChanged.connect(self.explo_item_selected)
         self.explorer_widget.liste.listw.addAction(QtGui.QAction(self.tr('texts'),
             self, triggered=self.explo_show_text))
+        self.explorer_widget.explo_lexi.listw.addAction(QtGui.QAction(self.tr('add type'),
+            self,  triggered=self.explo_add_type))
+        self.explorer_widget.explo_lexi.listw.addAction(QtGui.QAction(self.tr('remove type'),
+            self,  triggered=self.explo_remove_type))
+        
 
         ##### Tab for formulae                #############
         ##################################################
@@ -248,7 +255,7 @@ class Principal(QtGui.QMainWindow):
         self.journal_index = self.NETs.addTab(self.journal.journal,
             self.tr("Journal"))
         Viewer.hide_close_buttons(self.NETs, 0)
-        self.NETs.addTab(self.explorer_widget, self.tr("Search"))
+        self.NETs.addTab(self.explorer_widget, self.tr("Search and Type"))
         Viewer.hide_close_buttons(self.NETs, 1)
         self.NETs.addTab(formulaeTab, self.tr("Formulae"))
         Viewer.hide_close_buttons(self.NETs, 2)
@@ -1605,26 +1612,47 @@ class Principal(QtGui.QMainWindow):
                          len(result_network)))
 
     def explo_item_selected(self):
-        self.explorer_widget.explo_lexi.clear()
+        self.explorer_widget.explo_lexi.listw.clear()
         if self.explorer_widget.liste.listw.currentItem():
             motif = self.explorer_widget.liste.listw.currentItem().text()
             val, motif = Controller.sp_el(motif)
             result = self.client.eval_index(motif)
+            print "C17248", result
             if (len(result[0][1])):
                 for r in result[0][1]:
                     if Controller.explo_lexic.has_key(r):
-                        self.explorer_widget.explo_lexi.addItem(Controller.explo_lexic[r])
+                        self.explorer_widget.explo_lexi.listw.addItem(Controller.explo_lexic[r])
                     else:
-                        print "C17249 %s" % r
+                        print "C17249 %s %s" %(motif, r)
             else :
                 result = self.client.eval_get_sem(motif, '$undef')
                 if result != ['']:
-                    self.explorer_widget.explo_lexi.addItem('undefined')
+                    self.explorer_widget.explo_lexi.listw.addItem('undefined')
                 
             #TODO check concept
 
+    def explo_remove_type(self):
+        """
+        remove selected type for a pattern
+        """
+        if self.explorer_widget.explo_lexi.listw.currentItem():
+            typ = self.explorer_widget.explo_lexi.listw.currentItem().text()
+            if typ in Controller.explo_type_to_add:
+                print "TODO"
+                
+
+    def explo_add_type(self):
+        """
+        add type for a pattern
+        """
+        print "TODO"
+
+
+
     def explo_show_text(self):
-        """Show texts containing a pattern"""
+        """
+        Show texts containing a pattern
+        """
         motif = self.motif #recup from self.explorer
         row =  self.explorer_widget.liste.listw.currentRow()
         element = self.explorer_widget.liste.listw.currentItem().text()
@@ -1634,8 +1662,10 @@ class Principal(QtGui.QMainWindow):
         types = [u"$search.pre", u"$search.suf", u"$search.rac"]
         type_search = types[select_search]
         
-        #ask = self.client.creer_msg_search(type_search, motif, pelement="%d"%row, txt=True, ptxt="[0:]", val=True)
-        ask = self.client.creer_msg_search(type_search, motif, pelement="%d"%row, txt=True )
+        ask = self.client.creer_msg_search(type_search,
+                                           motif,
+                                           pelement="%d"%row,
+                                           txt=True )
         result = self.client.eval(ask)
         print "C17307", ask, result
         liste_textes = re.split(", ", result)
@@ -1767,9 +1797,6 @@ class Principal(QtGui.QMainWindow):
             self.tab_sentences.setCurrentIndex(index)
             self.SOTs.setCurrentIndex(self.tab_sentences_index)
 
-    def easter1(self):
-        image = QtGui.QPixmap("images/Prospero-II.png")
-        self.explorer_widget.explo_easter.setPixmap(image)
 
     def explorer(self):
         self.explorer_widget.liste.listw.clear()
@@ -1779,15 +1806,18 @@ class Principal(QtGui.QMainWindow):
             type_search = types[self.explorer_widget.select_fix.currentIndex()]
             if (self.explorer_widget.sensitivity.isChecked()):
                 type_search = re.sub("search", "searchcs", type_search)
-            if (self.motif == "abracadabri"): self.easter1()
+            if (self.motif == "abracadabri"): self.explorer_widget.explo_result_count.setText("abracadabra!")
             if (self.motif != "" and hasattr(self, "client")):
                 ask = self.client.creer_msg_search(type_search, self.motif, "[0:]") 
                 result = self.client.eval(ask)
                 print "C25712", ask, result
+
                 if (result != ''):
                     liste_result = re.split(", ", result)
                     self.activity(self.tr("Searching for {%s}: %d results")%(self.motif,
                         len(liste_result)))
+                    self.explorer_widget.explo_result_count.setText("Found %d results"% len(liste_result))
+
                     self.PrgBar.perc(len(liste_result))
                     for i in range(len(liste_result)):
                         ask = self.client.creer_msg_search(type_search, 
@@ -1798,7 +1828,10 @@ class Principal(QtGui.QMainWindow):
                         self.explorer_widget.liste.listw.addItem("%s %s"% (r,
                             liste_result[i]))
                 else :
-                    self.activity(self.tr("Searching for {%s}: no result") % (self.motif)) 
+                    #if nothing found with the pattern
+                    self.activity(self.tr("Searching for {%s}: no result") % (self.motif))
+                    self.explorer_widget.explo_result_count.setText("Nothing found")
+
 
     def contexts_contents(self):
         self.CTXs.cont.clear()

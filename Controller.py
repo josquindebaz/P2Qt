@@ -340,10 +340,15 @@ class edit_codex(object):
             B = buf.read() 
         items = re.split("#{2,}", B.decode('latin-1'))
         dico = {}
-        tr = {"ABREV":u"ABREV", "AUTEUR":u"author", "SUPPORT":u"medium", 
-                "TYPE-SUPPORT":u"media-type", "STATUT-AUTEUR":u"authorship",
-                 u"LIEU-EMISSION":u"localisation", "CHAMP-1":u"open-field-1", 
-                "CHAMP-2":u"open-field-2", "OBSERVATION":u"observations"}
+        tr = {"ABREV":u"ABREV",
+              "AUTEUR":u"author",
+              "SUPPORT":u"medium",
+              "TYPE-SUPPORT":u"media-type",
+              "STATUT-AUTEUR":u"authorship",
+              u"LIEU-EMISSION":u"localisation",
+              "CHAMP-1":u"open-field-1",
+              "CHAMP-2":u"open-field-2",
+              "OBSERVATION":u"observations"}
         for item in items:
             if not re.search("^\s*$", item):
                 dic = {}
@@ -708,6 +713,15 @@ explo_lexic = {
     }
 #NB $entef = entite out of fictions + fictions + entities in fictions
 
+explo_type_to_add = [
+    'entity',
+    'quality',
+    'marker',
+    'verbs',
+    'function word',
+    ]
+
+
 #For affiche_concepts_scores
 hash_sort = {
     "occurences": "freq",
@@ -721,7 +735,7 @@ hash_sort = {
 }
 
 sorting_concepts_list = [
-        u"occurences",
+       u"occurences",
        u"deployment",
        u"alphabetically",
        "number of texts",
@@ -738,7 +752,7 @@ sorting_concepts_list = [
 
 sorting_lexicon_list = [
        u"occurences",
-      #u"deployment",
+       #u"deployment",
        u"alphabetically",
        "number of texts",
        #"number of pages",

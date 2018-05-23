@@ -229,7 +229,7 @@ class MyListWidget(QtGui.QWidget):
 
     #def dropEvent(self, e):
         #print e.mimeData()
-
+    
     def deselect(self, item):
         if (self.previousItem): 
             if ( str(self.previousItem) == str(item) ):
@@ -353,7 +353,7 @@ class MyMenu(QtGui.QMenuBar):
         self.local_connect = QtGui.QAction(QtGui.QIcon('images/home.png'), 
                 self.tr("Local server"), self)
         self.distant.addAction(self.local_connect)
-        self.local_connect.setEnabled(False)
+        #self.local_connect.setEnabled(False)
         menu_server.addSeparator()
 
         ##################################################
@@ -1498,7 +1498,9 @@ class Formulae(QtGui.QWidget):
         resultsBoxL.addWidget(self.LFresults)
 
 class Explorer(QtGui.QWidget):
-    """Searches"""
+    """
+    Searches
+    """
     def __init__(self, parent=None): 
         QtGui.QWidget.__init__(self)
         vbox = QtGui.QVBoxLayout()
@@ -1517,6 +1519,9 @@ class Explorer(QtGui.QWidget):
         self.saisie = QtGui.QLineEdit()
         vbox.addWidget(self.saisie)
 
+        self.explo_result_count = QtGui.QLabel()
+        vbox.addWidget(self.explo_result_count)        
+
         hbox2 = QtGui.QHBoxLayout()
         vbox.addLayout(hbox2)
         self.liste = MyListWidget()
@@ -1526,10 +1531,9 @@ class Explorer(QtGui.QWidget):
         vbox2 = QtGui.QVBoxLayout()
         hbox2.addLayout(vbox2)
         #TODO clic -> to the list, typer-retyper
-        self.explo_lexi = QtGui.QListWidget()
+        self.explo_lexi = MyListWidget()
         vbox2.addWidget(self.explo_lexi)
-        self.explo_easter = QtGui.QLabel()
-        vbox2.addWidget(self.explo_easter)
+
         #self.explo_concepts = QtGui.QListWidget()
         #vbox2.addWidget(self.explo_concepts)
 
