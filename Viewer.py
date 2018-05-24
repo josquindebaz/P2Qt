@@ -1016,10 +1016,6 @@ class Corpus_tab(QtGui.QListWidget):
         self.ViewListeConcepts.clear()
 
     def addItem_ViewListeConcepts(self):
-        """Old
-        fnames, filt = QtGui.QFileDialog.getOpenFileNames(self,
-            self.tr('Add file'), '.', '*.fic *.cat *.col')
-        """
         fnames, filt = QtGui.QFileDialog.getOpenFileNames(self,
             self.tr('Add file'), '.', '*.fic *.cat *.col *dic')
         if (fnames):
@@ -1045,45 +1041,17 @@ class Corpus_tab(QtGui.QListWidget):
                 """ end """
                 
                 if os.path.splitext(url)[1] in ['.cat', '.fic', '.col']:
-                    testP2 = Controller.checkP1P2dic(url)
-                    if (testP2):
-                        if testP2 == "P1":
+                    testP2 = Controller.conceptP1toP2(url)
+                    if (testP2.P2):
+                        if testP2.P2 == "P1":
                             QtGui.QMessageBox.information(self, 
                                     self.tr("Concept format error"), 
                                     self.tr("This is a file for Prospero 1"))
+                            print url
                         else:
                             item = QtGui.QListWidgetItem(url, self.ViewListeConcepts)
                             item.setStatusTip(url)
         self.ViewListeConcepts.sortItems()
-
-    """Old Code   
-    def efface_ViewListeLexicons(self):
-        self.ViewListeLexicons.clear()
-
-    def addItem_ViewListeLexicons(self):
-        fnames, filt = QtGui.QFileDialog.getOpenFileNames(self, 
-            self.tr('Add file'), '.', '*.dic')
-        if (fnames):
-            self.dicFilesDropped(fnames)
-
-    def efface_ViewListeLexiconsItem(self):
-        Items = self.ViewListeLexicons.selectedItems()
-        if (Items):
-            for item in Items:
-                self.ViewListeLexicons.takeItem(
-                    self.ViewListeLexicons.row(item))
-
-    def dicFilesDropped(self, l):
-        existing = [] 
-        for r in range(self.ViewListeLexicons.count()):
-            existing.append(self.ViewListeLexicons.item(r).text())
-        for url in list(set(l) - set(existing)):
-            if os.path.exists(url):
-                if os.path.splitext(url)[1] in ['.dic']:
-                    item = QtGui.QListWidgetItem(url, self.ViewListeLexicons)
-                    item.setStatusTip(url)
-        self.ViewListeLexicons.sortItems()
-    """
 
     def getFile(self):
         testrep = os.path.expanduser("~") + "/corpus"

@@ -100,16 +100,6 @@ class Texte(object):
 
         return (date, author, title)
 
-def checkP1P2dic(url):
-    with open(url, 'r') as f:
-        b = f.readlines()
-        if re.search("<Gestionnaire-Concepts>", b[1]):
-            return True
-        elif re.search("(col0001|fic0001|cat0001)", b[0]):
-            return "P1"
-        else:
-            return False
-
 class parseCorpus(object):
     def __init__(self):
         self.corpus = 0
@@ -306,7 +296,163 @@ class parseCTX(object):
             file_handle = open(self.path, "wb")
             file_handle.write(content.toprettyxml(encoding="utf-8"))
             file_handle.close()
-       
+
+class conceptP1toP2(object):
+    """
+    transform a concept file for P1 to P2
+    """
+    def __init__(self, url):
+        with open(url, 'r') as f:
+            self.b = map(lambda x: re.sub("\n$", "", x.decode('latin-1')), f.readlines())
+            self.P2 = self.checkP1P2dic()
+            self.url = url
+
+    def readP1(self):  
+        D = {}
+        if re.search("(col0001|fic0001)", self.b[0]):
+            niv1 = 0
+            niv2 = 0
+            niv3 = 0
+            
+            for l in self.b:
+
+                if (niv1):
+                    niv1 = 0
+                    niv2 = 1
+                    f1 = l
+                    D[f1] = {}
+                else:
+                    if (niv2):
+                        if l == 'ENDFICTION':
+                            niv2 = 0
+                        else:
+                            niv2 = 0
+                            niv3 = 1
+                            f2 = l
+                            D[f1][f2]= []
+                    else:
+                        if (niv3):
+                            if l == 'END':
+                                niv3 = 0
+                                niv2 = 1
+                            else:
+                                D[f1][f2].append(l)
+
+                        if l == 'FICTION':
+                            niv1 = 1
+        elif re.search("(cat0001)", self.b[0]):
+            D = {}
+            niv1 = 0
+            niv2 = 0
+            niv3 = 0
+            
+            for l in self.b[:-1]:
+                
+                if (niv1):
+                    niv1 = 0
+                    niv2 = 1
+                    typ = l
+                else:
+                    if (niv2):
+                        niv2 = 0
+                        niv3 = 1
+                        nam = l
+                        d = []
+                    else:
+                        if (niv3):
+                            if l == 'END':
+                                niv3 = 0
+                                if D.has_key(typ):
+                                    D[typ][nam] = d
+                                else:
+                                    D[typ] = {}
+                            else:
+                                d.append(l)
+                if l == 'ENDCAT':
+                    niv1 = 1 
+        return D
+            
+    def checkP1P2dic(self):
+        if re.search("<Gestionnaire-Concepts>", self.b[1]):
+            return True
+        elif re.search("(col0001|fic0001|cat0001)", self.b[0]):
+            return "P1"
+        else:
+            return False
+
+    def checktyp(self):
+        if re.search("fic0001", self.b[0]):
+            return "concept_fiction"
+        elif re.search("col0001", self.b[0]):
+            return "concept_collection"
+        elif re.search("cat0001", self.b[0]):
+            return "concept_"
+
+    def savexml(self, D):
+        typ = self.checktyp()
+        if typ in ["concept_fiction", "concept_collection"]:
+            xml = self.createxml(D, typ)
+            with open(re.sub('(\w*\.\w{3})$',
+                             'P2-\\1', self.url), "w") as f: 
+                f.write( xml.toprettyxml(encoding="utf-8")) 
+        else:
+            l = {u'*QUALITE*': u"qualité",
+                 u'*ENTITE*': u"entité",
+                 u'*MARQUEUR*': 'marqeur',
+                 u'*EPREUVE*': u"épreuve" }
+            for cat, nam in l.iteritems():
+                xml = self.createxml(D[cat], "%s%s"%(typ, nam))
+                with open(re.sub('(\w*)\.(\w{3})$',
+                             'P2-\\1-%s.\\2'%(re.sub("\*", "", cat)),
+                             self.url), "w") as f:
+                    f.write( xml.toprettyxml(encoding="utf-8"))
+                    
+    def createxml(self, D, typ):        
+        content = minidom.Document()
+        root = content.createElement('Gestionnaire-Concepts')
+        content.appendChild(root)
+        
+        config = content.createElement(u'config')
+        root.appendChild(config)
+        colors = content.createElement(u'couleur')
+        config.appendChild(colors)
+        colors.setAttribute (u"RED", "0")
+        colors.setAttribute (u"GREEN", "0")
+        colors.setAttribute (u"BLUE", "0")
+        
+        gest = content.createElement("objet-gestionnaire")
+        root.appendChild(gest)
+        gest.setAttribute ("type-gestionnaire", typ)
+        gest.setAttribute(u'date-creation', 
+            u"%s"%datetime.datetime.now().strftime("%Y-%m-%d"))
+        gest.setAttribute(u'heure-creation', 
+            u"%s"%datetime.datetime.now().strftime("%H:%M:%S"))
+
+        if typ in ["concept_fiction", "concept_collection"]:
+            for k, v in D.iteritems():
+                obj1 = content.createElement("objet")
+                gest.appendChild(obj1)
+                obj1.setAttribute("concept", k)
+                for w, x in v.iteritems():
+                    obj2 = content.createElement("objet")
+                    obj1.appendChild(obj2)
+                    obj2.setAttribute("concept", w)
+                    for z in x:
+                        obj3 = content.createElement("rep")
+                        obj2.appendChild(obj3)
+                        obj3.setAttribute("nom", z)
+        else:
+            for w, x in D.iteritems():
+                obj2 = content.createElement("objet")
+                gest.appendChild(obj2)
+                obj2.setAttribute("concept", w)
+                for z in x:
+                    obj3 = content.createElement("rep")
+                    obj2.appendChild(obj3)
+                    obj3.setAttribute("nom", z)
+            
+        return content
+
 
 class edit_codex(object):
     def __init__(self):
