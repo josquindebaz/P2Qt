@@ -365,6 +365,8 @@ class MyMenu(QtGui.QMenuBar):
         menu_sycorax =  QtGui.QAction(self.tr("Sycorax"), self)
         menu_concepts.addAction(menu_sycorax)
         menu_sycorax.setEnabled(False)
+        self.menu_P1P2 =  QtGui.QAction(self.tr("P1->P2"), self)
+        menu_concepts.addAction(self.menu_P1P2)
         
         ##################################################
         #Texts

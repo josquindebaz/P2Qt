@@ -43,6 +43,7 @@ class Principal(QtGui.QMainWindow):
         self.menu.local_edit.triggered.connect(self.add_edit_corpus_tab)
         """ end """
 
+        self.menu.menu_P1P2.triggered.connect(self.P1toP2)
         self.menu.codex.triggered.connect(self.codex_window)
         self.menu.server_vars.triggered.connect(self.display_server_vars)
         self.menu.contexts.triggered.connect(self.display_contexts)
@@ -1116,6 +1117,13 @@ class Principal(QtGui.QMainWindow):
             self.param_corpus_tab_index = self.NETs.addTab(self.param_corpus,
                 self.tr("Project"))
             self.NETs.setCurrentIndex(self.param_corpus_tab_index)
+
+    def P1toP2(self):
+        fname, filt = QtGui.QFileDialog.getOpenFileName(self, 
+            self.tr('Open file'), ".", '*.fic *.cat *.col *dic')
+        T = Controller.conceptP1toP2(fname)
+        D = T.readP1()
+        T.savexml(D)
 
     def display_contexts(self):
         i = self.NETs.addTab(self.CTXs, self.tr("Contexts"))
