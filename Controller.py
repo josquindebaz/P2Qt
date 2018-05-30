@@ -309,6 +309,9 @@ class conceptP1toP2(object):
 
     def readP1(self):  
         D = {}
+        if  "" in self.b:
+            print "removing blank lines"
+            self.b.remove("")
         if re.search("(col0001|fic0001)", self.b[0]):
             niv1 = 0
             niv2 = 0

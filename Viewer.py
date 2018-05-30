@@ -946,14 +946,6 @@ class Corpus_tab(QtGui.QListWidget):
 
         """Selecting language"""
         self.Lang = QtGui.QComboBox()
-        """self.Lang.addItems([
-            u"français",
-            u"anglais",
-            u"portugais",
-            u"allemand",
-            u"italien",
-            u"espagnol",
-            ])"""
         H2L.addWidget(self.Lang)
 
         H22TabPar = QtGui.QWidget()
