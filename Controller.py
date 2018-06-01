@@ -303,7 +303,13 @@ class conceptP1toP2(object):
     """
     def __init__(self, url):
         with open(url, 'r') as f:
-            self.b = map(lambda x: re.sub("\n$", "", x.decode('latin-1')), f.readlines())
+            t = f.readlines()
+            try:
+                #if transition file encoded in UTF-8
+                self.b = map(lambda x: re.sub("\n$", "", x.decode('utf-8')), t)
+            except:
+                #normal case
+                self.b = map(lambda x: re.sub("\n$", "", x.decode('latin-1')),t)
             self.P2 = self.checkP1P2dic()
             self.url = url
 
