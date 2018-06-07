@@ -1898,6 +1898,8 @@ class Principal(QtGui.QMainWindow):
     def launchPRC(self):
 
         self.param_corpus.launchPRC_button.setEnabled(False)
+        #self.NETs.setTabEnabled(3, False)
+        
 
         PRC = self.param_corpus.nameCorpus.text()
         if (os.name == 'nt'):
