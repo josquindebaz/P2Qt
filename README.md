@@ -1,3 +1,6 @@
+**This project is no no longer supported -> see Prospero 3 instead https://framagit.org/lobster/prospero**
+
+
 <img src="https://github.com/josquindebaz/P2Qt/blob/master/images/Prospero-II.png" alt="Prospero II logo" height="70" >
 # P2Qt
 
